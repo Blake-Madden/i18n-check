@@ -139,7 +139,11 @@ namespace i18n_string_util
         // 4-letter extensions (HTML)
         else if (length >= 5 && text[length-5] == L'.' &&
             string_util::strnicmp(text+(length-4), L"html", 4) == 0)
-            { return true; }
+            {
+            if (length >= 6 && text[length-6] == L'*')
+                { return false; }
+            return true;
+            }
         // 2-letter extensions
         else if (length >= 3 && text[length-3] == L'.' &&
             // translation files
