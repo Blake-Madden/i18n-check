@@ -280,6 +280,8 @@ namespace i18n_check
         std::wregex m_html_regex;
         std::wregex m_html_element_regex;
         std::wregex m_2letter_regex;
+        std::wregex m_hashtag_regex;
+        std::wregex m_key_shortcut_regex;
         std::wregex m_assert_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
 
