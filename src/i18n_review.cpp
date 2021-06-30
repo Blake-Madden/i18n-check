@@ -9,7 +9,9 @@ namespace i18n_check
         m_html_element_regex(L"<[a-zA-Z0-9_\\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\\-]+>", std::regex_constants::icase),
         m_2letter_regex(L"[[:alpha:]]{2,}"),
         m_hashtag_regex(L"#[[:alnum:]]{2,}"),
-        m_key_shortcut_regex(L"(CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]]){1,}", std::regex_constants::icase),
+        m_function_signature_regex(L"[[:alnum:]]{2,}[(][[:alnum:]]+(,[ ]*[[:alnum:]]+)*[)]"),
+        m_open_function_signature_regex(L"[[:alnum:]]{2,}[(]"),
+        m_key_shortcut_regex(L"(CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+", std::regex_constants::icase),
         m_assert_regex(L"([a-zA-Z0-9_]*|^)ASSERT([a-zA-Z0-9_]*|$)"),
         m_allow_translating_punctuation_only_strings(false)
         {
@@ -330,17 +332,6 @@ namespace i18n_check
                 str = std::regex_replace(str, std::wregex(L"<[?]?[A-Za-z0-9+_/\\-.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
                 }
 
-            // RTF text
-            if (str.compare(0, 3, LR"({\\)") == 0)
-                { return true; }
-
-            // social media hashtag (or formattint code of some sort)
-            if (std::regex_match(str, m_hashtag_regex))
-                { return true; }
-
-            if (std::regex_match(str, m_key_shortcut_regex))
-                { return true; }
-
             // Nothing but punctuation? If that's OK to allow, then let it through.
             if (is_allowing_translating_punctuation_only_strings() &&
                 std::regex_match(str,std::wregex(L"[[:punct:]]+")))
@@ -364,10 +355,21 @@ namespace i18n_check
                     str.find(L"\\t") == std::wstring::npos) ||
                 m_known_internal_strings.find(str.c_str()) != m_known_internal_strings.end())
                 { return true; }
+            // RTF text
+            else if (str.compare(0, 3, LR"({\\)") == 0)
+                { return true; }
+            // social media hashtag (or formattint code of some sort)
+            else if (std::regex_match(str, m_hashtag_regex))
+                { return true; }
+            else if (std::regex_match(str, m_key_shortcut_regex))
+                { return true; }
+            else if (std::regex_match(str, m_function_signature_regex) || std::regex_match(str, m_open_function_signature_regex))
+                { return true; }
             // if we know it had at least one word (and spaces) at this point, then it being more than 200
             // characters means that it probably is a real user-message (not an internal string)
             else if (str.length() > 200)
                 { return false; }
+
             for (const auto& reg : m_untranslatable_regexes)
                 {
                 if (std::regex_match(str,reg))
