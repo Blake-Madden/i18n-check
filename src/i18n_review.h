@@ -224,7 +224,7 @@ namespace i18n_check
                     wc == L'>');
             }
 
-        /// Strips off decorationts from variable and functions. This is language specific and should
+        /// Strips off decorations from variable and functions. This is language specific and should
         /// be reimplemented in derived classes.
         virtual void remove_decorations([[maybe_unused]] std::wstring& str) const
             {}
@@ -236,7 +236,13 @@ namespace i18n_check
 
         /// Fills a block with blanks. Useful for excluding an already processed text block.
         void clear_section(wchar_t* start, const wchar_t* end) const noexcept
-            { std::wmemset(start, L' ', end-start); }
+            {
+            for (ptrdiff_t i = 0; i < end-start; ++i)
+                {
+                // preserve newlines so that line position calculations work later
+                start[i] = (start[i] == L'\r' || start[i] == L'\n') ? start[i] : L' ';
+                }
+            }
 
         const wchar_t* read_var_or_function_name(const wchar_t* startPos, const wchar_t* const startSentinel,
             std::wstring& functionName, std::wstring& variableName, std::wstring& variableType);
