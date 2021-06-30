@@ -97,12 +97,6 @@ namespace i18n_check
             L"deprecated", L"_Pragma",
             // assert functions
             L"check_assertion", L"static_assert", L"assert",
-            // standard exceptions
-            L"logic_error", L"std::logic_error", L"domain_error", L"std::domain_error",
-            L"length_error", L"std::length_error", L"out_of_range", L"std::out_of_range",
-            L"runtime_error", L"std::runtime_error", L"overflow_error", L"std::overflow_error",
-            L"underflow_error", L"std::underflow_error", L"range_error", L"std::range_error",
-            L"invalid_argument", L"std::invalid_argument", L"exception", L"std::exception",
             // wxWidgets functions
             L"GetExt", L"SetExt", L"XRCID", L"wxSystemOptions::GetOptionInt",
             L"wxLogLastError", L"WXTRACE", L"wxLogError", L"wxLogFatalError",
@@ -163,7 +157,8 @@ namespace i18n_check
                        L"throw" };
 
         // common font faces that we would usually ignore (client can add to this)
-        m_font_names = { L"Arial", L"Courier New", L"Garamond",
+        m_font_names = { L"Arial", L"Courier New", L"Garamond", L"Calibri",
+                        L".Helvetica Neue DeskInterface", L".Lucida Grande UI",
                         L"Times New Roman", L"Georgia", L"Segoe UI",
                         L"Century Gothic", L"Century",
                         L"AR BERKLEY", L"Brush Script",
@@ -171,8 +166,11 @@ namespace i18n_check
 
         m_file_extensions = { // documents
                              L"xml", L"html", L"htm", L"xhtml", L"rtf",
-                             L"doc", L"docx", L"txt", L"ppt", L"pptx",
-                             L"pdf", L"ps",
+                             L"doc", L"docx", L"dot", L"docm", L"txt", L"ppt", L"pptx",
+                             L"pdf", L"ps", L"odt", L"ott", L"odp", L"otp", L"pptm",
+                             L"md",
+                             // help files
+                             L"hhc", L"hhk", L"hhp",
                              // spreadsheets
                              L"xls", L"xlsx", L"ods", L"csv",
                              // image formats
@@ -194,6 +192,8 @@ namespace i18n_check
                              L"ra", L"ram",
                              //programs
                              L"exe", L"swf", L"vbs",
+                             // source files
+                             L"cpp", L"h", L"c", L"idl",
                              //compressed files
                              L"gzip", L"bz2" };
 
