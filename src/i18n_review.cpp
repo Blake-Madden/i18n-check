@@ -308,6 +308,11 @@ namespace i18n_check
 
     bool i18n_review::is_untranslatable_string(std::wstring str) const
         {
+        // see if a function signature before stripping printf commands and whatnot
+        if (std::regex_match(str, m_function_signature_regex) ||
+            std::regex_match(str, m_open_function_signature_regex))
+            { return true; }
+
         i18n_string_util::remove_hex_color_values(str);
         i18n_string_util::remove_printf_commands(str);
         i18n_string_util::decode_escaped_unicode_values(str);
@@ -362,8 +367,6 @@ namespace i18n_check
             else if (std::regex_match(str, m_hashtag_regex))
                 { return true; }
             else if (std::regex_match(str, m_key_shortcut_regex))
-                { return true; }
-            else if (std::regex_match(str, m_function_signature_regex) || std::regex_match(str, m_open_function_signature_regex))
                 { return true; }
             // if we know it had at least one word (and spaces) at this point, then it being more than 200
             // characters means that it probably is a real user-message (not an internal string)
