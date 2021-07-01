@@ -6,21 +6,54 @@
 
 namespace fs = std::filesystem;
 using namespace i18n_check;
+using namespace string_util;
 
-int main(int argc, char *argv[])
+int wmain(int argc, wchar_t *argv[])
     {
     i18n_check::cpp_i18n_review cpp;
 
-    std::wstringstream report;
+    if (argc < 2)
+        {
+        std::wcout << L"Not enough command line arguments.";
+        return 0;
+        }
+
+    std::vector<std::wstring> excludedPaths;
+    std::vector<std::wstring> pathsToAnalyze;
 
     for (size_t i = 1; i < argc; ++i)
         {
-        for (const auto& p : fs::recursive_directory_iterator(argv[i]))
+        if (std::wcslen(argv[i]) >= 3 && std::wcsncmp(argv[i], L"-i", 2) == 0)
+            { excludedPaths.emplace_back(argv[i]+2); }
+        else
+            { pathsToAnalyze.emplace_back(argv[i]); }
+        }    
+
+    if (pathsToAnalyze.empty())
+        {
+        std::wcout << L"You must pass in at least one folder path to analyze.";
+        return 0;
+        }
+
+    for (const auto& path : pathsToAnalyze)
+        {
+        for (const auto& p : fs::recursive_directory_iterator(path))
             {
             std::wifstream ifs(p.path());
             std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)), std::istreambuf_iterator<wchar_t>());
-            string_util::case_insensitive_wstring ext = p.path().extension().c_str();
-            if (ext == L".c" || ext == L".cpp" || ext == L".h" || ext == L".hpp")
+            case_insensitive_wstring ext{ p.path().extension().c_str() };
+            case_insensitive_wstring currentPath{ p.path().parent_path().wstring().c_str() };
+            bool inExcludedPath{ false };
+            for (const auto& ePath : excludedPaths)
+                {
+                if (currentPath.compare(0, ePath.length(), ePath.c_str()) == 0)
+                    {
+                    inExcludedPath = true;
+                    break;
+                    }
+                }
+            if (!inExcludedPath &&
+                (ext == L".c" || ext == L".cpp" || ext == L".h" || ext == L".hpp"))
                 {
                 cpp(str.c_str(), str.length(), p.path());
                 std::wcout << L"#";
@@ -31,6 +64,7 @@ int main(int argc, char *argv[])
     cpp.review_localizable_strings();
     cpp.run_diagnostics();
 
+    std::wstringstream report;
     if (cpp.get_unsafe_localizable_strings().size())
         {
         report << L"Localizable strings that probably should not be\n" <<
