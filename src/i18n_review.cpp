@@ -5,11 +5,14 @@ namespace i18n_check
     i18n_review::i18n_review() :
         // HTML, but also includes some GTK formatting tags
         m_html_regex(L"[^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*", std::regex_constants::icase),
+        m_html_tag_regex(L"&[[:alpha:]]{2,4};.*"),
+        m_html_tag_unicode_regex(L"&#[[:digit:]]{2,4};.*"),
         // <doc-val>Some text</doc-val>
         m_html_element_regex(L"<[a-zA-Z0-9_\\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\\-]+>", std::regex_constants::icase),
         m_2letter_regex(L"[[:alpha:]]{2,}"),
         m_hashtag_regex(L"#[[:alnum:]]{2,}"),
-        m_function_signature_regex(L"[[:alnum:]]{2,}[(][[:alnum:]]+(,[ ]*[[:alnum:]]+)*[)]"),
+        m_function_signature_regex(L"[[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)]"),
+        m_plural_regex(L"[[:alnum:]]{2,}[(]s[)]"),
         m_open_function_signature_regex(L"[[:alnum:]]{2,}[(]"),
         m_key_shortcut_regex(L"(CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+", std::regex_constants::icase),
         m_assert_regex(L"([a-zA-Z0-9_]*|^)ASSERT([a-zA-Z0-9_]*|$)"),
@@ -146,7 +149,9 @@ namespace i18n_check
             L"ShellExecute", L"GetProfileString", L"GetProcAddress", L"RegisterClipboardFormat",
             L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue", L"CLSIDFromProgID",
             L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
-            L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty"
+            L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
+            // Lua
+            L"lua_setglobal"
             };
 
         // known strings to ignore
@@ -154,6 +159,8 @@ namespace i18n_check
             L"foreground-set", L"background-set",
             L"weight-set", L"style-set", L"underline-set", L"size-set", L"charset",
             L"xml", L"gdiplus", L"Direct2D", L"DirectX", L"localhost",
+            // RTF font families
+            L"fnil", L"fdecor", L"froman", L"fscript", L"fswiss", L"fmodern", L"ftech",
             // common UNIX names (Windows versions are handled by more complex regex expressions elsewhere)
             L"UNIX", L"macOS", L"OSX", L"Linux", L"FreeBSD", L"POSIX", L"NetBSD" };
 
@@ -308,15 +315,18 @@ namespace i18n_check
 
     bool i18n_review::is_untranslatable_string(std::wstring str) const
         {
+        i18n_string_util::replace_escaped_control_chars(str);
+        string_util::trim(str);
         // see if a function signature before stripping printf commands and whatnot
-        if (std::regex_match(str, m_function_signature_regex) ||
-            std::regex_match(str, m_open_function_signature_regex))
+        if ((std::regex_match(str, m_function_signature_regex) ||
+            std::regex_match(str, m_open_function_signature_regex)) &&
+            // but allow something like "Item(s)"
+            !std::regex_match(str, m_plural_regex))
             { return true; }
 
         i18n_string_util::remove_hex_color_values(str);
         i18n_string_util::remove_printf_commands(str);
         i18n_string_util::decode_escaped_unicode_values(str);
-        i18n_string_util::replace_escaped_control_chars(str);
         string_util::trim(str);
         // strip control characters (these wreak havoc with the regex parser)
         for (auto& ch : str)
@@ -332,9 +342,13 @@ namespace i18n_check
             // Note that we skip any punctuation (not word characters, excluding '<') in front of the initial '<'
             // (sometimes there are braces and brackets in front of the HTML tags).
             if (std::regex_match(str,m_html_regex) ||
-                std::regex_match(str,m_html_element_regex))
+                std::regex_match(str,m_html_element_regex) ||
+                std::regex_match(str,m_html_tag_regex) ||
+                std::regex_match(str,m_html_tag_unicode_regex))
                 {
                 str = std::regex_replace(str, std::wregex(L"<[?]?[A-Za-z0-9+_/\\-.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
+                str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,4};"), L"");
+                str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
                 }
 
             // Nothing but punctuation? If that's OK to allow, then let it through.
@@ -523,11 +537,11 @@ namespace i18n_check
                         *(startPos-1) != L'<')
                 {
                 --startPos;
-                //skip spaces (and "+=" tokens)
+                // skip spaces (and "+=" tokens)
                 while (startPos > startSentinel &&
                         (std::iswspace(*startPos) || *startPos == L'+'))
                     { --startPos; }
-                //skip array info
+                // skip array info
                 if (startPos > startSentinel &&
                     *startPos == L']')
                     {
@@ -559,6 +573,11 @@ namespace i18n_check
                     is_valid_name_char_ex(*functionOrVarNamePos) )
                     { --functionOrVarNamePos; }
                 variableType.assign(functionOrVarNamePos+1, typeEnd-(functionOrVarNamePos+1));
+                // ignore labels
+                if (variableType.length() && variableType.back() == L':')
+                    { variableType.clear(); }
+                if (variableName.length())
+                    { break; }
                 }
             else
                 { --startPos; }
