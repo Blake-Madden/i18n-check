@@ -5,7 +5,7 @@ namespace i18n_check
     i18n_review::i18n_review() :
         // HTML, but also includes some GTK formatting tags
         m_html_regex(L"[^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*", std::regex_constants::icase),
-        m_html_tag_regex(L"&[[:alpha:]]{2,4};.*"),
+        m_html_tag_regex(L"&[[:alpha:]]{2,5};.*"),
         m_html_tag_unicode_regex(L"&#[[:digit:]]{2,4};.*"),
         // <doc-val>Some text</doc-val>
         m_html_element_regex(L"<[a-zA-Z0-9_\\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\\-]+>", std::regex_constants::icase),
@@ -215,6 +215,7 @@ namespace i18n_check
                                     L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION", L"vmsWarningHandler",
                                     L"vmsErrorHandler",
                                     L"wxColor", L"wxColour",
+                                    L"wxRegEx", L"wregex", L"std::wregex", L"regex", L"std::regex",
                                     L"wxDataObjectSimple" };
 
         add_variable_pattern_to_ignore(std::wregex(L"^debug.*", std::regex_constants::icase));
