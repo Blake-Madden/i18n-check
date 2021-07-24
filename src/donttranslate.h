@@ -32,10 +32,11 @@ enum class DTExplanation
     DebugMessage,    /*!< Debugging/Tracing related string. */
     LogMessage,      /*!< Log messages that aren't normally user facing. */
     ProperNoun,      /*!< The name of a proper person, place, or thing that wouldn't normally be translated. */
+    DirectQuote,     /*!< A direct quote (e.g., a German phrase) that should remain in its original form. */
     FilePath,        /*!< A filename or path. */
     InternalKeyword, /*!< An internal keyword or constant. */
     Command,         /*!< A command, such as "open" in a `::ShellExecute()` call. */
-    SystemEntry,     /*!< A system entry, such as an entry in the registry. */
+    SystemEntry,     /*!< A system entry, such as an entry in the Windows registry. */
     FormatString,    /*!< A printf format string. */
     Syntax,          /*!< Any sort of code or formula. */
     NoExplanation    /*!< No explanation. */
