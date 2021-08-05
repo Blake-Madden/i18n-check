@@ -28,16 +28,6 @@
 namespace string_util
     {
     ///ANSI C decorators
-    ///strtol
-    inline double strtol(const char* str, char** strend, int radix) noexcept
-        { return std::strtol(str, strend, radix); }
-    inline double strtol(const wchar_t* str, wchar_t** strend, int radix) noexcept
-        { return std::wcstol(str, strend, radix); }
-    ///strtod
-    inline double strtod(const char* str, char** strend) noexcept
-        { return std::strtod(str, strend); }
-    inline double strtod(const wchar_t* str, wchar_t** strend) noexcept
-        { return std::wcstod(str, strend); }
     ///atoi
     inline int atoi(const char* str) noexcept
         {
@@ -75,78 +65,6 @@ namespace string_util
         {
         return std::towlower(c);
         }
-    ///toupper
-    inline int toupper(char c) noexcept
-        {
-        return std::toupper(static_cast<unsigned char>(c));
-        }
-    inline wchar_t toupper(wchar_t c) noexcept
-        {
-        return std::towupper(c);
-        }
-    ///memset
-    template<typename T>
-    inline T* memset(T* dest, int c, size_t count)
-        {
-        return static_cast<T*>(std::memset(dest, c, count));
-        }
-    //partial specialized versions of memset
-    inline char* memset(char* dest, int c, size_t count) noexcept
-        {
-        return static_cast<char*>(std::memset(dest, c, count));
-        }
-    inline wchar_t* memset(wchar_t* dest, int c, size_t count) noexcept
-        {
-        return std::wmemset(dest, static_cast<wchar_t>(c), count);
-        }
-    ///strchr
-    inline const char* strchr(const char* s, int ch) noexcept
-        {
-        return std::strchr(s, ch);
-        }
-    inline const wchar_t* strchr(const wchar_t* s, wchar_t ch) noexcept
-        {
-        return std::wcschr(s, ch);
-        }
-    ///strstr
-    inline const char* strstr(const char* s1, const char* s2) noexcept
-        {
-        return std::strstr(s1, s2);
-        }
-    inline const wchar_t* strstr(const wchar_t* s1, const wchar_t* s2) noexcept
-        {
-        return std::wcsstr(s1, s2);
-        }
-    ///strcspn
-    inline size_t strcspn(const char* string1,const char* string2) noexcept
-        {
-        return std::strcspn(string1, string2);
-        }
-    inline size_t strcspn(const wchar_t* string1,const wchar_t* string2) noexcept
-        {
-        return std::wcscspn(string1, string2);
-        }
-    ///strncat
-    inline char* strncat(char* strDest, const char* strSource, size_t count) noexcept
-        {
-        return std::strncat(strDest, strSource, count);
-        }
-    inline wchar_t* strncat(wchar_t* strDest, const wchar_t* strSource, size_t count) noexcept
-        {
-        return std::wcsncat(strDest, strSource, count);
-        }
-    ///wctomb
-    inline int wctomb(wchar_t* s, wchar_t wc) noexcept
-        {
-        assert(s);
-        if (s)
-            { s[0] = wc; }
-        return -1;
-        }
-    inline int wctomb(char* s, wchar_t wc) noexcept
-        {
-        return std::wctomb(s, wc);
-        }
     //strlen
     inline size_t strlen(const char* text) noexcept
         { return std::strlen(text); }
@@ -169,15 +87,6 @@ namespace string_util
     inline int strncmp(const wchar_t* string1, const wchar_t* string2, size_t count) noexcept
         {
         return std::wcsncmp(string1, string2, count);
-        }
-    ///strncpy
-    inline char* strncpy(char* strDest, const char* strSource, size_t count) noexcept
-        {
-        return std::strncpy(strDest, strSource, count);
-        }
-    inline wchar_t* strncpy(wchar_t* strDest, const wchar_t* strSource, size_t count) noexcept
-        {
-        return std::wcsncpy(strDest, strSource, count);
         }
 
     /// Determines if a given value is either of two other given values.
@@ -1788,11 +1697,11 @@ namespace string_util
         const Tchar_type* separator = string_util::strcspn_pointer<Tchar_type>(nptr, sepStr, 2);
         // if there is no hyphen or there is one but it is at the end then just call strtod
         if (separator == nullptr || *(separator+1) == 0)
-            { return string_util::strtod(nptr, endptr); }
+            { return std::wcstod(nptr, endptr); }
         else
             {
-            const double d1 = string_util::strtod(nptr, endptr);
-            const double d2 = string_util::strtod(++separator, endptr);
+            const double d1 = std::wcstod(nptr, endptr);
+            const double d2 = std::wcstod(++separator, endptr);
             return (d1+d2) / static_cast<double>(2);
             }
         }
