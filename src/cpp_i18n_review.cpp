@@ -10,6 +10,7 @@
 
 namespace i18n_check
     {
+    //--------------------------------------------------
     void cpp_i18n_review::operator()(const wchar_t* src_text, const size_t text_length,
         const std::wstring& file_name)
         {
@@ -240,6 +241,7 @@ namespace i18n_check
         m_file_name.clear();
         }
 
+    //--------------------------------------------------
     void cpp_i18n_review::remove_decorations(std::wstring& str) const
         {
         if (str.length() && str.back() == L'>')
@@ -262,6 +264,7 @@ namespace i18n_check
             { str.erase(0,accessor+1); }
         }
 
+    //--------------------------------------------------
     wchar_t* cpp_i18n_review::process_assembly_block(wchar_t* asmStart)
         {
         assert(asmStart);
@@ -333,6 +336,7 @@ namespace i18n_check
         return asmStart+1;
         }
 
+    //--------------------------------------------------
     wchar_t* cpp_i18n_review::process_preprocessor_directive(wchar_t* directiveStart, const size_t directivePos)
         {
         assert(directiveStart);

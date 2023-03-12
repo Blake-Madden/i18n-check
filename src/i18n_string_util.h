@@ -23,23 +23,26 @@
 #include <set>
 #include <cassert>
 #include "string_util.h"
-#include "chartraits.h"
+#include "char_traits.h"
 
 /// @brief Helper functions for reviewing i18n/l10n related strings.
 namespace i18n_string_util
     {
-    /** @brief Determines if a string is a local file path, file name, email address, or internet address.
-        @returns True if text block is a local file or Internet address.
+    /** @brief Determines if a string is a local file path,
+            file name, email address, or internet address.
+        @returns @c true if text block is a local file or Internet address.
         @param text The text block to analyze.
-        @param length The length of the text block to analyze. This will be the start of the
-               text block up to the end of the suspected file address.*/
+        @param length The length of the text block to analyze.\n
+            This will be the start of the text block up to the end of the
+            suspected file address.*/
     [[nodiscard]] bool is_file_address(const wchar_t* text, size_t length);
 
     /** @brief Determines if a string is an internet address.
-        @returns True if text block is an Internet address.
+        @returns @c true if text block is an Internet address.
         @param text The text block to analyze.
-        @param length The length of the text block to analyze. This will be the start of the
-               text block up to the end of the suspected file address.*/
+        @param length The length of the text block to analyze.\n
+            This will be the start of the text block up to the end of the
+            suspected file address.*/
     [[nodiscard]] bool is_url(const wchar_t* text, size_t length);
 
     /** @returns Whether a character is a number (narrow [0-9] characters only).
@@ -50,7 +53,8 @@ namespace i18n_string_util
             true : false;
         }
 
-    /** @returns True if a character is a letter (English alphabet only, and no full-width characters).
+    /** @returns @c true if a character is a letter
+            (English alphabet only, and no full-width characters).
         @param ch The letter to be reviewed.*/
     [[nodiscard]] static constexpr bool is_alpha_7bit(const wchar_t ch) noexcept
         {
@@ -58,7 +62,7 @@ namespace i18n_string_util
                 ((ch >= 0x61/*'a'*/) && (ch <= 0x7A/*'z'*/)));
         }
 
-    /** @returns True if a character is an apostrophe (includes straight single quotes).
+    /** @returns @c true if a character is an apostrophe (includes straight single quotes).
         @param ch The letter to be reviewed.*/
     [[nodiscard]] static constexpr bool is_apostrophe(const wchar_t ch) noexcept
         {
@@ -74,7 +78,9 @@ namespace i18n_string_util
     /// @param str The string to have printf commands removed from.
     inline void remove_printf_commands(std::wstring& str)
         {
-        const static std::wregex printfRegex(L"([^%\\\\]|^|\\b)%[-+0 #]{0,4}[.[:digit:]]*(?:c|C|d|i|o|u|lu|ld|lx|lX|lo|llu|lld|x|X|e|E|f|g|G|a|A|n|p|s|S|Z)");
+        const static std::wregex printfRegex(
+            L"([^%\\\\]|^|\\b)%[-+0 #]{0,4}[.[:digit:]]*"
+             "(?:c|C|d|i|o|u|lu|ld|lx|lX|lo|llu|lld|x|X|e|E|f|g|G|a|A|n|p|s|S|Z)");
         // The % command (not following another % or \),
         // flags ("-+0 #", optionally can have up to 4 of these),
         // width and precision (".0-9", optional), and the specifier.
@@ -101,11 +107,14 @@ namespace i18n_string_util
             { return; }
         }
 
-    /// Replaces escaped unicode values in @c str with their real values (e.g., "\u266f" will be converted to the sharp symbol).
-    /// @note 32-bit Unicode values (escaped by "\U") are not supported by 16-bit std::wstring and will simply be removed.
+    /// Replaces escaped unicode values in @c str with their real values
+    ///     (e.g., "\u266f" will be converted to the sharp symbol).
+    /// @note 32-bit Unicode values (escaped by "\U") are not supported by
+    ///     16-bit `std::wstring` and will simply be removed.
     void decode_escaped_unicode_values(std::wstring& str);
 
-    /// @brief Converts escaped control characters (e.g., "\n") inside of a string into spaces.
+    /// @brief Converts escaped control characters (e.g., "\n")
+    ///     inside of a string into spaces.
     template<typename string_typeT>
     void replace_escaped_control_chars(string_typeT& str)
         {

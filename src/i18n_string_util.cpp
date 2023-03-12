@@ -10,6 +10,7 @@
 
 namespace i18n_string_util
     {
+    //--------------------------------------------------
     bool is_url(const wchar_t* text, size_t length)
         {
         if (text == nullptr || length < 5)
@@ -63,6 +64,7 @@ namespace i18n_string_util
         return false;
         }
 
+    //--------------------------------------------------
     bool is_file_address(const wchar_t* text, size_t length)
         {
         if (text == nullptr || length < 5)
@@ -171,6 +173,7 @@ namespace i18n_string_util
         return false;
         }
 
+    //--------------------------------------------------
     void decode_escaped_unicode_values(std::wstring& str)
         {
         for (size_t i = 0; i < str.length(); ++i)

@@ -10,6 +10,7 @@
 
 namespace i18n_check
     {
+    //--------------------------------------------------
     i18n_review::i18n_review() :
         // HTML, but also includes some GTK formatting tags
         m_html_regex(L"[^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*", std::regex_constants::icase),
@@ -229,6 +230,7 @@ namespace i18n_check
         add_variable_pattern_to_ignore(std::wregex(L"^debug.*", std::regex_constants::icase));
         }
 
+    //--------------------------------------------------
     void i18n_review::process_variable(const std::wstring& variableType, const std::wstring& variableName,
         const std::wstring& value, const size_t quotePosition)
         {
@@ -288,6 +290,7 @@ namespace i18n_check
             }
         }
 
+    //--------------------------------------------------
     void i18n_review::reserve(const size_t fileCount)
         {
         m_error_log.reserve(fileCount);//one message per file is more than reasonable
@@ -299,6 +302,7 @@ namespace i18n_check
         m_unsafe_localizable_strings.reserve(resourcesPerFile *fileCount);
         }
 
+    //--------------------------------------------------
     void i18n_review::clear_results() noexcept
         {
         m_localizable_strings.clear();
@@ -308,6 +312,7 @@ namespace i18n_check
         m_unsafe_localizable_strings.clear();
         }
 
+    //--------------------------------------------------
     bool i18n_review::is_diagnostic_function(const std::wstring& functionName) const
         {
         try
@@ -322,6 +327,7 @@ namespace i18n_check
             }
         }
 
+    //--------------------------------------------------
     bool i18n_review::is_untranslatable_string(std::wstring str) const
         {
         i18n_string_util::replace_escaped_control_chars(str);
@@ -424,6 +430,7 @@ namespace i18n_check
             }
         }
 
+    //--------------------------------------------------
     void i18n_review::run_diagnostics()
         {
         for (const auto& str : m_localizable_strings)
@@ -453,6 +460,7 @@ namespace i18n_check
             }
         }
 
+    //--------------------------------------------------
     const wchar_t* i18n_review::read_var_or_function_name(const wchar_t* startPos, const wchar_t* const startSentinel,
             std::wstring& functionName, std::wstring& variableName, std::wstring& variableType)
         {
@@ -536,7 +544,8 @@ namespace i18n_check
                     }
                 }
             // deal with variable assignments here
-            // (note that comparisons (>=, <=, ==, !=) are handled as though this string is a parameter to a function.)
+            // (note that comparisons (>=, <=, ==, !=) are handled as though this string
+            //  is a parameter to a function.)
             else if (*startPos == L'=' &&
                         startPos[1] != L'=' &&
                         startPos > startSentinel &&
@@ -595,6 +604,7 @@ namespace i18n_check
         return functionOrVarNamePos;
         }
 
+    //--------------------------------------------------
     std::pair<size_t, size_t> i18n_review::get_line_and_column(size_t position) noexcept
         {
         auto startSentinel = m_file_start;
@@ -604,7 +614,8 @@ namespace i18n_check
         while ((nextLinePosition = std::wcscspn(startSentinel, L"\r\n")) < position)
             {
             ++lineCount;
-            if (nextLinePosition+1 < position && startSentinel[nextLinePosition] == L'\r'  && startSentinel[nextLinePosition+1] == L'\n')
+            if (nextLinePosition+1 < position && startSentinel[nextLinePosition] == L'\r' &&
+                startSentinel[nextLinePosition+1] == L'\n')
                 {
                 startSentinel += nextLinePosition+2;
                 position -= nextLinePosition+2;
@@ -617,6 +628,7 @@ namespace i18n_check
 
             lastLinePosition = nextLinePosition;
             }
-        return std::make_pair(lineCount+1, position+1); // make one-indexed
+        // make one-indexed
+        return std::make_pair(lineCount+1, position+1);
         }
     }
