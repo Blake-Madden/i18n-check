@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iostream>
 #include <filesystem>
+#include <numeric>
 
 namespace fs = std::filesystem;
 using namespace i18n_check;
@@ -43,6 +44,17 @@ int wmain(int argc, wchar_t *argv[])
         return 0;
         }
 
+    const auto filesToAnalyze = std::accumulate(
+        pathsToAnalyze.cbegin(), pathsToAnalyze.cend(), static_cast<size_t>(0),
+        [](const auto init, const auto& path)
+        {
+        size_t val{ 0 };
+        for (const auto& p : fs::recursive_directory_iterator(path))
+            { ++val; }
+        return val + init;
+        });
+
+    size_t currentFileIndex{ 0 };
     for (const auto& path : pathsToAnalyze)
         {
         for (const auto& p : fs::recursive_directory_iterator(path))
@@ -64,12 +76,15 @@ int wmain(int argc, wchar_t *argv[])
                 (ext == L".c" || ext == L".cpp" || ext == L".h" || ext == L".hpp"))
                 {
                 cpp(str.c_str(), str.length(), p.path());
-                std::wcout << L"#";
                 }
+            std::wcout << L"Processed " << std::to_wstring(++currentFileIndex) <<
+                " of " << std::to_wstring(filesToAnalyze) << " files.\n";
             }
         }
 
+    std::wcout << "Reviewing strings...";
     cpp.review_localizable_strings();
+    std::wcout << "Running diagnostics...";
     cpp.run_diagnostics();
 
     std::wstringstream report;
