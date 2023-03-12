@@ -1,6 +1,12 @@
-#include "i18n_string_util.h"
+///////////////////////////////////////////////////////////////////////////////
+// Name:        i18n_string_util.cpp
+// Author:      Blake Madden
+// Copyright:   (c) 2021-2023 Blake Madden
+// Licence:     3-Clause BSD licence
+// SPDX-License-Identifier: BSD-3-Clause
+///////////////////////////////////////////////////////////////////////////////
 
-using namespace string_util;
+#include "i18n_string_util.h"
 
 namespace i18n_string_util
     {
@@ -43,14 +49,14 @@ namespace i18n_string_util
             string_util::is_either(text[length-1], L's', L'S'))
             { length -= 2; }
 
-        static const std::set<string_util::case_insensitive_wstring> knownWebExtensions =
+        static const std::set<std::wstring> knownWebExtensions =
             { L"au", L"biz", L"ca", L"com", L"edu", L"gov", L"ly" , L"org", L"uk" };
 
         auto periodPos = string_util::find_last_of(text, L'.', length-1);
         if (periodPos != -1 && periodPos < length-1)
             {
             ++periodPos;
-            if (knownWebExtensions.find(string_util::case_insensitive_wstring(text+periodPos, length-periodPos)) != knownWebExtensions.cend())
+            if (knownWebExtensions.find(std::wstring(text+periodPos, length-periodPos)) != knownWebExtensions.cend())
                 { return true; }
             }
 
@@ -176,20 +182,27 @@ namespace i18n_string_util
                 // "\u266F" format
                 if (i+5 < str.length() &&
                     str[i+1] == L'u' &&
-                    is_hex_digit(str[i+2]) && is_hex_digit(str[i+3]) &&
-                    is_hex_digit(str[i+4]) && is_hex_digit(str[i+5]) )
+                    string_util::is_hex_digit(str[i+2]) &&
+                    string_util::is_hex_digit(str[i+3]) &&
+                    string_util::is_hex_digit(str[i+4]) &&
+                    string_util::is_hex_digit(str[i+5]) )
                     {
                     size_t length{ 4 };
-                    const wchar_t decodedCharacter{ static_cast<wchar_t>(axtoi(str.c_str() + i + 2, length)) };
+                    const wchar_t decodedCharacter{
+                        static_cast<wchar_t>(string_util::axtoi(str.c_str() + i + 2, length))
+                        };
                     str.replace(i,6,std::wstring(1,decodedCharacter));
                     }
                 // "\U000FF254" format
                 else if (i < str.length()-8 &&
                     str[i+1] == L'U' &&
-                    is_hex_digit(str[i+2]) && is_hex_digit(str[i+3]) &&
-                    is_hex_digit(str[i+4]) && is_hex_digit(str[i+5]) &&
-                    is_hex_digit(str[i+6]) && is_hex_digit(str[i+7]) &&
-                    is_hex_digit(str[i+8]))
+                    string_util::is_hex_digit(str[i+2]) &&
+                    string_util::is_hex_digit(str[i+3]) &&
+                    string_util::is_hex_digit(str[i+4]) &&
+                    string_util::is_hex_digit(str[i+5]) &&
+                    string_util::is_hex_digit(str[i+6]) &&
+                    string_util::is_hex_digit(str[i+7]) &&
+                    string_util::is_hex_digit(str[i+8]))
                     {
                     str.erase(i,10);
                     }
@@ -197,10 +210,13 @@ namespace i18n_string_util
                 else if (i < str.length()-3 &&
                     str[i+1] == L'x' &&
                     // at least two hex digits needed
-                    is_hex_digit(str[i+2]) && is_hex_digit(str[i+3]))
+                    string_util::is_hex_digit(str[i+2]) &&
+                    string_util::is_hex_digit(str[i+3]))
                     {
                     size_t length{ static_cast<size_t>(-1) };
-                    const wchar_t decodedCharacter{ static_cast<wchar_t>(axtoi(str.c_str() + i + 2, length)) };
+                    const wchar_t decodedCharacter{
+                        static_cast<wchar_t>(string_util::axtoi(str.c_str() + i + 2, length))
+                        };
                     str.replace(i,length+2,std::wstring(1,decodedCharacter));
                     }
                 }

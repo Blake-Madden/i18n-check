@@ -1,19 +1,29 @@
-/** @addtogroup Internationalization
-    @brief Classes to extract resources from source files.
-    @date 2021
-    @copyright Oleander Software, Ltd.
-    @author Oleander Software, Ltd.
-    @details This program is proprietary and not licensable.
-* @{*/
+/** @addtogroup Utilities
+    @brief Utility classes.
+    @date 2021-2023
+    @copyright Blake Madden
+    @author Blake Madden
+    @details This program is free software; you can redistribute it and/or modify
+     it under the terms of the 3-Clause BSD License.
+
+     SPDX-License-Identifier: BSD-3-Clause
+@{*/
 
 #ifndef __I18N_EXTRACT_H__
 #define __I18N_EXTRACT_H__
 
 #include <regex>
 #include <string_view>
+#include <cwctype>
+#include <cctype>
+#include <cstring>
+#include <cwchar>
+#include <cstddef>
+#include <string>
 #include <set>
-#include "char_traits.h"
+#include <cassert>
 #include "string_util.h"
+#include "chartraits.h"
 
 /// @brief Helper functions for reviewing i18n/l10n related strings.
 namespace i18n_string_util

@@ -1,3 +1,11 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        cpp_i18n_review.cpp
+// Author:      Blake Madden
+// Copyright:   (c) 2021-2023 Blake Madden
+// Licence:     3-Clause BSD licence
+// SPDX-License-Identifier: BSD-3-Clause
+///////////////////////////////////////////////////////////////////////////////
+
 #include "cpp_i18n_review.h"
 
 namespace i18n_check

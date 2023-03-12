@@ -1,10 +1,13 @@
-/** @addtogroup Internationalization
-    @brief Classes to extract resources from source files.
-    @date 2021
-    @copyright Oleander Software, Ltd.
-    @author Oleander Software, Ltd.
-    @details This program is proprietary and not licensable.
-* @{*/
+/** @addtogroup Utilities
+    @brief Utility classes.
+    @date 2021-2023
+    @copyright Blake Madden
+    @author Blake Madden
+    @details This program is free software; you can redistribute it and/or modify
+     it under the terms of the 3-Clause BSD License.
+
+     SPDX-License-Identifier: BSD-3-Clause
+@{*/
 
 #ifndef __I18N_REVIEW_H__
 #define __I18N_REVIEW_H__
@@ -79,7 +82,7 @@ namespace i18n_check
         virtual void operator()(const wchar_t* cpp_text, const size_t text_length, const std::wstring& file_name = L"") = 0;
         /// Reviews any strings that are available for translation that are suspect.
         /// @note This should be called after you are finished processing all
-        ///       of your files via operator().
+        ///  of your files via operator().
         void review_localizable_strings()
             {
             for (const auto& i : m_localizable_strings)
@@ -90,7 +93,7 @@ namespace i18n_check
             }
         /// Reviews output integrity to see if there were any parsing errors.
         /// @note This should be called after you are finished processing all
-        ///       of your files via operator().
+        /// of your files via operator().
         void run_diagnostics();
         /// @returns The strings in the code that are set to be extracted as translatable. 
         [[nodiscard]] const std::vector<string_info>& get_localizable_strings() const noexcept
@@ -138,7 +141,7 @@ namespace i18n_check
         /// Allocates space for the results.
         /// @param fileCount The expected number of files that the parser will be going through before.
         /// @note The results are queued up for all the files until clear_results() is called. Therefore,
-        ///       this should be called prior to processing a large number of files.
+        ///  this should be called prior to processing a large number of files.
         void reserve(const size_t fileCount);
         /** @brief Clears all results from the previous parsing.
             @note This does not reset functions and variable patterns that you have the parser set
