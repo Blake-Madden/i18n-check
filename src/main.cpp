@@ -67,15 +67,22 @@ int main(int argc, char* argv[])
     std::vector<std::string> filesToAnalyze; 
     if (result.count("input"))
         {
+        const auto& inputFolder = result["input"].as<std::string>();
+        if (!fs::exists(inputFolder))
+            {
+            std::cout << "Input path does not exist: " << inputFolder;
+            return 0;
+            }
         for (const auto& p :
-            fs::recursive_directory_iterator(result["input"].as<std::string>()))
+            fs::recursive_directory_iterator(inputFolder))
             {
             case_insensitive_wstring ext{ p.path().extension().c_str() };
             bool inExcludedPath{ false };
             for (const auto& ePath : excludedPaths)
                 {
-                if (fs::equivalent(p.path().parent_path(),
-                                   fs::path(ePath, fs::path::native_format)) )
+                fs::path excPath(ePath, fs::path::native_format);
+                if (p.exists() && fs::exists(excPath) &&
+                    fs::equivalent(p.path().parent_path(), excPath) )
                     {
                     inExcludedPath = true;
                     break;
