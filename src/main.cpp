@@ -20,88 +20,99 @@ using namespace string_util;
 
 int main(int argc, char* argv[])
     {
-    if (argc < 2)
-        {
-        std::wcout << L"Not enough command line arguments.";
-        return 0;
-        }
-
-    cxxopts::Options options("i18n-check", "Internationalization/localization analysis system");
+    cxxopts::Options options("i18n-check",
+                             "Internationalization/localization analysis system");
     options.add_options()
-    ("i,ignore", "Folder(s) to ignore", cxxopts::value<std::vector<std::string>>());
+    ("input", "The folder to analyze", cxxopts::value<std::string>())
+    ("i,ignore", "Folder(s) to ignore", cxxopts::value<std::vector<std::string>>())
+    ("h,help", "Print usage");
 
-    auto result = options.parse(argc, argv);
-
-    std::vector<std::string> excludedPaths;
-    std::vector<std::string> pathsToAnalyze; 
-
-    for (const auto& unm : result.unmatched())
+    cxxopts::ParseResult result;
+    try
         {
-        pathsToAnalyze.push_back(unm.c_str());
+        options.parse_positional({"input"});
+
+        result = options.parse(argc, argv);
+
+        if (result.count("help"))
+            {
+            std::cout << options.help() << "\n";
+            return 0;
+            }
         }
-
-    if (pathsToAnalyze.empty())
+    catch (const cxxopts::exceptions::exception& exp)
         {
-        std::wcout << L"You must pass in at least one folder to analyze.";
+        std::cout << exp.what();
         return 0;
         }
 
     // paths being ignored
-    if (result.count("ignore") > 0)
+    std::vector<std::string> excludedPaths;
+    if (result.count("ignore"))
         {
-        excludedPaths = result["ignore"].as<std::vector<std::string>>();
-        }    
-
-    i18n_check::cpp_i18n_review cpp;
-
-    const auto filesToAnalyze = std::accumulate(
-        pathsToAnalyze.cbegin(), pathsToAnalyze.cend(), static_cast<size_t>(0),
-        [](const auto init, const auto& path)
-        {
-        size_t val{ 0 };
-        for (const auto& p : fs::recursive_directory_iterator(path))
-            { ++val; }
-        return val + init;
-        });
-
-    size_t currentFileIndex{ 1 };
-    for (const auto& path : pathsToAnalyze)
-        {
-        for (const auto& p : fs::recursive_directory_iterator(path))
+        const auto& providedExcFolders = result["ignore"].as<std::vector<std::string>>();
+        for (const auto& excFolder : providedExcFolders)
             {
-            std::wifstream ifs(p.path());
-            std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
-                              std::istreambuf_iterator<wchar_t>());
+            excludedPaths.push_back(excFolder);
+            for (const auto& p :
+                fs::recursive_directory_iterator(excFolder))
+                {
+                if (p.is_directory())
+                    { excludedPaths.push_back(p.path().string()); }
+                }
+            }
+        }
+
+    std::wcout << L"Searching for files to analyze...\n";
+    std::vector<std::string> filesToAnalyze; 
+    if (result.count("input"))
+        {
+        for (const auto& p :
+            fs::recursive_directory_iterator(result["input"].as<std::string>()))
+            {
             case_insensitive_wstring ext{ p.path().extension().c_str() };
-            std::string currentPath{ p.path().parent_path().string().c_str() };
             bool inExcludedPath{ false };
             for (const auto& ePath : excludedPaths)
                 {
-                if (currentPath.compare(0, ePath.length(), ePath.c_str()) == 0)
+                if (fs::equivalent(p.path().parent_path(),
+                                   fs::path(ePath, fs::path::native_format)) )
                     {
                     inExcludedPath = true;
                     break;
                     }
                 }
-            if (!inExcludedPath &&
+            if (p.exists() && p.is_regular_file() &&
+                !inExcludedPath &&
                 (ext == L".c" || ext == L".cpp" || ext == L".h" || ext == L".hpp"))
                 {
-                std::wcout << L"Processed " << std::to_wstring(currentFileIndex) <<
-                    " of " << std::to_wstring(filesToAnalyze) << " files (" <<
-                    p.path().filename() << ")\n";
-                cpp(str.c_str(), str.length(), p.path());
+                filesToAnalyze.push_back(p.path().string());
                 }
-            else
-                {
-                std::wcout << "skipping " << p.path().filename() << "\n";
-                }
-            ++currentFileIndex;
             }
+        }
+    else
+        {
+        std::wcout << L"You must pass in at least one folder to analyze.";
+        return 0;
+        }
+
+    i18n_check::cpp_i18n_review cpp;
+
+    size_t currentFileIndex{ 0 };
+    for (const auto& file : filesToAnalyze)
+        {
+        std::wifstream ifs(file);
+        std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
+                          std::istreambuf_iterator<wchar_t>());
+
+        std::wcout << L"Processed " << std::to_wstring(++currentFileIndex) <<
+            " of " << std::to_wstring(filesToAnalyze.size()) << " files (" <<
+            fs::path(file).filename() << ")\n";
+        cpp(str.c_str(), str.length(), fs::path(file).wstring());
         }
 
     std::wcout << "Reviewing strings...\n";
     cpp.review_localizable_strings();
-    std::wcout << "Running diagnostics...";
+    std::wcout << "Running diagnostics...\n";
     cpp.run_diagnostics();
 
     std::wstringstream report;
