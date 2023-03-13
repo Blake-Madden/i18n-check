@@ -2,7 +2,7 @@
 // Name:        main.cpp
 // Author:      Blake Madden
 // Copyright:   (c) 2021-2023 Blake Madden
-// Licence:     3-Clause BSD licence
+// License:     3-Clause BSD license
 // SPDX-License-Identifier: BSD-3-Clause
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 using namespace i18n_check;
 using namespace string_util;
 
-int wmain(int argc, wchar_t *argv[])
+int wmain(int argc, wchar_t* argv[])
     {
     i18n_check::cpp_i18n_review cpp;
 
@@ -60,7 +60,8 @@ int wmain(int argc, wchar_t *argv[])
         for (const auto& p : fs::recursive_directory_iterator(path))
             {
             std::wifstream ifs(p.path());
-            std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)), std::istreambuf_iterator<wchar_t>());
+            std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
+                              std::istreambuf_iterator<wchar_t>());
             case_insensitive_wstring ext{ p.path().extension().c_str() };
             case_insensitive_wstring currentPath{ p.path().parent_path().wstring().c_str() };
             bool inExcludedPath{ false };
@@ -78,11 +79,12 @@ int wmain(int argc, wchar_t *argv[])
                 cpp(str.c_str(), str.length(), p.path());
                 }
             std::wcout << L"Processed " << std::to_wstring(++currentFileIndex) <<
-                " of " << std::to_wstring(filesToAnalyze) << " files.\n";
+                " of " << std::to_wstring(filesToAnalyze) << " files (" <<
+                p.path().filename() << ")\n";
             }
         }
 
-    std::wcout << "Reviewing strings...";
+    std::wcout << "Reviewing strings...\n";
     cpp.review_localizable_strings();
     std::wcout << "Running diagnostics...";
     cpp.run_diagnostics();

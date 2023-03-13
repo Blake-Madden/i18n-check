@@ -2,7 +2,7 @@
 // Name:        i18n_review.cpp
 // Author:      Blake Madden
 // Copyright:   (c) 2021-2023 Blake Madden
-// Licence:     3-Clause BSD licence
+// License:     3-Clause BSD license
 // SPDX-License-Identifier: BSD-3-Clause
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -13,17 +13,20 @@ namespace i18n_check
     //--------------------------------------------------
     i18n_review::i18n_review() :
         // HTML, but also includes some GTK formatting tags
-        m_html_regex(L"[^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*", std::regex_constants::icase),
+        m_html_regex(L"[^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*",
+            std::regex_constants::icase),
         m_html_tag_regex(L"&[[:alpha:]]{2,5};.*"),
         m_html_tag_unicode_regex(L"&#[[:digit:]]{2,4};.*"),
         // <doc-val>Some text</doc-val>
-        m_html_element_regex(L"<[a-zA-Z0-9_\\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\\-]+>", std::regex_constants::icase),
+        m_html_element_regex(L"<[a-zA-Z0-9_\\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\\-]+>",
+            std::regex_constants::icase),
         m_2letter_regex(L"[[:alpha:]]{2,}"),
         m_hashtag_regex(L"#[[:alnum:]]{2,}"),
         m_function_signature_regex(L"[[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)]"),
         m_plural_regex(L"[[:alnum:]]{2,}[(]s[)]"),
         m_open_function_signature_regex(L"[[:alnum:]]{2,}[(]"),
-        m_key_shortcut_regex(L"(CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+", std::regex_constants::icase),
+        m_key_shortcut_regex(L"(CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+",
+            std::regex_constants::icase),
         m_assert_regex(L"([a-zA-Z0-9_]*|^)ASSERT([a-zA-Z0-9_]*|$)"),
         m_allow_translating_punctuation_only_strings(false)
         {
@@ -40,7 +43,8 @@ namespace i18n_check
             std::wregex(L"<([A-Za-z0-9_\\-.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*"),
             // <image x=%d y=\"%d\" width = '%dpx' height="%dpx"
             std::wregex(L"<[A-Za-z0-9_\\-.]+[[:space:]]*([A-Za-z0-9_\\-.]+[[:space:]]*=[[:space:]]*[\"'\\\\]{0,2}[a-zA-Z0-9\\-]*[\"'\\\\]{0,2}[[:space:]]*)+"),
-            std::wregex(L"charset[[:space:]]*=.*", std::regex_constants::icase),
+            std::wregex(L"charset[[:space:]]*=.*",
+                std::regex_constants::icase),
             // all 'X'es and spaces, usually a placeholder of some sort
             std::wregex(L"[xX ]+"),
             // Pascal-case words (e.g., "GetValueFromUser"); surrounding punctuation is stripped first.
@@ -52,7 +56,8 @@ namespace i18n_check
             // equal sign followed by a single word is probably some sort of config file tag or formula.
             std::wregex(L"=[A-Za-z0-9_]+"),
             // character encodings
-            std::wregex(L"(utf[-]?[[:digit:]]+|Shift[-_]JIS|us-ascii|windows-[[:digit:]]{4}|KOI8-R|Big5|GB2312|iso-[[:digit:]]{4}-[[:digit:]]+)", std::regex_constants::icase),
+            std::wregex(L"(utf[-]?[[:digit:]]+|Shift[-_]JIS|us-ascii|windows-[[:digit:]]{4}|KOI8-R|Big5|GB2312|iso-[[:digit:]]{4}-[[:digit:]]+)",
+                std::regex_constants::icase),
             // wwxWidgets constants
             std::wregex(L"(wx|WX)[A-Z_0-9]{2,}"),
             // ODCTask --surrounding punctuation is stripped first
@@ -84,7 +89,8 @@ namespace i18n_check
             std::wregex(L"Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2}")
             };
 
-        // functions/macros that indicate that a string will be localizable via GETTEXT (or similar mechanism)
+        // functions/macros that indicate that a string will be localizable
+        // via GETTEXT (or similar mechanism)
         m_localization_functions = { L"_", L"N_", L"gettext_noop", L"gettext",
             // wxWidgets GETTEXT wrapper functions
             L"wxPLURAL", L"wxTRANSLATE", L"wxGetTranslation" };
@@ -107,7 +113,8 @@ namespace i18n_check
             // formatting functions that should be skipped over
             L"wxString::Format" };
 
-        // debugging/logging/system call functions that should never have their string parameters translated
+        // debugging/logging/system call functions that should never have
+        // their string parameters translated
         m_internal_functions = {
             // Diagnostic/system functions
             L"deprecated", L"_Pragma",
@@ -170,7 +177,8 @@ namespace i18n_check
             L"xml", L"gdiplus", L"Direct2D", L"DirectX", L"localhost",
             // RTF font families
             L"fnil", L"fdecor", L"froman", L"fscript", L"fswiss", L"fmodern", L"ftech",
-            // common UNIX names (Windows versions are handled by more complex regex expressions elsewhere)
+            // common UNIX names (Windows versions are handled by more
+            // complex regex expressions elsewhere)
             L"UNIX", L"macOS", L"OSX", L"Linux", L"FreeBSD", L"POSIX", L"NetBSD" };
 
         m_keywords = { L"return", L"else", L"if", L"goto", L"new", L"delete",
@@ -231,12 +239,14 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    void i18n_review::process_variable(const std::wstring& variableType, const std::wstring& variableName,
+    void i18n_review::process_variable(const std::wstring& variableType,
+        const std::wstring& variableName,
         const std::wstring& value, const size_t quotePosition)
         {
     #ifndef NDEBUG
         if (variableType.length() &&
-            get_untranslatable_variable_types().find(variableType) == get_untranslatable_variable_types().cend() &&
+            get_untranslatable_variable_types().find(variableType) ==
+            get_untranslatable_variable_types().cend() &&
             variableType != L"wxString" &&
             variableType != L"wxDialog" &&
             variableType != L"wxTextInputStream" &&
@@ -245,10 +255,12 @@ namespace i18n_check
             variableType != L"MessageParameters")
             { log_message(variableType, "New variable type detected."); }
     #endif
-        if (get_untranslatable_variable_types().find(variableType) != get_untranslatable_variable_types().cend())
+        if (get_untranslatable_variable_types().find(variableType) !=
+            get_untranslatable_variable_types().cend())
             {
-            m_internal_strings.emplace_back(string_info(value,
-                            string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
+            m_internal_strings.emplace_back(
+                string_info(value,
+                string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
                 m_file_name, get_line_and_column(quotePosition)));
             return;
             }
@@ -261,30 +273,34 @@ namespace i18n_check
                     {
                     if (std::regex_match(variableName, reg))
                         {
-                        m_internal_strings.emplace_back(string_info(value,
+                        m_internal_strings.emplace_back(
+                            string_info(value,
                             string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
                             m_file_name, get_line_and_column(quotePosition)));
                         matchedInternalVar = true;
                         break;
                         }
                     }
-                //didn't match any known internal variable name provided by user?
+                // didn't match any known internal variable name provided by user?
                 if (!matchedInternalVar)
-                    { classify_non_localizable_string(string_info(value,
+                    { classify_non_localizable_string(
+                        string_info(value,
                         string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
                         m_file_name, get_line_and_column(quotePosition))); }
                 }
             catch (const std::exception& exp)
                 {
                 log_message(variableName, exp.what());
-                classify_non_localizable_string(string_info(value,
+                classify_non_localizable_string(
+                    string_info(value,
                     string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
                     m_file_name, get_line_and_column(quotePosition)));
                 }
             }
         else
             {
-            classify_non_localizable_string(string_info(value,
+            classify_non_localizable_string(
+                string_info(value,
                 string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
                 m_file_name, get_line_and_column(quotePosition)));
             }
@@ -293,7 +309,8 @@ namespace i18n_check
     //--------------------------------------------------
     void i18n_review::reserve(const size_t fileCount)
         {
-        m_error_log.reserve(fileCount);//one message per file is more than reasonable
+        // one message per file is more than reasonable
+        m_error_log.reserve(fileCount);
         constexpr size_t resourcesPerFile = 100;
         m_localizable_strings.reserve(resourcesPerFile *fileCount);
         m_not_available_for_localization_strings.reserve(resourcesPerFile *fileCount);
@@ -318,7 +335,7 @@ namespace i18n_check
         try
             {
             return (std::regex_match(functionName, m_assert_regex) ||
-                                m_internal_functions.find(functionName) != m_internal_functions.end());
+                    m_internal_functions.find(functionName) != m_internal_functions.end());
             }
         catch (const std::exception& exp)
             {
@@ -354,14 +371,16 @@ namespace i18n_check
             {
             // Handle HTML syntax that is hard coded in the source file.
             // Strip it down and then see if what's left contains translatable content.
-            // Note that we skip any punctuation (not word characters, excluding '<') in front of the initial '<'
-            // (sometimes there are braces and brackets in front of the HTML tags).
+            // Note that we skip any punctuation (not word characters, excluding '<')
+            // in front of the initial '<' (sometimes there are braces and brackets
+            // in front of the HTML tags).
             if (std::regex_match(str,m_html_regex) ||
                 std::regex_match(str,m_html_element_regex) ||
                 std::regex_match(str,m_html_tag_regex) ||
                 std::regex_match(str,m_html_tag_unicode_regex))
                 {
-                str = std::regex_replace(str, std::wregex(L"<[?]?[A-Za-z0-9+_/\\-.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
+                str = std::regex_replace(str,
+                    std::wregex(L"<[?]?[A-Za-z0-9+_/\\-.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
                 str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,4};"), L"");
                 str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
                 }
@@ -371,7 +390,8 @@ namespace i18n_check
                 std::regex_match(str,std::wregex(L"[[:punct:]]+")))
                 { return false; }
 
-            // "N/A" is OK to translate, but it won't meet the criterion of at least two consecutive letters,
+            // "N/A" is OK to translate, but it won't meet the criterion of at least
+            // // two consecutive letters,
             // so check for that first.
             if (str.length() == 3 &&
                 string_util::is_either(str[0], L'N', L'n') &&
@@ -381,7 +401,8 @@ namespace i18n_check
             else if (str.length() <= 1 ||
                 // not at least two letters together
                 !std::regex_search(str, m_2letter_regex) ||
-                // single word (no spaces or word separators) and more than 20 characters--doesn't seem like a real word meant for translation
+                // single word (no spaces or word separators) and more than 20 characters--
+                // doesn't seem like a real word meant for translation
                 (str.length() > 20 &&
                     str.find_first_of(L" \n\t\r/-") == std::wstring::npos &&
                     str.find(L"\\n") == std::wstring::npos &&
@@ -392,13 +413,14 @@ namespace i18n_check
             // RTF text
             else if (str.compare(0, 3, LR"({\\)") == 0)
                 { return true; }
-            // social media hashtag (or formattint code of some sort)
+            // social media hashtag (or formatting code of some sort)
             else if (std::regex_match(str, m_hashtag_regex))
                 { return true; }
             else if (std::regex_match(str, m_key_shortcut_regex))
                 { return true; }
-            // if we know it had at least one word (and spaces) at this point, then it being more than 200
-            // characters means that it probably is a real user-message (not an internal string)
+            // if we know it had at least one word (and spaces) at this point,
+            // then it being more than 200 characters means that it probably is
+            // a real user-message (not an internal string)
             else if (str.length() > 200)
                 { return false; }
 
@@ -461,13 +483,14 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    const wchar_t* i18n_review::read_var_or_function_name(const wchar_t* startPos, const wchar_t* const startSentinel,
+    const wchar_t* i18n_review::read_var_or_function_name(const wchar_t* startPos,
+            const wchar_t* const startSentinel,
             std::wstring& functionName, std::wstring& variableName, std::wstring& variableType)
         {
         functionName.clear();
         variableName.clear();
         variableType.clear();
-        long closeParenCount = 0;
+        long closeParenCount{ 0 };
         const wchar_t* functionOrVarNamePos = startPos;
 
         while (startPos > startSentinel)
@@ -480,9 +503,9 @@ namespace i18n_check
             else if (*startPos == L'(')
                 {
                 --startPos;
-                // if just closing the terminating parenthesis for a function call in the list of parameters,
-                // then skip it and keep going to find the outer function call that this string
-                // really belongs to.
+                // if just closing the terminating parenthesis for a function
+                // call in the list of parameters, then skip it and keep going
+                // to find the outer function call that this string really belongs to.
                 --closeParenCount;
                 if (closeParenCount >= 0)
                     { continue; }
@@ -494,29 +517,34 @@ namespace i18n_check
                 while (functionOrVarNamePos > startSentinel &&
                     is_valid_name_char_ex(*functionOrVarNamePos) )
                     { --functionOrVarNamePos; }
-                // If we are on the start of the text, then see if we need to include that
-                // character too. We may have short circuited because we reached the start of the stream.
+                // If we are on the start of the text, then see if we need to
+                // include that character too. We may have short circuited because
+                // we reached the start of the stream.
                 if (!is_valid_name_char_ex(*functionOrVarNamePos) )
                     { ++functionOrVarNamePos; }
                 functionName.assign(functionOrVarNamePos, (startPos+1)-functionOrVarNamePos);
                 remove_decorations(functionName);
-                // if wrapped in a string CTOR (e.g., std::wstring), then skip it
+                // If wrapped in a string CTOR (e.g., std::wstring), then skip it
                 // and keep going backwards.
                 // Or, if no function name probably means extraneous parentheses, so keep going.
                 if (functionName.empty() ||
                     m_ctors_to_ignore.find(functionName) != m_ctors_to_ignore.cend())
                     {
                     startPos = std::min(startPos,functionOrVarNamePos);
-                    closeParenCount = 0; //reset, the current open paren isn't relevant
+                    // reset, the current open parenthesis isn't relevant
+                    closeParenCount = 0;
                     continue;
                     }
-                // construction of a variable type that takes non-localizable strings, just skip it entirely
-                else if (m_untranslatable_variable_types.find(functionName) != m_untranslatable_variable_types.cend())
+                // construction of a variable type that takes
+                // non-localizable strings, just skip it entirely
+                else if (m_untranslatable_variable_types.find(functionName) !=
+                    m_untranslatable_variable_types.cend())
                     { break; }
                 // stop if a legit function call in front of parenthesis
                 if (functionName.length())
                     {
-                    ///@todo experimental!!! Reads the variable type from a variable constructed from a string.
+                    ///@todo experimental!!! Reads the variable type from a variable
+                    // constructed from a string.
                     if (variableName.empty() &&
                         functionOrVarNamePos >= startSentinel && !is_keyword(functionName))
                         {

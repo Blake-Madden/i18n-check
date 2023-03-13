@@ -2,7 +2,7 @@
 // Name:        i18n_string_util.cpp
 // Author:      Blake Madden
 // Copyright:   (c) 2021-2023 Blake Madden
-// Licence:     3-Clause BSD licence
+// License:     3-Clause BSD license
 // SPDX-License-Identifier: BSD-3-Clause
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,8 @@ namespace i18n_string_util
         if (periodPos != -1 && periodPos < length-1)
             {
             ++periodPos;
-            if (knownWebExtensions.find(std::wstring(text+periodPos, length-periodPos)) != knownWebExtensions.cend())
+            if (knownWebExtensions.find(std::wstring(text+periodPos, length-periodPos)) !=
+                knownWebExtensions.cend())
                 { return true; }
             }
 
@@ -127,7 +128,8 @@ namespace i18n_string_util
             // see if it is really a typo (missing space after a sentence).
             if (std::iswupper(text[length-3]) && !std::iswupper(text[length-2]))
                 { return false; }
-            // see if a file filter/wildcard (e.g., "*.txt", "Rich Text Format (*.rtf)|*.rtf") and not a file path
+            // see if a file filter/wildcard (e.g., "*.txt", "Rich Text Format (*.rtf)|*.rtf")
+            // and not a file path
             if (length >= 5 && text[length-5] == L'*')
                 { return false; }
             return true;
@@ -166,8 +168,10 @@ namespace i18n_string_util
                 { return false; }
             return true;
             }
-        // C header/source files, which only have a letter in the extension, but are common in documentation
-        else if (length >= 3 && text[length-2] == L'.' && string_util::is_either(text[length-1], L'h', L'c'))
+        // C header/source files, which only have a letter in the extension,
+        // but are common in documentation
+        else if (length >= 3 && text[length-2] == L'.' &&
+            string_util::is_either(text[length-1], L'h', L'c'))
             { return true; }
 
         return false;
