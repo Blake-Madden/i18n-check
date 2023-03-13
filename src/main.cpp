@@ -46,54 +46,14 @@ int main(int argc, char* argv[])
         return 0;
         }
 
-    // paths being ignored
-    std::vector<std::string> excludedPaths;
-    if (result.count("ignore"))
-        {
-        const auto& providedExcFolders = result["ignore"].as<std::vector<std::string>>();
-        for (const auto& excFolder : providedExcFolders)
-            {
-            excludedPaths.push_back(excFolder);
-            for (const auto& p :
-                fs::recursive_directory_iterator(excFolder))
-                {
-                if (p.is_directory())
-                    { excludedPaths.push_back(p.path().string()); }
-                }
-            }
-        }
-
-    std::wcout << L"Searching for files to analyze...\n";
-    std::vector<std::string> filesToAnalyze; 
+    fs::path inputFolder;
     if (result.count("input"))
         {
-        const auto& inputFolder = result["input"].as<std::string>();
+        inputFolder = fs::path{ result["input"].as<std::string>(), fs::path::native_format };
         if (!fs::exists(inputFolder))
             {
             std::cout << "Input path does not exist: " << inputFolder;
             return 0;
-            }
-        for (const auto& p :
-            fs::recursive_directory_iterator(inputFolder))
-            {
-            case_insensitive_wstring ext{ p.path().extension().c_str() };
-            bool inExcludedPath{ false };
-            for (const auto& ePath : excludedPaths)
-                {
-                fs::path excPath(ePath, fs::path::native_format);
-                if (p.exists() && fs::exists(excPath) &&
-                    fs::equivalent(p.path().parent_path(), excPath) )
-                    {
-                    inExcludedPath = true;
-                    break;
-                    }
-                }
-            if (p.exists() && p.is_regular_file() &&
-                !inExcludedPath &&
-                (ext == L".c" || ext == L".cpp" || ext == L".h" || ext == L".hpp"))
-                {
-                filesToAnalyze.push_back(p.path().string());
-                }
             }
         }
     else
@@ -101,6 +61,65 @@ int main(int argc, char* argv[])
         std::wcout << L"You must pass in at least one folder to analyze.";
         return 0;
         }
+
+    // paths being ignored
+    std::vector<std::string> excludedPaths;
+    if (result.count("ignore"))
+        {
+        const auto& providedExcFolders = result["ignore"].as<std::vector<std::string>>();
+        for (const auto& excFolder : providedExcFolders)
+            {
+            std::error_code ec;
+            if (fs::exists(excFolder))
+                {
+                excludedPaths.push_back(excFolder);
+                }
+            // if not a full path, just a subdirectory path
+            else if (const auto relPath =
+                fs::path{ inputFolder } / excFolder;
+                fs::exists(relPath))
+                {
+                excludedPaths.push_back(relPath.string());
+                }
+            else
+                { continue; }
+            // add subdirectories
+            for (const auto& p :
+                fs::recursive_directory_iterator(excludedPaths.back()))
+                {
+                if (fs::exists(p) && p.is_directory())
+                    { excludedPaths.push_back(p.path().string()); }
+                }
+            }
+        }
+
+    // input folder
+    std::wcout << L"Searching for files to analyze...\n";
+    std::vector<std::string> filesToAnalyze; 
+    
+    for (const auto& p :
+        fs::recursive_directory_iterator(inputFolder))
+        {
+        case_insensitive_wstring ext{ p.path().extension().c_str() };
+        bool inExcludedPath{ false };
+        for (const auto& ePath : excludedPaths)
+            {
+            fs::path excPath(ePath, fs::path::native_format);
+            if (p.exists() && fs::exists(excPath) &&
+                fs::equivalent(p.path().parent_path(), excPath) )
+                {
+                inExcludedPath = true;
+                break;
+                }
+            }
+        if (p.exists() && p.is_regular_file() &&
+            !inExcludedPath &&
+            (ext == L".c" || ext == L".cpp" || ext == L".h" || ext == L".hpp"))
+            {
+            filesToAnalyze.push_back(p.path().string());
+            }
+        }
+        
 
     i18n_check::cpp_i18n_review cpp;
 
