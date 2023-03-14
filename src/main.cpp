@@ -25,6 +25,7 @@ int main(int argc, char* argv[])
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("i,ignore", "Folder(s) to ignore", cxxopts::value<std::vector<std::string>>())
+    ("o,output", "The output report path", cxxopts::value<std::string>())
     ("h,help", "Print usage");
 
     cxxopts::ParseResult result;
@@ -120,7 +121,6 @@ int main(int argc, char* argv[])
             }
         }
         
-
     i18n_check::cpp_i18n_review cpp;
 
     size_t currentFileIndex{ 0 };
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
         std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                           std::istreambuf_iterator<wchar_t>());
 
-        std::wcout << L"Processed " << std::to_wstring(++currentFileIndex) <<
+        std::wcout << L"Processing " << std::to_wstring(++currentFileIndex) <<
             " of " << std::to_wstring(filesToAnalyze.size()) << " files (" <<
             fs::path(file).filename() << ")\n";
         cpp(str.c_str(), str.length(), fs::path(file).wstring());
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
         else if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable)
             { report << L"Assigned to non-localizable variable: " << val.m_usage.m_value << L"\n\n"; }
         else
-            { report << val.m_usage.m_value << L"\n\n"; }                  
+            { report << val.m_usage.m_value << L"\n\n"; }
         }
 
     if (cpp.get_not_available_for_localization_strings().size())
@@ -193,8 +193,27 @@ int main(int argc, char* argv[])
             { report << val.m_usage.m_value << L"\n\n"; }                  
         }
 
-    std::wofstream ofs(L"output.txt");
-    ofs << report.str().c_str();
+    // write the output
+    if (result.count("output"))
+        {
+        fs::path outPath{ result["output"].as<std::string>() };
+        // full path is valid
+        if (fs::exists(outPath.parent_path()))
+            {
+            std::wofstream ofs(outPath);
+            ofs << report.str();
+            }
+        // ...or save to folder being analyzed
+        else
+            {
+            std::wofstream ofs(fs::path{inputFolder} / outPath.filename());
+            ofs << report.str();
+            }
+        }
+    else
+        {
+        std::wcout << report.str();
+        }
 
     return 0;
     }
