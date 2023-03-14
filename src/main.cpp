@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
                              "Internationalization/localization analysis system");
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
-    ("i,ignore", "Folder(s) to ignore", cxxopts::value<std::vector<std::string>>())
+    ("i,ignore", "Folders and files to ignore (can be used multiple times)", cxxopts::value<std::vector<std::string>>())
     ("o,output", "The output report path", cxxopts::value<std::string>())
     ("h,help", "Print usage");
 
@@ -65,6 +65,7 @@ int main(int argc, char* argv[])
 
     // paths being ignored
     std::vector<std::string> excludedPaths;
+    std::vector<std::string> excludedFiles;
     if (result.count("ignore"))
         {
         const auto& providedExcFolders = result["ignore"].as<std::vector<std::string>>();
@@ -73,24 +74,43 @@ int main(int argc, char* argv[])
             std::error_code ec;
             if (fs::exists(excFolder))
                 {
-                excludedPaths.push_back(excFolder);
+                if (fs::is_directory(excFolder))
+                    {
+                    excludedPaths.push_back(excFolder);
+                    const auto folderToRecurse{ excludedPaths.back() };
+                    // add subdirectories
+                    for (const auto& p :
+                        fs::recursive_directory_iterator(folderToRecurse))
+                        {
+                        if (fs::exists(p) && p.is_directory())
+                            { excludedPaths.push_back(p.path().string()); }
+                        }
+                    }
+                else
+                    { excludedFiles.push_back(excFolder); }
                 }
             // if not a full path, just a subdirectory path
             else if (const auto relPath =
                 fs::path{ inputFolder } / excFolder;
                 fs::exists(relPath))
                 {
-                excludedPaths.push_back(relPath.string());
+                if (fs::is_directory(relPath))
+                    {
+                    excludedPaths.push_back(relPath.string());
+                    const auto folderToRecurse{ excludedPaths.back() };
+                    // add subdirectories
+                    for (const auto& p :
+                        fs::recursive_directory_iterator(folderToRecurse))
+                        {
+                        if (fs::exists(p) && p.is_directory())
+                            { excludedPaths.push_back(p.path().string()); }
+                        }
+                    }
+                else
+                    { excludedFiles.push_back(relPath.string()); }
                 }
             else
                 { continue; }
-            // add subdirectories
-            for (const auto& p :
-                fs::recursive_directory_iterator(excludedPaths.back()))
-                {
-                if (fs::exists(p) && p.is_directory())
-                    { excludedPaths.push_back(p.path().string()); }
-                }
             }
         }
 
@@ -111,6 +131,20 @@ int main(int argc, char* argv[])
                 {
                 inExcludedPath = true;
                 break;
+                }
+            }
+        // compare against excluded files if not already in an excluded folder
+        if (!inExcludedPath)
+            {
+            for (const auto& eFile : excludedFiles)
+                {
+                fs::path excFile(eFile, fs::path::native_format);
+                if (p.exists() && fs::exists(excFile) &&
+                    fs::equivalent(p, excFile) )
+                    {
+                    inExcludedPath = true;
+                    break;
+                    }
                 }
             }
         if (p.exists() && p.is_regular_file() &&
