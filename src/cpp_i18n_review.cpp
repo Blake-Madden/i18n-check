@@ -167,7 +167,9 @@ namespace i18n_check
                                     m_file_name, get_line_and_column(cpp_text - m_file_start)));
 
                                 assert(functionVarNamePos);
-                                if (functionVarNamePos)
+                                if (functionVarNamePos &&
+                                    (m_reviewStyles == all_l10n_checks) ||
+                                    (m_reviewStyles & check_l10n_strings_in_internal_functions))
                                     {
                                     std::wstring functionNameOuter, variableNameOuter, variableTypeOuter;
                                     read_var_or_function_name(functionVarNamePos, m_file_start,

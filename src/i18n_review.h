@@ -22,8 +22,29 @@
 /// @brief Classes for checking source code for internationalization/localization issues.
 namespace i18n_check
     {
+    /// @brief Tests to perform.
+    enum review_style
+        {
+        /// @brief Do not perform any checks.
+        no_l10n_checks = 0x00,
+        /// @brief Check that strings exposed for localization are safe to translate.
+        ///     For examples, a printf statement with no actually words in it should
+        ///     not be translatable.
+        check_l10n_strings = 0x01,
+        /// @brief Check for strings exposed for localization with internal functions
+        ///     (e.g., debug and logging messages).
+        check_l10n_strings_in_internal_functions = 0x02,
+        /// @brief Check for quotes strings in the source that are not available
+        ///     for translation that probably should be.
+        check_not_available_for_l10n = 0x04,
+        /// @brief Perform all tests.
+        all_l10n_checks = 
+            (check_l10n_strings|check_l10n_strings_in_internal_functions|
+             check_not_available_for_l10n)
+        };
+
     /** @brief Class to extract and review localizable/nonlocalizable
-            text from C++ source code.*/
+            text from source code.*/
     class i18n_review
         {
     public:
@@ -88,26 +109,32 @@ namespace i18n_check
             { m_internal_functions.insert(func); }
         void add_translation_extraction_function(const std::wstring& func)
             { m_localization_functions.insert(func); }
+        void set_style(const review_style sty) noexcept
+            { m_reviewStyles = sty; }
         /** @brief Main interface for extracting resource text from C++ source code.
             @param cpp_text The code text to review.
             @param text_length The length of the text.
             @param file_name The (optional) name of source file being analyzed.*/
         virtual void operator()(const wchar_t* cpp_text, const size_t text_length,
                                 const std::wstring& file_name = L"") = 0;
-        /// Reviews any strings that are available for translation that are suspect.
+        /// @brief Reviews any strings that are available for translation that are suspect.
         /// @note This should be called after you are finished processing all
-        ///  of your files via operator().
+        ///     of your files via `operator()`.
         void review_localizable_strings()
             {
-            for (const auto& i : m_localizable_strings)
+            if ((m_reviewStyles == all_l10n_checks) ||
+                (m_reviewStyles & check_l10n_strings))
                 {
-                if (i.m_string.length() && is_untranslatable_string(i.m_string))
-                    { m_unsafe_localizable_strings.emplace_back(i); }
+                for (const auto& i : m_localizable_strings)
+                    {
+                    if (i.m_string.length() && is_untranslatable_string(i.m_string))
+                        { m_unsafe_localizable_strings.emplace_back(i); }
+                    }
                 }
             }
-        /// Reviews output integrity to see if there were any parsing errors.
+        /// @brief Reviews output integrity to see if there were any parsing errors.
         /// @note This should be called after you are finished processing all
-        /// of your files via operator().
+        ///     of your files via `operator()`.
         void run_diagnostics();
         /// @returns The strings in the code that are set to be extracted as translatable. 
         [[nodiscard]]
@@ -216,15 +243,19 @@ namespace i18n_check
         /// non-localizable strings; otherwise, it will be considered an internal string.
         void classify_non_localizable_string(const string_info& str)
             {
-            if (is_untranslatable_string(str.m_string))
-                { m_internal_strings.emplace_back(str); }
-            else
-                { m_not_available_for_localization_strings.emplace_back(str); }
+            if ((m_reviewStyles == all_l10n_checks) ||
+                (m_reviewStyles & check_not_available_for_l10n))
+                {
+                if (is_untranslatable_string(str.m_string))
+                    { m_internal_strings.emplace_back(str); }
+                else
+                    { m_not_available_for_localization_strings.emplace_back(str); }
+                }
             }
         [[nodiscard]]
         bool is_keyword(const std::wstring& str) const
             { return m_keywords.find(str) != m_keywords.cend(); }
-        /// @returns @c true if string is a known fontface name.
+        /// @returns @c true if string is a known font face name.
         /// @param str The string to review.
         [[nodiscard]]
         bool is_font_name(const string_util::case_insensitive_wstring& str) const
@@ -283,7 +314,8 @@ namespace i18n_check
                               const std::wstring& value,
                               const size_t quotePosition);
 
-        /// @brief Fills a block with blanks. Useful for excluding an already processed text block.
+        /// @brief Fills a block with blanks.
+        /// @details Useful for excluding an already processed text block.
         void clear_section(wchar_t* start, const wchar_t* end) const noexcept
             {
             for (ptrdiff_t i = 0; i < end-start; ++i)
@@ -293,7 +325,8 @@ namespace i18n_check
                 }
             }
 
-        const wchar_t* read_var_or_function_name(const wchar_t* startPos, const wchar_t* const startSentinel,
+        const wchar_t* read_var_or_function_name(const wchar_t* startPos,
+            const wchar_t* const startSentinel,
             std::wstring& functionName, std::wstring& variableName, std::wstring& variableType);
 
         std::pair<size_t, size_t> get_line_and_column(size_t position) noexcept;
@@ -301,6 +334,8 @@ namespace i18n_check
         const wchar_t* m_file_start{ nullptr };
 
         bool m_allow_translating_punctuation_only_strings{ false };
+
+        review_style m_reviewStyles{ review_style::all_l10n_checks };
 
         // once these are set (by our CTOR and/or by client), they shouldn't be reset
         std::set<std::wstring> m_localization_functions;

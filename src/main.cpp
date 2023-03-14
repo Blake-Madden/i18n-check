@@ -21,10 +21,15 @@ using namespace string_util;
 int main(int argc, char* argv[])
     {
     cxxopts::Options options("i18n-check",
-                             "Internationalization/localization analysis system");
+                             "Internationalization/"
+                             "localization analysis system");
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
-    ("i,ignore", "Folders and files to ignore (can be used multiple times)", cxxopts::value<std::vector<std::string>>())
+    ("i,ignore", "Folders and files to ignore (can be used multiple times)",
+        cxxopts::value<std::vector<std::string>>())
+    ("s,styles", "Which checks to perform (any combination of: "
+        "all, l10n, suspect-l10n, not-l10n-available)",
+        cxxopts::value<std::vector<std::string>>())
     ("o,output", "The output report path", cxxopts::value<std::string>())
     ("h,help", "Print usage");
 
@@ -50,7 +55,8 @@ int main(int argc, char* argv[])
     fs::path inputFolder;
     if (result.count("input"))
         {
-        inputFolder = fs::path{ result["input"].as<std::string>(), fs::path::native_format };
+        inputFolder = fs::path{ result["input"].as<std::string>(),
+                                fs::path::native_format };
         if (!fs::exists(inputFolder))
             {
             std::cout << "Input path does not exist: " << inputFolder;
@@ -68,7 +74,8 @@ int main(int argc, char* argv[])
     std::vector<std::string> excludedFiles;
     if (result.count("ignore"))
         {
-        const auto& providedExcFolders = result["ignore"].as<std::vector<std::string>>();
+        const auto& providedExcFolders =
+            result["ignore"].as<std::vector<std::string>>();
         for (const auto& excFolder : providedExcFolders)
             {
             std::error_code ec;
@@ -156,6 +163,28 @@ int main(int argc, char* argv[])
         }
         
     i18n_check::cpp_i18n_review cpp;
+    // see which checks are being performed
+    if (result.count("styles"))
+        {
+        const auto& styles =
+            result["styles"].as<std::vector<std::string>>();
+        int rs{ no_l10n_checks };
+        for (const auto& r : styles)
+            {
+            if (r == "all")
+                {
+                cpp.set_style(i18n_check::review_style::all_l10n_checks);
+                break;
+                }
+            else if (r == "l10n")
+                { rs |= check_l10n_strings; }
+            else if (r == "suspect-l10n")
+                { rs |= check_l10n_strings_in_internal_functions; }
+            else if (r == "not-l10n-available")
+                { rs |= check_not_available_for_l10n; }
+            }
+        cpp.set_style(static_cast<i18n_check::review_style>(rs));
+        }
 
     size_t currentFileIndex{ 0 };
     for (const auto& file : filesToAnalyze)
