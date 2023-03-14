@@ -99,15 +99,16 @@ namespace i18n_check
         m_non_localizable_functions = { L"_DT", L"DONTTRANSLATE" };
 
         // Constructors and macros that should be ignored
-        // (when backtracing, these are skipped over, and the parser moves to the function/variable
-        //  assignment to the left of these).
+        // (when backtracing, these are skipped over, and the parser moves to the
+        //  function/variable assignment to the left of these).
         m_ctors_to_ignore = {
             // Win32 text macros that should be skipped over
             L"_T", L"TEXT", L"_TEXT", L"_WIDE",L"CFSTR",
             // wxWidgets
             L"wxT", L"wxT_2", L"wxS", L"wxString", L"wxBasicString", L"wxCFStringRef",
             // standard string objects
-            L"string", L"wstring", L"basic_string", L"std::string", L"std::wstring", L"std::basic_string",
+            L"string", L"wstring", L"basic_string", L"std::string",
+            L"std::wstring", L"std::basic_string",
             // MFC, ATL
             L"CString", L"_bstr_t",
             // formatting functions that should be skipped over
@@ -116,8 +117,8 @@ namespace i18n_check
         // debugging/logging/system call functions that should never have
         // their string parameters translated
         m_internal_functions = {
-            // Diagnostic/system functions
-            L"deprecated", L"_Pragma",
+            // attributes
+            L"deprecated", L"nodiscard", L"_Pragma",
             // assert functions
             L"check_assertion", L"static_assert", L"assert",
             // wxWidgets functions
@@ -186,54 +187,54 @@ namespace i18n_check
 
         // common font faces that we would usually ignore (client can add to this)
         m_font_names = { L"Arial", L"Courier New", L"Garamond", L"Calibri", L"Gabriola",
-                        L".Helvetica Neue DeskInterface", L".Lucida Grande UI",
-                        L"Times New Roman", L"Georgia", L"Segoe UI", L"Segoe Script",
-                        L"Century Gothic", L"Century",
-                        L"AR BERKLEY", L"Brush Script",
-                        L"Lucida Grande", L"Helvetica Neue" };
+                         L".Helvetica Neue DeskInterface", L".Lucida Grande UI",
+                         L"Times New Roman", L"Georgia", L"Segoe UI", L"Segoe Script",
+                         L"Century Gothic", L"Century", L"Cascadia Mono",
+                         L"AR BERKLEY", L"Brush Script", L"Consolas",
+                         L"Lucida Grande", L"Helvetica Neue" };
 
         m_file_extensions = { // documents
-                             L"xml", L"html", L"htm", L"xhtml", L"rtf",
-                             L"doc", L"docx", L"dot", L"docm", L"txt", L"ppt", L"pptx",
-                             L"pdf", L"ps", L"odt", L"ott", L"odp", L"otp", L"pptm",
-                             L"md",
-                             // help files
-                             L"hhc", L"hhk", L"hhp",
-                             // spreadsheets
-                             L"xls", L"xlsx", L"ods", L"csv",
-                             // image formats
-                             L"gif", L"jpg", L"jpeg", L"jpe", L"bmp", L"tiff", L"tif",
-                             L"png", L"tga", L"svg", L"xcf", L"ico", L"psd",
-                             L"hdr", L"pcx",
-                             // webpages
-                             L"asp", L"aspx", L"cfm",
-                             L"cfml", L"php", L"php3", L"php4",
-                             L"sgml", L"wmf", L"js",
-                             //style sheets
-                             L"css",
-                             //movies
-                             L"mov", L"qt", L"rv", L"rm",
-                             L"wmv", L"mpg", L"mpeg", L"mpe",
-                             L"avi",
-                             //music
-                             L"mp3", L"wav", L"wma", L"midi",
-                             L"ra", L"ram",
-                             //programs
-                             L"exe", L"swf", L"vbs",
-                             // source files
-                             L"cpp", L"h", L"c", L"idl",
-                             //compressed files
-                             L"gzip", L"bz2" };
+                            L"xml", L"html", L"htm", L"xhtml", L"rtf",
+                            L"doc", L"docx", L"dot", L"docm", L"txt", L"ppt", L"pptx",
+                            L"pdf", L"ps", L"odt", L"ott", L"odp", L"otp", L"pptm",
+                            L"md",
+                            // help files
+                            L"hhc", L"hhk", L"hhp",
+                            // spreadsheets
+                            L"xls", L"xlsx", L"ods", L"csv",
+                            // image formats
+                            L"gif", L"jpg", L"jpeg", L"jpe", L"bmp", L"tiff", L"tif",
+                            L"png", L"tga", L"svg", L"xcf", L"ico", L"psd",
+                            L"hdr", L"pcx",
+                            // webpages
+                            L"asp", L"aspx", L"cfm",
+                            L"cfml", L"php", L"php3", L"php4",
+                            L"sgml", L"wmf", L"js",
+                            // style sheets
+                            L"css",
+                            // movies
+                            L"mov", L"qt", L"rv", L"rm",
+                            L"wmv", L"mpg", L"mpeg", L"mpe",
+                            L"avi",
+                            // music
+                            L"mp3", L"wav", L"wma", L"midi",
+                            L"ra", L"ram",
+                            // programs
+                            L"exe", L"swf", L"vbs",
+                            // source files
+                            L"cpp", L"h", L"c", L"idl",
+                            // compressed files
+                            L"gzip", L"bz2" };
 
         // variables whose CTORs take a string that should never be translated
         m_untranslatable_variable_types = { L"wxUxThemeHandle", L"wxRegKey", 
-                                    L"wxLoadedDLL", L"wxConfigPathChanger", L"wxWebViewEvent", 
-                                    L"wxFileSystemWatcherEvent", L"wxStdioPipe",
-                                    L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION", L"vmsWarningHandler",
-                                    L"vmsErrorHandler",
-                                    L"wxColor", L"wxColour",
-                                    L"wxRegEx", L"wregex", L"std::wregex", L"regex", L"std::regex",
-                                    L"wxDataObjectSimple" };
+                            L"wxLoadedDLL", L"wxConfigPathChanger", L"wxWebViewEvent", 
+                            L"wxFileSystemWatcherEvent", L"wxStdioPipe",
+                            L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION", L"vmsWarningHandler",
+                            L"vmsErrorHandler",
+                            L"wxColor", L"wxColour",
+                            L"wxRegEx", L"wregex", L"std::wregex", L"regex", L"std::regex",
+                            L"wxDataObjectSimple" };
 
         add_variable_pattern_to_ignore(std::wregex(L"^debug.*", std::regex_constants::icase));
         }
@@ -275,7 +276,8 @@ namespace i18n_check
                         {
                         m_internal_strings.emplace_back(
                             string_info(value,
-                            string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
+                            string_info::usage_info(
+                                string_info::usage_info::usage_type::variable, variableName),
                             m_file_name, get_line_and_column(quotePosition)));
                         matchedInternalVar = true;
                         break;
@@ -285,7 +287,8 @@ namespace i18n_check
                 if (!matchedInternalVar)
                     { classify_non_localizable_string(
                         string_info(value,
-                        string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
+                        string_info::usage_info(
+                            string_info::usage_info::usage_type::variable, variableName),
                         m_file_name, get_line_and_column(quotePosition))); }
                 }
             catch (const std::exception& exp)
@@ -293,7 +296,8 @@ namespace i18n_check
                 log_message(variableName, exp.what());
                 classify_non_localizable_string(
                     string_info(value,
-                    string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
+                    string_info::usage_info(
+                        string_info::usage_info::usage_type::variable, variableName),
                     m_file_name, get_line_and_column(quotePosition)));
                 }
             }
@@ -301,7 +305,8 @@ namespace i18n_check
             {
             classify_non_localizable_string(
                 string_info(value,
-                string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
+                string_info::usage_info(
+                    string_info::usage_info::usage_type::variable, variableName),
                 m_file_name, get_line_and_column(quotePosition)));
             }
         }
@@ -391,8 +396,7 @@ namespace i18n_check
                 { return false; }
 
             // "N/A" is OK to translate, but it won't meet the criterion of at least
-            // // two consecutive letters,
-            // so check for that first.
+            // two consecutive letters, so check for that first.
             if (str.length() == 3 &&
                 string_util::is_either(str[0], L'N', L'n') &&
                 str[1] == L'/' &&
@@ -543,7 +547,7 @@ namespace i18n_check
                 // stop if a legit function call in front of parenthesis
                 if (functionName.length())
                     {
-                    ///@todo experimental!!! Reads the variable type from a variable
+                    /// @todo experimental!!! Reads the variable type from a variable
                     // constructed from a string.
                     if (variableName.empty() &&
                         functionOrVarNamePos >= startSentinel && !is_keyword(functionName))
@@ -604,7 +608,8 @@ namespace i18n_check
                     is_valid_name_char_ex(*functionOrVarNamePos) )
                     { --functionOrVarNamePos; }
                 // If we are on the start of the text, then see if we need to include that
-                // character too. We may have short circuited because we reached the start of the stream.
+                // character too. We may have short circuited because we reached the start
+                // of the stream.
                 if (!is_valid_name_char_ex(*functionOrVarNamePos) )
                     { ++functionOrVarNamePos; }
                 variableName.assign(functionOrVarNamePos, (startPos+1)-functionOrVarNamePos);

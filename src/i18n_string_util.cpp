@@ -36,7 +36,8 @@ namespace i18n_string_util
         const wchar_t* firstSlash = string_util::strnchr(text, L'/', length);
         if (firstSlash)
             {
-            const auto lastDotPos = string_util::find_last_of(text, L'.', firstSlash-text); 
+            const auto lastDotPos =
+                string_util::find_last_of(text, L'.', firstSlash - text); 
             if (lastDotPos != std::wstring::npos &&
                 lastDotPos+4 == static_cast<size_t>(firstSlash-text) &&
                 std::iswalpha(text[lastDotPos+1]) &&
@@ -53,11 +54,11 @@ namespace i18n_string_util
         static const std::set<std::wstring> knownWebExtensions =
             { L"au", L"biz", L"ca", L"com", L"edu", L"gov", L"ly" , L"org", L"uk" };
 
-        auto periodPos = string_util::find_last_of(text, L'.', length-1);
+        auto periodPos = string_util::find_last_of(text, L'.', length - 1);
         if (periodPos != -1 && periodPos < length-1)
             {
             ++periodPos;
-            if (knownWebExtensions.find(std::wstring(text+periodPos, length-periodPos)) !=
+            if (knownWebExtensions.find(std::wstring(text+periodPos, length - periodPos)) !=
                 knownWebExtensions.cend())
                 { return true; }
             }
@@ -81,7 +82,8 @@ namespace i18n_string_util
             (text [2] == L'\\' || text [2] == L'/') )
             { return true; }
         // UNIX paths (including where the '/' at the front is missing
-        else if (length >= 3 && text[0] == L'/' && string_util::strnchr(text+2, L'/', length-2))
+        else if (length >= 3 && text[0] == L'/' &&
+            string_util::strnchr(text+2, L'/', length-2))
             { return true; }
         else if (string_util::strnchr(text, L'/', length) &&
                  (std::wcsncmp(text, L"usr/", 4) == 0 ||
@@ -109,7 +111,8 @@ namespace i18n_string_util
             // no spaces and an '@' symbol
             if (atSign && !spaceInStr)
                 {
-                const wchar_t* dotSign = string_util::strnchr(atSign, L'.', length-(atSign-text));
+                const wchar_t* dotSign =
+                    string_util::strnchr(atSign, L'.', length-(atSign-text));
                 if (dotSign && static_cast<size_t>(dotSign-text) < length-1)
                     { return true; }
                 }
@@ -139,7 +142,7 @@ namespace i18n_string_util
             std::iswalpha(text[length-3]) && std::iswalpha(text[length-2]) &&
             string_util::is_either(text[length-1], L'x', L'X'))
             {
-            // see if it is really a typo (missing space after a sentence).
+            // see if it is really a typo (missing space after a sentence)
             if (std::iswupper(text[length-4]) && !std::iswupper(text[length-3]))
                 { return false; }
             if (length >= 6 && text[length-6] == L'*')
@@ -211,7 +214,7 @@ namespace i18n_string_util
                     string_util::is_hex_digit(str[i+7]) &&
                     string_util::is_hex_digit(str[i+8]))
                     {
-                    str.erase(i,10);
+                    str.erase(i, 10);
                     }
                 // "\xFF" format (can be variable number of hex digits)
                 else if (i < str.length()-3 &&
@@ -224,7 +227,7 @@ namespace i18n_string_util
                     const wchar_t decodedCharacter{
                         static_cast<wchar_t>(string_util::axtoi(str.c_str() + i + 2, length))
                         };
-                    str.replace(i,length+2,std::wstring(1,decodedCharacter));
+                    str.replace(i,length + 2,std::wstring(1, decodedCharacter));
                     }
                 }
             }
