@@ -1,5 +1,5 @@
-/** @addtogroup Utilities
-    @brief Utility classes.
+/** @addtogroup Internationalization
+    @brief i18n classes.
     @date 2021-2023
     @copyright Blake Madden
     @author Blake Madden

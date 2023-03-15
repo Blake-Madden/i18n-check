@@ -1,5 +1,5 @@
-/** @addtogroup Utilities
-    @brief Utility classes.
+/** @addtogroup Internationalization
+    @brief i18n classes.
     @date 2021-2023
     @copyright Blake Madden
     @author Blake Madden
@@ -35,7 +35,8 @@ namespace i18n_string_util
         @param length The length of the text block to analyze.\n
             This will be the start of the text block up to the end of the
             suspected file address.*/
-    [[nodiscard]] bool is_file_address(const wchar_t* text, size_t length);
+    [[nodiscard]]
+    bool is_file_address(const wchar_t* text, size_t length);
 
     /** @brief Determines if a string is an internet address.
         @returns @c true if text block is an Internet address.
@@ -43,11 +44,13 @@ namespace i18n_string_util
         @param length The length of the text block to analyze.\n
             This will be the start of the text block up to the end of the
             suspected file address.*/
-    [[nodiscard]] bool is_url(const wchar_t* text, size_t length);
+    [[nodiscard]]
+    bool is_url(const wchar_t* text, size_t length);
 
     /** @returns Whether a character is a number (narrow [0-9] characters only).
         @param ch The letter to be reviewed.*/
-    [[nodiscard]] static constexpr bool is_numeric(const wchar_t ch) noexcept
+    [[nodiscard]]
+    static constexpr bool is_numeric(const wchar_t ch) noexcept
         {
         return (ch >= L'0' && ch <= L'9') ?
             true : false;
@@ -56,7 +59,8 @@ namespace i18n_string_util
     /** @returns @c true if a character is a letter
             (English alphabet only, and no full-width characters).
         @param ch The letter to be reviewed.*/
-    [[nodiscard]] static constexpr bool is_alpha_7bit(const wchar_t ch) noexcept
+    [[nodiscard]]
+    static constexpr bool is_alpha_7bit(const wchar_t ch) noexcept
         {
         return (((ch >= 0x41/*'A'*/) && (ch <= 0x5A/*'Z'*/)) ||
                 ((ch >= 0x61/*'a'*/) && (ch <= 0x7A/*'z'*/)));
@@ -64,7 +68,8 @@ namespace i18n_string_util
 
     /** @returns @c true if a character is an apostrophe (includes straight single quotes).
         @param ch The letter to be reviewed.*/
-    [[nodiscard]] static constexpr bool is_apostrophe(const wchar_t ch) noexcept
+    [[nodiscard]]
+    static constexpr bool is_apostrophe(const wchar_t ch) noexcept
         {
         return (ch == 39) ?         // '
             true : (ch == 146) ?    // apostrophe
@@ -80,7 +85,7 @@ namespace i18n_string_util
         {
         const static std::wregex printfRegex(
             L"([^%\\\\]|^|\\b)%[-+0 #]{0,4}[.[:digit:]]*"
-             "(?:c|C|d|i|o|u|lu|ld|lx|lX|lo|llu|lld|x|X|e|E|f|g|G|a|A|n|p|s|S|Z)");
+             "(?:c|C|d|i|o|u|lu|ld|lx|lX|lo|llu|lld|x|X|e|E|f|g|G|a|A|n|p|s|S|Z|zu)");
         // The % command (not following another % or \),
         // flags ("-+0 #", optionally can have up to 4 of these),
         // width and precision (".0-9", optional), and the specifier.
@@ -111,10 +116,12 @@ namespace i18n_string_util
     ///     (e.g., "\u266f" will be converted to the sharp symbol).
     /// @note 32-bit Unicode values (escaped by "\U") are not supported by
     ///     16-bit `std::wstring` and will simply be removed.
+     /// @param[out] str The string being escaped.
     void decode_escaped_unicode_values(std::wstring& str);
 
     /// @brief Converts escaped control characters (e.g., "\n")
     ///     inside of a string into spaces.
+    /// @param[out] str The string being escaped.
     template<typename string_typeT>
     void replace_escaped_control_chars(string_typeT& str)
         {
@@ -131,4 +138,3 @@ namespace i18n_string_util
 /** @}*/
 
 #endif //__I18N_EXTRACT_H__
-

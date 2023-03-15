@@ -1,5 +1,5 @@
-/** @addtogroup Utilities
-    @brief Utility classes.
+/** @addtogroup Internationalization
+    @brief i18n classes.
     @date 2021-2023
     @copyright Blake Madden
     @author Blake Madden
@@ -33,13 +33,13 @@ namespace i18n_check
         check_l10n_strings = 0x01,
         /// @brief Check for strings exposed for localization with internal functions
         ///     (e.g., debug and logging messages).
-        check_l10n_strings_in_internal_functions = 0x02,
+        check_suspect_l10n_strings = 0x02,
         /// @brief Check for quotes strings in the source that are not available
         ///     for translation that probably should be.
         check_not_available_for_l10n = 0x04,
         /// @brief Perform all tests.
         all_l10n_checks = 
-            (check_l10n_strings|check_l10n_strings_in_internal_functions|
+            (check_l10n_strings|check_suspect_l10n_strings|
              check_not_available_for_l10n)
         };
 
@@ -67,10 +67,12 @@ namespace i18n_check
                 /// @private
                 usage_info() = default;
                 usage_info(const usage_type& type, const std::wstring& val) :
-                    m_type(type), m_value(val) {}
+                    m_type(type), m_value(val)
+                    {}
                 usage_info(const usage_type& type,const std::wstring& val,
                            const std::wstring& varType) :
-                    m_type(type), m_value(val), m_variableType(varType) {}
+                    m_type(type), m_value(val), m_variableType(varType)
+                    {}
                 usage_type m_type{ usage_type::function };
                 std::wstring m_value;
                 std::wstring m_variableType;
@@ -89,7 +91,7 @@ namespace i18n_check
             size_t m_column{ 0 };
             };
 
-        // Messages logged during a review.
+        /// @brief Messages logged during a review.
         struct parse_messages
             {
             parse_messages(const std::wstring& filename, const std::wstring& str,
@@ -101,7 +103,7 @@ namespace i18n_check
             std::string m_message;
             };
 
-        /// @brief CTOR.
+        /// @brief Constructor.
         i18n_review();
         /// @private
         virtual ~i18n_review() {}
@@ -127,7 +129,8 @@ namespace i18n_check
                 {
                 for (const auto& i : m_localizable_strings)
                     {
-                    if (i.m_string.length() && is_untranslatable_string(i.m_string))
+                    if (i.m_string.length() &&
+                        is_untranslatable_string(i.m_string, false))
                         { m_unsafe_localizable_strings.emplace_back(i); }
                     }
                 }
@@ -176,13 +179,13 @@ namespace i18n_check
                 pattern, then it will be logged as an error.
             @param pattern The regex pattern to compare against the variable names.
         */
-        void add_variable_pattern_to_ignore(const std::wregex& pattern)
-            { m_variable_patterns_to_ignore.emplace_back(pattern); }
+        void add_variable_name_pattern_to_ignore(const std::wregex& pattern)
+            { m_variable_name_patterns_to_ignore.emplace_back(pattern); }
         /// @returns The regex patterns compared against variables that have
-        ///     strings assigned to them. @sa add_variable_pattern_to_ignore().
+        ///     strings assigned to them. @sa add_variable_name_patterns_to_ignore().
         [[nodiscard]]
         const std::vector<std::wregex>& get_ignored_variable_patterns() const noexcept
-            { return m_variable_patterns_to_ignore; }
+            { return m_variable_name_patterns_to_ignore; }
 
         /** @brief Adds a variable type to ignore.
             @details Any variables that are constructed in place with these types
@@ -190,11 +193,11 @@ namespace i18n_check
             @param varType The variable type to ignore.
             @note This only works for variables with string arguments that
                 are constructed in place.*/
-        void add_untranslatable_variable_type(const std::wstring& varType)
-            { m_untranslatable_variable_types.insert(varType); }
+        void add_variable_type_to_ignore(const std::wstring& varType)
+            { m_variable_types_to_ignore.insert(varType); }
         /// @returns The variable types that will have their string values marked as internal.
-        const std::set<std::wstring>& get_untranslatable_variable_types() const noexcept
-            { return m_untranslatable_variable_types; }
+        const std::set<std::wstring>& get_ignored_variable_types() const noexcept
+            { return m_variable_types_to_ignore; }
 
         /// @brief Allocates space for the results.
         /// @param fileCount The expected number of files that the parser
@@ -212,15 +215,36 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<parse_messages>& get_error_log() const noexcept
             { return m_error_log; }
-        /// @returns Whether it is OK to consider punctuation only
-        ///     strings as being safe to translate.
+        /// @returns Whether to consider punctuation-only strings as being safe to translate.
         [[nodiscard]]
         bool is_allowing_translating_punctuation_only_strings() const noexcept
             { return m_allow_translating_punctuation_only_strings; }
-        /// @brief Set whether it is OK to consider punctuation only
-        ///     strings as being safe to translate.
+        /// @brief Set whether to consider punctuation-only strings as being safe to translate.
+        /// @details The default is @c false.
+        /// @param allow @c true to consider punctuation-only strings localizable.
         void allow_translating_punctuation_only_strings(const bool allow) noexcept
             { m_allow_translating_punctuation_only_strings = allow; }
+        /// @returns Whether to verify that exception messages as available for translation.
+        [[nodiscard]]
+        bool should_exceptions_be_translatable() const noexcept
+            { return m_exceptions_should_be_translatable; }
+        /// @brief Set whether to verify that exception messages as available for translation.
+        /// @details The default is @c true.
+        /// @param allow @c true to consider exception messages localizable.
+        void exceptions_should_be_translatable(const bool allow) noexcept
+            { m_exceptions_should_be_translatable = allow; }
+        /// @returns The minimum number of words that a string must have to be
+        ///     reviewed for whether it should be available for translation.
+        [[nodiscard]]
+        size_t get_min_words_for_classifying_unavailable_string() const noexcept
+            { return m_min_words_for_unavailable_string; }
+        /// @brief Sets The minimum number of words that a string must have to be
+        ///     reviewed for whether it should be available for translation.
+        /// @details The default is to require two or more words before a string
+        ///     could be considered translatable.
+        /// @param minVal The word count threshold.
+        void set_min_words_for_classifying_unavailable_string(const size_t minVal) noexcept
+            { m_min_words_for_unavailable_string = minVal; }
         /** @brief Adds a font face to be ignored if found as a string.
             @param str The font face name.*/
         void add_font_name_to_ignore(const string_util::case_insensitive_wstring& str)
@@ -230,28 +254,36 @@ namespace i18n_check
         void add_file_extension_to_ignore(const string_util::case_insensitive_wstring& str)
             { m_file_extensions.emplace(str); }
     protected:
+        /// @private
         struct exclusion_block_find_info
             {
             exclusion_block_find_info(const size_t blockStart,
                                       const size_t previousBlockEnd) noexcept :
-                m_blockStart(blockStart), m_previousBlockEnd(previousBlockEnd) {}
+                m_blockStart(blockStart), m_previousBlockEnd(previousBlockEnd)
+                {}
             size_t m_blockStart{ 0 };
             size_t m_previousBlockEnd{ 0 };
             };
         /// Determines if a string that is marked as non-localizable should actually be
         /// exposed for translation or not. If so, then it will be added to the queue of
         /// non-localizable strings; otherwise, it will be considered an internal string.
+        /// @param str The string to review.
         void classify_non_localizable_string(const string_info& str)
             {
             if ((m_reviewStyles == all_l10n_checks) ||
                 (m_reviewStyles & check_not_available_for_l10n))
                 {
-                if (is_untranslatable_string(str.m_string))
+                if (!should_exceptions_be_translatable() &&
+                    m_exceptions.find(str.m_usage.m_value) != m_exceptions.cend())
+                    { return; }
+                if (is_untranslatable_string(str.m_string, true))
                     { m_internal_strings.emplace_back(str); }
                 else
                     { m_not_available_for_localization_strings.emplace_back(str); }
                 }
             }
+        /// @returns @c true if a string is a keyword.
+        /// @param str The string to review.
         [[nodiscard]]
         bool is_keyword(const std::wstring& str) const
             { return m_keywords.find(str) != m_keywords.cend(); }
@@ -272,15 +304,24 @@ namespace i18n_check
     public:
 #endif
         /// @returns Whether @c str is a string that should be translated.
+        /// @param str The string to review.
+        /// @param limitWordCount If @c true, will consider a word as
+        ///    untranslatable if it doesn't meet
+        ///    get_min_words_for_classifying_unavailable_string()'s threshold.
+        /// @note @c limitWordCount should be false if reviewing a word that is available
+        ///     for l10n as these strings should always be reviewed, regardless of length.
         [[nodiscard]]
-        bool is_untranslatable_string(std::wstring str) const;
+        bool is_untranslatable_string(std::wstring str, const bool limitWordCount) const;
         /// @returns Whether @c functionName is a diagnostic function (e.g., ASSERT) whose
-        /// string parameters shouldn't be translatable.
+        ///     string parameters shouldn't be translatable.
+        /// @param functionName The name of the function to review.
         [[nodiscard]]
         bool is_diagnostic_function(const std::wstring& functionName) const;
         /// @returns Whether @c wc is an allowable character for function/variable names.
-        /// @note this will only work for the simple part of a function. If you need to include
-        /// namespace accessors and template information, then use is_valid_name_char_ex() instead.
+        /// @param wc The character to review.
+        /// @note this will only work for the simple part of a function.
+        ///     If you need to include namespace accessors and template information,
+        ///     then use is_valid_name_char_ex() instead.
         [[nodiscard]]
         bool is_valid_name_char(const wchar_t wc) const noexcept
             {
@@ -289,9 +330,10 @@ namespace i18n_check
                     wc == L'_');
             }
         /// @returns Whether @c wc is an allowable character for function/variable names.
+        /// @param wc The character to review.
         /// @note This can include extended parts of a variable/function name to include
-        /// namespace accessor and templates information. For example, this will see
-        /// `std::sort<CString>` as the full name of the function (instead of just sort).
+        ///     namespace accessor and templates information. For example, this will see
+        ///     `std::sort<CString>` as the full name of the function (instead of just sort).
         [[nodiscard]]
         bool is_valid_name_char_ex(const wchar_t wc) const noexcept
             {
@@ -306,16 +348,26 @@ namespace i18n_check
 
         /// @brief Strips off decorations from variable and functions.
         /// @details This is language specific and should be reimplemented in derived classes.
+        /// @param str The string to strip.
         virtual void remove_decorations([[maybe_unused]] std::wstring& str) const
             {}
 
-        /// @brief Reviews and classifies a string value based on its variable name.
+        /// @brief Reviews and classifies a string value based on the
+        ///     variable it is being assigne to.
+        /// @param variableType The type of the variable being assigned to
+        ///     (e.g.,  wxString).
+        /// @param variableName The name of the variable being assigned to.
+        /// @param value The string value being reviewed.
+        /// @param quotePosition The character position of where the
+        ///     quote starting @c value begins.
         void process_variable(const std::wstring& variableType, const std::wstring& variableName,
                               const std::wstring& value,
                               const size_t quotePosition);
 
         /// @brief Fills a block with blanks.
         /// @details Useful for excluding an already processed text block.
+        /// @param start The starting position.
+        /// @param end The ending position.
         void clear_section(wchar_t* start, const wchar_t* end) const noexcept
             {
             for (ptrdiff_t i = 0; i < end-start; ++i)
@@ -325,15 +377,30 @@ namespace i18n_check
                 }
             }
 
+        /** @brief Backtracks from a quote to see which function or variable it is
+                connected to.
+            @param startPos The start of the quote.
+            @param startSentinel The furthest point to look backwards.
+            @param[out] functionName If the string is in a function call,
+                the name of that function.
+            @param[out] variableName If the string is being assigned to a variable,
+                the name of that variable.
+            @param[out] variableType What the string was being assigned to (function or variable).
+            @returns The position of the function or variable related to the string.*/
         const wchar_t* read_var_or_function_name(const wchar_t* startPos,
             const wchar_t* const startSentinel,
             std::wstring& functionName, std::wstring& variableName, std::wstring& variableType);
 
+        /// @returns The line and column postion from a character position.
+        /// @param position The chacter position in the file.
+        [[nodiscard]]
         std::pair<size_t, size_t> get_line_and_column(size_t position) noexcept;
 
         const wchar_t* m_file_start{ nullptr };
 
         bool m_allow_translating_punctuation_only_strings{ false };
+        bool m_exceptions_should_be_translatable{ true };
+        size_t m_min_words_for_unavailable_string{ 2 };
 
         review_style m_reviewStyles{ review_style::all_l10n_checks };
 
@@ -341,9 +408,10 @@ namespace i18n_check
         std::set<std::wstring> m_localization_functions;
         std::set<std::wstring> m_non_localizable_functions;
         std::set<std::wstring> m_internal_functions;
+        std::set<std::wstring> m_exceptions;
         std::set<std::wstring> m_ctors_to_ignore;
-        std::vector<std::wregex> m_variable_patterns_to_ignore;
-        std::set<std::wstring> m_untranslatable_variable_types;
+        std::vector<std::wregex> m_variable_name_patterns_to_ignore;
+        std::set<std::wstring> m_variable_types_to_ignore;
         std::set<string_util::case_insensitive_wstring> m_known_internal_strings;
         std::set<std::wstring> m_keywords;
         std::set<string_util::case_insensitive_wstring> m_font_names;
@@ -354,9 +422,9 @@ namespace i18n_check
         std::vector<string_info> m_marked_as_non_localizable_strings;
         std::vector<string_info> m_internal_strings;
         // results that are probably issues
-        std::vector<string_info> m_not_available_for_localization_strings;
         std::vector<string_info> m_unsafe_localizable_strings;
         std::vector<string_info> m_localizable_strings_in_internal_call;
+        std::vector<string_info> m_not_available_for_localization_strings;
 
         std::wstring m_file_name;
 

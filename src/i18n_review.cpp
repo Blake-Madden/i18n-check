@@ -65,13 +65,15 @@ namespace i18n_check
             // Config_File, "user_level_permission", "__HIGH_SCORE__"
             std::wregex(L"[_]*[a-zA-Z0-9]+(_[a-zA-Z0-9]+)+[_]*"),
             // CSS strings
-            std::wregex(L"font-(style|weight|family|size|face-name|underline|point-size)[[:space:]]*[:]?.*", std::regex_constants::icase),
+            std::wregex(L"font-(style|weight|family|size|face-name|underline|point-size)[[:space:]]*[:]?.*",
+                std::regex_constants::icase),
             std::wregex(L"text-decoration[[:space:]]*[:]?.*", std::regex_constants::icase),
             std::wregex(L"(background-)?color[[:space:]]*:.*", std::regex_constants::icase),
             std::wregex(L"style[[:space:]]*=[\"']?.*", std::regex_constants::icase),
             // local file paths & file names
             std::wregex(L"(WINDIR|Win32|System32|Kernel32|/etc|/tmp)", std::regex_constants::icase),
-            std::wregex(L"(so|dll|exe|dylib|jpg|bmp|png|gif|txt|doc)", std::regex_constants::icase), // common file extension that might be missing the period
+            std::wregex(L"(so|dll|exe|dylib|jpg|bmp|png|gif|txt|doc)",
+                std::regex_constants::icase), // common file extension that might be missing the period
             std::wregex(L"[.][a-zA-Z0-9]{1,5}"), // file extension
             std::wregex(L"[.]DS_Store"), // macOS file
             std::wregex(L"[\\\\/]?[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]+([.][a-zA-Z0-9]{1,4})+"), // file name (supports multiple extensions)
@@ -171,6 +173,14 @@ namespace i18n_check
             L"lua_setglobal"
             };
 
+        m_exceptions = {
+            L"logic_error", L"std::logic_error", L"domain_error", L"std::domain_error",
+            L"length_error", L"std::length_error", L"out_of_range", L"std::out_of_range",
+            L"runtime_error", L"std::runtime_error", L"overflow_error", L"std::overflow_error",
+            L"underflow_error", L"std::underflow_error", L"range_error", L"std::range_error",
+            L"invalid_argument", L"std::invalid_argument", L"exception", L"std::exception"
+            };
+
         // known strings to ignore
         m_known_internal_strings = { L"size-points", L"background-gdk", L"foreground-gdk",
             L"foreground-set", L"background-set",
@@ -227,7 +237,7 @@ namespace i18n_check
                             L"gzip", L"bz2" };
 
         // variables whose CTORs take a string that should never be translated
-        m_untranslatable_variable_types = { L"wxUxThemeHandle", L"wxRegKey", 
+        m_variable_types_to_ignore = { L"wxUxThemeHandle", L"wxRegKey", 
                             L"wxLoadedDLL", L"wxConfigPathChanger", L"wxWebViewEvent", 
                             L"wxFileSystemWatcherEvent", L"wxStdioPipe",
                             L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION", L"vmsWarningHandler",
@@ -236,7 +246,7 @@ namespace i18n_check
                             L"wxRegEx", L"wregex", L"std::wregex", L"regex", L"std::regex",
                             L"wxDataObjectSimple" };
 
-        add_variable_pattern_to_ignore(std::wregex(L"^debug.*", std::regex_constants::icase));
+        add_variable_name_pattern_to_ignore(std::wregex(L"^debug.*", std::regex_constants::icase));
         }
 
     //--------------------------------------------------
@@ -246,8 +256,8 @@ namespace i18n_check
         {
     #ifndef NDEBUG
         if (variableType.length() &&
-            get_untranslatable_variable_types().find(variableType) ==
-            get_untranslatable_variable_types().cend() &&
+            get_ignored_variable_types().find(variableType) ==
+            get_ignored_variable_types().cend() &&
             variableType != L"wxString" &&
             variableType != L"wxDialog" &&
             variableType != L"wxTextInputStream" &&
@@ -256,8 +266,8 @@ namespace i18n_check
             variableType != L"MessageParameters")
             { log_message(variableType, "New variable type detected."); }
     #endif
-        if (get_untranslatable_variable_types().find(variableType) !=
-            get_untranslatable_variable_types().cend())
+        if (get_ignored_variable_types().find(variableType) !=
+            get_ignored_variable_types().cend())
             {
             m_internal_strings.emplace_back(
                 string_info(value,
@@ -350,8 +360,11 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    bool i18n_review::is_untranslatable_string(std::wstring str) const
+    bool i18n_review::is_untranslatable_string(std::wstring str,
+                                               const bool limitWordCount) const
         {
+        static const std::wregex oneWordRE{ LR"((\b[\w]+([\.\-\/:]*[\w]*)*))" };
+
         i18n_string_util::replace_escaped_control_chars(str);
         string_util::trim(str);
         // see if a function signature before stripping printf commands and whatnot
@@ -372,8 +385,22 @@ namespace i18n_check
                 { ch = L' '; }
             }
         string_util::trim(str);
+
         try
             {
+            if (limitWordCount)
+                {
+                // see if it has enough words
+                const auto matchCount
+                    {
+                    std::distance(
+                        std::wsregex_iterator(str.cbegin(), str.cend(), oneWordRE),
+                        std::wsregex_iterator())
+                    };
+                if (static_cast<size_t>(matchCount) <
+                    get_min_words_for_classifying_unavailable_string())
+                    { return true; }
+                }
             // Handle HTML syntax that is hard coded in the source file.
             // Strip it down and then see if what's left contains translatable content.
             // Note that we skip any punctuation (not word characters, excluding '<')
@@ -541,8 +568,8 @@ namespace i18n_check
                     }
                 // construction of a variable type that takes
                 // non-localizable strings, just skip it entirely
-                else if (m_untranslatable_variable_types.find(functionName) !=
-                    m_untranslatable_variable_types.cend())
+                else if (m_variable_types_to_ignore.find(functionName) !=
+                    m_variable_types_to_ignore.cend())
                     { break; }
                 // stop if a legit function call in front of parenthesis
                 if (functionName.length())

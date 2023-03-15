@@ -169,7 +169,7 @@ namespace i18n_check
                                 assert(functionVarNamePos);
                                 if (functionVarNamePos &&
                                     (m_reviewStyles == all_l10n_checks) ||
-                                    (m_reviewStyles & check_l10n_strings_in_internal_functions))
+                                    (m_reviewStyles & check_suspect_l10n_strings))
                                     {
                                     std::wstring functionNameOuter, variableNameOuter, variableTypeOuter;
                                     read_var_or_function_name(functionVarNamePos, m_file_start,
@@ -179,8 +179,8 @@ namespace i18n_check
                                     if (m_internal_functions.find(functionNameOuter) !=
                                         m_internal_functions.cend() ||
                                         // CTORs whose arguments should not be translated
-                                        m_untranslatable_variable_types.find(functionNameOuter) !=
-                                        m_untranslatable_variable_types.cend())
+                                        m_variable_types_to_ignore.find(functionNameOuter) !=
+                                        m_variable_types_to_ignore.cend())
                                         {
                                         m_localizable_strings_in_internal_call.emplace_back(
                                             string_info(std::wstring(cpp_text, end - cpp_text),
@@ -191,8 +191,8 @@ namespace i18n_check
                                             get_line_and_column(cpp_text - m_file_start)));
                                         }
                                     // untranslatable variable types
-                                    else if (m_untranslatable_variable_types.find(variableTypeOuter) !=
-                                        m_untranslatable_variable_types.cend())
+                                    else if (m_variable_types_to_ignore.find(variableTypeOuter) !=
+                                        m_variable_types_to_ignore.cend())
                                         {
                                         m_localizable_strings_in_internal_call.emplace_back(
                                             string_info(std::wstring(cpp_text, end - cpp_text),
@@ -238,8 +238,8 @@ namespace i18n_check
                                     m_file_name,
                                     get_line_and_column(cpp_text - m_file_start)));
                                 }
-                            else if (m_untranslatable_variable_types.find(functionName) !=
-                                m_untranslatable_variable_types.cend())
+                            else if (m_variable_types_to_ignore.find(functionName) !=
+                                m_variable_types_to_ignore.cend())
                                 {
                                 m_internal_strings.emplace_back(
                                     string_info(std::wstring(cpp_text, end - cpp_text),

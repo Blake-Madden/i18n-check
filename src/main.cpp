@@ -163,6 +163,7 @@ int main(int argc, char* argv[])
         }
         
     i18n_check::cpp_i18n_review cpp;
+    cpp.reserve(filesToAnalyze.size());
     // see which checks are being performed
     if (result.count("styles"))
         {
@@ -179,7 +180,7 @@ int main(int argc, char* argv[])
             else if (r == "l10n")
                 { rs |= check_l10n_strings; }
             else if (r == "suspect-l10n")
-                { rs |= check_l10n_strings_in_internal_functions; }
+                { rs |= check_suspect_l10n_strings; }
             else if (r == "not-l10n-available")
                 { rs |= check_not_available_for_l10n; }
             }
