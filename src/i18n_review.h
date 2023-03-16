@@ -124,8 +124,7 @@ namespace i18n_check
         ///     of your files via `operator()`.
         void review_localizable_strings()
             {
-            if ((m_reviewStyles == all_l10n_checks) ||
-                (m_reviewStyles & check_l10n_strings))
+            if (m_reviewStyles & check_l10n_strings)
                 {
                 for (const auto& i : m_localizable_strings)
                     {
@@ -270,8 +269,7 @@ namespace i18n_check
         /// @param str The string to review.
         void classify_non_localizable_string(const string_info& str)
             {
-            if ((m_reviewStyles == all_l10n_checks) ||
-                (m_reviewStyles & check_not_available_for_l10n))
+            if (m_reviewStyles & check_not_available_for_l10n)
                 {
                 if (!should_exceptions_be_translatable() &&
                     m_exceptions.find(str.m_usage.m_value) != m_exceptions.cend())
@@ -353,7 +351,7 @@ namespace i18n_check
             {}
 
         /// @brief Reviews and classifies a string value based on the
-        ///     variable it is being assigne to.
+        ///     variable it is being assigned to.
         /// @param variableType The type of the variable being assigned to
         ///     (e.g.,  wxString).
         /// @param variableName The name of the variable being assigned to.
@@ -392,7 +390,7 @@ namespace i18n_check
             std::wstring& functionName, std::wstring& variableName, std::wstring& variableType);
 
         /// @returns The line and column postion from a character position.
-        /// @param position The chacter position in the file.
+        /// @param position The character position in the file.
         [[nodiscard]]
         std::pair<size_t, size_t> get_line_and_column(size_t position) noexcept;
 

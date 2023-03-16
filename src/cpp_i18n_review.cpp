@@ -168,8 +168,7 @@ namespace i18n_check
 
                                 assert(functionVarNamePos);
                                 if (functionVarNamePos &&
-                                    (m_reviewStyles == all_l10n_checks) ||
-                                    (m_reviewStyles & check_suspect_l10n_string_usage))
+                                    m_reviewStyles & check_suspect_l10n_string_usage)
                                     {
                                     std::wstring functionNameOuter, variableNameOuter, variableTypeOuter;
                                     read_var_or_function_name(functionVarNamePos, m_file_start,
@@ -494,7 +493,7 @@ namespace i18n_check
                 // No open parentheses after the defined value--then not a function.
                 // Just leave the end marker where it is (EOL) and gobble all of this up.
                 else if (!string_util::strnchr(directiveStart, L'(', end-directiveStart))
-                    { /*noop*/ }
+                    { /*no-op*/ }
                 // ...or more like a #defined function, so let main parser deal with it
                 // (just strip out the preprocessor junk here)
                 else
