@@ -484,6 +484,30 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
+    std::wstring i18n_review::collapse_multipart_string(const std::wstring& str)
+        {
+        std::wregex re(LR"(([^\\])("[\s]*"))");
+        return std::regex_replace(str, re, L"$1");
+        }
+
+    //--------------------------------------------------
+    void i18n_review::process_strings()
+        {
+        const auto processStrings = [this](auto& strings)
+            {
+            std::for_each(strings.begin(),
+                          strings.end(),
+                [this](auto& val)
+                { val.m_string = collapse_multipart_string(val.m_string); });
+            };
+        processStrings(m_localizable_strings);
+        processStrings(m_not_available_for_localization_strings);
+        processStrings(m_marked_as_non_localizable_strings);
+        processStrings(m_internal_strings);
+        processStrings(m_unsafe_localizable_strings);
+        }
+
+    //--------------------------------------------------
     void i18n_review::run_diagnostics()
         {
         for (const auto& str : m_localizable_strings)

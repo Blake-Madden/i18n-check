@@ -119,11 +119,14 @@ namespace i18n_check
             @param file_name The (optional) name of source file being analyzed.*/
         virtual void operator()(const wchar_t* cpp_text, const size_t text_length,
                                 const std::wstring& file_name = L"") = 0;
-        /// @brief Reviews any strings that are available for translation that are suspect.
+        /// @brief Finalizes the review process after all files have been loaded.
+        /// @details Reviews any strings that are available for translation that are suspect,
+        ///     cleans the strings, and logs any parsing issues.
         /// @note This should be called after you are finished processing all
         ///     of your files via `operator()`.
-        void review_localizable_strings()
+        void review_strings()
             {
+            process_strings();
             if (m_reviewStyles & check_l10n_strings)
                 {
                 for (const auto& i : m_localizable_strings)
@@ -133,11 +136,10 @@ namespace i18n_check
                         { m_unsafe_localizable_strings.emplace_back(i); }
                     }
                 }
+            // log any parsing errors
+            run_diagnostics();
             }
-        /// @brief Reviews output integrity to see if there were any parsing errors.
-        /// @note This should be called after you are finished processing all
-        ///     of your files via `operator()`.
-        void run_diagnostics();
+        
         /// @returns The strings in the code that are set to be extracted as translatable. 
         [[nodiscard]]
         const std::vector<string_info>& get_localizable_strings() const noexcept
@@ -394,6 +396,18 @@ namespace i18n_check
         [[nodiscard]]
         std::pair<size_t, size_t> get_line_and_column(size_t position) noexcept;
 
+        /// @brief Removes the quotes and whitespace between multiple quotes
+        ///     strings that constitute a single string.
+        /// @warning This should be performed on a raw string.
+        /// @param[in,out] str The string to collapse.
+        [[nodiscard]]
+        static std::wstring collapse_multipart_string(const std::wstring& str);
+
+        /// @brief Collapses non-raw strings that are multiline.
+        void process_strings();
+        /// @brief Reviews output integrity to see if there were any parsing errors.
+        void run_diagnostics();
+
         const wchar_t* m_file_start{ nullptr };
 
         bool m_allow_translating_punctuation_only_strings{ false };
@@ -415,7 +429,7 @@ namespace i18n_check
         std::set<string_util::case_insensitive_wstring> m_font_names;
         std::set<string_util::case_insensitive_wstring> m_file_extensions;
 
-        // results after parsing that the client should maybe review
+        // results after parsing what the client should maybe review
         std::vector<string_info> m_localizable_strings;
         std::vector<string_info> m_marked_as_non_localizable_strings;
         std::vector<string_info> m_internal_strings;

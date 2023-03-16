@@ -38,7 +38,7 @@ namespace i18n_check
                     wchar_t* end = std::wcsstr(cpp_text, L"*/");
                     if (end && end < endSentinel)
                         {
-                        clear_section(cpp_text,end+2);
+                        clear_section(cpp_text, end+2);
                         cpp_text = end + 2;
                         }
                     // can't find ending tag, so just read in the rest of the text
@@ -125,7 +125,7 @@ namespace i18n_check
                         // Note that we could have escaped slashes in front of a quote, so
                         // make sure that they slash in front of the quote (if there is one)
                         // is intended for it.
-                        size_t proceedingSlashCount(0);
+                        size_t proceedingSlashCount{ 0 };
                         const wchar_t* proceedingSlashes = end-1;
                         while (proceedingSlashes >= m_file_start &&
                             *proceedingSlashes == L'\\')
@@ -140,6 +140,18 @@ namespace i18n_check
                             ++end;
                             continue;
                             }
+
+                        // see if there is more to this string on another line
+                        wchar_t* connectedQuote = end + 1;
+                        while (connectedQuote < endSentinel &&
+                            std::iswspace(*connectedQuote))
+                            { ++connectedQuote; }
+                        if (connectedQuote < endSentinel && *connectedQuote == L'\"')
+                            {
+                            end = connectedQuote + 1;
+                            continue;
+                            }
+
                         if (variableName.length())
                             {
                             process_variable(variableType, variableName,
@@ -254,7 +266,7 @@ namespace i18n_check
                                     string_info(std::wstring(cpp_text, end - cpp_text),
                                     string_info::usage_info(
                                         string_info::usage_info::usage_type::orphan,
-                                        L""),
+                                        std::wstring{}),
                                     m_file_name,
                                     get_line_and_column(cpp_text - m_file_start)));
                                 }
@@ -275,12 +287,12 @@ namespace i18n_check
                                 string_info(std::wstring(cpp_text, end - cpp_text),
                                 string_info::usage_info(
                                     string_info::usage_info::usage_type::orphan,
-                                    L""),
+                                    std::wstring{}),
                                 m_file_name,
-                                get_line_and_column(cpp_text-m_file_start)));
+                                get_line_and_column(cpp_text - m_file_start)));
                             } 
-                        clear_section(cpp_text,end + 1);
-                        cpp_text = end+1;
+                        clear_section(cpp_text, end + 1);
+                        cpp_text = end + 1;
                         break;
                         }
                     else
@@ -303,8 +315,9 @@ namespace i18n_check
             if (templateStart != std::wstring::npos)
                 { str.erase(templateStart); }
             }
-        // strip off colons in front of string (e.g., the common practice of typing "::" in front
-        // of items in the global namespace). Also get rid of any accessors (e.g., '>' (from "->") or '.').
+        // Strip off colons in front of string (e.g., the common practice of typing "::" in front
+        // of items in the global namespace).
+        // Also get rid of any accessors (e.g., '>' (from "->") or '.').
         if (str.length() &&
             (str.front() == L':' || str.front() == L'>' || str.front() == L'.'))
             {
@@ -485,7 +498,7 @@ namespace i18n_check
                         {
                         const std::wstring definedValue =
                             std::wstring(directiveStart + 1, (quoteEnd - directiveStart) - 1);
-                        process_variable(L"", definedTerm,
+                        process_variable(std::wstring{}, definedTerm,
                                     definedValue, directivePos+(directiveStart-originalStart));
                         }
                     }
