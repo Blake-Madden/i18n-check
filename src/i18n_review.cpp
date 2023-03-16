@@ -505,6 +505,7 @@ namespace i18n_check
                 { val.m_string = collapse_multipart_string(val.m_string); });
             };
         processStrings(m_localizable_strings);
+        processStrings(m_localizable_strings_in_internal_call);
         processStrings(m_not_available_for_localization_strings);
         processStrings(m_marked_as_non_localizable_strings);
         processStrings(m_internal_strings);
