@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("i,ignore", "Folders and files to ignore (can be used multiple times)",
         cxxopts::value<std::vector<std::string>>())
-    ("s,styles", "Which checks to perform (any combination of: "
+    ("enable", "Which checks to perform (any combination of: "
         "all, l10n, suspect-l10n-usage, not-l10n-available)",
         cxxopts::value<std::vector<std::string>>())
     ("o,output", "The output report path", cxxopts::value<std::string>())
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
         }
     else
         {
-        std::wcout << L"You must pass in at least one folder to analyze.";
+        std::cout << "You must pass in at least one folder to analyze.";
         return 0;
         }
 
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
         }
 
     // input folder
-    std::wcout << L"Searching for files to analyze...\n";
+    std::cout << "Searching for files to analyze...\n";
     std::vector<std::string> filesToAnalyze; 
     
     for (const auto& p :
@@ -165,10 +165,10 @@ int main(int argc, char* argv[])
     i18n_check::cpp_i18n_review cpp;
     cpp.reserve(filesToAnalyze.size());
     // see which checks are being performed
-    if (result.count("styles"))
+    if (result.count("enable"))
         {
         const auto& styles =
-            result["styles"].as<std::vector<std::string>>();
+            result["enable"].as<std::vector<std::string>>();
         int rs{ no_l10n_checks };
         for (const auto& r : styles)
             {
@@ -194,15 +194,15 @@ int main(int argc, char* argv[])
         std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                           std::istreambuf_iterator<wchar_t>());
 
-        std::wcout << L"Processing " << std::to_wstring(++currentFileIndex) <<
-            " of " << std::to_wstring(filesToAnalyze.size()) << " files (" <<
+        std::cout << "Processing " << std::to_string(++currentFileIndex) <<
+            " of " << std::to_string(filesToAnalyze.size()) << " files (" <<
             fs::path(file).filename() << ")\n";
         cpp(str.c_str(), str.length(), fs::path(file).wstring());
         }
 
-    std::wcout << "Reviewing strings...\n";
+    std::cout << "Reviewing strings...\n";
     cpp.review_localizable_strings();
-    std::wcout << "Running diagnostics...\n";
+    std::cout << "Running diagnostics...\n";
     cpp.run_diagnostics();
 
     std::wstringstream report;
