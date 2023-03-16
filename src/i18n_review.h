@@ -398,7 +398,6 @@ namespace i18n_check
 
         /// @brief Removes the quotes and whitespace between multiple quotes
         ///     strings that constitute a single string.
-        /// @warning This should be performed on a raw string.
         /// @param[in,out] str The string to collapse.
         [[nodiscard]]
         static std::wstring collapse_multipart_string(const std::wstring& str);

@@ -486,6 +486,10 @@ namespace i18n_check
     //--------------------------------------------------
     std::wstring i18n_review::collapse_multipart_string(const std::wstring& str)
         {
+        // leave raw strings as-is
+        if (str.length() >= 2 && str.front() == L'(' &&
+            str.back() == L')')
+            { return str; }
         std::wregex re(LR"(([^\\])("[\s]*"))");
         return std::regex_replace(str, re, L"$1");
         }
