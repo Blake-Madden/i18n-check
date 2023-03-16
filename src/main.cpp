@@ -31,6 +31,7 @@ int main(int argc, char* argv[])
         "all, l10n, suspect-l10n-usage, not-l10n-available)",
         cxxopts::value<std::vector<std::string>>())
     ("o,output", "The output report path", cxxopts::value<std::string>())
+    ("q,quiet", "Only print errors and the final output")
     ("h,help", "Print usage");
 
     cxxopts::ParseResult result;
@@ -68,6 +69,8 @@ int main(int argc, char* argv[])
         std::cout << "You must pass in at least one folder to analyze.";
         return 0;
         }
+
+    const bool isQuietMode = (result.count("help") > 0);
 
     // paths being ignored
     std::vector<std::string> excludedPaths;
@@ -122,7 +125,8 @@ int main(int argc, char* argv[])
         }
 
     // input folder
-    std::cout << "Searching for files to analyze...\n";
+    if (isQuietMode)
+        { std::cout << "Searching for files to analyze...\n"; }
     std::vector<std::string> filesToAnalyze; 
     
     for (const auto& p :
@@ -194,15 +198,18 @@ int main(int argc, char* argv[])
         std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                           std::istreambuf_iterator<wchar_t>());
 
-        std::cout << "Processing " << std::to_string(++currentFileIndex) <<
-            " of " << std::to_string(filesToAnalyze.size()) << " files (" <<
-            fs::path(file).filename() << ")\n";
+        if (isQuietMode)
+            {
+            std::cout << "Processing " << std::to_string(++currentFileIndex) <<
+                " of " << std::to_string(filesToAnalyze.size()) << " files (" <<
+                fs::path(file).filename() << ")\n";
+            }
         cpp(str.c_str(), str.length(), fs::path(file).wstring());
         }
 
-    std::cout << "Reviewing strings...\n";
+    if (isQuietMode)
+        { std::cout << "Reviewing strings...\n"; }
     cpp.review_localizable_strings();
-    std::cout << "Running diagnostics...\n";
     cpp.run_diagnostics();
 
     std::wstringstream report;
