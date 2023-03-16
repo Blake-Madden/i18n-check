@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     ("i,ignore", "Folders and files to ignore (can be used multiple times)",
         cxxopts::value<std::vector<std::string>>())
     ("enable", "Which checks to perform (any combination of: "
-        "all, l10n, suspect-l10n-usage, not-l10n-available)",
+        "all, suspectL10NString, suspectL10NUsage, notL10NAvailable)",
         cxxopts::value<std::vector<std::string>>())
     ("o,output", "The output report path", cxxopts::value<std::string>())
     ("q,quiet", "Only print errors and the final output")
@@ -181,11 +181,11 @@ int main(int argc, char* argv[])
                 cpp.set_style(i18n_check::review_style::all_l10n_checks);
                 break;
                 }
-            else if (r == "l10n")
+            else if (r == "suspectL10NString")
                 { rs |= check_l10n_strings; }
-            else if (r == "suspect-l10n-usage")
+            else if (r == "suspectL10NUsage")
                 { rs |= check_suspect_l10n_string_usage; }
-            else if (r == "not-l10n-available")
+            else if (r == "notL10NAvailable")
                 { rs |= check_not_available_for_l10n; }
             }
         cpp.set_style(static_cast<i18n_check::review_style>(rs));
@@ -209,8 +209,7 @@ int main(int argc, char* argv[])
 
     if (isQuietMode)
         { std::cout << "Reviewing strings...\n"; }
-    cpp.review_localizable_strings();
-    cpp.run_diagnostics();
+    cpp.review_strings();
 
     std::wstringstream report;
     if (cpp.get_unsafe_localizable_strings().size())
