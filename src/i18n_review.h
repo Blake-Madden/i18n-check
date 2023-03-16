@@ -27,19 +27,19 @@ namespace i18n_check
         {
         /// @brief Do not perform any checks.
         no_l10n_checks = 0x00,
-        /// @brief Check that strings exposed for localization are safe to translate.
-        ///     For examples, a printf statement with no actually words in it should
+        /// @brief Check that strings exposed for localization are safe to translate.\n
+        ///     For example, a printf statement with no actual words in it should
         ///     not be translatable.
         check_l10n_strings = 0x01,
-        /// @brief Check for strings exposed for localization with internal functions
+        /// @brief Check for localizable strings being used with internal functions
         ///     (e.g., debug and logging messages).
-        check_suspect_l10n_strings = 0x02,
+        check_suspect_l10n_string_usage = 0x02,
         /// @brief Check for quotes strings in the source that are not available
         ///     for translation that probably should be.
         check_not_available_for_l10n = 0x04,
         /// @brief Perform all tests.
         all_l10n_checks = 
-            (check_l10n_strings|check_suspect_l10n_strings|
+            (check_l10n_strings|check_suspect_l10n_string_usage|
              check_not_available_for_l10n)
         };
 

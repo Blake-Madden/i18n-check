@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     ("i,ignore", "Folders and files to ignore (can be used multiple times)",
         cxxopts::value<std::vector<std::string>>())
     ("s,styles", "Which checks to perform (any combination of: "
-        "all, l10n, suspect-l10n, not-l10n-available)",
+        "all, l10n, suspect-l10n-usage, not-l10n-available)",
         cxxopts::value<std::vector<std::string>>())
     ("o,output", "The output report path", cxxopts::value<std::string>())
     ("h,help", "Print usage");
@@ -179,8 +179,8 @@ int main(int argc, char* argv[])
                 }
             else if (r == "l10n")
                 { rs |= check_l10n_strings; }
-            else if (r == "suspect-l10n")
-                { rs |= check_suspect_l10n_strings; }
+            else if (r == "suspect-l10n-usage")
+                { rs |= check_suspect_l10n_string_usage; }
             else if (r == "not-l10n-available")
                 { rs |= check_not_available_for_l10n; }
             }

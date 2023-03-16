@@ -169,7 +169,7 @@ namespace i18n_check
                                 assert(functionVarNamePos);
                                 if (functionVarNamePos &&
                                     (m_reviewStyles == all_l10n_checks) ||
-                                    (m_reviewStyles & check_suspect_l10n_strings))
+                                    (m_reviewStyles & check_suspect_l10n_string_usage))
                                     {
                                     std::wstring functionNameOuter, variableNameOuter, variableTypeOuter;
                                     read_var_or_function_name(functionVarNamePos, m_file_start,
