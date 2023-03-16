@@ -212,55 +212,74 @@ int main(int argc, char* argv[])
     cpp.review_strings();
 
     std::wstringstream report;
-    if (cpp.get_unsafe_localizable_strings().size())
-        {
-        report << L"Localizable strings that probably should not be\n" <<
-                  L"===================================================================================\n\n";
-        }
+    report << "File\tLine\tColumn\tValue\tExplanation\tWarningID\n";
     for (const auto& val : cpp.get_unsafe_localizable_strings())
         {
-        report << L"\"" << val.m_string << L"\"\n\t" <<
-            val.m_file_name << L" (line " << val.m_line << L", column " << val.m_column << L")\n\t";
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
+            L"\"" << val.m_string << L"\"\t";
         if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
-            { report << L"In function call: " << val.m_usage.m_value << L"\n\n"; }
+            {
+            report << L"String available for translation that probably "
+                "should not be in function call: " <<
+                val.m_usage.m_value << L"\t";
+            }
         else if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable)
-            { report << L"Assigned to variable: " << val.m_usage.m_value << L"\n\n"; }
+            {
+            report << L"String available for translation that probably "
+                "should not be assigned to variable: " <<
+                val.m_usage.m_value << L"\t";
+            }
         else
-            { report << val.m_usage.m_value << L"\n\n"; }                  
+            {
+            report << L"String available for translation that probably "
+                "should not be within " <<
+                val.m_usage.m_value << L"\t";
+            }
+        report << L"[suspectL10NString]\n";
         }
     
-    if (cpp.get_localizable_strings_in_internal_call().size())
-        {
-        report << L"Strings being used with internal functions/variables that should not be localizable\n" <<
-                  L"===================================================================================\n\n";
-        }
     for (const auto& val : cpp.get_localizable_strings_in_internal_call())
         {
-        report << L"\"" << val.m_string << L"\"\n\t" <<
-            val.m_file_name << L" (line " << val.m_line << L", column " << val.m_column << L")\n\t";
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
+            L"\"" << val.m_string << L"\"\t";
         if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
-            { report << L"In non-localizable function call: " << val.m_usage.m_value << L"\n\n"; }
+            {
+            report << L"Localizable string being used within non-user facing function call: " <<
+                val.m_usage.m_value << L"\t";
+            }
         else if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable)
-            { report << L"Assigned to non-localizable variable: " << val.m_usage.m_value << L"\n\n"; }
+            {
+            report << L"Localizable string being assigned to non-user facing variable: " <<
+                val.m_usage.m_value << L"\t";
+            }
         else
-            { report << val.m_usage.m_value << L"\n\n"; }
+            {
+            report << L"Localizable string being assigned to " <<
+                val.m_usage.m_value << L"\t";
+            }
+        report << L"[suspectL10NUsage]\n";
         }
 
-    if (cpp.get_not_available_for_localization_strings().size())
-        {
-        report << L"Strings not available for translation\n" <<
-                  L"===================================================================================\n\n";
-        }
     for (const auto& val : cpp.get_not_available_for_localization_strings())
         {
-        report << L"\"" << val.m_string << L"\"\n\t" <<
-            val.m_file_name << L" (line " << val.m_line << L", column " << val.m_column << L")\n\t";
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
+            L"\"" << val.m_string << L"\"\t";
         if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
-            { report << L"In function call: " << val.m_usage.m_value << L"\n\n"; }
+            {
+            report << L"String not available for translation in function call: " <<
+                val.m_usage.m_value << L"\t";
+            }
         else if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable)
-            { report << L"Assigned to variable: " << val.m_usage.m_value << L"\n\n"; }
+            {
+            report << L"String not available for translation assigned to variable: " <<
+                val.m_usage.m_value << L"\t";
+            }
         else
-            { report << val.m_usage.m_value << L"\n\n"; }                  
+            {
+            report << L"String not available for translation assigned to " <<
+                val.m_usage.m_value << L"\t";
+            }
+        report << L"[notL10NAvailable]\n";
         }
 
     // write the output
