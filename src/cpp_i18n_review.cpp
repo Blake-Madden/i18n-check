@@ -187,8 +187,7 @@ namespace i18n_check
                                                               functionNameOuter, variableNameOuter,
                                                               variableTypeOuter);
                                     // internal functions
-                                    if (m_internal_functions.find(functionNameOuter) !=
-                                        m_internal_functions.cend() ||
+                                    if (is_diagnostic_function(functionNameOuter) ||
                                         // CTORs whose arguments should not be translated
                                         m_variable_types_to_ignore.find(functionNameOuter) !=
                                         m_variable_types_to_ignore.cend())

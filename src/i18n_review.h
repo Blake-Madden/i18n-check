@@ -234,6 +234,19 @@ namespace i18n_check
         /// @param allow @c true to consider exception messages localizable.
         void exceptions_should_be_translatable(const bool allow) noexcept
             { m_exceptions_should_be_translatable = allow; }
+        /// @returns Whether strings sent to logging functions can be translatable.
+        [[nodiscard]]
+        bool can_log_messages_be_translatable() const noexcept
+            { return m_log_messages_are_translatable; }
+        /// @brief Set whether strings sent to logging functions can be translatable.
+        /// @details The default is @c true.
+        /// @note This will not require that strings sent to logging functions
+        ///     must be localizable, only that it is OK for strings sent logging
+        ///     functions to be acceptable. Setting this to @c false will signal
+        ///     warnings when localizable strings are logged.
+        /// @param allow @c true to consider log messages as localizable.
+        void log_messages_can_be_translatable(const bool allow) noexcept
+            { m_log_messages_are_translatable = allow; }
         /// @returns The minimum number of words that a string must have to be
         ///     reviewed for whether it should be available for translation.
         [[nodiscard]]
@@ -275,6 +288,8 @@ namespace i18n_check
                 {
                 if (!should_exceptions_be_translatable() &&
                     m_exceptions.find(str.m_usage.m_value) != m_exceptions.cend())
+                    { return; }
+                if (m_log_functions.find(str.m_usage.m_value) != m_log_functions.cend())
                     { return; }
                 if (is_untranslatable_string(str.m_string, true))
                     { m_internal_strings.emplace_back(str); }
@@ -411,6 +426,7 @@ namespace i18n_check
 
         bool m_allow_translating_punctuation_only_strings{ false };
         bool m_exceptions_should_be_translatable{ true };
+        bool m_log_messages_are_translatable{ true };
         size_t m_min_words_for_unavailable_string{ 2 };
 
         review_style m_reviewStyles{ review_style::all_l10n_checks };
@@ -419,6 +435,7 @@ namespace i18n_check
         std::set<std::wstring> m_localization_functions;
         std::set<std::wstring> m_non_localizable_functions;
         std::set<std::wstring> m_internal_functions;
+        std::set<std::wstring> m_log_functions;
         std::set<std::wstring> m_exceptions;
         std::set<std::wstring> m_ctors_to_ignore;
         std::vector<std::wregex> m_variable_name_patterns_to_ignore;

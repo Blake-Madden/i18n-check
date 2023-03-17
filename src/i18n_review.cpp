@@ -120,7 +120,7 @@ namespace i18n_check
             // formatting functions that should be skipped over
             L"wxString::Format" };
 
-        // debugging/logging/system call functions that should never have
+        // debugging & system call functions that should never have
         // their string parameters translated
         m_internal_functions = {
             // attributes
@@ -129,20 +129,16 @@ namespace i18n_check
             L"check_assertion", L"static_assert", L"assert",
             // wxWidgets functions
             L"GetExt", L"SetExt", L"XRCID", L"wxSystemOptions::GetOptionInt",
-            L"wxLogLastError", L"WXTRACE", L"wxLogError", L"wxLogFatalError",
-            L"wxLogGeneric", L"wxLogMessage", L"wxLogStatus", L"wxLogStatus",
-            L"wxLogSysError", L"wxLogTrace", L"wxLogTrace", L"wxLogVerbose",
-            L"wxLogWarning", L"wxTrace", L"wxLogDebug", L"wxLogApiError",
-            L"DoLogRecord", L"DoLogText", L"DoLogTextAtLevel", L"LogRecord",
+            L"WXTRACE", L"wxTrace", 
             L"wxASSERT", L"wxASSERT_MSG", L"wxASSERT_LEVEL_2", L"wxASSERT_LEVEL_2_MSG",
             L"wxOnAssert", L"wxCHECK", L"wxCHECK2", L"wxCHECK2_MSG",
             L"wxCHECK_MSG", L"wxCHECK_RET", L"wxCOMPILE_TIME_ASSERT",
             L"wxPROPERTY_FLAGS", L"wxPROPERTY",
             L"wxCOMPILE_TIME_ASSERT2", L"wxFAIL_MSG", L"wxFAILED_HRESULT_MSG",
             L"ExecCommand", L"CanExecCommand", L"IgnoreAppSubDir", L"put_designMode",
-            L"SetExtension", L"LogTraceArray", L"wxSystemOptions::SetOption",
+            L"SetExtension", L"wxSystemOptions::SetOption",
             L"wxFileName::CreateTempFileName", L"wxExecute", L"SetFailedWithLastError",
-            L"DDELogError", L"wxIconHandler", L"wxBitmapHandler",
+            L"wxIconHandler", L"wxBitmapHandler",
             // GTK
             L"gtk_tree_view_column_new_with_attributes", L"gtk_assert_dialog_append_text_column",
             L"gtk_assert_dialog_add_button_to", L"gtk_assert_dialog_add_button",
@@ -150,10 +146,6 @@ namespace i18n_check
             L"g_object_get",
             // TCL
             L"Tcl_PkgRequire", L"Tcl_PkgRequireEx",
-            // SDL
-            L"SDL_Log", L"SDL_LogCritical", L"SDL_LogDebug", L"SDL_LogError",
-            L"SDL_LogInfo", L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose",
-            L"SDL_LogWarn",
             // debugging functions from open-source projects
             L"check_assertion", L"print_debug", L"DPRINTF", L"print_warning", L"perror",
             // system functions that don't process user messages
@@ -177,6 +169,20 @@ namespace i18n_check
             L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
             // Lua
             L"lua_setglobal"
+            };
+
+        m_log_functions = {
+            // wxWidgets
+            L"wxLogLastError", L"wxLogError", L"wxLogFatalError",
+            L"wxLogGeneric", L"wxLogMessage", L"wxLogStatus", L"wxLogStatus",
+            L"wxLogSysError", L"wxLogTrace", L"wxLogTrace", L"wxLogVerbose",
+            L"wxLogWarning", L"wxLogDebug", L"wxLogApiError", L"LogTraceArray",
+            L"DoLogRecord", L"DoLogText", L"DoLogTextAtLevel", L"LogRecord",
+            L"DDELogError", 
+            // SDL
+            L"SDL_Log", L"SDL_LogCritical", L"SDL_LogDebug", L"SDL_LogError",
+            L"SDL_LogInfo", L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose",
+            L"SDL_LogWarn"
             };
 
         m_exceptions = {
@@ -359,7 +365,11 @@ namespace i18n_check
         try
             {
             return (std::regex_match(functionName, m_assert_regex) ||
-                    m_internal_functions.find(functionName) != m_internal_functions.end());
+                    (m_internal_functions.find(functionName) !=
+                        m_internal_functions.cend()) ||
+                    (!can_log_messages_be_translatable() &&
+                     m_log_functions.find(functionName) !=
+                        m_log_functions.cend()));
             }
         catch (const std::exception& exp)
             {
