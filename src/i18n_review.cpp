@@ -86,20 +86,20 @@ namespace i18n_check
             std::wregex(L"([/]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]+){2,}/?"), // UNIX or web folder (needs at least 1 folder in path)
             std::wregex(L"[a-zA-Z][:]([\\\\]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]*)+"), // Windows folder
             // Windows HTML clipboard data
-            std::wregex(L"(End|Start)(HTML|Fragment)[:]?[[:digit:]]*"),
+            std::wregex(L".*(End|Start)(HTML|Fragment)[:]?[[:digit:]]*.*"),
             // printer commands (e.g., @PAGECOUNT@)
             std::wregex(L"@[A-Z0-9]+@"),
             // [CMD]
             std::wregex(L"\\[[A-Z0-9]+\\]"),
             // Windows OS names
-            std::wregex(L"Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2}")
+            std::wregex(L"(Microsoft )?Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2}")
             };
 
         // functions/macros that indicate that a string will be localizable
         // via GETTEXT (or similar mechanism)
         m_localization_functions = { L"_", L"N_", L"gettext_noop", L"gettext",
             // wxWidgets GETTEXT wrapper functions
-            L"wxPLURAL", L"wxTRANSLATE", L"wxGetTranslation" };
+            L"wxPLURAL", L"wxTRANSLATE", L"wxTRANSLATE_IN_CONTEXT", L"wxGetTranslation" };
 
         // functions that indicate that a string is explicitly marked to not be translatable
         m_non_localizable_functions = { L"_DT", L"DONTTRANSLATE" };
@@ -129,7 +129,7 @@ namespace i18n_check
             L"check_assertion", L"static_assert", L"assert",
             // wxWidgets functions
             L"GetExt", L"SetExt", L"XRCID", L"wxSystemOptions::GetOptionInt",
-            L"WXTRACE", L"wxTrace", 
+            L"WXTRACE", L"wxTrace", L"wxDATETIME_CHECK",
             L"wxASSERT", L"wxASSERT_MSG", L"wxASSERT_LEVEL_2", L"wxASSERT_LEVEL_2_MSG",
             L"wxOnAssert", L"wxCHECK", L"wxCHECK2", L"wxCHECK2_MSG",
             L"wxCHECK_MSG", L"wxCHECK_RET", L"wxCOMPILE_TIME_ASSERT",
@@ -138,7 +138,9 @@ namespace i18n_check
             L"ExecCommand", L"CanExecCommand", L"IgnoreAppSubDir", L"put_designMode",
             L"SetExtension", L"wxSystemOptions::SetOption",
             L"wxFileName::CreateTempFileName", L"wxExecute", L"SetFailedWithLastError",
-            L"wxIconHandler", L"wxBitmapHandler",
+            L"wxIconHandler", L"wxBitmapHandler", L"OutputDumpLine", L"wxFileTypeInfo",
+            // low-level printf functions
+            L"wprintf", L"printf", L"sprintf", L"wxSnprintf",
             // GTK
             L"gtk_tree_view_column_new_with_attributes", L"gtk_assert_dialog_append_text_column",
             L"gtk_assert_dialog_add_button_to", L"gtk_assert_dialog_add_button",
@@ -178,7 +180,7 @@ namespace i18n_check
             L"wxLogSysError", L"wxLogTrace", L"wxLogTrace", L"wxLogVerbose",
             L"wxLogWarning", L"wxLogDebug", L"wxLogApiError", L"LogTraceArray",
             L"DoLogRecord", L"DoLogText", L"DoLogTextAtLevel", L"LogRecord",
-            L"DDELogError", 
+            L"DDELogError", L"LogTraceLargeArray",
             // SDL
             L"SDL_Log", L"SDL_LogCritical", L"SDL_LogDebug", L"SDL_LogError",
             L"SDL_LogInfo", L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose",
@@ -198,11 +200,13 @@ namespace i18n_check
             L"foreground-set", L"background-set",
             L"weight-set", L"style-set", L"underline-set", L"size-set", L"charset",
             L"xml", L"gdiplus", L"Direct2D", L"DirectX", L"localhost",
+            L"32 bit", L"32-bit", L"64 bit", L"64-bit",
             // RTF font families
             L"fnil", L"fdecor", L"froman", L"fscript", L"fswiss", L"fmodern", L"ftech",
             // common UNIX names (Windows versions are handled by more
             // complex regex expressions elsewhere)
-            L"UNIX", L"macOS", L"OSX", L"Linux", L"FreeBSD", L"POSIX", L"NetBSD" };
+            L"UNIX", L"macOS", L"Apple Mac OS", L"Apple Mac OS X", L"OSX",
+            L"Linux", L"FreeBSD", L"POSIX", L"NetBSD" };
 
         m_keywords = { L"return", L"else", L"if", L"goto", L"new", L"delete",
                        L"throw" };
@@ -213,7 +217,8 @@ namespace i18n_check
                          L"Times New Roman", L"Georgia", L"Segoe UI", L"Segoe Script",
                          L"Century Gothic", L"Century", L"Cascadia Mono",
                          L"AR BERKLEY", L"Brush Script", L"Consolas",
-                         L"Lucida Grande", L"Helvetica Neue" };
+                         L"Lucida Grande", L"Helvetica Neue",
+                         L"Ms Shell Dlg", L"Ms Shell Dlg 2" };
 
         m_file_extensions = { // documents
                             L"xml", L"html", L"htm", L"xhtml", L"rtf",
@@ -259,9 +264,11 @@ namespace i18n_check
                             L"wxDataObjectSimple" };
 
         add_variable_name_pattern_to_ignore(std::wregex(L"^debug.*", std::regex_constants::icase));
+        add_variable_name_pattern_to_ignore(std::wregex(L"^stacktrace.*", std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"[[:alnum:]]*[_\\-]*xpm",
                                             std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourDialogNames"));
+        add_variable_name_pattern_to_ignore(std::wregex(L"wxColourTable"));
         }
 
     //--------------------------------------------------
