@@ -25,10 +25,10 @@ int main(int argc, char* argv[])
                              "localization analysis system");
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
-    ("i,ignore", "Folders and files to ignore (can be used multiple times)",
-        cxxopts::value<std::vector<std::string>>())
     ("enable", "Which checks to perform (any combination of: "
         "all, suspectL10NString, suspectL10NUsage, notL10NAvailable)",
+        cxxopts::value<std::vector<std::string>>())
+    ("i,ignore", "Folders and files to ignore (can be used multiple times)",
         cxxopts::value<std::vector<std::string>>())
     ("o,output", "The output report path", cxxopts::value<std::string>())
     ("q,quiet", "Only print errors and the final output")
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
         }
 
     // input folder
-    if (isQuietMode)
+    if (!isQuietMode)
         { std::cout << "Searching for files to analyze...\n"; }
     std::vector<std::string> filesToAnalyze; 
     
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
         std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                           std::istreambuf_iterator<wchar_t>());
 
-        if (isQuietMode)
+        if (!isQuietMode)
             {
             std::cout << "Processing " << std::to_string(++currentFileIndex) <<
                 " of " << std::to_string(filesToAnalyze.size()) << " files (" <<
@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
         cpp(str.c_str(), str.length(), fs::path(file).wstring());
         }
 
-    if (isQuietMode)
+    if (!isQuietMode)
         { std::cout << "Reviewing strings...\n"; }
     cpp.review_strings();
 
@@ -286,18 +286,8 @@ int main(int argc, char* argv[])
     if (result.count("output"))
         {
         fs::path outPath{ result["output"].as<std::string>() };
-        // full path is valid
-        if (fs::exists(outPath.parent_path()))
-            {
-            std::wofstream ofs(outPath);
-            ofs << report.str();
-            }
-        // ...or save to folder being analyzed
-        else
-            {
-            std::wofstream ofs(fs::path{inputFolder} / outPath.filename());
-            ofs << report.str();
-            }
+        std::wofstream ofs(outPath);
+        ofs << report.str();
         }
     else
         {
