@@ -27,8 +27,7 @@ namespace i18n_check
         m_open_function_signature_regex(L"[[:alnum:]]{2,}[(]"),
         m_key_shortcut_regex(L"(CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+",
             std::regex_constants::icase),
-        m_assert_regex(L"([a-zA-Z0-9_]*|^)ASSERT([a-zA-Z0-9_]*|$)"),
-        m_allow_translating_punctuation_only_strings(false)
+        m_assert_regex(L"([a-zA-Z0-9_]*|^)ASSERT([a-zA-Z0-9_]*|$)")
         {
         m_untranslatable_regexes = {
             // nothing but numbers, punctuation, control characters?
@@ -37,6 +36,8 @@ namespace i18n_check
             std::wregex(L"&[#]?[xX]?[[:alnum:]]+;"),
             // An opening HTML element
             std::wregex(L"<(body|html|img|head|meta|style|span|p|tr|td)"),
+            // PostScript element
+            std::wregex(L"%%[[:alpha:]]+:.*"),
             // XML elements
             std::wregex(L"<[A-Za-z0-9_/\\-.'\"=;:[:space:]]+>"),
             std::wregex(L"<[A-Za-z0-9_/\\-.'\"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\\-.']*>"),
@@ -47,6 +48,9 @@ namespace i18n_check
                 std::regex_constants::icase),
             // all 'X'es and spaces, usually a placeholder of some sort
             std::wregex(L"[xX ]+"),
+            // bash command (e.g., "lpstat -p") and system variables
+            std::wregex(L"[[:alpha:]]{3,} [\\-][[:alpha:]]+"),
+            std::wregex(L"sys[$].*"),
             // Pascal-case words (e.g., "GetValueFromUser"); surrounding punctuation is stripped first.
             std::wregex(L"[[:punct:]]*[A-Z]+[a-z0-9]+([A-Z]+[a-z0-9]+)+[[:punct:]]*"),
             // camel-case words (e.g., "getValueFromUser"); surrounding punctuation is stripped first.
@@ -133,10 +137,12 @@ namespace i18n_check
             L"wxASSERT", L"wxASSERT_MSG", L"wxASSERT_LEVEL_2", L"wxASSERT_LEVEL_2_MSG",
             L"wxOnAssert", L"wxCHECK", L"wxCHECK2", L"wxCHECK2_MSG",
             L"wxCHECK_MSG", L"wxCHECK_RET", L"wxCOMPILE_TIME_ASSERT",
+            L"wxPROPERTY_FLAGS", L"wxPROPERTY",
             L"wxCOMPILE_TIME_ASSERT2", L"wxFAIL_MSG", L"wxFAILED_HRESULT_MSG",
             L"ExecCommand", L"CanExecCommand", L"IgnoreAppSubDir", L"put_designMode",
             L"SetExtension", L"LogTraceArray", L"wxSystemOptions::SetOption",
-            L"wxFileName::CreateTempFileName",
+            L"wxFileName::CreateTempFileName", L"wxExecute", L"SetFailedWithLastError",
+            L"DDELogError", L"wxIconHandler", L"wxBitmapHandler",
             // GTK
             L"gtk_tree_view_column_new_with_attributes", L"gtk_assert_dialog_append_text_column",
             L"gtk_assert_dialog_add_button_to", L"gtk_assert_dialog_add_button",
@@ -151,7 +157,7 @@ namespace i18n_check
             // debugging functions from open-source projects
             L"check_assertion", L"print_debug", L"DPRINTF", L"print_warning", L"perror",
             // system functions that don't process user messages
-            L"fopen", L"getenv", L"setenv", L"system",
+            L"fopen", L"getenv", L"setenv", L"system", L"run", L"exec", L"execute",
             // Unix calls
             L"dlopen", L"dlsym", L"g_signal_connect", L"g_object_set", L"handle_system_error",
             // macOS calls
@@ -247,6 +253,9 @@ namespace i18n_check
                             L"wxDataObjectSimple" };
 
         add_variable_name_pattern_to_ignore(std::wregex(L"^debug.*", std::regex_constants::icase));
+        add_variable_name_pattern_to_ignore(std::wregex(L"[[:alnum:]]*[_\\-]*xpm",
+                                            std::regex_constants::icase));
+        add_variable_name_pattern_to_ignore(std::wregex(L"wxColourDialogNames"));
         }
 
     //--------------------------------------------------
