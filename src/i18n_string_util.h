@@ -83,9 +83,10 @@ namespace i18n_string_util
     /// @param str The string to have printf commands removed from.
     inline void remove_printf_commands(std::wstring& str)
         {
+        // Y H M are also included, as they are for similiar datetime formatting functions
         const static std::wregex printfRegex(
             L"([^%\\\\]|^|\\b)%[-+0 #]{0,4}[.[:digit:]]*"
-             "(?:c|C|d|i|o|u|lu|ld|lx|lX|lo|llu|lld|x|X|e|E|f|g|G|a|A|n|p|s|S|Z|zu)");
+             "(?:c|C|d|i|o|u|lu|ld|lx|lX|lo|llu|lld|x|X|e|E|f|g|G|a|A|n|p|s|S|Z|zu|Y|H|M)");
         // The % command (not following another % or \),
         // flags ("-+0 #", optionally can have up to 4 of these),
         // width and precision (".0-9", optional), and the specifier.
