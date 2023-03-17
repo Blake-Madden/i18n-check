@@ -26,6 +26,8 @@ ENDIF()
 ADD_COMPILE_OPTIONS("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 ADD_COMPILE_OPTIONS("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
 ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ../src/i18n_string_util.cpp
 ../src/i18n_review.cpp ../src/cpp_i18n_review.cpp stringutiltests.cpp cpptests.cpp)
 IF(MSVC)

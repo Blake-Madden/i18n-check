@@ -1,6 +1,7 @@
 /.vs/
 /bin/
 /tests/.vs/
+/tests/bin/
 /out/
 /html/
 /CMakeSettings.json
