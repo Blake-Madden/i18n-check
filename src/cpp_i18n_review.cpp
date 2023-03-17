@@ -89,10 +89,23 @@ namespace i18n_check
                 // and gauge whether it is meant to be translatable or not
                 std::wstring functionName, variableName, variableType;
                 const wchar_t* startPos = cpp_text - 1;
-                const wchar_t* functionVarNamePos = nullptr;
-                // step back over 'L' symbol and spaces in front of quote
+                const wchar_t* functionVarNamePos{ nullptr };
+                bool isRawString{ false};
+                // if a raw string, step over 'R'
+                if (*startPos == L'R')
+                    {
+                    isRawString = true;
+                    --startPos;
+                    }
+                // step back over double-byte 'L' symbol
                 if (*startPos == L'L')
                     { --startPos; }
+                // step back over UTF-8 'u8' symbol
+                if (startPos > m_file_start + 1 &&
+                    *startPos == L'8' &&
+                    *(startPos - 1) != L'u')
+                    { startPos -= 2; }
+                // ...and spaces in front of quote
                 while (startPos > m_file_start &&
                         std::iswspace(*startPos))
                     { --startPos; }
@@ -116,171 +129,165 @@ namespace i18n_check
                 // find the end of the string now and feed it into the system
                 ++cpp_text;
                 wchar_t* end = cpp_text;
-                while (end && end < endSentinel)
+                if (isRawString)
                     {
-                    end = std::wcschr(end, L'\"');
-                    if (end)
+                    end = std::wcsstr(end, L")\"");
+                    }
+                else
+                    {
+                    while (end && end < endSentinel)
                         {
-                        // Watch out for escaped quotes.
-                        // Note that we could have escaped slashes in front of a quote, so
-                        // make sure that they slash in front of the quote (if there is one)
-                        // is intended for it.
-                        size_t proceedingSlashCount{ 0 };
-                        const wchar_t* proceedingSlashes = end-1;
-                        while (proceedingSlashes >= m_file_start &&
-                            *proceedingSlashes == L'\\')
+                        end = std::wcschr(end, L'\"');
+                        if (end)
                             {
-                            --proceedingSlashes;
-                            ++proceedingSlashCount;
-                            }
-                        // something like "hello\\\" there" should be seen as "hello\" there".
-                        if (proceedingSlashCount > 0 &&
-                            ((proceedingSlashCount % 2) != 0) )
-                            {
-                            ++end;
-                            continue;
-                            }
+                            // Watch out for escaped quotes.
+                            // Note that we could have escaped slashes in front of a quote, so
+                            // make sure that they slash in front of the quote (if there is one)
+                            // is intended for it.
+                            size_t proceedingSlashCount{ 0 };
+                            const wchar_t* proceedingSlashes = end-1;
+                            while (proceedingSlashes >= m_file_start &&
+                                *proceedingSlashes == L'\\')
+                                {
+                                --proceedingSlashes;
+                                ++proceedingSlashCount;
+                                }
+                            // something like "hello\\\" there" should be seen as "hello\" there".
+                            if (proceedingSlashCount > 0 &&
+                                ((proceedingSlashCount % 2) != 0) )
+                                {
+                                ++end;
+                                continue;
+                                }
 
-                        // see if there is more to this string on another line
-                        wchar_t* connectedQuote = end + 1;
-                        while (connectedQuote < endSentinel &&
-                            std::iswspace(*connectedQuote))
-                            { ++connectedQuote; }
-                        if (connectedQuote < endSentinel && *connectedQuote == L'\"')
-                            {
-                            end = connectedQuote + 1;
-                            continue;
-                            }
-
-                        if (variableName.length())
-                            {
-                            process_variable(variableType, variableName,
-                                std::wstring(cpp_text, end - cpp_text), (cpp_text - m_file_start));
-                            }
-                        else if (functionName.length())
-                            {
-                            if (is_diagnostic_function(functionName))
+                            // see if there is more to this string on another line
+                            wchar_t* connectedQuote = end + 1;
+                            while (connectedQuote < endSentinel &&
+                                std::iswspace(*connectedQuote))
+                                { ++connectedQuote; }
+                            if (connectedQuote < endSentinel && *connectedQuote == L'\"')
                                 {
-                                m_internal_strings.emplace_back(string_info(
-                                    std::wstring(cpp_text, end - cpp_text),
-                                    string_info::usage_info(
-                                        string_info::usage_info::usage_type::function,
-                                        functionName),
-                                    m_file_name, get_line_and_column(cpp_text - m_file_start)));
+                                end = connectedQuote + 1;
+                                continue;
                                 }
-                            else if (m_localization_functions.find(functionName) !=
-                                m_localization_functions.cend())
-                                {
-                                m_localizable_strings.emplace_back(string_info(
-                                    std::wstring(cpp_text, end - cpp_text),
-                                    string_info::usage_info(
-                                        string_info::usage_info::usage_type::function,
-                                        functionName),
-                                    m_file_name, get_line_and_column(cpp_text - m_file_start)));
-
-                                assert(functionVarNamePos);
-                                if (functionVarNamePos &&
-                                    m_reviewStyles & check_suspect_l10n_string_usage)
-                                    {
-                                    std::wstring functionNameOuter, variableNameOuter, variableTypeOuter;
-                                    read_var_or_function_name(functionVarNamePos, m_file_start,
-                                                              functionNameOuter, variableNameOuter,
-                                                              variableTypeOuter);
-                                    // internal functions
-                                    if (is_diagnostic_function(functionNameOuter) ||
-                                        // CTORs whose arguments should not be translated
-                                        m_variable_types_to_ignore.find(functionNameOuter) !=
-                                        m_variable_types_to_ignore.cend())
-                                        {
-                                        m_localizable_strings_in_internal_call.emplace_back(
-                                            string_info(std::wstring(cpp_text, end - cpp_text),
-                                            string_info::usage_info(
-                                                string_info::usage_info::usage_type::function,
-                                                functionNameOuter),
-                                            m_file_name,
-                                            get_line_and_column(cpp_text - m_file_start)));
-                                        }
-                                    // untranslatable variable types
-                                    else if (m_variable_types_to_ignore.find(variableTypeOuter) !=
-                                        m_variable_types_to_ignore.cend())
-                                        {
-                                        m_localizable_strings_in_internal_call.emplace_back(
-                                            string_info(std::wstring(cpp_text, end - cpp_text),
-                                            string_info::usage_info(
-                                                string_info::usage_info::usage_type::variable,
-                                                variableNameOuter, variableTypeOuter),
-                                            m_file_name,
-                                            get_line_and_column(cpp_text - m_file_start)));
-                                        }
-                                    // untranslatable variable names (e.g., debugMsg)
-                                    else if (variableNameOuter.length())
-                                        {
-                                        try
-                                            {
-                                            for (const auto& reg : get_ignored_variable_patterns())
-                                                {
-                                                if (std::regex_match(variableNameOuter, reg))
-                                                    {
-                                                    m_localizable_strings_in_internal_call.emplace_back(
-                                                        string_info(std::wstring(cpp_text, end-cpp_text),
-                                                        string_info::usage_info(
-                                                            string_info::usage_info::usage_type::variable,
-                                                            variableNameOuter, variableTypeOuter),
-                                                        m_file_name,
-                                                        get_line_and_column(cpp_text - m_file_start)));
-                                                    break;
-                                                    }
-                                                }
-                                            }
-                                        catch (const std::exception& exp)
-                                            { log_message(variableNameOuter, exp.what()); }
-                                        }
-                                    }
-                                }
-                            else if (m_non_localizable_functions.find(functionName) !=
-                                m_non_localizable_functions.cend())
-                                {
-                                m_marked_as_non_localizable_strings.emplace_back(
-                                    string_info(std::wstring(cpp_text, end - cpp_text),
-                                    string_info::usage_info(
-                                        string_info::usage_info::usage_type::function,
-                                        functionName),
-                                    m_file_name,
-                                    get_line_and_column(cpp_text - m_file_start)));
-                                }
-                            else if (m_variable_types_to_ignore.find(functionName) !=
-                                m_variable_types_to_ignore.cend())
-                                {
-                                m_internal_strings.emplace_back(
-                                    string_info(std::wstring(cpp_text, end - cpp_text),
-                                    string_info::usage_info(
-                                        string_info::usage_info::usage_type::function,
-                                        functionName),
-                                    m_file_name,
-                                    get_line_and_column(cpp_text - m_file_start)));
-                                }
-                            else if (is_keyword(functionName))
-                                {
-                                classify_non_localizable_string(
-                                    string_info(std::wstring(cpp_text, end - cpp_text),
-                                    string_info::usage_info(
-                                        string_info::usage_info::usage_type::orphan,
-                                        std::wstring{}),
-                                    m_file_name,
-                                    get_line_and_column(cpp_text - m_file_start)));
-                                }
-                            else
-                                {
-                                classify_non_localizable_string(
-                                    string_info(std::wstring(cpp_text, end - cpp_text),
-                                    string_info::usage_info(
-                                        string_info::usage_info::usage_type::function,
-                                        functionName),
-                                    m_file_name,
-                                    get_line_and_column(cpp_text - m_file_start)));
-                                }
+                            break;
                             }
                         else
+                            { break; }
+                        }
+                    }
+
+                // if we found the end of the quote
+                if (end && end < endSentinel)
+                    {
+                    if (variableName.length())
+                        {
+                        process_variable(variableType, variableName,
+                            std::wstring(cpp_text, end - cpp_text), (cpp_text - m_file_start));
+                        }
+                    else if (functionName.length())
+                        {
+                        if (is_diagnostic_function(functionName))
+                            {
+                            m_internal_strings.emplace_back(string_info(
+                                std::wstring(cpp_text, end - cpp_text),
+                                string_info::usage_info(
+                                    string_info::usage_info::usage_type::function,
+                                    functionName),
+                                m_file_name, get_line_and_column(cpp_text - m_file_start)));
+                            }
+                        else if (m_localization_functions.find(functionName) !=
+                            m_localization_functions.cend())
+                            {
+                            m_localizable_strings.emplace_back(string_info(
+                                std::wstring(cpp_text, end - cpp_text),
+                                string_info::usage_info(
+                                    string_info::usage_info::usage_type::function,
+                                    functionName),
+                                m_file_name, get_line_and_column(cpp_text - m_file_start)));
+
+                            assert(functionVarNamePos);
+                            if (functionVarNamePos &&
+                                m_reviewStyles & check_suspect_l10n_string_usage)
+                                {
+                                std::wstring functionNameOuter, variableNameOuter, variableTypeOuter;
+                                read_var_or_function_name(functionVarNamePos, m_file_start,
+                                                            functionNameOuter, variableNameOuter,
+                                                            variableTypeOuter);
+                                // internal functions
+                                if (is_diagnostic_function(functionNameOuter) ||
+                                    // CTORs whose arguments should not be translated
+                                    m_variable_types_to_ignore.find(functionNameOuter) !=
+                                    m_variable_types_to_ignore.cend())
+                                    {
+                                    m_localizable_strings_in_internal_call.emplace_back(
+                                        string_info(std::wstring(cpp_text, end - cpp_text),
+                                        string_info::usage_info(
+                                            string_info::usage_info::usage_type::function,
+                                            functionNameOuter),
+                                        m_file_name,
+                                        get_line_and_column(cpp_text - m_file_start)));
+                                    }
+                                // untranslatable variable types
+                                else if (m_variable_types_to_ignore.find(variableTypeOuter) !=
+                                    m_variable_types_to_ignore.cend())
+                                    {
+                                    m_localizable_strings_in_internal_call.emplace_back(
+                                        string_info(std::wstring(cpp_text, end - cpp_text),
+                                        string_info::usage_info(
+                                            string_info::usage_info::usage_type::variable,
+                                            variableNameOuter, variableTypeOuter),
+                                        m_file_name,
+                                        get_line_and_column(cpp_text - m_file_start)));
+                                    }
+                                // untranslatable variable names (e.g., debugMsg)
+                                else if (variableNameOuter.length())
+                                    {
+                                    try
+                                        {
+                                        for (const auto& reg : get_ignored_variable_patterns())
+                                            {
+                                            if (std::regex_match(variableNameOuter, reg))
+                                                {
+                                                m_localizable_strings_in_internal_call.emplace_back(
+                                                    string_info(std::wstring(cpp_text, end-cpp_text),
+                                                    string_info::usage_info(
+                                                        string_info::usage_info::usage_type::variable,
+                                                        variableNameOuter, variableTypeOuter),
+                                                    m_file_name,
+                                                    get_line_and_column(cpp_text - m_file_start)));
+                                                break;
+                                                }
+                                            }
+                                        }
+                                    catch (const std::exception& exp)
+                                        { log_message(variableNameOuter, exp.what()); }
+                                    }
+                                }
+                            }
+                        else if (m_non_localizable_functions.find(functionName) !=
+                            m_non_localizable_functions.cend())
+                            {
+                            m_marked_as_non_localizable_strings.emplace_back(
+                                string_info(std::wstring(cpp_text, end - cpp_text),
+                                string_info::usage_info(
+                                    string_info::usage_info::usage_type::function,
+                                    functionName),
+                                m_file_name,
+                                get_line_and_column(cpp_text - m_file_start)));
+                            }
+                        else if (m_variable_types_to_ignore.find(functionName) !=
+                            m_variable_types_to_ignore.cend())
+                            {
+                            m_internal_strings.emplace_back(
+                                string_info(std::wstring(cpp_text, end - cpp_text),
+                                string_info::usage_info(
+                                    string_info::usage_info::usage_type::function,
+                                    functionName),
+                                m_file_name,
+                                get_line_and_column(cpp_text - m_file_start)));
+                            }
+                        else if (is_keyword(functionName))
                             {
                             classify_non_localizable_string(
                                 string_info(std::wstring(cpp_text, end - cpp_text),
@@ -289,13 +296,30 @@ namespace i18n_check
                                     std::wstring{}),
                                 m_file_name,
                                 get_line_and_column(cpp_text - m_file_start)));
-                            } 
-                        clear_section(cpp_text, end + 1);
-                        cpp_text = end + 1;
-                        break;
+                            }
+                        else
+                            {
+                            classify_non_localizable_string(
+                                string_info(std::wstring(cpp_text, end - cpp_text),
+                                string_info::usage_info(
+                                    string_info::usage_info::usage_type::function,
+                                    functionName),
+                                m_file_name,
+                                get_line_and_column(cpp_text - m_file_start)));
+                            }
                         }
                     else
-                        { break; }
+                        {
+                        classify_non_localizable_string(
+                            string_info(std::wstring(cpp_text, end - cpp_text),
+                            string_info::usage_info(
+                                string_info::usage_info::usage_type::orphan,
+                                std::wstring{}),
+                            m_file_name,
+                            get_line_and_column(cpp_text - m_file_start)));
+                        } 
+                    clear_section(cpp_text, end + 1);
+                    cpp_text = end + (isRawString ? 2 : 1);
                     }
                 }
             else
