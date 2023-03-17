@@ -659,7 +659,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
         }
 
-    SECTION("String In CTOR With Global Namespace")
+    SECTION("String in CTOR with global namespace")
         {
         cpp_i18n_review cpp;
         // in call to assert
@@ -823,7 +823,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[4].m_usage.m_value == L"effect_play_xpm");
         }
 
-    SECTION("StringEscapedWithEscapedSlash")
+    SECTION("String escaped with escaped slash")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"if GetUserInput(wxT(\"<img src=\\\"images\\\\\"), \"Enter your \\\"ID\\\".\")";
@@ -836,7 +836,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your \\\"ID\\\".");
         }
 
-    SECTION("Function Name Pointer")
+    SECTION("Function name pointer")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(mid = (*env)->GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
@@ -849,7 +849,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"GetStaticMethodID");
         }
 
-    SECTION("Function Name Global Namespace")
+    SECTION("Function name global namespace")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(mid = ::GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
@@ -862,7 +862,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"GetStaticMethodID");
         }
 
-    SECTION("Function Name Member")
+    SECTION("Function name member")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(what.Printf("standard exception of type \"%s\" with message \"%s\"");)";
@@ -936,5 +936,37 @@ TEST_CASE("CPP Tests", "[cpp]")
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        }
+
+    SECTION("Printf commands")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(DateFormat(L"%Y%m%dT%H%M%S");)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == LR"(%Y%m%dT%H%M%S)");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"DateFormat");
+        }
+
+    SECTION("Clipboard")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(MsgBox("\r\nStartHTML:00000000\r\nEndHTML:00000000\r\nStartFragment:00000000\r\nEndFragment:00000000\r\n<html><body>\r\n<!--StartFragment -->\r\n"))";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        cpp.clear_results();
+        code = LR"(MsgBox("Version:0.9\r\nStartHTML:00000000\r\nEndHTML:00000000\r\nStartFragment:00000000\r\nEndFragment:00000000\r\n<html><body>\r\n<!--StartFragment -->\r\n"))";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
         }
     }
