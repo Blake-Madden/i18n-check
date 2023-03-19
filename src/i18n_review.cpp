@@ -124,7 +124,7 @@ namespace i18n_check
         m_ctors_to_ignore = {
             // Win32 text macros that should be skipped over
             L"_T", L"TEXT", L"_TEXT", L"_WIDE", L"CFSTR",
-            // similar macros from other librarys
+            // similar macros from other libraries
             L"T",
             // wxWidgets
             L"wxT", L"wxT_2", L"wxS", L"wxString", L"wxBasicString", L"wxCFStringRef",
