@@ -17,6 +17,7 @@
 namespace fs = std::filesystem;
 using namespace i18n_check;
 using namespace string_util;
+using namespace i18n_string_util;
 
 int main(int argc, char* argv[])
     {
@@ -26,13 +27,25 @@ int main(int argc, char* argv[])
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
-        "all, suspectL10NString, suspectL10NUsage, notL10NAvailable)",
+        "all, suspectL10NString, suspectL10NUsage, notL10NAvailable, deprecatedMacros)",
         cxxopts::value<std::vector<std::string>>())
+    ("log-l10n-allowed", "Whether it is acceptable to pass translatable "
+        "strings to logging functions. (Default is true.)")
+    ("punct-l10n-allowed", "Whether it is acceptable for punctuation only "
+        "strings to be translatable. (Default is false.)",
+        cxxopts::value<bool>()->default_value("false"))
+    ("exceptions-l10n-required", "Whether to verify that exception messages are available for translation.")
+    ("min-l10n-wordcount",
+        "The minimum number of words that a string must have to be reviewed for whether it should be translatable.",
+        cxxopts::value<int>())
     ("i,ignore", "Folders and files to ignore (can be used multiple times)",
         cxxopts::value<std::vector<std::string>>())
     ("o,output", "The output report path", cxxopts::value<std::string>())
-    ("q,quiet", "Only print errors and the final output")
+    ("q,quiet", "Only print errors and the final output", cxxopts::value<bool>()->default_value("false"))
+    ("v,verbose", "Display debug information", cxxopts::value<bool>()->default_value("false"))
     ("h,help", "Print usage");
+
+    const auto startTime{ std::chrono::high_resolution_clock::now() };
 
     cxxopts::ParseResult result;
     try
@@ -43,15 +56,32 @@ int main(int argc, char* argv[])
 
         if (result.count("help"))
             {
-            std::cout << options.help() << "\n";
+            std::wcout << lazy_string_to_wstring(options.help()) << L"\n";
             return 0;
             }
         }
     catch (const cxxopts::exceptions::exception& exp)
         {
-        std::cout << exp.what();
+        std::wcout << lazy_string_to_wstring(exp.what());
         return 0;
         }
+
+    // helper to get a boolean option (option not being present returns default)
+    const auto readBoolOption = [&result](const auto& option, const bool default)
+        {
+        if (result.count(option) > 0)
+            { return result[option].as<bool>(); }
+        else
+            { return default; }
+        };
+
+    const auto readIntOption = [&result](const auto& option, const int default)
+        {
+        if (result.count(option) > 0)
+            { return result[option].as<int>(); }
+        else
+            { return default; }
+        };
 
     fs::path inputFolder;
     if (result.count("input"))
@@ -60,17 +90,15 @@ int main(int argc, char* argv[])
                                 fs::path::native_format };
         if (!fs::exists(inputFolder))
             {
-            std::cout << "Input path does not exist: " << inputFolder;
+            std::wcout << L"Input path does not exist: " << inputFolder;
             return 0;
             }
         }
     else
         {
-        std::cout << "You must pass in at least one folder to analyze.";
+        std::wcout << L"You must pass in at least one folder to analyze.";
         return 0;
         }
-
-    const bool isQuietMode = (result.count("help") > 0);
 
     // paths being ignored
     std::vector<std::string> excludedPaths;
@@ -125,8 +153,8 @@ int main(int argc, char* argv[])
         }
 
     // input folder
-    if (!isQuietMode)
-        { std::cout << "Searching for files to analyze...\n"; }
+    if (!readBoolOption("quiet", false))
+        { std::wcout << L"Searching for files to analyze...\n"; }
     std::vector<std::string> filesToAnalyze; 
     
     for (const auto& p :
@@ -167,6 +195,10 @@ int main(int argc, char* argv[])
         }
         
     i18n_check::cpp_i18n_review cpp;
+    cpp.log_messages_can_be_translatable(readBoolOption("log-l10n-allowed", true));
+    cpp.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
+    cpp.exceptions_should_be_translatable(readBoolOption("exceptions-l10n-required", true));
+    cpp.set_min_words_for_classifying_unavailable_string(readIntOption("min-l10n-wordcount", 2));
     cpp.reserve(filesToAnalyze.size());
     // see which checks are being performed
     if (result.count("enable"))
@@ -178,7 +210,7 @@ int main(int argc, char* argv[])
             {
             if (r == "all")
                 {
-                cpp.set_style(i18n_check::review_style::all_l10n_checks);
+                rs = i18n_check::review_style::all_l10n_checks;
                 break;
                 }
             else if (r == "suspectL10NString")
@@ -187,6 +219,15 @@ int main(int argc, char* argv[])
                 { rs |= check_suspect_l10n_string_usage; }
             else if (r == "notL10NAvailable")
                 { rs |= check_not_available_for_l10n; }
+            else if (r == "deprecatedMacros")
+                { rs |= check_deprecated_macros; }
+            else
+                {
+                std::wcout << L"Unknown option passed to --enable: " <<
+                    lazy_string_to_wstring(r) << L"\n\n" <<
+                    lazy_string_to_wstring(options.help()) << L"\n";
+                return 1;
+                }
             }
         cpp.set_style(static_cast<i18n_check::review_style>(rs));
         }
@@ -198,17 +239,17 @@ int main(int argc, char* argv[])
         std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                           std::istreambuf_iterator<wchar_t>());
 
-        if (!isQuietMode)
+        if (!readBoolOption("quiet", false))
             {
-            std::cout << "Processing " << std::to_string(++currentFileIndex) <<
-                " of " << std::to_string(filesToAnalyze.size()) << " files (" <<
-                fs::path(file).filename() << ")\n";
+            std::wcout << L"Processing " << ++currentFileIndex <<
+                L" of " << filesToAnalyze.size() << L" files (" <<
+                fs::path(file).filename() << L")\n";
             }
         cpp(str.c_str(), str.length(), fs::path(file).wstring());
         }
 
-    if (!isQuietMode)
-        { std::cout << "Reviewing strings...\n"; }
+    if (!readBoolOption("quiet", false))
+        { std::wcout << L"Reviewing strings...\n"; }
     cpp.review_strings();
 
     std::wstringstream report;
@@ -282,6 +323,23 @@ int main(int argc, char* argv[])
         report << L"[notL10NAvailable]\n";
         }
 
+    for (const auto& val : cpp.get_deprecated_macros())
+        {
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
+            L"\"" << val.m_string << L"\"\t" <<
+            L"Deprecated text macro that can be removed." <<
+            val.m_usage.m_value << L"\t[deprecatedMacro]\n";
+        }
+
+    if (readBoolOption("verbose", false))
+        {
+        for (const auto& parseErr : cpp.get_error_log())
+            {
+            report << parseErr.m_file_name << L"\t\t\t" <<
+                parseErr.m_resourceString << L"\t" << parseErr.m_message << L"\t[debugParserInfo]\n";
+            }
+        }
+
     // write the output
     if (result.count("output"))
         {
@@ -290,8 +348,21 @@ int main(int argc, char* argv[])
         ofs << report.str();
         }
     else
+        { std::wcout << report.str(); }
+
+    const auto endTime{ std::chrono::high_resolution_clock::now() };
+
+    if (std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() < 1)
         {
-        std::wcout << report.str();
+        std::wcout << L"\nFinished in " <<
+            std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() <<
+            L" milliseconds.";
+        }
+    else
+        {
+        std::wcout << L"\nFinished in " <<
+            std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() <<
+            L" seconds.";
         }
 
     return 0;
