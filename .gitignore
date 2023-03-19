@@ -2,6 +2,7 @@
 /bin/
 /tests/.vs/
 /tests/bin/
+/tests/out/
 /out/
 /html/
 /CMakeSettings.json

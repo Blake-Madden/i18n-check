@@ -40,6 +40,82 @@ TEST_CASE("CPP Tests", "[cpp]")
               L"This is a long message across multiple lines");
         CHECK(cpp.get_internal_strings().size() == 0);
         }
+    
+    SECTION("Ignored macro")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxString GetName() const wxOVERRIDE { return wxT("Simple DirectMedia Layer"); })";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+              L"Simple DirectMedia Layer");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("Internal file name")
+        {
+        cpp_i18n_review cpp;
+        CHECK(cpp.is_untranslatable_string(L"Log_Rep[o]rt-1.log", false));
+        CHECK(cpp.is_untranslatable_string(L"c:\\Reports\\Log_Report-1.log", false));
+        CHECK(cpp.is_untranslatable_string(L"c:\\src-stuff,files\\Log_Reporter.h", false));
+        CHECK(cpp.is_untranslatable_string(L"c:\\users\\yam\\documents&files\\audacity\\mixer\\n\\audacity\\src\\dither.cpp", false));
+        CHECK(cpp.is_untranslatable_string(L"/src/Log_Reporter.sps9", false));
+        // double extensions (common on UNIX files)
+        CHECK(cpp.is_untranslatable_string(L"dynlib.so.o", false));
+        // file extension
+        CHECK(cpp.is_untranslatable_string(L".sps9", false));
+        CHECK(cpp.is_untranslatable_string(L"*.sps9", false));//wild card
+        CHECK(cpp.is_untranslatable_string(L"Log<Report-1.log", false));
+        // ultra simple relative file path
+        CHECK(cpp.is_untranslatable_string(L"shaders/player1.vert", false));
+        CHECK(cpp.is_untranslatable_string(L"resources\\shaders\\player1.vert", false));
+        // not really a file name, the ending is deceptively like a file extension
+        CHECK_FALSE(cpp.is_untranslatable_string(L"The maximum number of notes must be in the range 1..128", false));
+        }
+
+    SECTION("Filename")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxMessageBox(_("another.hhp"));)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"another.hhp");
+        }
+
+    SECTION("Not filename with slash")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxMessageBox("Failed adding book helpfiles/another.hhp");)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+            L"Failed adding book helpfiles/another.hhp");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"wxMessageBox");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("Not filename too long")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxMessageBox("Unable to load a function from the library file riched.dll");)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+            L"Unable to load a function from the library file riched.dll");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"wxMessageBox");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
 
     SECTION("Hex color")
         {
@@ -343,27 +419,6 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.is_untranslatable_string(L"=color", false));
         CHECK(cpp.is_untranslatable_string(L"=small", false));
         CHECK(cpp.is_untranslatable_string(L"Open()", false));
-        }
-
-    SECTION("Internal file name")
-        {
-        cpp_i18n_review cpp;
-        CHECK(cpp.is_untranslatable_string(L"Log_Rep[o]rt-1.log", false));
-        CHECK(cpp.is_untranslatable_string(L"c:\\reports\\Log_Report-1.log", false));
-        CHECK(cpp.is_untranslatable_string(L"c:\\src-stuff,files\\Log_Reporter.h", false));
-        CHECK(cpp.is_untranslatable_string(L"c:\\users\\yam\\documents&files\\audacity\\mixer\\n\\audacity\\src\\dither.cpp", false));
-        CHECK(cpp.is_untranslatable_string(L"/src/Log_Reporter.sps9", false));
-        // double extensions (common on UNIX files)
-        CHECK(cpp.is_untranslatable_string(L"dynlib.so.o", false));
-        // file extension
-        CHECK(cpp.is_untranslatable_string(L".sps9", false));
-        CHECK(cpp.is_untranslatable_string(L"*.sps9", false));//wild card
-        CHECK(cpp.is_untranslatable_string(L"Log<Report-1.log", false));
-        // ultra simple relative file path
-        CHECK(cpp.is_untranslatable_string(L"shaders/player1.vert", false));
-        CHECK(cpp.is_untranslatable_string(L"resources\\shaders\\player1.vert", false));
-        // not really a file name, the ending is deceptively like a file extension
-        CHECK_FALSE(cpp.is_untranslatable_string(L"The maximum number of notes must be in the range 1..128", false));
         }
 
     SECTION("Variable name define")
@@ -798,7 +853,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
-        const wchar_t* code = LR"(static const char * const effect_play_xpm[] = {
+        const wchar_t* code = LR"(static const char * const effect_play[] = {
             "=	RR",
             "-	RR",
             ";	RR",
@@ -811,16 +866,16 @@ TEST_CASE("CPP Tests", "[cpp]")
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 5);
         CHECK(cpp.get_internal_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"=	RR");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"effect_play_xpm");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"effect_play");
         CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == L"-	RR");
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_usage.m_value == L"effect_play_xpm");
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_usage.m_value == L"effect_play");
         CHECK(cpp.get_not_available_for_localization_strings()[2].m_string == L";	RR");
-        CHECK(cpp.get_not_available_for_localization_strings()[2].m_usage.m_value == L"effect_play_xpm");
+        CHECK(cpp.get_not_available_for_localization_strings()[2].m_usage.m_value == L"effect_play");
         CHECK(cpp.get_not_available_for_localization_strings()[3].m_string == LR"(>	
     RR)");
-        CHECK(cpp.get_not_available_for_localization_strings()[3].m_usage.m_value == L"effect_play_xpm");
+        CHECK(cpp.get_not_available_for_localization_strings()[3].m_usage.m_value == L"effect_play");
         CHECK(cpp.get_not_available_for_localization_strings()[4].m_string == L",	RR");
-        CHECK(cpp.get_not_available_for_localization_strings()[4].m_usage.m_value == L"effect_play_xpm");
+        CHECK(cpp.get_not_available_for_localization_strings()[4].m_usage.m_value == L"effect_play");
         }
 
     SECTION("String escaped with escaped slash")
