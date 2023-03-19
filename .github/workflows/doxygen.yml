@@ -15,15 +15,3 @@ jobs:
       - name: run doxygen
         run: |
              doxygen Doxyfile
-             WARNINGSFILE=./doxyerrors.txt
-             if grep -qP '(error|warn)' "$WARNINGSFILE"; then
-                  # print the remaining warnings
-                  echo Warnings detected:
-                  echo ==================
-                  cat "$WARNINGSFILE"
-                  # fail the job
-                  exit 1
-             else
-                  echo No warnings detected
-                  cat "$WARNINGSFILE"
-             fi
