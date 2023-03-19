@@ -11,13 +11,13 @@ Internationalization & localization analysis system for C++ code.
 ```shellscript
 [input]: The folder to analyze.
 --enable: Which checks to perform. Can be any combination of:
-  all: Perform all checks (the default).
+  all:               Perform all checks (the default).
   suspectL10NString: Check for translatable strings that shouldn't be
                      (e.g., numbers, keywords, printf commands).
-  suspectL10NUsage: Check for translatable strings being used in internal contexts
-                    (e.g., debugging functions).
-  notL10NAvailable: Check for strings not exposed for translation.
-  deprecatedMacros: Check for deprecated text macros (e.g., wxT()).
+  suspectL10NUsage:  Check for translatable strings being used in internal contexts
+                     (e.g., debugging functions).
+  notL10NAvailable:  Check for strings not exposed for translation.
+  deprecatedMacros:  Check for deprecated text macros (e.g., wxT()).
 --log-l10n-allowed: Whether it is acceptable to pass translatable strings to 
                     logging functions. Setting this to false will emit warnings
                     when a translatable string is passed to functions such as
