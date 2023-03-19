@@ -8,6 +8,8 @@
 
 #include "i18n_review.h"
 
+using namespace i18n_string_util;
+
 namespace i18n_check
     {
     //--------------------------------------------------
@@ -32,6 +34,11 @@ namespace i18n_check
         m_untranslatable_regexes = {
             // nothing but numbers, punctuation, control characters?
             std::wregex(L"([[:digit:][:space:][:punct:][:cntrl:]]|\\\\[rnt])+"),
+            // generic measuring string (or regex expression)
+            std::wregex(L"[[:space:]]*(ABCDEFG|abcdefg).*"),
+            // debug messages
+            std::wregex(L"Assert(ion)? (f|F)ail.*"),
+            std::wregex(L"ASSERT *"),
             // HTML entities
             std::wregex(L"&[#]?[xX]?[[:alnum:]]+;"),
             // An opening HTML element
@@ -85,6 +92,7 @@ namespace i18n_check
             std::wregex(L"\\*[.][a-zA-Z0-9]{1,5}"), // wild card file extension
             std::wregex(L"([/]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]+){2,}/?"), // UNIX or web folder (needs at least 1 folder in path)
             std::wregex(L"[a-zA-Z][:]([\\\\]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]*)+"), // Windows folder
+            std::wregex(L"[/]?sys\\$.*"),
             // Windows HTML clipboard data
             std::wregex(L".*(End|Start)(HTML|Fragment)[:]?[[:digit:]]*.*"),
             // printer commands (e.g., @PAGECOUNT@)
@@ -104,17 +112,32 @@ namespace i18n_check
         // functions that indicate that a string is explicitly marked to not be translatable
         m_non_localizable_functions = { L"_DT", L"DONTTRANSLATE" };
 
+        // ASCII vs. WIDE macros that have been deprecated
+        m_deprecated_string_macros = {
+            // wxWidgets
+            L"wxT", L"wxT_2", L"wxS"
+            };
+
         // Constructors and macros that should be ignored
         // (when backtracing, these are skipped over, and the parser moves to the
         //  function/variable assignment to the left of these).
         m_ctors_to_ignore = {
             // Win32 text macros that should be skipped over
-            L"_T", L"TEXT", L"_TEXT", L"_WIDE",L"CFSTR",
+            L"_T", L"TEXT", L"_TEXT", L"_WIDE", L"CFSTR",
+            // similar macros from other librarys
+            L"T",
             // wxWidgets
             L"wxT", L"wxT_2", L"wxS", L"wxString", L"wxBasicString", L"wxCFStringRef",
+            // Qt
+            L"QString",
             // standard string objects
-            L"string", L"wstring", L"basic_string", L"std::string",
-            L"std::wstring", L"std::basic_string",
+            L"basic_string", L"string", L"wstring", L"u8string", L"u16string", L"u32string",
+            L"std::basic_string", L"std::string", L"std::wstring", L"std::u8string",
+            L"std::u16string", L"std::u32string",
+            L"std::pmr::basic_string", L"std::pmr::string", L"std::pmr::wstring",
+            L"std::pmr::u8string", L"std::pmr::u16string", L"std::pmr::u32string",
+            L"pmr::basic_string", L"pmr::string", L"pmr::wstring", L"pmr::u8string",
+            L"pmr::u16string", L"pmr::u32string",
             // MFC, ATL
             L"CString", L"_bstr_t",
             // formatting functions that should be skipped over
@@ -126,21 +149,23 @@ namespace i18n_check
             // attributes
             L"deprecated", L"nodiscard", L"_Pragma",
             // assert functions
-            L"check_assertion", L"static_assert", L"assert",
-            // wxWidgets functions
+            L"check_assertion", L"static_assert", L"assert", L"Assert",
+            // wxWidgets functions and macros
             L"GetExt", L"SetExt", L"XRCID", L"wxSystemOptions::GetOptionInt",
             L"WXTRACE", L"wxTrace", L"wxDATETIME_CHECK",
             L"wxASSERT", L"wxASSERT_MSG", L"wxASSERT_LEVEL_2", L"wxASSERT_LEVEL_2_MSG",
             L"wxOnAssert", L"wxCHECK", L"wxCHECK2", L"wxCHECK2_MSG",
             L"wxCHECK_MSG", L"wxCHECK_RET", L"wxCOMPILE_TIME_ASSERT",
-            L"wxPROPERTY_FLAGS", L"wxPROPERTY",
+            L"wxPROPERTY_FLAGS", L"wxPROPERTY", L"wxMISSING_IMPLEMENTATION",
             L"wxCOMPILE_TIME_ASSERT2", L"wxFAIL_MSG", L"wxFAILED_HRESULT_MSG",
             L"ExecCommand", L"CanExecCommand", L"IgnoreAppSubDir", L"put_designMode",
             L"SetExtension", L"wxSystemOptions::SetOption",
             L"wxFileName::CreateTempFileName", L"wxExecute", L"SetFailedWithLastError",
             L"wxIconHandler", L"wxBitmapHandler", L"OutputDumpLine", L"wxFileTypeInfo",
+            L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo",
+            L"Platform::DebugPrintf", L"wxGetCommandOutput",
             // low-level printf functions
-            L"wprintf", L"printf", L"sprintf", L"wxSnprintf",
+            L"wprintf", L"printf", L"sprintf", L"snprintf", L"fprintf", L"wxSnprintf",
             // GTK
             L"gtk_tree_view_column_new_with_attributes", L"gtk_assert_dialog_append_text_column",
             L"gtk_assert_dialog_add_button_to", L"gtk_assert_dialog_add_button",
@@ -153,13 +178,13 @@ namespace i18n_check
             // system functions that don't process user messages
             L"fopen", L"getenv", L"setenv", L"system", L"run", L"exec", L"execute",
             // Unix calls
-            L"dlopen", L"dlsym", L"g_signal_connect", L"g_object_set", L"handle_system_error",
+            L"popen", L"dlopen", L"dlsym", L"g_signal_connect", L"g_object_set", L"handle_system_error",
             // macOS calls
             L"CFBundleCopyResourceURL",
             // Windows calls
             L"OutputDebugString", L"OutputDebugStringA", L"OutputDebugStringW",
             L"QueryValue", L"ASSERT", L"_ASSERTE", L"TRACE", L"ATLTRACE",
-            L"ATLTRACE2", L"ATLENSURE", L"ATLASSERT", L"AfxThrowOleDispatchException",
+            L"ATLTRACE2", L"ATLENSURE", L"ATLASSERT", L"VERIFY",
             L"LoadLibrary", L"LoadLibraryEx", L"LoadModule", L"GetModuleHandle",
             L"QueryDWORDValue", L"GetTempFileName", L"QueryMultiStringValue",
             L"SetMultiStringValue", L"GetTempDirectory", L"FormatGmt", L"GetProgIDVersion",
@@ -169,6 +194,8 @@ namespace i18n_check
             L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue", L"CLSIDFromProgID",
             L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
             L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
+            // zlib
+            L"Tracev", L"Trace", L"Tracevv",
             // Lua
             L"lua_setglobal"
             };
@@ -188,11 +215,14 @@ namespace i18n_check
             };
 
         m_exceptions = {
+            // std exceptions
             L"logic_error", L"std::logic_error", L"domain_error", L"std::domain_error",
             L"length_error", L"std::length_error", L"out_of_range", L"std::out_of_range",
             L"runtime_error", L"std::runtime_error", L"overflow_error", L"std::overflow_error",
             L"underflow_error", L"std::underflow_error", L"range_error", L"std::range_error",
-            L"invalid_argument", L"std::invalid_argument", L"exception", L"std::exception"
+            L"invalid_argument", L"std::invalid_argument", L"exception", L"std::exception",
+            // MFC
+            L"AfxThrowOleDispatchException"
             };
 
         // known strings to ignore
@@ -215,10 +245,16 @@ namespace i18n_check
         m_font_names = { L"Arial", L"Courier New", L"Garamond", L"Calibri", L"Gabriola",
                          L".Helvetica Neue DeskInterface", L".Lucida Grande UI",
                          L"Times New Roman", L"Georgia", L"Segoe UI", L"Segoe Script",
-                         L"Century Gothic", L"Century", L"Cascadia Mono",
-                         L"AR BERKLEY", L"Brush Script", L"Consolas",
-                         L"Lucida Grande", L"Helvetica Neue",
-                         L"Ms Shell Dlg", L"Ms Shell Dlg 2" };
+                         L"Century Gothic", L"Century", L"Cascadia Mono", L"URW Bookman L",
+                         L"AR BERKLEY", L"Brush Script", L"Consolas", L"Century Schoolbook L",
+                         L"Lucida Grande", L"Helvetica Neue", L"Liberation Serif", L"Luxi Serif",
+                         L"Ms Shell Dlg", L"Ms Shell Dlg 2", L"Bitstream Vera Serif", L"URW Palladio L",
+                         L"URW Chancery L", L"Comic Sans MS", L"DejaVu Serif", L"DejaVu LGC Serif",
+                         L"Nimbus Sans L", L"URW Gothic L", L"Lucida Sans", L"Andale Mono",
+                         L"Luxi Sans", L"Liberation Sans", L"Bitstream Vera Sans", L"DejaVu LGC Sans",
+                         L"DejaVu Sans", L"Nimbus Mono L", L"Lucida Sans Typewriter", L"Luxi Mono",
+                         L"DejaVu Sans Mono", L"DejaVu LGC Sans Mono", L"Bitstream Vera Sans Mono",
+                         L"Liberation Mono" };
 
         m_file_extensions = { // documents
                             L"xml", L"html", L"htm", L"xhtml", L"rtf",
@@ -258,15 +294,17 @@ namespace i18n_check
                             L"wxLoadedDLL", L"wxConfigPathChanger", L"wxWebViewEvent", 
                             L"wxFileSystemWatcherEvent", L"wxStdioPipe",
                             L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION", L"vmsWarningHandler",
-                            L"vmsErrorHandler",
+                            L"vmsErrorHandler", L"wxFFileOutputStream", L"wxFFile", L"wxFileName",
                             L"wxColor", L"wxColour",
                             L"wxRegEx", L"wregex", L"std::wregex", L"regex", L"std::regex",
                             L"wxDataObjectSimple" };
 
         add_variable_name_pattern_to_ignore(std::wregex(L"^debug.*", std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"^stacktrace.*", std::regex_constants::icase));
-        add_variable_name_pattern_to_ignore(std::wregex(L"[[:alnum:]]*[_\\-]*xpm",
+        add_variable_name_pattern_to_ignore(std::wregex(L"([[:alnum:]_\\-])*xpm",
                                             std::regex_constants::icase));
+        add_variable_name_pattern_to_ignore(std::wregex(L"xpm([[:alnum:]_\\-])*",
+            std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourDialogNames"));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourTable"));
         }
@@ -286,7 +324,7 @@ namespace i18n_check
             variableType != L"wxCFStringRef" &&
             variableType != L"wxStringTokenizer" &&
             variableType != L"MessageParameters")
-            { log_message(variableType, "New variable type detected."); }
+            { log_message(variableType, L"New variable type detected."); }
     #endif
         if (get_ignored_variable_types().find(variableType) !=
             get_ignored_variable_types().cend())
@@ -325,7 +363,7 @@ namespace i18n_check
                 }
             catch (const std::exception& exp)
                 {
-                log_message(variableName, exp.what());
+                log_message(variableName, lazy_string_to_wstring(exp.what()));
                 classify_non_localizable_string(
                     string_info(value,
                     string_info::usage_info(
@@ -354,6 +392,7 @@ namespace i18n_check
         m_marked_as_non_localizable_strings.reserve(resourcesPerFile *fileCount);
         m_internal_strings.reserve(resourcesPerFile *fileCount);
         m_unsafe_localizable_strings.reserve(resourcesPerFile *fileCount);
+        m_deprecated_macros.reserve(resourcesPerFile *fileCount);
         }
 
     //--------------------------------------------------
@@ -364,6 +403,7 @@ namespace i18n_check
         m_marked_as_non_localizable_strings.clear();
         m_internal_strings.clear();
         m_unsafe_localizable_strings.clear();
+        m_deprecated_macros.clear();
         }
 
     //--------------------------------------------------
@@ -380,7 +420,7 @@ namespace i18n_check
             }
         catch (const std::exception& exp)
             {
-            log_message(functionName, exp.what());
+            log_message(functionName, lazy_string_to_wstring(exp.what()));
             return true;
             }
         }
@@ -504,7 +544,7 @@ namespace i18n_check
             }
         catch (const std::exception& exp)
             {
-            log_message(str, exp.what());
+            log_message(str, lazy_string_to_wstring(exp.what()));
             return false;
             }
         }
@@ -544,38 +584,40 @@ namespace i18n_check
         for (const auto& str : m_localizable_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, "Unknown function or variable assignment for this string."); }
+                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
             }
         for (const auto& str : m_not_available_for_localization_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, "Unknown function or variable assignment for this string."); }
+                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
             }
         for (const auto& str : m_marked_as_non_localizable_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, "Unknown function or variable assignment for this string."); }
+                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
             }
         for (const auto& str : m_internal_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, "Unknown function or variable assignment for this string."); }
+                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
             }
         for (const auto& str : m_unsafe_localizable_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, "Unknown function or variable assignment for this string."); }
+                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
             }
         }
 
     //--------------------------------------------------
     const wchar_t* i18n_review::read_var_or_function_name(const wchar_t* startPos,
             const wchar_t* const startSentinel,
-            std::wstring& functionName, std::wstring& variableName, std::wstring& variableType)
+            std::wstring& functionName, std::wstring& variableName, std::wstring& variableType,
+            std::wstring& deprecatedMacroEncountered)
         {
         functionName.clear();
         variableName.clear();
         variableType.clear();
+        deprecatedMacroEncountered.clear();
         long closeParenCount{ 0 };
         const wchar_t* functionOrVarNamePos = startPos;
 
@@ -616,9 +658,13 @@ namespace i18n_check
                 if (functionName.empty() ||
                     m_ctors_to_ignore.find(functionName) != m_ctors_to_ignore.cend())
                     {
-                    startPos = std::min(startPos,functionOrVarNamePos);
+                    startPos = std::min(startPos, functionOrVarNamePos);
                     // reset, the current open parenthesis isn't relevant
                     closeParenCount = 0;
+                    if (m_deprecated_string_macros.find(functionName) !=
+                        m_deprecated_string_macros.cend())
+                        { deprecatedMacroEncountered = functionName; }
+                    functionName.clear();
                     continue;
                     }
                 // construction of a variable type that takes

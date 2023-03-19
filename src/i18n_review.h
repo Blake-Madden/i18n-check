@@ -37,10 +37,12 @@ namespace i18n_check
         /// @brief Check for quotes strings in the source that are not available
         ///     for translation that probably should be.
         check_not_available_for_l10n = 0x04,
+        /// @brief Check for deprecated text macros (e.g., `wxT()`).
+        check_deprecated_macros = 0x08,
         /// @brief Perform all tests.
         all_l10n_checks = 
             (check_l10n_strings|check_suspect_l10n_string_usage|
-             check_not_available_for_l10n)
+             check_not_available_for_l10n|check_deprecated_macros)
         };
 
     /** @brief Class to extract and review localizable/nonlocalizable
@@ -94,23 +96,39 @@ namespace i18n_check
         /// @brief Messages logged during a review.
         struct parse_messages
             {
+            /** @brief Constructor.
+                @param filename The filepath.
+                @param str The string resource.
+                @param message Diagnostic message.*/
             parse_messages(const std::wstring& filename, const std::wstring& str,
-                           const std::string& message) :
+                           const std::wstring& message) :
                 m_file_name(filename), m_resourceString(str), m_message(message)
                 {}
+            /// @brief The filepath.
             std::wstring m_file_name;
+            /// @brief The string resource.
             std::wstring m_resourceString;
-            std::string m_message;
+            /// @brief Diagnostic message.
+            std::wstring m_message;
             };
 
         /// @brief Constructor.
         i18n_review();
         /// @private
-        virtual ~i18n_review() {}
+        virtual ~i18n_review()
+            {}
+        /** @brief Adds a function to be considered as internal (e.g., debug functions).
+            @details Strings passed to this function will not be considered translatable.
+            @param func The function to ignore.*/
         void add_function_to_ignore(const std::wstring& func)
             { m_internal_functions.insert(func); }
+        /** @brief Adds a function that loads hard-coded strings as translatable resources.
+            @details This is usually functions like those found in the gettext library.
+            @param func The function to consider as an resource-loading function.*/
         void add_translation_extraction_function(const std::wstring& func)
             { m_localization_functions.insert(func); }
+        /** @brief Sets which checks are being performed.
+            @param sty The checks to perform.*/
         void set_style(const review_style sty) noexcept
             { m_reviewStyles = sty; }
         /** @brief Main interface for extracting resource text from C++ source code.
@@ -149,6 +167,10 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_not_available_for_localization_strings() const noexcept
             { return m_not_available_for_localization_strings; }
+        /// @returns The deprecated text macros that were encountered. 
+        [[nodiscard]]
+        const std::vector<string_info>& get_deprecated_macros() const noexcept
+            { return m_deprecated_macros; }
         /// @returns Strings that have been explicitly set to not be translatable
         ///     (usually by the DONTTRANSLATE() function).
         [[nodiscard]]
@@ -178,8 +200,7 @@ namespace i18n_check
                 will be considered a string that should not be translatable.
                 If a translatable string is assigned to a variable matching this
                 pattern, then it will be logged as an error.
-            @param pattern The regex pattern to compare against the variable names.
-        */
+            @param pattern The regex pattern to compare against the variable names.*/
         void add_variable_name_pattern_to_ignore(const std::wregex& pattern)
             { m_variable_name_patterns_to_ignore.emplace_back(pattern); }
         /// @returns The regex patterns compared against variables that have
@@ -197,6 +218,7 @@ namespace i18n_check
         void add_variable_type_to_ignore(const std::wstring& varType)
             { m_variable_types_to_ignore.insert(varType); }
         /// @returns The variable types that will have their string values marked as internal.
+        [[nodiscard]]
         const std::set<std::wstring>& get_ignored_variable_types() const noexcept
             { return m_variable_types_to_ignore; }
 
@@ -208,8 +230,8 @@ namespace i18n_check
         ///     large number of files.
         void reserve(const size_t fileCount);
         /** @brief Clears all results from the previous parsing.
-            @note This does not reset functions and variable patterns that you have the parser set
-                to use; it will only reset the results from the last parsing operation.*/
+            @note This does not reset functions and variable patterns that you have added
+                to the parser; it will only reset the results from the last parsing operation.*/
         void clear_results() noexcept;
         /// @returns A list of errors (usually the regex engine having issues parsing something)
         ///     encountered while parsing the file.
@@ -225,13 +247,13 @@ namespace i18n_check
         /// @param allow @c true to consider punctuation-only strings localizable.
         void allow_translating_punctuation_only_strings(const bool allow) noexcept
             { m_allow_translating_punctuation_only_strings = allow; }
-        /// @returns Whether to verify that exception messages as available for translation.
+        /// @returns Whether to verify that exception messages are available for translation.
         [[nodiscard]]
         bool should_exceptions_be_translatable() const noexcept
             { return m_exceptions_should_be_translatable; }
-        /// @brief Set whether to verify that exception messages as available for translation.
+        /// @brief Set whether to verify that exception messages are available for translation.
         /// @details The default is @c true.
-        /// @param allow @c true to consider exception messages localizable.
+        /// @param allow @c true to require that exception messages are localizable.
         void exceptions_should_be_translatable(const bool allow) noexcept
             { m_exceptions_should_be_translatable = allow; }
         /// @returns Whether strings sent to logging functions can be translatable.
@@ -241,19 +263,19 @@ namespace i18n_check
         /// @brief Set whether strings sent to logging functions can be translatable.
         /// @details The default is @c true.
         /// @note This will not require that strings sent to logging functions
-        ///     must be localizable, only that it is OK for strings sent logging
-        ///     functions to be acceptable. Setting this to @c false will signal
-        ///     warnings when localizable strings are logged.
+        ///     must be localizable, only that it is OK it send translatable stings
+        ///     to functions. Setting this to @c false will signal
+        ///     warnings when localizable strings are sent to these types of functions.
         /// @param allow @c true to consider log messages as localizable.
         void log_messages_can_be_translatable(const bool allow) noexcept
             { m_log_messages_are_translatable = allow; }
         /// @returns The minimum number of words that a string must have to be
-        ///     reviewed for whether it should be available for translation.
+        ///     considered translatable.
         [[nodiscard]]
         size_t get_min_words_for_classifying_unavailable_string() const noexcept
             { return m_min_words_for_unavailable_string; }
         /// @brief Sets The minimum number of words that a string must have to be
-        ///     reviewed for whether it should be available for translation.
+        ///     considered translatable.
         /// @details The default is to require two or more words before a string
         ///     could be considered translatable.
         /// @param minVal The word count threshold.
@@ -312,8 +334,10 @@ namespace i18n_check
         [[nodiscard]]
         bool is_file_extension(const string_util::case_insensitive_wstring& str) const
             { return m_file_extensions.find(str) != m_file_extensions.cend(); }
-
-        void log_message(const std::wstring& info, const std::string& message) const
+        /** @brief Logs a debug message.
+            @param info Information, such as a string causing a parsing error. 
+            @param message An informational message.*/
+        void log_message(const std::wstring& info, const std::wstring& message) const
             { m_error_log.emplace_back(parse_messages(m_file_name, info, message)); }
 #ifdef __UNITTEST
     public:
@@ -401,10 +425,13 @@ namespace i18n_check
             @param[out] variableName If the string is being assigned to a variable,
                 the name of that variable.
             @param[out] variableType What the string was being assigned to (function or variable).
+            @param[out] deprecatedMacroEncountered If a deprecated text macro is encountered,
+                will write that to this parameter.
             @returns The position of the function or variable related to the string.*/
         const wchar_t* read_var_or_function_name(const wchar_t* startPos,
             const wchar_t* const startSentinel,
-            std::wstring& functionName, std::wstring& variableName, std::wstring& variableType);
+            std::wstring& functionName, std::wstring& variableName, std::wstring& variableType,
+            std::wstring& deprecatedMacroEncountered);
 
         /// @returns The line and column postion from a character position.
         /// @param position The character position in the file.
@@ -439,6 +466,7 @@ namespace i18n_check
         std::set<std::wstring> m_log_functions;
         std::set<std::wstring> m_exceptions;
         std::set<std::wstring> m_ctors_to_ignore;
+        std::set<std::wstring_view> m_deprecated_string_macros;
         std::vector<std::wregex> m_variable_name_patterns_to_ignore;
         std::set<std::wstring> m_variable_types_to_ignore;
         std::set<string_util::case_insensitive_wstring> m_known_internal_strings;
@@ -454,6 +482,7 @@ namespace i18n_check
         std::vector<string_info> m_unsafe_localizable_strings;
         std::vector<string_info> m_localizable_strings_in_internal_call;
         std::vector<string_info> m_not_available_for_localization_strings;
+        std::vector<string_info> m_deprecated_macros;
 
         std::wstring m_file_name;
 

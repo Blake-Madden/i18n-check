@@ -8,6 +8,8 @@
 
 #include "cpp_i18n_review.h"
 
+using namespace i18n_string_util;
+
 namespace i18n_check
     {
     //--------------------------------------------------
@@ -87,7 +89,8 @@ namespace i18n_check
                     }
                 // see if this string is in a function call or is a direct variable assignment
                 // and gauge whether it is meant to be translatable or not
-                std::wstring functionName, variableName, variableType;
+                std::wstring functionName, variableName,
+                             variableType, deprecatedMacroEncountered;
                 const wchar_t* startPos = cpp_text - 1;
                 const wchar_t* functionVarNamePos{ nullptr };
                 bool isRawString{ false};
@@ -124,15 +127,24 @@ namespace i18n_check
                     {
                     functionVarNamePos =
                         read_var_or_function_name(startPos, m_file_start, functionName,
-                                                  variableName, variableType);
+                                                  variableName, variableType, deprecatedMacroEncountered);
+                    if (deprecatedMacroEncountered.length() &&
+                        (m_reviewStyles & check_deprecated_macros))
+                        {
+                        m_deprecated_macros.emplace_back(
+                            string_info(deprecatedMacroEncountered,
+                                string_info::usage_info(
+                                    string_info::usage_info::usage_type::function,
+                                    std::wstring{}, std::wstring{}),
+                                m_file_name,
+                                get_line_and_column(cpp_text - m_file_start)));
+                        }
                     }
                 // find the end of the string now and feed it into the system
                 ++cpp_text;
                 wchar_t* end = cpp_text;
                 if (isRawString)
-                    {
-                    end = std::wcsstr(end, L")\"");
-                    }
+                    { end = std::wcsstr(end, L")\""); }
                 else
                     {
                     while (end && end < endSentinel)
@@ -210,10 +222,22 @@ namespace i18n_check
                             if (functionVarNamePos &&
                                 m_reviewStyles & check_suspect_l10n_string_usage)
                                 {
-                                std::wstring functionNameOuter, variableNameOuter, variableTypeOuter;
+                                std::wstring functionNameOuter, variableNameOuter,
+                                             variableTypeOuter, deprecatedMacroEncountered;
                                 read_var_or_function_name(functionVarNamePos, m_file_start,
-                                                            functionNameOuter, variableNameOuter,
-                                                            variableTypeOuter);
+                                                          functionNameOuter, variableNameOuter,
+                                                          variableTypeOuter, deprecatedMacroEncountered);
+                                if (deprecatedMacroEncountered.length() &&
+                                    (m_reviewStyles & check_deprecated_macros))
+                                    {
+                                    m_deprecated_macros.emplace_back(
+                                        string_info(deprecatedMacroEncountered,
+                                            string_info::usage_info(
+                                                string_info::usage_info::usage_type::function,
+                                                std::wstring{}, std::wstring{}),
+                                            m_file_name,
+                                            get_line_and_column(cpp_text - m_file_start)));
+                                    }
                                 // internal functions
                                 if (is_diagnostic_function(functionNameOuter) ||
                                     // CTORs whose arguments should not be translated
@@ -261,7 +285,7 @@ namespace i18n_check
                                             }
                                         }
                                     catch (const std::exception& exp)
-                                        { log_message(variableNameOuter, exp.what()); }
+                                        { log_message(variableNameOuter, lazy_string_to_wstring(exp.what())); }
                                     }
                                 }
                             }
@@ -384,7 +408,7 @@ namespace i18n_check
                 auto end = string_util::find_matching_close_tag(asmStart + 1, L'(', L')');
                 if (!end)
                     {
-                    log_message(L"asm", "Missing closing ')' in asm block.");
+                    log_message(L"asm", L"Missing closing ')' in asm block.");
                     return asmStart + 1;
                     }
                 clear_section(originalStart, const_cast<wchar_t*>(end) + 1);
@@ -409,7 +433,7 @@ namespace i18n_check
                 auto end = string_util::find_matching_close_tag(asmStart+1, L'{', L'}');
                 if (!end)
                     {
-                    log_message(L"__asm", "Missing closing '}' in __asm block.");
+                    log_message(L"__asm", L"Missing closing '}' in __asm block.");
                     return asmStart + 1;
                     }
                 clear_section(originalStart, (end+1));
@@ -453,7 +477,8 @@ namespace i18n_check
                  std::wcsncmp(directiveStart, L"elif",4) == 0 ||
                  std::wcsncmp(directiveStart, L"endif",5) == 0 ||
                  std::wcsncmp(directiveStart, L"undef",5) == 0 ||
-                 std::wcsncmp(directiveStart, L"define",6) == 0)
+                 std::wcsncmp(directiveStart, L"define",6) == 0 ||
+                 std::wcsncmp(directiveStart, L"warning",7) == 0)
             {
             wchar_t* end = directiveStart;
             while (*end != 0)
@@ -509,9 +534,9 @@ namespace i18n_check
                 if (*endOfPossibleFuncName == L'(' &&
                     m_ctors_to_ignore.find(
                         std::wstring(directiveStart, endOfPossibleFuncName - directiveStart)) !=
-                    m_ctors_to_ignore.end())
+                    m_ctors_to_ignore.cend())
                     { directiveStart = endOfPossibleFuncName+1; }
-                // #defined variable followed by a quote? Process as a string variable then.
+                // #define'd variable followed by a quote? Process as a string variable then.
                 if (*directiveStart &&
                     (*directiveStart == L'\"' ||
                      (directiveStart[1] == L'\"') ))
