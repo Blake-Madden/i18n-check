@@ -118,6 +118,16 @@ namespace i18n_string_util
                 }
             }
 
+        // If a longer string that did not start with a UNIX / or Windows drive letter
+        // then this is likely not a file name. It could be filename, but even if it
+        // ends with a valid file extension, it would more than likely be a filename
+        // at the end of legit sentence if it's this long.
+        if (length > 50)
+            { return false; }
+        else if (std::wcschr(text, L'/') != nullptr ||
+            std::wcschr(text, L'\\') != nullptr)
+            { return false; }
+
         // cut off possessive form
         if (length >= 3 && is_apostrophe(text[length-2]) &&
             string_util::is_either(text[length-1], L's', L'S'))
