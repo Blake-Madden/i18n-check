@@ -44,13 +44,13 @@ i18n-check accepts the following arguments.
 -h,--help: Print usage.
 ```
 
-The following example will analyze the folder "c:\src\wxWiddgets\src"
+The following example will analyze the folder "c:\src\wxWidgets\src"
 (but ignore the subfolders "expat" and "zlib"). It will only check for
 suspect translatable strings, and then send the output to "results.txt"
 in the current working directory. 
 
 ```shellscript
-i18n-check c:\src\wxWiddgets\src -i expat -i zlib
+i18n-check c:\src\wxWidgets\src -i expat -i zlib
            --enable=SuspectL10NString -o results.txt
 ```
 
@@ -58,5 +58,5 @@ This example will only check for `suspectL10NUsage` and `suspectL10NString` and 
 any progress messages.
 
 ```shellscript
-i18n-check.exe c:\src\wxWiddgets\samples -q --enable=suspectL10NUsage,suspectL10NString
+i18n-check c:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
 ```
