@@ -14,6 +14,7 @@ jobs:
 
       - name: run doxygen
         run: |
+             doxygen Doxyfile
              WARNINGSFILE=./doxyerrors.txt
              if grep -qP '(error|warn)' "$WARNINGSFILE"; then
                   # print the remaining warnings
