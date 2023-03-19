@@ -83,7 +83,7 @@ namespace i18n_string_util
     /// @param str The string to have printf commands removed from.
     inline void remove_printf_commands(std::wstring& str)
         {
-        // Y H M are also included, as they are for similiar datetime formatting functions
+        // Y H M are also included, as they are for similar datetime formatting functions
         const static std::wregex printfRegex(
             L"([^%\\\\]|^|\\b)%[-+0 #]{0,4}[.[:digit:]]*"
              "(?:c|C|d|i|o|u|lu|ld|lx|lX|lo|llu|lld|x|X|e|E|f|g|G|a|A|n|p|s|S|Z|zu|Y|H|M)");
@@ -113,12 +113,28 @@ namespace i18n_string_util
             { return; }
         }
 
-    /// Replaces escaped unicode values in @c str with their real values
+    /// @brief Replaces escaped unicode values in @c str with their real values
     ///     (e.g., "\u266f" will be converted to the sharp symbol).
     /// @note 32-bit Unicode values (escaped by "\U") are not supported by
     ///     16-bit `std::wstring` and will simply be removed.
-     /// @param[out] str The string being escaped.
+    /// @param[out] str The string being escaped.
     void decode_escaped_unicode_values(std::wstring& str);
+
+    /** @brief Converts a string to wstring (assuming that the string is simple 8-bit ASCII).
+        @param str The string to convert.
+        @returns The string, converted to a wstring.
+        @warning This assumes 8-bit ASCII strings and does not perform any sort
+            of charset conversion. This should only be used for very simple strings,
+            such as `what()` from a untranslated `std::exception`.*/
+    [[nodiscard]]
+    inline std::wstring lazy_string_to_wstring(const std::string& str)
+        {
+        std::wstring retVal;
+        retVal.reserve(str.length());
+        for (const auto& ch : str)
+            { retVal += static_cast<wchar_t>(ch); }
+        return retVal;
+        }
 
     /// @brief Converts escaped control characters (e.g., "\n")
     ///     inside of a string into spaces.
