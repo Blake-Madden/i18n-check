@@ -1,0 +1,26 @@
+name: doxygen
+on: [push]
+
+jobs:
+  build:
+    name: doxygen-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: install doxygen
+        run: |
+             sudo apt install doxygen
+
+      - name: run doxygen
+        run: |
+             if grep -qP '(error|warn)' "$WARNINGSFILE"; then
+                  # print the remaining warnings
+                  echo Warnings detected:
+                  echo ==================
+                  cat "$WARNINGSFILE"
+                  # fail the job
+                  exit 1
+             else
+                  echo No warnings detected
+             fi
