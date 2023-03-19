@@ -6,7 +6,7 @@ Internationalization & localization analysis system for C++ code.
 
 # Usage
 
-i18n-check accepts the following arguments.
+`i18n-check` accepts the following arguments.
 
 ```shellscript
 [input]: The folder to analyze.
