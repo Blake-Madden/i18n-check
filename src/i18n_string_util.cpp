@@ -122,7 +122,7 @@ namespace i18n_string_util
         // then this is likely not a file name. It could be filename, but even if it
         // ends with a valid file extension, it would more than likely be a filename
         // at the end of legit sentence if it's this long.
-        if (length > 50)
+        if (length > 200)
             { return false; }
         else if (std::wcschr(text, L'/') != nullptr ||
             std::wcschr(text, L'\\') != nullptr)
