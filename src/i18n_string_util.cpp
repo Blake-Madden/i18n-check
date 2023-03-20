@@ -55,7 +55,8 @@ namespace i18n_string_util
             { L"au", L"biz", L"ca", L"com", L"edu", L"gov", L"ly" , L"org", L"uk" };
 
         auto periodPos = string_util::find_last_of(text, L'.', length - 1);
-        if (periodPos != -1 && periodPos < length-1)
+        if (periodPos != std::wstring::npos &&
+            periodPos < length-1)
             {
             ++periodPos;
             if (knownWebExtensions.find(std::wstring(text+periodPos, length - periodPos)) !=
