@@ -123,10 +123,13 @@ namespace i18n_string_util
         // then this is likely not a file name. It could be filename, but even if it
         // ends with a valid file extension, it would more than likely be a filename
         // at the end of legit sentence if it's this long.
-        if (length > 200)
+        if (length > 80)
             { return false; }
-        else if (std::wcschr(text, L'/') != nullptr ||
-            std::wcschr(text, L'\\') != nullptr)
+        // If less than 80 characters but no root prefix, then make sure it at
+        // least has a dir separator--if not, then this is probably a sentence
+        // ending with a file name but no period.
+        else if (std::wcschr(text, L'/') == nullptr &&
+            std::wcschr(text, L'\\') == nullptr)
             { return false; }
 
         // cut off possessive form
