@@ -384,6 +384,7 @@ TEST_CASE("CPP Tests", "[cpp]")
     SECTION("Encoded")
         {
         cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
         // actually Russian text, is OK to translate
         CHECK_FALSE(cpp.is_untranslatable_string(L"\\x043f\\x0440\\x0438\\x0432\\x0435\\x0442", false));
         }
@@ -420,7 +421,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp_i18n_review cpp;
         CHECK_FALSE(cpp.is_untranslatable_string(L"<?xml>hello", false));
         CHECK(cpp.is_untranslatable_string(L"<?XML>7</XML>", false));
-        //generic tags
+        // generic tags
         CHECK(cpp.is_untranslatable_string(L"<doc-val>&entity;</doc-val>", false));
         CHECK(cpp.is_untranslatable_string(LR"(<comment =\")", false));
         CHECK(cpp.is_untranslatable_string(LR"(<startdoctype name=\"%s\")", false));
