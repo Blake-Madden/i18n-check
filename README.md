@@ -51,13 +51,18 @@ suspect translatable strings, and then send the output to "results.txt"
 in the current working directory. 
 
 ```shellscript
-i18n-check c:\src\wxWidgets\src -i expat -i zlib
-           --enable=SuspectL10NString -o results.txt
+i18n-check C:\src\wxWidgets\src -i expat -i zlib --enable=SuspectL10NString -o results.txt
 ```
 
 This example will only check for `suspectL10NUsage` and `suspectL10NString` and not show
 any progress messages.
 
 ```shellscript
-i18n-check c:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
+i18n-check C:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
+```
+
+This example will exclude multiple folders and output the results to "WDVresults.txt."
+
+```shellscript
+i18n-check C:/src/Wisteria-dataviz/src --ignore=import,i18n-check,wxsimplejson,math,easyexif,debug,utfcpp,CRCpp -o WDVresults.txt
 ```
