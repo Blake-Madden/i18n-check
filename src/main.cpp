@@ -21,9 +21,8 @@ using namespace i18n_string_util;
 
 int main(int argc, char* argv[])
     {
-    cxxopts::Options options("i18n-check",
-                             "Internationalization/"
-                             "localization analysis system");
+    cxxopts::Options options("i18n-check 1.0",
+        "Internationalization/localization analysis system, (c) 2021-2023 Blake Madden");
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
@@ -154,7 +153,13 @@ int main(int argc, char* argv[])
 
     // input folder
     if (!readBoolOption("quiet", false))
-        { std::wcout << L"Searching for files to analyze...\n"; }
+        {
+        std::wcout << L"\n###################################################\n# " <<
+            lazy_string_to_wstring(options.program()) <<
+            L":\n# Internationalization/localization analysis system\n# (c) 2021-2023 Blake Madden\n" <<
+            L"###################################################\n\n";
+        std::wcout << L"Searching for files to analyze in " << inputFolder << L"...\n\n";
+        }
     std::vector<std::string> filesToAnalyze; 
     
     for (const auto& p :
@@ -241,7 +246,7 @@ int main(int argc, char* argv[])
 
         if (!readBoolOption("quiet", false))
             {
-            std::wcout << L"Processing " << ++currentFileIndex <<
+            std::wcout << L"Examining " << ++currentFileIndex <<
                 L" of " << filesToAnalyze.size() << L" files (" <<
                 fs::path(file).filename() << L")\n";
             }
