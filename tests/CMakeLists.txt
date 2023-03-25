@@ -4,7 +4,7 @@
 # Author:      Blake Madden
 # Created:     2023-03-12
 # Copyright:   (c) 2023 Blake Madden
-# Licence:     3-Clause BSD licence
+# License:     3-Clause BSD license
 #############################################################################
 
 PROJECT(i18nTestRunner)
