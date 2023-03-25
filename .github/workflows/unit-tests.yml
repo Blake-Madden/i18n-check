@@ -23,6 +23,7 @@ jobs:
              cmake ./
              make -j4
              cd bin
+             ./i18nTestRunner
              ls
              ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
              cat i18n-junit.xml
