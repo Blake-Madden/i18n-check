@@ -23,17 +23,15 @@ jobs:
              cmake ./
              make -j4
              cd bin
-             ./i18nTestRunner
-             ls
              ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
              cat i18n-junit.xml
              errors=$(cat i18n-junit.xml | grep -Po '(errors)="\K[^"]*')
              failures=$(cat i18n-junit.xml | grep -Po '(failures)="\K[^"]*')
-             echo "Error count is: ${errors}"
-             echo "Failure count is: ${failures}"
              if [ "$errors" -gt 0 ]; then
+               echo "Error count is: ${errors}"
                exit 1
              fi
              if [ "$failures" -gt 0 ]; then
+               echo "Failure count is: ${failures}"
                exit 1
              fi
