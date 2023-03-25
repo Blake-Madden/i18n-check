@@ -40,6 +40,32 @@ TEST_CASE("CPP Tests", "[cpp]")
               L"This is a long message across multiple lines");
         CHECK(cpp.get_internal_strings().size() == 0);
         }
+
+    SECTION("File filter")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = L"var = \"PNG (*.png)|*.png\"";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+              L"PNG (*.png)|*.png");
+        }
+
+    SECTION("File filter multi extensions")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = L"var = \"TIFF (*.tif;*.tiff)|*.tif;*.tiff\"";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+              L"TIFF (*.tif;*.tiff)|*.tif;*.tiff");
+        }
     
     SECTION("Ignored macro")
         {
@@ -67,8 +93,8 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.is_untranslatable_string(L"dynlib.so.o", false));
         // file extension
         CHECK(cpp.is_untranslatable_string(L".sps9", false));
-        CHECK(cpp.is_untranslatable_string(L"*.sps9", false));//wild card
-        CHECK(cpp.is_untranslatable_string(L"Log<Report-1.log", false));
+        CHECK(cpp.is_untranslatable_string(L"*.sps9", false)); // wild card
+        CHECK(cpp.is_untranslatable_string(L"Log-Report-1.log", false));
         // ultra simple relative file path
         CHECK(cpp.is_untranslatable_string(L"shaders/player1.vert", false));
         CHECK(cpp.is_untranslatable_string(L"resources\\shaders\\player1.vert", false));
@@ -89,30 +115,31 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"another.hhp");
         }
 
-    SECTION("Not filename with slash")
+    SECTION("Filename with folder path")
         {
         cpp_i18n_review cpp;
-        const wchar_t* code = LR"(wxMessageBox("Failed adding book helpfiles/another.hhp");)";
+        const wchar_t* code = LR"(wxMessageBox(_("Enums/Tests.h"));)";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-            L"Failed adding book helpfiles/another.hhp");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"wxMessageBox");
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"Enums/Tests.h");
+
+        CHECK(i18n_string_util::is_file_address(L"Enums/Tests.h", 13));
         }
 
     SECTION("Not filename too long")
         {
         cpp_i18n_review cpp;
-        const wchar_t* code = LR"(wxMessageBox("Unable to load a function from the library file riched.dll");)";
+        const wchar_t* code = LR"(wxMessageBox("System level function loading error - Unable to load a function from the library file riched.dll");)";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-            L"Unable to load a function from the library file riched.dll");
+            L"System level function loading error - Unable to load a function from the library file riched.dll");
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"wxMessageBox");
         CHECK(cpp.get_internal_strings().size() == 0);
         }

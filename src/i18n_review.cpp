@@ -34,6 +34,14 @@ namespace i18n_check
         m_untranslatable_regexes = {
             // nothing but numbers, punctuation, control characters?
             std::wregex(L"([[:digit:][:space:][:punct:][:cntrl:]]|\\\\[rnt])+"),
+            // a regex expression
+            std::wregex(L"[(][?]i[)].*"),
+            // single file filter that just has a file extension as its "name"
+            // PNG (*.png)|*.png
+            // TIFF (*.tif;*.tiff)|*.tif;*.tiff
+            std::wregex(
+                L"[A-Z]+ [(]([*][.][[:alnum:]]{1,5})(;[*][.][[:alnum:]]{1,5})*[)][|]"
+                 "([*][.][[:alnum:]]{1,5})(;[*][.][[:alnum:]]{1,5})*"),
             // generic measuring string (or regex expression)
             std::wregex(L"[[:space:]]*(ABCDEFG|abcdefg).*"),
             // debug messages
