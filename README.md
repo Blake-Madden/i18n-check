@@ -4,6 +4,7 @@ Internationalization & localization analysis system for C++ code.
 
 [![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
 [![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
+[![unit-tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/unit-tests.yml)
 
 # Usage
 
