@@ -23,6 +23,7 @@ jobs:
              cmake ./
              make -j4
              cd bin
+             ls
              ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
              cat i18n-junit.xml
              errors=$(cat i18n-junit.xml | grep -Po '(errors)="\K[^"]*')
