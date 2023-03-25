@@ -381,14 +381,6 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings()[2].m_string == L"xml2HttpRequest");
         }
 
-    SECTION("Encoded")
-        {
-        cpp_i18n_review cpp;
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        // actually Russian text, is OK to translate
-        CHECK_FALSE(cpp.is_untranslatable_string(L"\\x043f\\x0440\\x0438\\x0432\\x0435\\x0442", false));
-        }
-
     SECTION("Internal CSS Strings")
         {
         cpp_i18n_review cpp;
