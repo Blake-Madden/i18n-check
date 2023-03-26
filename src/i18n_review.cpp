@@ -36,6 +36,9 @@ namespace i18n_check
             std::wregex(L"([[:digit:][:space:][:punct:][:cntrl:]]|\\\\[rnt])+"),
             // placeholder text
             std::wregex(L"Lorem ipsum.*"),
+            // SQL code
+            std::wregex(L"(INSERT INTO|SELECT [*])[[:space:]].*",
+                std::regex_constants::icase),
             // a regex expression
             std::wregex(L"[(][?]i[)].*"),
             // single file filter that just has a file extension as its "name"
