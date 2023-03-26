@@ -174,6 +174,107 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(i18n_string_util::is_file_address(L"Enums/Tests.h", 13));
         }
 
+    SECTION("Place holder")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxMessageBox(_("  Lorem ipsum dolor sit amet"));)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"  Lorem ipsum dolor sit amet");
+        }
+    
+    SECTION("Long place holder")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxMessageBox(_("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisl \nmassa, luctus ut ligula vitae, suscipit tempus velit. Vivamus sodales, quam in \nconvallis posuere, libero nisi ultricies orci, nec lobortis.\n"));)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == LR"(Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisl \nmassa, luctus ut ligula vitae, suscipit tempus velit. Vivamus sodales, quam in \nconvallis posuere, libero nisi ultricies orci, nec lobortis.\n)");
+        }
+
+    SECTION("Min word count")
+        {
+        // default is to ignore strings with just one word
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxMessageBox("NETHEREALM");)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"NETHEREALM");
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+
+        // now, complain about one-word strings not exposed for l10n
+        cpp.clear_results();
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"NETHEREALM");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        }
+
+    SECTION("Min word count apos")
+        {
+        // default is to ignore strings with just one word
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxMessageBox("NETHEREALM'S");)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"NETHEREALM'S");
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+
+        // now, complain about one-word strings not exposed for l10n
+        cpp.clear_results();
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"NETHEREALM'S");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        }
+
+    SECTION("Min word count hypthen")
+        {
+        // default is to ignore strings with just one word
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxMessageBox("part-time");)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"part-time");
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+
+        // now, complain about one-word strings not exposed for l10n
+        cpp.clear_results();
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"part-time");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        }
+
     SECTION("Not filename too long")
         {
         cpp_i18n_review cpp;
@@ -483,6 +584,8 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.is_untranslatable_string(L"=color", false));
         CHECK(cpp.is_untranslatable_string(L"=small", false));
         CHECK(cpp.is_untranslatable_string(L"Open()", false));
+        CHECK(cpp.is_untranslatable_string(L"ABS(-2.7)", false));
+        CHECK(cpp.is_untranslatable_string(L"POW(-4, 2)", false));
         }
 
     SECTION("Variable name define")
@@ -499,7 +602,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L"SAVE_MAGIC_V1"));
         }
 
-    SECTION("__Asm")
+    SECTION("__asm")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"__asm int \"A\"\n  __asm {int \"B\"\nint \"C\"}\n\nif b__asm(\"this is an error\")__asm";
@@ -511,7 +614,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"this is an error");
         }
 
-    SECTION("Asm")
+    SECTION("asm")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"asm int \"A\"\n  asm (int \"B\"\nint \"C\")\n\nif basm(\"this is an error\")asm";
@@ -523,7 +626,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"this is an error");
         }
 
-    SECTION("Asm Volatile")
+    SECTION("asm volatile")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(asm volatile (                            \
@@ -540,7 +643,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"this is an error");
         }
 
-    SECTION("__Asm__")
+    SECTION("__asm__")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(__asm__ __volatile__ (
@@ -557,6 +660,17 @@ TEST_CASE("CPP Tests", "[cpp]")
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"this is an error");
+        }
+
+    SECTION("__asm__ inline")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(#define CATCH_TRAP()  __asm__(".inst 0xde01"))";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
         }
 
     SECTION("Preprocessor Defined Variable In String Helper")
