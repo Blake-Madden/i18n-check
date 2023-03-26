@@ -17,18 +17,18 @@ namespace i18n_check
         // HTML, but also includes some GTK formatting tags
         m_html_regex(L"[^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*",
             std::regex_constants::icase),
-        m_html_tag_regex(L"&[[:alpha:]]{2,5};.*"),
-        m_html_tag_unicode_regex(L"&#[[:digit:]]{2,4};.*"),
         // <doc-val>Some text</doc-val>
         m_html_element_regex(L"<[a-zA-Z0-9_\\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\\-]+>",
             std::regex_constants::icase),
+        m_html_tag_regex(L"&[[:alpha:]]{2,5};.*"),
+        m_html_tag_unicode_regex(L"&#[[:digit:]]{2,4};.*"),
         m_2letter_regex(L"[[:alpha:]]{2,}"),
         m_hashtag_regex(L"#[[:alnum:]]{2,}"),
+        m_key_shortcut_regex(L"(CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+",
+            std::regex_constants::icase),
         m_function_signature_regex(L"[[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)]"),
         m_plural_regex(L"[[:alnum:]]{2,}[(]s[)]"),
         m_open_function_signature_regex(L"[[:alnum:]]{2,}[(]"),
-        m_key_shortcut_regex(L"(CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+",
-            std::regex_constants::icase),
         m_assert_regex(L"([a-zA-Z0-9_]*|^)ASSERT([a-zA-Z0-9_]*|$)")
         {
         m_untranslatable_regexes = {
@@ -136,6 +136,7 @@ namespace i18n_check
             L"T",
             // wxWidgets
             L"wxT", L"wxT_2", L"wxS", L"wxString", L"wxBasicString", L"wxCFStringRef",
+            L"wxASCII_STR",
             // Qt
             L"QString",
             // standard string objects
@@ -159,6 +160,8 @@ namespace i18n_check
             // assert functions
             L"check_assertion", L"static_assert", L"assert", L"Assert",
             // wxWidgets functions and macros
+            L"wxDEPRECATED_MSG", L"wxSTC_DEPRECATED_MACRO_VALUE",
+            L"wxPG_DEPRECATED_MACRO_VALUE",
             L"GetExt", L"SetExt", L"XRCID", L"wxSystemOptions::GetOptionInt",
             L"WXTRACE", L"wxTrace", L"wxDATETIME_CHECK",
             L"wxASSERT", L"wxASSERT_MSG", L"wxASSERT_LEVEL_2", L"wxASSERT_LEVEL_2_MSG",
@@ -779,7 +782,7 @@ namespace i18n_check
         auto startSentinel = m_file_start;
         if (!startSentinel)
             { return std::make_pair(-1,-1); }
-        size_t nextLinePosition{ 0 }, lastLinePosition{ 0 }, lineCount{ 0 };
+        size_t nextLinePosition{ 0 }, lineCount{ 0 };
         while ((nextLinePosition = std::wcscspn(startSentinel, L"\r\n")) < position)
             {
             ++lineCount;
@@ -794,8 +797,6 @@ namespace i18n_check
                 startSentinel += nextLinePosition+1;
                 position -= nextLinePosition+1;
                 }
-
-            lastLinePosition = nextLinePosition;
             }
         // make one-indexed
         return std::make_pair(lineCount+1, position+1);
