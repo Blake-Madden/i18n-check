@@ -39,8 +39,9 @@ namespace i18n_check
             // single file filter that just has a file extension as its "name"
             // PNG (*.png)|*.png
             // TIFF (*.tif;*.tiff)|*.tif;*.tiff
+            // special case for the word "bitmap" also, wouldn't normally translate that
             std::wregex(
-                L"[A-Z]+ [(]([*][.][[:alnum:]]{1,5})(;[*][.][[:alnum:]]{1,5})*[)][|]"
+                L"([A-Z]+|[bB]itmap) [(]([*][.][[:alnum:]]{1,5})(;[*][.][[:alnum:]]{1,5})*[)][|]"
                  "([*][.][[:alnum:]]{1,5})(;[*][.][[:alnum:]]{1,5})*"),
             // generic measuring string (or regex expression)
             std::wregex(L"[[:space:]]*(ABCDEFG|abcdefg).*"),
