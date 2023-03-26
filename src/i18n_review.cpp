@@ -34,6 +34,8 @@ namespace i18n_check
         m_untranslatable_regexes = {
             // nothing but numbers, punctuation, control characters?
             std::wregex(L"([[:digit:][:space:][:punct:][:cntrl:]]|\\\\[rnt])+"),
+            // placeholder text
+            std::wregex(L"Lorem ipsum.*"),
             // a regex expression
             std::wregex(L"[(][?]i[)].*"),
             // single file filter that just has a file extension as its "name"
@@ -71,6 +73,8 @@ namespace i18n_check
             std::wregex(L"[[:punct:]]*[A-Z]+[a-z0-9]+([A-Z]+[a-z0-9]+)+[[:punct:]]*"),
             // camel-case words (e.g., "getValueFromUser"); surrounding punctuation is stripped first.
             std::wregex(L"[[:punct:]]*[a-z]+[[:digit:]]*([A-Z]+[a-z0-9]+)+[[:punct:]]*"),
+            // formulas (e.g., ABS(-2.7), POW(-4, 2) )
+            std::wregex(LR"([A-Za-z0-9_]{3,}[(]([0-9\-\., ])*[)])"),
             // formulas (e.g., ComputeNumbers() )
             std::wregex(L"[A-Za-z0-9_]{3,}[(][)]"),
             // equal sign followed by a single word is probably some sort of config file tag or formula.
@@ -176,6 +180,20 @@ namespace i18n_check
             L"wxIconHandler", L"wxBitmapHandler", L"OutputDumpLine", L"wxFileTypeInfo",
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo",
             L"Platform::DebugPrintf", L"wxGetCommandOutput",
+            // Catch2
+            L"TEST_CASE", L"BENCHMARK", L"TEMPLATE_TEST_CASE", L"SECTION",
+            L"DYNAMIC_SECTION", L"REQUIRE", L"REQUIRE_THROWS_WITH", L"REQUIRE_THAT",
+            L"CHECK", L"CATCH_ENFORCE", L"INFO", L"SUCCEED",
+            L"SCENARIO", L"GIVEN", L"AND_GIVEN", L"WHEN", L"THEN",
+            L"SCENARIO_METHOD", L"WARN", L"TEST_CASE_METHOD",
+            L"Catch::Clara::Arg", L"Catch::TestCaseInfo", L"GENERATE",
+            L"CATCH_INTERNAL_ERROR", L"CATCH_ERROR", L"CATCH_MAKE_MSG",
+            L"INTERNAL_CATCH_DYNAMIC_SECTION", L"CATCH_RUNTIME_ERROR",
+            L"CATCH_INTERNAL_ERROR", L"CATCH_REQUIRE_THROWS_WIT",
+            L"CATCH_SUCCEED", L"CATCH_INFO", L"CATCH_UNSCOPED_INFO",
+            L"CATCH_WARN", L"CATCH_SECTION",
+            // CPPUnit
+            L"CPPUNIT_ASSERT", L"CPPUNIT_ASSERT_EQUAL", L"CPPUNIT_ASSERT_DOUBLES_EQUAL",
             // low-level printf functions
             L"wprintf", L"printf", L"sprintf", L"snprintf", L"fprintf", L"wxSnprintf",
             // GTK
@@ -441,7 +459,8 @@ namespace i18n_check
     bool i18n_review::is_untranslatable_string(std::wstring str,
                                                const bool limitWordCount) const
         {
-        static const std::wregex oneWordRE{ LR"((\b[\w]+([\.\-\/:]*[\w]*)*))" };
+        static const std::wregex oneWordRE{ LR"((\b[\w'\-]+([\.\-\/:]*[\w'\-]*)*))" };
+        static const std::wregex loremIpsum(L"Lorem ipsum.*");
 
         i18n_string_util::replace_escaped_control_chars(str);
         string_util::trim(str);
@@ -530,7 +549,8 @@ namespace i18n_check
             // if we know it had at least one word (and spaces) at this point,
             // then it being more than 200 characters means that it probably is
             // a real user-message (not an internal string)
-            else if (str.length() > 200)
+            else if (str.length() > 200 &&
+                !std::regex_match(str, loremIpsum))
                 { return false; }
 
             for (const auto& reg : m_untranslatable_regexes)
