@@ -66,20 +66,20 @@ int main(int argc, char* argv[])
         }
 
     // helper to get a boolean option (option not being present returns default)
-    const auto readBoolOption = [&result](const auto& option, const bool default)
+    const auto readBoolOption = [&result](const auto& option, const bool defaultValue)
         {
         if (result.count(option) > 0)
             { return result[option].as<bool>(); }
         else
-            { return default; }
+            { return defaultValue; }
         };
 
-    const auto readIntOption = [&result](const auto& option, const int default)
+    const auto readIntOption = [&result](const auto& option, const int defaultValue)
         {
         if (result.count(option) > 0)
             { return result[option].as<int>(); }
         else
-            { return default; }
+            { return defaultValue; }
         };
 
     fs::path inputFolder;
