@@ -41,6 +41,37 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
+    SECTION("Separated strings int 64")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(MessageBox("Invalid Likert response: %\n" PRIu64
+                                             "Column: %s\nValues should not exceed 7.");)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+              LR"(Invalid Likert response: %\nColumn: %s\nValues should not exceed 7.)");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("Separated strings bad int 64 macro")
+        {
+        cpp_i18n_review cpp;
+        // "46" is wrong, so parse this as two strings
+        const wchar_t* code = LR"(MessageBox("Invalid Likert response: %\n" PRIu46
+                                             "Column: %s\nValues should not exceed 7.");)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+              LR"(Invalid Likert response: %\n)");
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
+              LR"(Column: %s\nValues should not exceed 7.)");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
     SECTION("File filter")
         {
         cpp_i18n_review cpp;
@@ -52,6 +83,19 @@ TEST_CASE("CPP Tests", "[cpp]")
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_internal_strings()[0].m_string ==
               L"PNG (*.png)|*.png");
+        }
+
+    SECTION("File filter word")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = L"var = \"Bitmap (*.bmp)|*.bmp\"";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+              L"Bitmap (*.bmp)|*.bmp");
         }
 
     SECTION("File filter multi extensions")

@@ -173,14 +173,35 @@ namespace i18n_check
                                 }
 
                             // see if there is more to this string on another line
+                            const std::wstring_view uint64PrintfMacro{ L"PRIu64", 6 };
                             wchar_t* connectedQuote = end + 1;
                             while (connectedQuote < endSentinel &&
                                 std::iswspace(*connectedQuote))
                                 { ++connectedQuote; }
-                            if (connectedQuote < endSentinel && *connectedQuote == L'\"')
+                            if (connectedQuote < endSentinel &&
+                                *connectedQuote == L'\"')
                                 {
                                 end = connectedQuote + 1;
                                 continue;
+                                }
+                            // step over PRIu64 macro that appears between printf strings
+                            else if (connectedQuote + uint64PrintfMacro.length() < endSentinel &&
+                                uint64PrintfMacro.compare(
+                                    std::wstring_view{connectedQuote,
+                                                      uint64PrintfMacro.length()}) == 0)
+                                {
+                                clear_section(connectedQuote,
+                                              connectedQuote + uint64PrintfMacro.length());
+                                connectedQuote += uint64PrintfMacro.length();
+                                while (connectedQuote < endSentinel &&
+                                    std::iswspace(*connectedQuote))
+                                    { ++connectedQuote; }
+                                if (connectedQuote < endSentinel &&
+                                    *connectedQuote == L'\"')
+                                    {
+                                    end = connectedQuote + 1;
+                                    continue;
+                                    }
                                 }
                             break;
                             }
