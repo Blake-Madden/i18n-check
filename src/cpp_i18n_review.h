@@ -62,7 +62,7 @@ namespace i18n_check
             return ((std::wcsncmp(text, L"asm", 3) == 0 &&
                     std::iswspace(text[3])) ||
                     (std::wcsncmp(text, L"__asm__", 7) == 0 &&
-                    std::iswspace(text[7])) ||
+                    (std::iswspace(text[7]) || text[7] == L'(')) ||
                     (std::wcsncmp(text, L"__asm", 5) == 0 &&
                     std::iswspace(text[5])));
             }
