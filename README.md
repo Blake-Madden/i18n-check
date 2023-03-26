@@ -26,6 +26,7 @@ Internationalization & localization analysis system for C++ code.
 
 ```shellscript
 [input]: The folder to analyze.
+
 --enable: Which checks to perform. Can be any combination of:
   all:               Perform all checks (the default).
   suspectL10NString: Check for translatable strings that shouldn't be
@@ -34,29 +35,38 @@ Internationalization & localization analysis system for C++ code.
                      (e.g., debugging functions).
   notL10NAvailable:  Check for strings not exposed for translation.
   deprecatedMacros:  Check for deprecated text macros (e.g., wxT()).
+
 --log-l10n-allowed: Whether it is acceptable to pass translatable strings to 
                     logging functions. Setting this to false will emit warnings
                     when a translatable string is passed to functions such as
                     wxLogMessage or SDL_Log.
                     (Default is true.)
+
 --punct-l10n-allowed: Whether it is acceptable for punctuation only strings to be
                       translatable. Setting this to true will suppress warnings about
                       strings such as " - " being available for localization.
                       (Default is false.)
+
 --exceptions-l10n-required: Whether to verify that exception messages are available
                             for translation. Setting this to true will emit warnings
                             when untranslatable strings are passed to various exception
                             constructors or functions (e.g., AfxThrowOleDispatchException).
                             (Default is true.)
+
 --min-l10n-wordcount: The minimum number of words that a string must have to be
                       considered translatable. Higher values for this will result in less
                       strings being classified as a notL10NAvailable warning.
                       (Default is 2.)
+
 -i,--ignore: Folders and files to ignore (can be used multiple times).
+
 -o,--output: The output report path. (Can either be a full path, or a file name within
              the current working directory.)
+
 -q,--quiet: Only print errors and the final output.
+
 -v,--verbose: Display debug information.
+
 -h,--help: Print usage.
 ```
 
