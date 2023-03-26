@@ -308,6 +308,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.is_untranslatable_string(L"<table style=\\\"width:100%;\"><tr><td width=\"33%\">", false));
         CHECK(cpp.is_untranslatable_string(L"<p style=\\\"font-family: %s; font-size: %dpt; color: rgb(%u, %u, %u)\\\">\n", false));
         CHECK(cpp.is_untranslatable_string(LR"(<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n<head>\n<meta content=\"text/html; charset=UTF-8\"/>\n<title></title>\n<link href=\"stylesheet.css\" type=\"text/css\" rel=\"stylesheet\" />\n<link rel=\"stylesheet\" type=\"application/vnd.adobe-page-template+xml\" href=\"page-template.xpgt\"/>\n</head>)", false));
+        CHECK(cpp.is_untranslatable_string(LR"(<br />&nbsp;&nbsp;&nbsp;&nbsp;&ldquo;<span style=\"font-style:italic;\">%s</span>&rdquo;)", false));
         }
 
     SECTION("Macro variable")

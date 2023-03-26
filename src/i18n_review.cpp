@@ -510,7 +510,8 @@ namespace i18n_check
                 {
                 str = std::regex_replace(str,
                     std::wregex(L"<[?]?[A-Za-z0-9+_/\\-.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
-                str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,4};"), L"");
+                // strip things like &ldquo;
+                str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
                 str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
                 }
 
