@@ -66,7 +66,9 @@ int main(int argc, char* argv[])
         }
 
     // helper to get a boolean option (option not being present returns default)
-    const auto readBoolOption = [&result](const auto& option, const bool defaultValue)
+    const auto readBoolOption =
+        [&result]
+        (const std::string& option, const bool defaultValue)
         {
         if (result.count(option) > 0)
             { return result[option].as<bool>(); }
@@ -74,7 +76,9 @@ int main(int argc, char* argv[])
             { return defaultValue; }
         };
 
-    const auto readIntOption = [&result](const auto& option, const int defaultValue)
+    const auto readIntOption =
+        [&result]
+        (const std::string& option, const int defaultValue)
         {
         if (result.count(option) > 0)
             { return result[option].as<int>(); }
@@ -165,7 +169,7 @@ int main(int argc, char* argv[])
     for (const auto& p :
         fs::recursive_directory_iterator(inputFolder))
         {
-        case_insensitive_wstring ext{ p.path().extension().c_str() };
+        const auto ext = p.path().extension();
         bool inExcludedPath{ false };
         for (const auto& ePath : excludedPaths)
             {
@@ -193,7 +197,10 @@ int main(int argc, char* argv[])
             }
         if (p.exists() && p.is_regular_file() &&
             !inExcludedPath &&
-            (ext == L".c" || ext == L".cpp" || ext == L".h" || ext == L".hpp"))
+            (ext.compare(fs::path(L".c")) == 0 ||
+             ext.compare(fs::path(L".cpp")) == 0 ||
+             ext.compare(fs::path(L".h")) == 0 ||
+             ext.compare(fs::path(L".hpp")) == 0))
             {
             filesToAnalyze.push_back(p.path().string());
             }
@@ -240,17 +247,22 @@ int main(int argc, char* argv[])
     size_t currentFileIndex{ 0 };
     for (const auto& file : filesToAnalyze)
         {
-        std::wifstream ifs(file);
-        std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
-                          std::istreambuf_iterator<wchar_t>());
-
         if (!readBoolOption("quiet", false))
             {
             std::wcout << L"Examining " << ++currentFileIndex <<
                 L" of " << filesToAnalyze.size() << L" files (" <<
                 fs::path(file).filename() << L")\n";
             }
-        cpp(str.c_str(), str.length(), fs::path(file).wstring());
+
+        try
+            {
+            std::wifstream ifs(file);
+            std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
+                            std::istreambuf_iterator<wchar_t>());
+            cpp(str.c_str(), str.length(), fs::path(file).wstring());
+            }
+        catch (const std::exception& expt)
+            { std::wcout << lazy_string_to_wstring(expt.what()) << L"\n"; }
         }
 
     if (!readBoolOption("quiet", false))
@@ -355,19 +367,25 @@ int main(int argc, char* argv[])
     else
         { std::wcout << report.str(); }
 
-    const auto endTime{ std::chrono::high_resolution_clock::now() };
+    if (!readBoolOption("quiet", false))
+        {
+        const auto endTime{ std::chrono::high_resolution_clock::now() };
 
-    if (std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() < 1)
-        {
-        std::wcout << L"\nFinished in " <<
-            std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() <<
-            L" milliseconds.";
-        }
-    else
-        {
-        std::wcout << L"\nFinished in " <<
-            std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() <<
-            L" seconds.";
+        if (std::chrono::duration_cast<std::chrono::seconds>
+            (endTime - startTime).count() < 1)
+            {
+            std::wcout << L"\nFinished in " <<
+                std::chrono::duration_cast<std::chrono::milliseconds>
+                    (endTime - startTime).count() <<
+                L" milliseconds.";
+            }
+        else
+            {
+            std::wcout << L"\nFinished in " <<
+                std::chrono::duration_cast<std::chrono::seconds>
+                    (endTime - startTime).count() <<
+                L" seconds.\n";
+            }
         }
 
     return 0;
