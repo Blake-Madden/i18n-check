@@ -2,6 +2,19 @@
 
 Internationalization & localization analysis system for C++ code.
 
+`i18n-check` scans a folder of C++ code and reviews the following issues:
+-	Strings exposed for translation\* that possibly should not be. This includes (but not limited to) strings such as:
+    - Filenames
+    - Strings only containing `printf()` commands
+    -	Numbers
+    - Regular expressions
+    -	Strings inside of debug functions
+    - Formulas
+-	Strings not available for translation that possibly should be.
+-	The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
+
+\* Strings are considered translatable if inside of `GETTEXT` (or related) macros. This includes `_()` and `wxTRANSLATE()`. 
+
 [![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
 [![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
 [![unix build](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml)
