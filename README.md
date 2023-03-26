@@ -53,7 +53,7 @@ suspect translatable strings, and then send the output to "results.txt"
 in the current working directory. 
 
 ```shellscript
-i18n-check C:\src\wxWidgets\src -i expat -i zlib --enable=SuspectL10NString -o results.txt
+i18n-check C:\src\wxWidgets\src -i expat -i zlib --enable=suspectL10NString -o results.txt
 ```
 
 This example will only check for `suspectL10NUsage` and `suspectL10NString` and not show
