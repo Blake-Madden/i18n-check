@@ -66,5 +66,5 @@ i18n-check C:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NStri
 This example will exclude multiple folders and output the results to "WDVresults.txt."
 
 ```shellscript
-i18n-check C:/src/Wisteria-dataviz/src --ignore=import,i18n-check,wxsimplejson,math,easyexif,debug,utfcpp,CRCpp -o WDVresults.txt
+i18n-check C:\src\Wisteria-dataviz\src --ignore=import,i18n-check,wxsimplejson,math,easyexif,debug,utfcpp,CRCpp -o WDVresults.txt
 ```
