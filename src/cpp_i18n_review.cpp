@@ -223,15 +223,15 @@ namespace i18n_check
                                 m_reviewStyles & check_suspect_l10n_string_usage)
                                 {
                                 std::wstring functionNameOuter, variableNameOuter,
-                                             variableTypeOuter, deprecatedMacroEncountered;
+                                             variableTypeOuter, deprecatedMacroOuterEncountered;
                                 read_var_or_function_name(functionVarNamePos, m_file_start,
                                                           functionNameOuter, variableNameOuter,
-                                                          variableTypeOuter, deprecatedMacroEncountered);
-                                if (deprecatedMacroEncountered.length() &&
+                                                          variableTypeOuter, deprecatedMacroOuterEncountered);
+                                if (deprecatedMacroOuterEncountered.length() &&
                                     (m_reviewStyles & check_deprecated_macros))
                                     {
                                     m_deprecated_macros.emplace_back(
-                                        string_info(deprecatedMacroEncountered,
+                                        string_info(deprecatedMacroOuterEncountered,
                                             string_info::usage_info(
                                                 string_info::usage_info::usage_type::function,
                                                 std::wstring{}, std::wstring{}),
