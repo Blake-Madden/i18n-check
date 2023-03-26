@@ -300,7 +300,7 @@ namespace i18n_check
             size_t m_blockStart{ 0 };
             size_t m_previousBlockEnd{ 0 };
             };
-        /// Determines if a string that is marked as non-localizable should actually be
+        /// Determines whether a hard-coded string should actually be
         /// exposed for translation or not. If so, then it will be added to the queue of
         /// non-localizable strings; otherwise, it will be considered an internal string.
         /// @param str The string to review.
@@ -347,8 +347,9 @@ namespace i18n_check
         /// @param limitWordCount If @c true, will consider a word as
         ///    untranslatable if it doesn't meet
         ///    get_min_words_for_classifying_unavailable_string()'s threshold.
-        /// @note @c limitWordCount should be false if reviewing a word that is available
-        ///     for l10n as these strings should always be reviewed, regardless of length.
+        /// @note @c limitWordCount should be @c false if reviewing a word that is available
+        ///     for l10n as these strings should always be reviewed for safety reasons,
+        ///     regardless of length.
         [[nodiscard]]
         bool is_untranslatable_string(std::wstring str, const bool limitWordCount) const;
         /// @returns Whether @c functionName is a diagnostic function (e.g., ASSERT) whose
