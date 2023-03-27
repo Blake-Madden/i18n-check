@@ -8,6 +8,7 @@
 
 #include "cpp_i18n_review.h"
 #include "cxxopts/include/cxxopts.hpp"
+#include "utfcpp/source/utf8.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -19,6 +20,59 @@ using namespace i18n_check;
 using namespace string_util;
 using namespace i18n_string_util;
 
+//-------------------------------------------------
+bool valid_utf8_file(const std::string& file_name)
+    {
+    std::ifstream ifs(file_name);
+    if (!ifs)
+        { return false; }
+
+    std::istreambuf_iterator<char> it(ifs.rdbuf());
+    std::istreambuf_iterator<char> eos;
+
+    return utf8::is_valid(it, eos);
+    }
+
+//-------------------------------------------------
+std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name)
+    {
+    if (!valid_utf8_file(file_name))
+        { return std::make_pair(false, std::wstring{}); }
+
+    std::ifstream fs8(file_name);
+    if (!fs8.is_open())
+        {
+        std::cout << "Could not open " << file_name << "\n";
+        return std::make_pair(false, std::wstring{});
+        }
+
+    unsigned line_count = 1;
+    std::string line;
+    std::wstring buffer;
+    buffer.reserve(std::filesystem::file_size(file_name));
+
+    while (std::getline(fs8, line))
+        {
+        if (auto end_it = utf8::find_invalid(line.begin(), line.end());
+            end_it != line.cend())
+            {
+            std::cout << "Invalid UTF-8 encoding detected at line " << line_count << "\n";
+            std::cout << "This part is fine: " << std::string(line.begin(), end_it) << "\n";
+            }
+
+        // Convert it to utf-16
+        std::u16string utf16line = utf8::utf8to16(line);
+        for (const auto& ch : utf16line)
+            { buffer += static_cast<wchar_t>(ch); }
+        buffer += L"\n";
+
+        ++line_count;
+        }
+
+    return std::make_pair(true, buffer);
+    }
+
+//-------------------------------------------------
 int main(int argc, char* argv[])
     {
     cxxopts::Options options("i18n-check 1.0",
@@ -26,7 +80,7 @@ int main(int argc, char* argv[])
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
-        "all, suspectL10NString, suspectL10NUsage, notL10NAvailable, deprecatedMacros)",
+        "all, suspectL10NString, suspectL10NUsage, notL10NAvailable, deprecatedMacros, nonUTF8File, unencodedExtASCII)",
         cxxopts::value<std::vector<std::string>>())
     ("log-l10n-allowed", "Whether it is acceptable to pass translatable "
         "strings to logging functions. (Default is true.)")
@@ -233,6 +287,10 @@ int main(int argc, char* argv[])
                 { rs |= check_not_available_for_l10n; }
             else if (r == "deprecatedMacros")
                 { rs |= check_deprecated_macros; }
+            else if (r == "nonUTF8File")
+                { rs |= check_utf8_encoded; }
+            else if (r == "unencodedExtASCII")
+                { rs |= check_unencoded_ext_ascii; }
             else
                 {
                 std::wcout << L"Unknown option passed to --enable: " <<
@@ -244,6 +302,7 @@ int main(int argc, char* argv[])
         cpp.set_style(static_cast<i18n_check::review_style>(rs));
         }
 
+    std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
     size_t currentFileIndex{ 0 };
     for (const auto& file : filesToAnalyze)
         {
@@ -256,10 +315,20 @@ int main(int argc, char* argv[])
 
         try
             {
-            std::wifstream ifs(file);
-            std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
-                            std::istreambuf_iterator<wchar_t>());
-            cpp(str.c_str(), str.length(), fs::path(file).wstring());
+            if (const auto [readOk, fileText] = read_utf8_file(file);
+                readOk)
+                {
+                cpp(fileText.c_str(), fileText.length(), fs::path(file).wstring());
+                }
+            else
+                {
+                if (cpp.get_style() & check_utf8_encoded)
+                    { filesThatShouldBeConvertedToUTF8.push_back(lazy_string_to_wstring(file)); }
+                std::wifstream ifs(file);
+                std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
+                                std::istreambuf_iterator<wchar_t>());
+                cpp(str.c_str(), str.length(), fs::path(file).wstring());
+                }
             }
         catch (const std::exception& expt)
             { std::wcout << lazy_string_to_wstring(expt.what()) << L"\n"; }
@@ -342,10 +411,24 @@ int main(int argc, char* argv[])
 
     for (const auto& val : cpp.get_deprecated_macros())
         {
-        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
-            L"\"" << val.m_string << L"\"\t" <<
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
+            L"\t" << val.m_string << L"\t" <<
             L"Deprecated text macro that can be removed." <<
             val.m_usage.m_value << L"\t[deprecatedMacro]\n";
+        }
+
+    for (const auto& file : filesThatShouldBeConvertedToUTF8)
+        {
+        report << file <<
+            L"\t\t\t\tFile contains extended ASCII characters, but is not encoding as UTF-8.\t[nonUTF8File]\n";
+        }
+    
+    for (const auto& val : cpp.get_unencoded_ext_ascii_strings())
+        {
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
+            L"\"" << val.m_string << L"\"\t" <<
+            L"String contains extended ASCII characters that should be encoded." <<
+            L"\t[unencodedExtASCII]\n";
         }
 
     if (readBoolOption("verbose", false))
@@ -361,8 +444,17 @@ int main(int argc, char* argv[])
     if (result.count("output"))
         {
         fs::path outPath{ result["output"].as<std::string>() };
-        std::wofstream ofs(outPath);
-        ofs << report.str();
+        std::ofstream ofs(outPath);
+
+        // write the results report in UTF-8
+        std::string utf8Str;
+        auto resText = report.str();
+        if constexpr (sizeof(wchar_t) == sizeof(uint16_t))
+            { utf8::utf16to8(resText.begin(), resText.end(), back_inserter(utf8Str)); }
+        else if constexpr (sizeof(wchar_t) == sizeof(uint32_t))
+            { utf8::utf32to8(resText.begin(), resText.end(), back_inserter(utf8Str)); }
+
+        ofs << utf8Str;
         }
     else
         { std::wcout << report.str(); }

@@ -39,10 +39,15 @@ namespace i18n_check
         check_not_available_for_l10n = 0x04,
         /// @brief Check for deprecated text macros (e.g., `wxT()`).
         check_deprecated_macros = 0x08,
+        /// @brief Check that files containing extended ASCII characters are UTF-8 encoded.
+        check_utf8_encoded = 0x10,
+        /// @brief Check for strings that contain extended ASCII characters that are not encoded.
+        check_unencoded_ext_ascii = 0x20,
         /// @brief Perform all tests.
         all_l10n_checks = 
             (check_l10n_strings|check_suspect_l10n_string_usage|
-             check_not_available_for_l10n|check_deprecated_macros)
+             check_not_available_for_l10n|check_deprecated_macros|check_utf8_encoded|
+             check_unencoded_ext_ascii)
         };
 
     /** @brief Class to extract and review localizable/nonlocalizable
@@ -131,6 +136,10 @@ namespace i18n_check
             @param sty The checks to perform.*/
         void set_style(const review_style sty) noexcept
             { m_reviewStyles = sty; }
+        /// @returns The checks being performed.
+        [[nodiscard]]
+        review_style get_style() const noexcept
+            { return m_reviewStyles; }
         /** @brief Main interface for extracting resource text from C++ source code.
             @param cpp_text The code text to review.
             @param text_length The length of the text.
@@ -147,12 +156,36 @@ namespace i18n_check
             process_strings();
             if (m_reviewStyles & check_l10n_strings)
                 {
-                for (const auto& i : m_localizable_strings)
+                for (const auto& str : m_localizable_strings)
                     {
-                    if (i.m_string.length() &&
-                        is_untranslatable_string(i.m_string, false))
-                        { m_unsafe_localizable_strings.emplace_back(i); }
+                    if (str.m_string.length() &&
+                        is_untranslatable_string(str.m_string, false))
+                        { m_unsafe_localizable_strings.push_back(str); }
                     }
+                }
+            if (m_reviewStyles & check_unencoded_ext_ascii)
+                {
+                const auto& classifyUnencodedStrings = [this](const auto& strings)
+                    {
+                    for (const auto& str : strings)
+                        {
+                        for (const auto& ch : str.m_string)
+                            {
+                            if (ch > 127)
+                                {
+                                m_unencoded_strings.push_back(str);
+                                break;
+                                }
+                            }
+                        }
+                    };
+
+                classifyUnencodedStrings(m_localizable_strings);
+                classifyUnencodedStrings(m_marked_as_non_localizable_strings);
+                classifyUnencodedStrings(m_internal_strings);
+                classifyUnencodedStrings(m_not_available_for_localization_strings);
+                classifyUnencodedStrings(m_unsafe_localizable_strings);
+                classifyUnencodedStrings(m_localizable_strings_in_internal_call);
                 }
             // log any parsing errors
             run_diagnostics();
@@ -189,6 +222,10 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_unsafe_localizable_strings() const noexcept
             { return m_unsafe_localizable_strings; }
+        /// @returns The strings that contain extended ASCII characters, but are not encoded.
+        [[nodiscard]]
+        const std::vector<string_info>& get_unencoded_ext_ascii_strings() const noexcept
+            { return m_unencoded_strings; }
         /** @brief Adds a regular expression pattern to determine if a variable should be
                 considered an internal string.
             @details For example, a pattern like "^utf8Name.*" would instruct
@@ -484,6 +521,7 @@ namespace i18n_check
         std::vector<string_info> m_localizable_strings_in_internal_call;
         std::vector<string_info> m_not_available_for_localization_strings;
         std::vector<string_info> m_deprecated_macros;
+        std::vector<string_info> m_unencoded_strings;
 
         std::wstring m_file_name;
 

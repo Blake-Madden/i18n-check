@@ -6,14 +6,19 @@ Internationalization & localization analysis system for C++ code.
 -	Strings exposed for translation\* that possibly should not be. This includes (but not limited to) strings such as:
     - Filenames
     - Strings only containing `printf()` commands
-    -	Numbers
+    - Numbers
     - Regular expressions
-    -	Strings inside of debug functions
+    - Strings inside of debug functions
     - Formulas
--	Strings not available for translation that possibly should be.
--	The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
+- Strings not available for translation that possibly should be.
+- Strings that contain extended ASCII characters that are not encoded.
+  ("Danke schön" instead of "Danke sch\u00F6n".) Encoding extended ASCII characters is recommended for
+  best portability between compilers.
+- The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
+- Files that contain extended ASCII characters, but are not UTF-8 encoded.
+  (It is recommended that files be UTF-8 encoded for portability between compilers.)
 
-\* Strings are considered translatable if inside of `GETTEXT` (or related) macros. This includes `_()` and `wxTRANSLATE()`. 
+\* Strings are considered translatable if inside of `gettext` (or related) macros. This includes `_()` and `wxTRANSLATE()`. 
 
 [![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
 [![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
@@ -35,6 +40,8 @@ Internationalization & localization analysis system for C++ code.
                      (e.g., debugging functions).
   notL10NAvailable:  Check for strings not exposed for translation.
   deprecatedMacros:  Check for deprecated text macros (e.g., wxT()).
+  nonUTF8File:       Check that files containing extended ASCII characters are UTF-8 encoded.
+  unencodedExtASCII: Check for strings that contain extended ASCII characters that are not encoded.
 
 --log-l10n-allowed: Whether it is acceptable to pass translatable strings to 
                     logging functions. Setting this to false will emit warnings
