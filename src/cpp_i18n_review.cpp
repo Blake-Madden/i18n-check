@@ -100,8 +100,10 @@ namespace i18n_check
                     isRawString = true;
                     --startPos;
                     }
-                // step back over double-byte 'L' symbol
-                if (*startPos == L'L')
+                // step back over double-byte, u16, or u32 prefixes
+                if (*startPos == L'L' ||
+                    *startPos == L'u' ||
+                    *startPos == L'U')
                     { --startPos; }
                 // step back over UTF-8 'u8' symbol
                 if (startPos > m_file_start + 1 &&
