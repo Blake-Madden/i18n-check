@@ -12,11 +12,11 @@ output like this:
 
 | File  | Line | Column | Value| Explanation | WarningID |
 |-----------|-----------|-----------|-----------|-----------|-----------|
-| ../samples\subset.cpp | 281 | 38 | GreaterThanOrEqualTo | String available for translation that probably should not be in function call: _ | [suspectL10NString]
-| ../samples\subset.cpp | 17 | 39 | Invalid dataset passed to column filter. | Localizable string being used within non-user facing function call: wxASSERT_MSG | [suspectL10NUsage]
-| ../samples\subset.cpp | 93 | 52 | '%s': string value not found for '%s' column filter. | String not available for translation in function call: std::runtime_error | [notL10NAvailable]
-| ../samples\subset.cpp |  |  |  | File contains extended ASCII characters, but is not encoding as UTF-8. | [nonUTF8File]
-| ../samples\subset.cpp | 56 | 33 | '%s'— column not found for filtering. | String contains extended ASCII characters that should be encoded. | [unencodedExtASCII]
+| ../samples/subset.cpp | 281 | 38 | GreaterThanOrEqualTo | String available for translation that probably should not be in function call: _ | [suspectL10NString]
+| ../samples/subset.cpp | 17 | 39 | Invalid dataset passed to column filter. | Localizable string being used within non-user facing function call: wxASSERT_MSG | [suspectL10NUsage]
+| ../samples/subset.cpp | 93 | 52 | '%s': string value not found for '%s' column filter. | String not available for translation in function call: std::runtime_error | [notL10NAvailable]
+| ../samples/subset.cpp |  |  |  | File contains extended ASCII characters, but is not encoding as UTF-8. | [nonUTF8File]
+| ../samples/subset.cpp | 56 | 33 | '%s'— column not found for filtering. | String contains extended ASCII characters that should be encoded. | [unencodedExtASCII]
 
 The `suspectL10NString` warning is because there is a string "GreaterThanOrEqualTo" that is inside of a `_()`
 macro, making it available for translation. This does not appear to be something appropriate for
