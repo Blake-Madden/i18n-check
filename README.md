@@ -20,6 +20,8 @@ Internationalization & localization analysis system for C++ code.
 
 \* Strings are considered translatable if inside of `gettext` (or related) macros. This includes `_()` and `wxTRANSLATE()`. 
 
+Refer [here](Example.md) for example usage.
+
 [![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
 [![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
 [![unix build](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml)
@@ -93,15 +95,15 @@ any progress messages.
 i18n-check C:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
 ```
 
-This example will exclude multiple folders and output the results to "WDVresults.txt."
+This example will exclude multiple folders and output the results to "WDVResults.txt."
 
 ```shellscript
 i18n-check C:\src\Wisteria-dataviz\src --ignore=import,i18n-check,wxsimplejson,math,easyexif,debug,utfcpp,CRCpp -o WDVresults.txt
 ```
 
-# Github Action
+# GitHub Action
 
-You can also create an `i18n-check` Github action to make it part of your CI.
+You can also create an `i18n-check` GitHub action to make it part of your CI.
 For example, create a new workflow called "i18n-check.yml" and enter the following:
 
 ```shellscript
