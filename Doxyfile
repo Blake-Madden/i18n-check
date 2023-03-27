@@ -967,8 +967,8 @@ RECURSIVE              = YES
 
 EXCLUDE                = src/cxxopts \
                          src/utfcpp \
-                         src/samples \
-                         src/tests
+                         samples \
+                         tests
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
