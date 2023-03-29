@@ -29,8 +29,26 @@ namespace i18n_check
         m_function_signature_regex(L"[[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)]"),
         m_plural_regex(L"[[:alnum:]]{2,}[(]s[)]"),
         m_open_function_signature_regex(L"[[:alnum:]]{2,}[(]"),
-        m_assert_regex(L"([a-zA-Z0-9_]*|^)ASSERT([a-zA-Z0-9_]*|$)")
+        m_assert_regex(L"([a-zA-Z0-9_]*|^)ASSERT([a-zA-Z0-9_]*|$)"),
+        m_profile_regex(L"([a-zA-Z0-9_]*|^)PROFILE([a-zA-Z0-9_]*|$)")
         {
+        m_deprecated_string_macros = {
+            { L"wxT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
+            { L"wxT_2", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
+            { L"wxS", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
+            { L"_T", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
+            { L"TEXT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
+            { L"_TEXT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
+            { L"__TEXT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
+            { L"_WIDE", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
+            { L"wxStrlen", L"Consider using std::wcslen() or (wrap in a std::wstring_view) instead." },
+            { L"wxTrace", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
+            { L"WXTRACE", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
+            { L"wxTraceLevel", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
+            { L"wxUnix2DosFilename", L"Construct a wxFileName with wxPATH_UNIX and then use wxFileName::GetFullPath(wxPATH_DOS) instead." },
+            { L"wxSplitPath", L"This function is obsolete, please use wxFileName::SplitPath() instead." }
+        };
+
         m_untranslatable_regexes = {
             // nothing but numbers, punctuation, control characters?
             std::wregex(L"([[:digit:][:space:][:punct:][:cntrl:]]|\\\\[rnt])+"),
@@ -123,23 +141,20 @@ namespace i18n_check
         // via GETTEXT (or similar mechanism)
         m_localization_functions = { L"_", L"N_", L"gettext_noop", L"gettext",
             // wxWidgets GETTEXT wrapper functions
-            L"wxPLURAL", L"wxTRANSLATE", L"wxTRANSLATE_IN_CONTEXT", L"wxGetTranslation" };
+            L"wxPLURAL", L"wxTRANSLATE", L"wxTRANSLATE_IN_CONTEXT", L"wxGetTranslation",
+            L"wxGETTEXT_IN_CONTEXT", L"wxGETTEXT_IN_CONTEXT_PLURAL" };
 
         // functions that indicate that a string is explicitly marked to not be translatable
         m_non_localizable_functions = { L"_DT", L"DONTTRANSLATE" };
-
-        // ASCII vs. WIDE macros that have been deprecated
-        m_deprecated_string_macros = {
-            // wxWidgets
-            L"wxT", L"wxT_2", L"wxS"
-            };
 
         // Constructors and macros that should be ignored
         // (when backtracing, these are skipped over, and the parser moves to the
         //  function/variable assignment to the left of these).
         m_ctors_to_ignore = {
             // Win32 text macros that should be skipped over
-            L"_T", L"TEXT", L"_TEXT", L"_WIDE", L"CFSTR",
+            L"_T", L"TEXT", L"_TEXT", L"__TEXT", L"_WIDE",
+            // macOS
+            L"CFSTR",
             // similar macros from other libraries
             L"T",
             // wxWidgets
@@ -195,7 +210,7 @@ namespace i18n_check
             L"CATCH_INTERNAL_ERROR", L"CATCH_REQUIRE_THROWS_WIT",
             L"CATCH_SUCCEED", L"CATCH_INFO", L"CATCH_UNSCOPED_INFO",
             L"CATCH_WARN", L"CATCH_SECTION",
-            // CPPUnit
+            // CppUnit
             L"CPPUNIT_ASSERT", L"CPPUNIT_ASSERT_EQUAL", L"CPPUNIT_ASSERT_DOUBLES_EQUAL",
             // low-level printf functions
             L"wprintf", L"printf", L"sprintf", L"snprintf", L"fprintf", L"wxSnprintf",
@@ -230,7 +245,7 @@ namespace i18n_check
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
-            L"lua_setglobal"
+            L"luaL_error", L"lua_pushstring", L"lua_setglobal"
             };
 
         m_log_functions = {
@@ -445,6 +460,7 @@ namespace i18n_check
         try
             {
             return (std::regex_match(functionName, m_assert_regex) ||
+                    std::regex_match(functionName, m_profile_regex) ||
                     (m_internal_functions.find(functionName) !=
                         m_internal_functions.cend()) ||
                     (!can_log_messages_be_translatable() &&
@@ -559,7 +575,7 @@ namespace i18n_check
 
             for (const auto& reg : m_untranslatable_regexes)
                 {
-                if (std::regex_match(str,reg))
+                if (std::regex_match(str, reg))
                     {
                 #ifndef NDEBUG
                     if (str.length() > m_longest_internal_string.first.length())

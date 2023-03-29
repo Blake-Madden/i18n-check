@@ -12,13 +12,14 @@ Internationalization & localization analysis system for C++ code.
     - Formulas
 - Strings not available for translation that possibly should be.
 - Strings that contain extended ASCII characters that are not encoded.
-  ("Danke schön" instead of "Danke sch\u00F6n".) Encoding extended ASCII characters is recommended for
+  ("Danke schön" instead of "Danke sch\U000000F6n".) Encoding extended ASCII characters is recommended for
   best portability between compilers.
 - The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
 - Files that contain extended ASCII characters, but are not UTF-8 encoded.
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
+- `printf()`-like functions being used to just format an integer. It is recommended to use `std::to_string()` to do this.
 
-\* Strings are considered translatable if inside of `gettext` (or related) macros. This includes `_()` and `wxTRANSLATE()`. 
+\* Strings are considered translatable if inside of `gettext` (or related) macros. This includes macros such as `_()` and `wxTRANSLATE()`. 
 
 Refer [here](Example.md) for example usage.
 
@@ -35,15 +36,16 @@ Refer [here](Example.md) for example usage.
 [input]: The folder to analyze.
 
 --enable: Which checks to perform. Can be any combination of:
-  all:               Perform all checks (the default).
-  suspectL10NString: Check for translatable strings that shouldn't be
-                     (e.g., numbers, keywords, printf commands).
-  suspectL10NUsage:  Check for translatable strings being used in internal contexts
-                     (e.g., debugging functions).
-  notL10NAvailable:  Check for strings not exposed for translation.
-  deprecatedMacros:  Check for deprecated text macros (e.g., wxT()).
-  nonUTF8File:       Check that files containing extended ASCII characters are UTF-8 encoded.
-  unencodedExtASCII: Check for strings that contain extended ASCII characters that are not encoded.
+  all:                 Perform all checks (the default).
+  suspectL10NString:   Check for translatable strings that shouldn't be
+                       (e.g., numbers, keywords, printf commands).
+  suspectL10NUsage:    Check for translatable strings being used in internal contexts
+                       (e.g., debugging functions).
+  notL10NAvailable:    Check for strings not exposed for translation.
+  deprecatedMacros:    Check for deprecated text macros (e.g., wxT()).
+  nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
+  unencodedExtASCII:   Check for strings that contain extended ASCII characters that are not encoded.
+  printfSingleInteger: Check for printf()-like functions being used to just format an integer.
 
 --log-l10n-allowed: Whether it is acceptable to pass translatable strings to 
                     logging functions. Setting this to false will emit warnings

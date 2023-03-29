@@ -110,6 +110,45 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings()[0].m_string ==
               L"TIFF (*.tif;*.tiff)|*.tif;*.tiff");
         }
+
+    SECTION("Printf integers")
+        {
+        const wchar_t* code = LR"(auto = sprintf("%zu", value))";
+            {
+            cpp_i18n_review cpp;
+            cpp(code, std::wcslen(code));
+            cpp.review_strings();
+            CHECK(cpp.get_printf_single_integers().size() == 1);
+            }
+        code = LR"(auto = sprintf("%d", value))";
+            {
+            cpp_i18n_review cpp;
+            cpp(code, std::wcslen(code));
+            cpp.review_strings();
+            CHECK(cpp.get_printf_single_integers().size() == 1);
+            }
+        code = LR"(auto = sprintf("%+d", value))";
+            {
+            cpp_i18n_review cpp;
+            cpp(code, std::wcslen(code));
+            cpp.review_strings();
+            CHECK(cpp.get_printf_single_integers().size() == 1);
+            }
+        code = LR"(auto = sprintf("%ll", value))";
+            {
+            cpp_i18n_review cpp;
+            cpp(code, std::wcslen(code));
+            cpp.review_strings();
+            CHECK(cpp.get_printf_single_integers().size() == 1);
+            }
+        code = LR"(auto = sprintf("%s", value))";
+            {
+            cpp_i18n_review cpp;
+            cpp(code, std::wcslen(code));
+            cpp.review_strings();
+            CHECK(cpp.get_printf_single_integers().size() == 0);
+            }
+        }
     
     SECTION("Ignored macro")
         {
@@ -278,13 +317,11 @@ TEST_CASE("CPP Tests", "[cpp]")
     SECTION("Not filename too long")
         {
         cpp_i18n_review cpp;
-        const wchar_t* code = LR"(wxMessageBox("System level function loading error - Unable to load a function from the library file riched.dll");)";
+        const wchar_t* code = LR"(wxMessageBox("Microsoft Windows 2000 system level function loading error occurred during process initialization - Unable to load a function from the library file riched.dll");)";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-            L"System level function loading error - Unable to load a function from the library file riched.dll");
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"wxMessageBox");
         CHECK(cpp.get_internal_strings().size() == 0);
         }

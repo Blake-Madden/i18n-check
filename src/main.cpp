@@ -49,7 +49,7 @@ std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name)
     unsigned line_count = 1;
     std::string line;
     std::wstring buffer;
-    buffer.reserve(std::filesystem::file_size(file_name));
+    buffer.reserve(static_cast<size_t>(std::filesystem::file_size(file_name)));
 
     while (std::getline(fs8, line))
         {
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
-        "all, suspectL10NString, suspectL10NUsage, notL10NAvailable, deprecatedMacros, nonUTF8File, unencodedExtASCII)",
+        "all, suspectL10NString, suspectL10NUsage, notL10NAvailable, deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleInteger)",
         cxxopts::value<std::vector<std::string>>())
     ("log-l10n-allowed", "Whether it is acceptable to pass translatable "
         "strings to logging functions. (Default is true.)")
@@ -291,6 +291,8 @@ int main(int argc, char* argv[])
                 { rs |= check_utf8_encoded; }
             else if (r == "unencodedExtASCII")
                 { rs |= check_unencoded_ext_ascii; }
+            else if (r == "printfSingleInteger")
+                { rs |= check_printf_single_integer; }
             else
                 {
                 std::wcout << L"Unknown option passed to --enable: " <<
@@ -411,10 +413,20 @@ int main(int argc, char* argv[])
 
     for (const auto& val : cpp.get_deprecated_macros())
         {
+        const auto foundMessage = cpp.get_deprecated_messages().find(val.m_string);
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
             L"\t" << val.m_string << L"\t" <<
-            L"Deprecated text macro that can be removed." <<
-            val.m_usage.m_value << L"\t[deprecatedMacro]\n";
+            (foundMessage == cpp.get_deprecated_messages().cend() ?
+                L"Deprecated function should be replaced." : foundMessage->second) <<
+            L"\t[deprecatedMacro]\n";
+        }
+
+    for (const auto& val : cpp.get_printf_single_integers())
+        {
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
+            L"\t" << val.m_string << L"\t" <<
+            L"Prefer using std::to_wstring()/std::to_string() instead of printf() formatting a single integer."<<
+            L"\t[printfSingleInteger]\n";
         }
 
     for (const auto& file : filesThatShouldBeConvertedToUTF8)
@@ -425,9 +437,27 @@ int main(int argc, char* argv[])
     
     for (const auto& val : cpp.get_unencoded_ext_ascii_strings())
         {
+        std::wstringstream encodingRecommendationsStream;
+        for (const auto& ch : val.m_string)
+            {
+            if (ch > 127)
+                {
+                encodingRecommendationsStream << ch << L" -> \\U" <<
+                    std::setfill(L'0') << std::setw(8) << std::uppercase <<
+                    std::hex  <<
+                    static_cast<int>(ch) << L", ";
+                }
+            }
+        auto encodingRecommendations = encodingRecommendationsStream.str();
+        if (encodingRecommendations.length() > 2)
+            {
+            encodingRecommendations.erase(encodingRecommendations.end()-2,
+                                          encodingRecommendations.end());
+            }
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
             L"\"" << val.m_string << L"\"\t" <<
-            L"String contains extended ASCII characters that should be encoded." <<
+            L"String contains extended ASCII characters that should be encoded. Recommended changes: " <<
+            encodingRecommendations <<
             L"\t[unencodedExtASCII]\n";
         }
 

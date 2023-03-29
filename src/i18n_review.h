@@ -43,11 +43,15 @@ namespace i18n_check
         check_utf8_encoded = 0x10,
         /// @brief Check for strings that contain extended ASCII characters that are not encoded.
         check_unencoded_ext_ascii = 0x20,
+        /// @brief Check for printf() commands being used to format a single integer.\n
+        ///     In this situation, it is better to use std::to_string() to avoid
+        ///     potentially dangerous printf() commands.
+        check_printf_single_integer = 0x40,
         /// @brief Perform all tests.
         all_l10n_checks = 
             (check_l10n_strings|check_suspect_l10n_string_usage|
              check_not_available_for_l10n|check_deprecated_macros|check_utf8_encoded|
-             check_unencoded_ext_ascii)
+             check_unencoded_ext_ascii|check_printf_single_integer)
         };
 
     /** @brief Class to extract and review localizable/nonlocalizable
@@ -187,6 +191,21 @@ namespace i18n_check
                 classifyUnencodedStrings(m_unsafe_localizable_strings);
                 classifyUnencodedStrings(m_localizable_strings_in_internal_call);
                 }
+
+            if (m_reviewStyles & check_printf_single_integer)
+                {
+                std::wregex intPrintf{ LR"([%]([+]|[-] #)?(d|i|o|u|zu|c|C|e|E|l|I|I32|I64)(l)?)"};
+                const auto& classifyprintfIntStrings = [this, &intPrintf](const auto& strings)
+                    {
+                    for (const auto& str : strings)
+                        {
+                        if (std::regex_match(str.m_string, intPrintf))
+                            { m_printf_single_integers.push_back(str); }
+                        }
+                    };
+                classifyprintfIntStrings(m_internal_strings);
+                classifyprintfIntStrings(m_localizable_strings_in_internal_call);
+                }
             // log any parsing errors
             run_diagnostics();
             }
@@ -204,6 +223,11 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_deprecated_macros() const noexcept
             { return m_deprecated_macros; }
+        [[nodiscard]]
+        /// @returns The map of deprecated functions and macros being searched for and their
+        ///     respective recommendation for fixing.
+        const std::map<std::wstring_view, std::wstring_view>& get_deprecated_messages() const noexcept
+            { return m_deprecated_string_macros; }
         /// @returns Strings that have been explicitly set to not be translatable
         ///     (usually by the DONTTRANSLATE() function).
         [[nodiscard]]
@@ -226,6 +250,12 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_unencoded_ext_ascii_strings() const noexcept
             { return m_unencoded_strings; }
+        /// @returns The strings that are a printf() command that only formats one number.\n
+        ///     It is simpler to use std::to_string() variants to avoid potentially dangerous
+        ///     printf() calls.
+        [[nodiscard]]
+        const std::vector<string_info>& get_printf_single_integers() const noexcept
+            { return m_printf_single_integers; }
         /** @brief Adds a regular expression pattern to determine if a variable should be
                 considered an internal string.
             @details For example, a pattern like "^utf8Name.*" would instruct
@@ -504,14 +534,13 @@ namespace i18n_check
         std::set<std::wstring> m_log_functions;
         std::set<std::wstring> m_exceptions;
         std::set<std::wstring> m_ctors_to_ignore;
-        std::set<std::wstring_view> m_deprecated_string_macros;
         std::vector<std::wregex> m_variable_name_patterns_to_ignore;
         std::set<std::wstring> m_variable_types_to_ignore;
         std::set<string_util::case_insensitive_wstring> m_known_internal_strings;
         std::set<std::wstring> m_keywords;
         std::set<string_util::case_insensitive_wstring> m_font_names;
         std::set<string_util::case_insensitive_wstring> m_file_extensions;
-
+        std::map<std::wstring_view, std::wstring_view> m_deprecated_string_macros;
         // results after parsing what the client should maybe review
         std::vector<string_info> m_localizable_strings;
         std::vector<string_info> m_marked_as_non_localizable_strings;
@@ -522,6 +551,7 @@ namespace i18n_check
         std::vector<string_info> m_not_available_for_localization_strings;
         std::vector<string_info> m_deprecated_macros;
         std::vector<string_info> m_unencoded_strings;
+        std::vector<string_info> m_printf_single_integers;
 
         std::wstring m_file_name;
 
@@ -537,6 +567,7 @@ namespace i18n_check
         std::wregex m_plural_regex;
         std::wregex m_open_function_signature_regex;
         std::wregex m_assert_regex;
+        std::wregex m_profile_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
 
         // helpers
