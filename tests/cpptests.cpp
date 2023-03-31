@@ -26,6 +26,26 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
+    SECTION("XML Tag")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(2);
+        const wchar_t* code = LR"(auto var = "<and or>";)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        cpp.clear_results();
+        code = LR"(auto var = "< and or >";)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
     SECTION("Separated strings")
         {
         cpp_i18n_review cpp;

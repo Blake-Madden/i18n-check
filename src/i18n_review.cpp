@@ -78,9 +78,9 @@ namespace i18n_check
             // PostScript element
             std::wregex(L"%%[[:alpha:]]+:.*"),
             // XML elements
-            std::wregex(L"<[A-Za-z0-9_/\\-.'\"=;:[:space:]]+>"),
-            std::wregex(L"<[A-Za-z0-9_/\\-.'\"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\\-.']*>"),
-            std::wregex(L"<([A-Za-z0-9_\\-.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*"),
+            std::wregex(L"<[A-Za-z]+[A-Za-z0-9_/\\-.'\"=;:[:space:]]+>"),
+            std::wregex(L"<[A-Za-z]+[A-Za-z0-9_/\\-.'\"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\\-.']*>"),
+            std::wregex(L"<[A-Za-z]+([A-Za-z0-9_\\-.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*"),
             // <image x=%d y=\"%d\" width = '%dpx' height="%dpx"
             std::wregex(L"<[A-Za-z0-9_\\-.]+[[:space:]]*([A-Za-z0-9_\\-.]+[[:space:]]*=[[:space:]]*[\"'\\\\]{0,2}[a-zA-Z0-9\\-]*[\"'\\\\]{0,2}[[:space:]]*)+"),
             std::wregex(L"charset[[:space:]]*=.*",
