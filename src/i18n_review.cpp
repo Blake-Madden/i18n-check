@@ -78,11 +78,12 @@ namespace i18n_check
             // PostScript element
             std::wregex(L"%%[[:alpha:]]+:.*"),
             // XML elements
-            std::wregex(L"<[A-Za-z]+[A-Za-z0-9_/\\-.'\"=;:[:space:]]+>"),
-            std::wregex(L"<[A-Za-z]+[A-Za-z0-9_/\\-.'\"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\\-.']*>"),
-            std::wregex(L"<[A-Za-z]+([A-Za-z0-9_\\-.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*"),
+            std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
+            std::wregex(LR"(xml[ ]*version[ ]*=[ ]*\\["'][0-9\.]+\\["'][>]?)"),
+            std::wregex(LR"(<[A-Za-z]+[A-Za-z0-9_/\\\-\.'"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\-.']*>)"),
+            std::wregex(LR"(<[A-Za-z]+([A-Za-z0-9_\-\.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*)"),
             // <image x=%d y=\"%d\" width = '%dpx' height="%dpx"
-            std::wregex(L"<[A-Za-z0-9_\\-.]+[[:space:]]*([A-Za-z0-9_\\-.]+[[:space:]]*=[[:space:]]*[\"'\\\\]{0,2}[a-zA-Z0-9\\-]*[\"'\\\\]{0,2}[[:space:]]*)+"),
+            std::wregex(L"<[A-Za-z0-9_\\-\\.]+[[:space:]]*([A-Za-z0-9_\\-\\.]+[[:space:]]*=[[:space:]]*[\"'\\\\]{0,2}[a-zA-Z0-9\\-]*[\"'\\\\]{0,2}[[:space:]]*)+"),
             std::wregex(L"charset[[:space:]]*=.*",
                 std::regex_constants::icase),
             // all 'X'es and spaces, usually a placeholder of some sort
@@ -182,6 +183,7 @@ namespace i18n_check
             L"deprecated", L"nodiscard", L"_Pragma",
             // assert functions
             L"check_assertion", L"static_assert", L"assert", L"Assert",
+            L"__android_log_assert",
             // wxWidgets functions and macros
             L"wxDEPRECATED_MSG", L"wxSTC_DEPRECATED_MACRO_VALUE",
             L"wxPG_DEPRECATED_MACRO_VALUE",
@@ -528,7 +530,7 @@ namespace i18n_check
                 std::regex_match(str,m_html_tag_unicode_regex))
                 {
                 str = std::regex_replace(str,
-                    std::wregex(L"<[?]?[A-Za-z0-9+_/\\-.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
+                    std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
                 // strip things like &ldquo;
                 str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
                 str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
