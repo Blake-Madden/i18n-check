@@ -17,9 +17,9 @@ Internationalization & localization analysis system for C++ code.
 - The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
 - Files that contain extended ASCII characters, but are not UTF-8 encoded.
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
-- `printf()`-like functions being used to just format an integer. It is recommended to use `std::to_string()` to do this.
+- `printf()`-like functions being used to just format an integer to a string. It is recommended to use `std::to_string()` to do this instead.
 
-\* Strings are considered translatable if inside of `gettext` (or related) macros. This includes macros such as `_()` and `wxTRANSLATE()`. 
+\* Strings are considered translatable if inside of `gettext` (or related) macros. This includes functions and macros such as `gettext()`, `_()`, and `wxTRANSLATE()`. 
 
 Refer [here](Example.md) for example usage.
 
@@ -44,8 +44,10 @@ Refer [here](Example.md) for example usage.
   notL10NAvailable:    Check for strings not exposed for translation.
   deprecatedMacros:    Check for deprecated text macros (e.g., wxT()).
   nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
-  unencodedExtASCII:   Check for strings that contain extended ASCII characters that are not encoded.
+  unencodedExtASCII:   Check for strings containing extended ASCII characters that are not encoded.
   printfSingleInteger: Check for printf()-like functions being used to just format an integer.
+
+--disable: Which checks to not perform. (Refer to options available above.)
 
 --log-l10n-allowed: Whether it is acceptable to pass translatable strings to 
                     logging functions. Setting this to false will emit warnings

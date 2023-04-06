@@ -15,6 +15,7 @@ output like this:
 | ../samples/subset.cpp | 281 | 38 | GreaterThanOrEqualTo | String available for translation that probably should not be in function call: _ | [suspectL10NString]
 | ../samples/subset.cpp | 17 | 39 | Invalid dataset passed to column filter. | Localizable string being used within non-user facing function call: wxASSERT_MSG | [suspectL10NUsage]
 | ../samples/subset.cpp | 93 | 52 | '%s': string value not found for '%s' column filter. | String not available for translation in function call: std::runtime_error | [notL10NAvailable]
+| ../samples/subset.cpp | 131 | 38 | wxT | Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.) | [deprecatedMacro]
 | ../samples/subset.cpp |  |  |  | File contains extended ASCII characters, but is not encoding as UTF-8. | [nonUTF8File]
 | ../samples/subset.cpp | 56 | 33 | '%s'— column not found for filtering. | String contains extended ASCII characters that should be encoded. | [unencodedExtASCII]
 
@@ -29,6 +30,8 @@ in production releases and shouldn't be seen by end users; therefore, they shoul
 The `notL10NAvailable` warning is indicating that the string "'%s': string value not found for '%s' column filter." is
 not wrapped in a `_()` macro and not available for localization.
 
+The `deprecatedMacro` warning is indicating that the text-wrapping macro `wxT()` should be removed.
+
 The `nonUTF8File` warning is indicating that the file contains extended ASCII characters, but
 is not encoded as UTF-8. It is generally recommended to encode files as UTF-8, making them portable between compilers and other tools.
 
@@ -42,3 +45,52 @@ in the console window:
 ```shellscript
 i18n-check ../samples --enable=suspectL10NString,suspectL10NUsage
 ```
+
+To look for all issues except for deprecated macros:
+
+```shellscript
+i18n-check ../samples --disable=deprecatedMacros
+```
+
+By default, `i18n-check` will assume that messages inside of various exceptions should be translatable.
+If these messages are not exposed for localization, then a warning will be issued.
+
+To consider exception messages as internal (and suppress warnings about their messages not being localizable)
+do the following:
+
+```shellscript
+i18n-check ../samples --exceptions-l10n-required=false
+```
+
+Similarity, `i18n-check` will also consider messages inside of various logging functions to be allowable
+for translation. A difference is that it will not warn if a message is not exposed for translation. This is because
+log messages can serve a dual role of user-facing messages and internal messages meant for developers.
+
+To consider all log messages to never be appropriate for translation, do the following:
+
+```shellscript
+i18n-check ../samples --log-l10n-allowed=false
+```
+
+To display any parsing or formatting issues encountered, enable the `verbose` flag:
+
+```shellscript
+i18n-check ../samples --verbose=true
+```
+
+or
+
+```shellscript
+i18n-check ../samples -v
+```
+
+This will emit the following `debugParserInfo` warning:
+
+| File  | Line | Column | Value| Explanation | WarningID |
+|-----------|-----------|-----------|-----------|-----------|-----------|
+| ../samples/subset.cpp | 18 | 1 | TAB | Tab detected in file; prefer using spaces. | [debugParserInfo]
+| ../samples/subset.cpp | 30 | 61 | m_comparisonType = subsetCriterion.m_comparisonType; | Stray space(s) detected at end of line. | [debugParserInfo]
+| ../samples/subset.cpp | 31 | 12 | | Stray space(s) detected at end of line. | [debugParserInfo]
+| ../samples/subset.cpp | 57 | 69 | subsetCriterion.m_columnName).ToUTF8()); | Stray space(s) detected at end of line. | [debugParserInfo]
+
+Although the `verbose` option is primarily used for debugging `i18n-check`, it can also be useful for detecting tabs and stray spaces in your code.

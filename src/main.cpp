@@ -82,6 +82,8 @@ int main(int argc, char* argv[])
     ("enable", "Which checks to perform (any combination of: "
         "all, suspectL10NString, suspectL10NUsage, notL10NAvailable, deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleInteger)",
         cxxopts::value<std::vector<std::string>>())
+    ("disable", "Which checks to not perform (same as the options for enable)",
+        cxxopts::value<std::vector<std::string>>())
     ("log-l10n-allowed", "Whether it is acceptable to pass translatable "
         "strings to logging functions. (Default is true.)")
     ("punct-l10n-allowed", "Whether it is acceptable for punctuation only "
@@ -303,6 +305,43 @@ int main(int argc, char* argv[])
             }
         cpp.set_style(static_cast<i18n_check::review_style>(rs));
         }
+    // ...and if any checks are being excluded
+    if (result.count("disable"))
+        {
+        const auto& styles =
+            result["disable"].as<std::vector<std::string>>();
+        int rs{ static_cast<int>(cpp.get_style()) };
+        for (const auto& r : styles)
+            {
+            if (r == "all")
+                {
+                std::wcout << L"At least one check should be performed.";
+                return 1;
+                }
+            else if (r == "suspectL10NString")
+                { rs = rs & ~check_l10n_strings; }
+            else if (r == "suspectL10NUsage")
+                { rs = rs & ~check_suspect_l10n_string_usage; }
+            else if (r == "notL10NAvailable")
+                { rs = rs & ~check_not_available_for_l10n; }
+            else if (r == "deprecatedMacros")
+                { rs = rs & ~check_deprecated_macros; }
+            else if (r == "nonUTF8File")
+                { rs = rs & ~check_utf8_encoded; }
+            else if (r == "unencodedExtASCII")
+                { rs = rs & ~check_unencoded_ext_ascii; }
+            else if (r == "printfSingleInteger")
+                { rs = rs & ~check_printf_single_integer; }
+            else
+                {
+                std::wcout << L"Unknown option passed to --disable: " <<
+                    lazy_string_to_wstring(r) << L"\n\n" <<
+                    lazy_string_to_wstring(options.help()) << L"\n";
+                return 1;
+                }
+            }
+        cpp.set_style(static_cast<i18n_check::review_style>(rs));
+        }
 
     std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
     size_t currentFileIndex{ 0 };
@@ -465,7 +504,13 @@ int main(int argc, char* argv[])
         {
         for (const auto& parseErr : cpp.get_error_log())
             {
-            report << parseErr.m_file_name << L"\t\t\t" <<
+            report << parseErr.m_file_name << L"\t";
+            if (parseErr.m_line != std::wstring::npos)
+                { report << parseErr.m_line; }
+            report << L"\t";
+            if (parseErr.m_column != std::wstring::npos)
+                { report << parseErr.m_column; }
+            report << L"\t" <<
                 parseErr.m_resourceString << L"\t" << parseErr.m_message << L"\t[debugParserInfo]\n";
             }
         }
