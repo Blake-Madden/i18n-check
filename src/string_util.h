@@ -1110,11 +1110,11 @@ namespace string_util
     template<typename T>
     [[nodiscard]]
     size_t find_last_of(const T* string,
-                    const T ch,
-                    size_t offset = -1) noexcept
+                        const T ch,
+                        size_t offset = -1) noexcept
         {
         if (!string)
-            { return static_cast<size_t>(-1); }
+            { return std::basic_string<T>::npos; }
         if (offset == std::basic_string<T>::npos)
             {
             offset = string_util::strlen(string);
@@ -1124,13 +1124,13 @@ namespace string_util
             }
         assert(offset < string_util::strlen(string));
 
-        while (offset != static_cast<size_t>(-1))
+        while (offset != std::basic_string<T>::npos)
             {
             if (string[offset] == ch)
                 { return offset; }
             --offset;
             }
-        return static_cast<size_t>(-1);
+        return std::basic_string<T>::npos;
         }
 
     /** @brief Searches for a single character from a sequence in a string in reverse.
