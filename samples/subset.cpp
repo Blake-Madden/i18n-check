@@ -15,7 +15,7 @@ namespace Wisteria::Data
         const ColumnFilterInfo& subsetCriterion)
         {
         wxASSERT_MSG(fromDataset, _(L"Invalid dataset passed to column filter."));
-        // reset everything
+	// reset everything
         m_idColumn = nullptr;
         m_continuousColumn = fromDataset->GetContinuousColumns().cend();
         m_categoricalColumn = fromDataset->GetCategoricalColumns().cend();
@@ -27,7 +27,7 @@ namespace Wisteria::Data
         m_doubleValues.clear();
 
         // set the comparison method
-        m_comparisonType = subsetCriterion.m_comparisonType;
+        m_comparisonType = subsetCriterion.m_comparisonType; 
             
         // find the variable that we are filtering with
         if (fromDataset->GetIdColumn().GetName().CmpNoCase(subsetCriterion.m_columnName) == 0)
@@ -54,7 +54,7 @@ namespace Wisteria::Data
                         {
                         throw std::runtime_error(wxString::Format(
                             _(L"'%s'— column not found for filtering."),
-                            subsetCriterion.m_columnName).ToUTF8());
+                            subsetCriterion.m_columnName).ToUTF8()); 
                         }
                     }
                 }
@@ -128,6 +128,7 @@ namespace Wisteria::Data
                     { m_doubleValues.push_back(*doubleVal); }
                 else
                     {
+                    wxLogMessage(wxT("Filter value wasn't provided!"));
                     throw std::runtime_error(_(L"Continuous column filter requires "
                         "a double value for filtering."));
                     }
