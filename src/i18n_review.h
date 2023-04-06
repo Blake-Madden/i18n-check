@@ -20,6 +20,8 @@
 #include "i18n_string_util.h"
 
 /// @brief Classes for checking source code for internationalization/localization issues.
+/// @details Refer to https://www.gnu.org/software/gettext/manual/gettext.html
+///     for i18n best practices, which this library attempts to enforce.
 namespace i18n_check
     {
     /// @brief Tests to perform.
@@ -107,11 +109,15 @@ namespace i18n_check
             {
             /** @brief Constructor.
                 @param filename The filepath.
+                @param positionInFile The line and column position in the file.
                 @param str The string resource.
                 @param message Diagnostic message.*/
-            parse_messages(const std::wstring& filename, const std::wstring& str,
+            parse_messages(const std::wstring& filename,
+                           const std::pair<size_t, size_t> positionInFile,
+                           const std::wstring& str,
                            const std::wstring& message) :
-                m_file_name(filename), m_resourceString(str), m_message(message)
+                m_file_name(filename), m_resourceString(str), m_message(message),
+                m_line(positionInFile.first), m_column(positionInFile.second)
                 {}
             /// @brief The filepath.
             std::wstring m_file_name;
@@ -119,6 +125,10 @@ namespace i18n_check
             std::wstring m_resourceString;
             /// @brief Diagnostic message.
             std::wstring m_message;
+            /// @brief Line position in the file.
+            size_t m_line{ std::wstring::npos };
+            /// @brief Column position in the file.
+            size_t m_column{ std::wstring::npos };
             };
 
         /// @brief Constructor.
@@ -367,9 +377,27 @@ namespace i18n_check
             size_t m_blockStart{ 0 };
             size_t m_previousBlockEnd{ 0 };
             };
+        /** @brief Processes a quote after its positions and respective
+                function/variable assignment has been found.
+            @param[in,out] currentTextPos The current position into the text buffer.\n
+                This position (up to @c quoteEnd) will be filled with spaces after the
+                this section is processed.
+            @param quoteEnd The end of the quote. 
+            @param functionVarNamePos The position in the buffer of the quote's
+                function or variable being assigned to.
+            @param variableName If this quote is being assigned to a variable, the variable name.
+            @param functionName If this quote is inside of function, the function name.
+            @param variableType If being assigned to a variable, the variable's type.
+            @param deprecatedMacroEncountered If the quote is inside of a deprecated
+                macro, then name of this macro.*/
+        void process_quote(wchar_t* currentTextPos, const wchar_t* quoteEnd,
+            const wchar_t* functionVarNamePos,
+            const std::wstring& variableName, const std::wstring& functionName,
+            const std::wstring& variableType,
+            const std::wstring& deprecatedMacroEncountered);
         /// Determines whether a hard-coded string should actually be
-        /// exposed for translation or not. If so, then it will be added to the queue of
-        /// non-localizable strings; otherwise, it will be considered an internal string.
+        ///     exposed for translation or not. If so, then it will be added to the queue of
+        ///     non-localizable strings; otherwise, it will be considered an internal string.
         /// @param str The string to review.
         void classify_non_localizable_string(const string_info& str)
             {
@@ -403,9 +431,14 @@ namespace i18n_check
             { return m_file_extensions.find(str) != m_file_extensions.cend(); }
         /** @brief Logs a debug message.
             @param info Information, such as a string causing a parsing error. 
-            @param message An informational message.*/
-        void log_message(const std::wstring& info, const std::wstring& message) const
-            { m_error_log.emplace_back(parse_messages(m_file_name, info, message)); }
+            @param message An informational message.
+            @param positionInFile The position in the file.*/
+        void log_message(const std::wstring& info, const std::wstring& message,
+                         const size_t positionInFile) const
+            {
+            m_error_log.push_back(
+                parse_messages(m_file_name, get_line_and_column(positionInFile), info, message));
+            }
 #ifdef __UNITTEST
     public:
 #endif
@@ -504,7 +537,7 @@ namespace i18n_check
         /// @returns The line and column postion from a character position.
         /// @param position The character position in the file.
         [[nodiscard]]
-        std::pair<size_t, size_t> get_line_and_column(size_t position) noexcept;
+        std::pair<size_t, size_t> get_line_and_column(size_t position) const noexcept;
 
         /// @brief Removes the quotes and whitespace between multiple quotes
         ///     strings that constitute a single string.

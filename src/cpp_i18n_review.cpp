@@ -40,7 +40,7 @@ namespace i18n_check
                     wchar_t* end = std::wcsstr(cpp_text, L"*/");
                     if (end && end < endSentinel)
                         {
-                        clear_section(cpp_text, end+2);
+                        clear_section(cpp_text, end + 2);
                         cpp_text = end + 2;
                         }
                     // can't find ending tag, so just read in the rest of the text
@@ -51,7 +51,7 @@ namespace i18n_check
                 else if (cpp_text[1] == L'/')
                     {
                     const size_t end = std::wcscspn(cpp_text, L"\n\r");
-                    clear_section(cpp_text,cpp_text+end);
+                    clear_section(cpp_text, cpp_text + end);
                     cpp_text += end;
                     }
                 // not a comment
@@ -116,7 +116,7 @@ namespace i18n_check
                     { --startPos; }
                 // if we are on a character that can be part of a variable
                 // (and not punctuation) at this point,
-                // then this might be #defined variable
+                // then this might be a #defined variable
                 if (is_valid_name_char(*startPos))
                     {
                     const wchar_t* directiveStart = startPos;
@@ -130,17 +130,6 @@ namespace i18n_check
                     functionVarNamePos =
                         read_var_or_function_name(startPos, m_file_start, functionName,
                                                   variableName, variableType, deprecatedMacroEncountered);
-                    if (deprecatedMacroEncountered.length() &&
-                        (m_reviewStyles & check_deprecated_macros))
-                        {
-                        m_deprecated_macros.emplace_back(
-                            string_info(deprecatedMacroEncountered,
-                                string_info::usage_info(
-                                    string_info::usage_info::usage_type::function,
-                                    std::wstring{}, std::wstring{}),
-                                m_file_name,
-                                get_line_and_column(cpp_text - m_file_start)));
-                        }
                     }
                 // find the end of the string now and feed it into the system
                 ++cpp_text;
@@ -174,8 +163,11 @@ namespace i18n_check
                                 continue;
                                 }
 
+                            // Format macros for the std::fprintf family of functions that may
+                            // appear between quoted sections that will actually join the two quotes
+                            const std::wregex intPrintfMacro{ L"PR[IN][uidoxX](8|16|32|64|FAST8|FAST16|FAST32|FAST64|LEAST8|LEAST16|LEAST32|LEAST64|MAX|PTR)" };
+                            const auto int64PrintfMacroLength{ 6 };
                             // see if there is more to this string on another line
-                            const std::wstring_view uint64PrintfMacro{ L"PRIu64", 6 };
                             wchar_t* connectedQuote = end + 1;
                             while (connectedQuote < endSentinel &&
                                 std::iswspace(*connectedQuote))
@@ -187,14 +179,14 @@ namespace i18n_check
                                 continue;
                                 }
                             // step over PRIu64 macro that appears between printf strings
-                            else if (connectedQuote + uint64PrintfMacro.length() < endSentinel &&
-                                uint64PrintfMacro.compare(
-                                    std::wstring_view{connectedQuote,
-                                                      uint64PrintfMacro.length()}) == 0)
+                            else if (connectedQuote + int64PrintfMacroLength < endSentinel &&
+                                std::regex_match(
+                                    std::wstring{ connectedQuote, int64PrintfMacroLength },
+                                    intPrintfMacro))
                                 {
                                 clear_section(connectedQuote,
-                                              connectedQuote + uint64PrintfMacro.length());
-                                connectedQuote += uint64PrintfMacro.length();
+                                              connectedQuote + int64PrintfMacroLength);
+                                connectedQuote += int64PrintfMacroLength;
                                 while (connectedQuote < endSentinel &&
                                     std::iswspace(*connectedQuote))
                                     { ++connectedQuote; }
@@ -215,162 +207,28 @@ namespace i18n_check
                 // if we found the end of the quote
                 if (end && end < endSentinel)
                     {
-                    if (variableName.length())
-                        {
-                        process_variable(variableType, variableName,
-                            std::wstring(cpp_text, end - cpp_text), (cpp_text - m_file_start));
-                        }
-                    else if (functionName.length())
-                        {
-                        if (is_diagnostic_function(functionName))
-                            {
-                            m_internal_strings.emplace_back(string_info(
-                                std::wstring(cpp_text, end - cpp_text),
-                                string_info::usage_info(
-                                    string_info::usage_info::usage_type::function,
-                                    functionName),
-                                m_file_name, get_line_and_column(cpp_text - m_file_start)));
-                            }
-                        else if (m_localization_functions.find(functionName) !=
-                            m_localization_functions.cend())
-                            {
-                            m_localizable_strings.emplace_back(string_info(
-                                std::wstring(cpp_text, end - cpp_text),
-                                string_info::usage_info(
-                                    string_info::usage_info::usage_type::function,
-                                    functionName),
-                                m_file_name, get_line_and_column(cpp_text - m_file_start)));
-
-                            assert(functionVarNamePos);
-                            if (functionVarNamePos &&
-                                m_reviewStyles & check_suspect_l10n_string_usage)
-                                {
-                                std::wstring functionNameOuter, variableNameOuter,
-                                             variableTypeOuter, deprecatedMacroOuterEncountered;
-                                read_var_or_function_name(functionVarNamePos, m_file_start,
-                                                          functionNameOuter, variableNameOuter,
-                                                          variableTypeOuter, deprecatedMacroOuterEncountered);
-                                if (deprecatedMacroOuterEncountered.length() &&
-                                    (m_reviewStyles & check_deprecated_macros))
-                                    {
-                                    m_deprecated_macros.emplace_back(
-                                        string_info(deprecatedMacroOuterEncountered,
-                                            string_info::usage_info(
-                                                string_info::usage_info::usage_type::function,
-                                                std::wstring{}, std::wstring{}),
-                                            m_file_name,
-                                            get_line_and_column(cpp_text - m_file_start)));
-                                    }
-                                // internal functions
-                                if (is_diagnostic_function(functionNameOuter) ||
-                                    // CTORs whose arguments should not be translated
-                                    m_variable_types_to_ignore.find(functionNameOuter) !=
-                                    m_variable_types_to_ignore.cend())
-                                    {
-                                    m_localizable_strings_in_internal_call.emplace_back(
-                                        string_info(std::wstring(cpp_text, end - cpp_text),
-                                        string_info::usage_info(
-                                            string_info::usage_info::usage_type::function,
-                                            functionNameOuter),
-                                        m_file_name,
-                                        get_line_and_column(cpp_text - m_file_start)));
-                                    }
-                                // untranslatable variable types
-                                else if (m_variable_types_to_ignore.find(variableTypeOuter) !=
-                                    m_variable_types_to_ignore.cend())
-                                    {
-                                    m_localizable_strings_in_internal_call.emplace_back(
-                                        string_info(std::wstring(cpp_text, end - cpp_text),
-                                        string_info::usage_info(
-                                            string_info::usage_info::usage_type::variable,
-                                            variableNameOuter, variableTypeOuter),
-                                        m_file_name,
-                                        get_line_and_column(cpp_text - m_file_start)));
-                                    }
-                                // untranslatable variable names (e.g., debugMsg)
-                                else if (variableNameOuter.length())
-                                    {
-                                    try
-                                        {
-                                        for (const auto& reg : get_ignored_variable_patterns())
-                                            {
-                                            if (std::regex_match(variableNameOuter, reg))
-                                                {
-                                                m_localizable_strings_in_internal_call.emplace_back(
-                                                    string_info(std::wstring(cpp_text, end-cpp_text),
-                                                    string_info::usage_info(
-                                                        string_info::usage_info::usage_type::variable,
-                                                        variableNameOuter, variableTypeOuter),
-                                                    m_file_name,
-                                                    get_line_and_column(cpp_text - m_file_start)));
-                                                break;
-                                                }
-                                            }
-                                        }
-                                    catch (const std::exception& exp)
-                                        { log_message(variableNameOuter, lazy_string_to_wstring(exp.what())); }
-                                    }
-                                }
-                            }
-                        else if (m_non_localizable_functions.find(functionName) !=
-                            m_non_localizable_functions.cend())
-                            {
-                            m_marked_as_non_localizable_strings.emplace_back(
-                                string_info(std::wstring(cpp_text, end - cpp_text),
-                                string_info::usage_info(
-                                    string_info::usage_info::usage_type::function,
-                                    functionName),
-                                m_file_name,
-                                get_line_and_column(cpp_text - m_file_start)));
-                            }
-                        else if (m_variable_types_to_ignore.find(functionName) !=
-                            m_variable_types_to_ignore.cend())
-                            {
-                            m_internal_strings.emplace_back(
-                                string_info(std::wstring(cpp_text, end - cpp_text),
-                                string_info::usage_info(
-                                    string_info::usage_info::usage_type::function,
-                                    functionName),
-                                m_file_name,
-                                get_line_and_column(cpp_text - m_file_start)));
-                            }
-                        else if (is_keyword(functionName))
-                            {
-                            classify_non_localizable_string(
-                                string_info(std::wstring(cpp_text, end - cpp_text),
-                                string_info::usage_info(
-                                    string_info::usage_info::usage_type::orphan,
-                                    std::wstring{}),
-                                m_file_name,
-                                get_line_and_column(cpp_text - m_file_start)));
-                            }
-                        else
-                            {
-                            classify_non_localizable_string(
-                                string_info(std::wstring(cpp_text, end - cpp_text),
-                                string_info::usage_info(
-                                    string_info::usage_info::usage_type::function,
-                                    functionName),
-                                m_file_name,
-                                get_line_and_column(cpp_text - m_file_start)));
-                            }
-                        }
-                    else
-                        {
-                        classify_non_localizable_string(
-                            string_info(std::wstring(cpp_text, end - cpp_text),
-                            string_info::usage_info(
-                                string_info::usage_info::usage_type::orphan,
-                                std::wstring{}),
-                            m_file_name,
-                            get_line_and_column(cpp_text - m_file_start)));
-                        } 
-                    clear_section(cpp_text, end + 1);
+                    process_quote(cpp_text, end, functionVarNamePos, variableName, functionName,
+                                  variableType, deprecatedMacroEncountered);
                     cpp_text = end + (isRawString ? 2 : 1);
                     }
                 }
             else
-                { ++cpp_text; }
+                {
+                if (cpp_text[0] == L'\t')
+                    { log_message(L"TAB", L"Tab detected in file; prefer using spaces.", (cpp_text - m_file_start)); }
+                else if (cpp_text[0] == L' ' && cpp_text + 1 < endSentinel &&
+                    (cpp_text[1] == L'\n' || cpp_text[1] == L'\r'))
+                    {
+                    auto prevLineStart = string_util::find_last_of(m_file_start, L"\n\r", cpp_text - m_file_start);
+                    if (prevLineStart == std::wstring::npos)
+                        { prevLineStart = 0; }
+                    ++prevLineStart; // step forward to original line
+                    std::wstring codeLine(m_file_start + prevLineStart, (cpp_text - (m_file_start + prevLineStart)));
+                    string_util::ltrim(codeLine);
+                    log_message(codeLine, L"Stray space(s) detected at end of line.", (cpp_text - m_file_start));
+                    }
+                ++cpp_text;
+                }
             }
 
         m_file_name.clear();
@@ -431,7 +289,7 @@ namespace i18n_check
                 auto end = string_util::find_matching_close_tag(asmStart + 1, L'(', L')');
                 if (!end)
                     {
-                    log_message(L"asm", L"Missing closing ')' in asm block.");
+                    log_message(L"asm", L"Missing closing ')' in asm block.", (end - m_file_start));
                     return asmStart + 1;
                     }
                 clear_section(originalStart, const_cast<wchar_t*>(end) + 1);
@@ -456,7 +314,7 @@ namespace i18n_check
                 auto end = string_util::find_matching_close_tag(asmStart+1, L'{', L'}');
                 if (!end)
                     {
-                    log_message(L"__asm", L"Missing closing '}' in __asm block.");
+                    log_message(L"__asm", L"Missing closing '}' in __asm block.", (end - m_file_start));
                     return asmStart + 1;
                     }
                 clear_section(originalStart, (end+1));

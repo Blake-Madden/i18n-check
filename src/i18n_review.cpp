@@ -139,14 +139,21 @@ namespace i18n_check
             };
 
         // functions/macros that indicate that a string will be localizable
-        // via GETTEXT (or similar mechanism)
-        m_localization_functions = { L"_", L"N_", L"gettext_noop", L"gettext",
-            // wxWidgets GETTEXT wrapper functions
+        m_localization_functions = {
+            // GNU's gettext C/C++ functions
+            L"_", L"gettext", L"dgettext", L"ngettext", L"dngettext",
+            L"pgettext", L"dpgettext", L"npgettext", L"dnpgettext", L"dcgettext",
+            // GNU's propername module
+            L"proper_name", L"proper_name_utf8",
+            // wxWidgets gettext wrapper functions
             L"wxPLURAL", L"wxTRANSLATE", L"wxTRANSLATE_IN_CONTEXT", L"wxGetTranslation",
             L"wxGETTEXT_IN_CONTEXT", L"wxGETTEXT_IN_CONTEXT_PLURAL" };
 
         // functions that indicate that a string is explicitly marked to not be translatable
-        m_non_localizable_functions = { L"_DT", L"DONTTRANSLATE" };
+        m_non_localizable_functions = { L"_DT", L"DONTTRANSLATE",
+            // these are not defined explicitly in gettext, but their documenation suggests
+            // that you can add them as defines in your code and use them
+            L"gettext_noop", L"N_" };
 
         // Constructors and macros that should be ignored
         // (when backtracing, these are skipped over, and the parser moves to the
@@ -345,7 +352,7 @@ namespace i18n_check
                             L"wxFileSystemWatcherEvent", L"wxStdioPipe",
                             L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION", L"vmsWarningHandler",
                             L"vmsErrorHandler", L"wxFFileOutputStream", L"wxFFile", L"wxFileName",
-                            L"wxColor", L"wxColour",
+                            L"wxColor", L"wxColour", L"wxFont",
                             L"wxRegEx", L"wregex", L"std::wregex", L"regex", L"std::regex",
                             L"wxDataObjectSimple" };
 
@@ -357,6 +364,178 @@ namespace i18n_check
             std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourDialogNames"));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourTable"));
+        }
+
+    //--------------------------------------------------
+    void i18n_review::process_quote(wchar_t* currentTextPos, const wchar_t* quoteEnd,
+        const wchar_t* functionVarNamePos,
+        const std::wstring& variableName, const std::wstring& functionName,
+        const std::wstring& variableType,
+        const std::wstring& deprecatedMacroEncountered)
+        {
+        if (deprecatedMacroEncountered.length() &&
+            (m_reviewStyles & check_deprecated_macros))
+            {
+            m_deprecated_macros.emplace_back(
+                string_info(deprecatedMacroEncountered,
+                    string_info::usage_info(
+                        string_info::usage_info::usage_type::function,
+                        std::wstring{}, std::wstring{}),
+                    m_file_name,
+                    get_line_and_column(currentTextPos - m_file_start)));
+            }
+
+        if (variableName.length())
+            {
+            process_variable(variableType, variableName,
+                std::wstring(currentTextPos, quoteEnd - currentTextPos), (currentTextPos - m_file_start));
+            }
+        else if (functionName.length())
+            {
+            if (is_diagnostic_function(functionName))
+                {
+                m_internal_strings.emplace_back(string_info(
+                    std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                    string_info::usage_info(
+                        string_info::usage_info::usage_type::function,
+                        functionName),
+                    m_file_name, get_line_and_column(currentTextPos - m_file_start)));
+                }
+            else if (m_localization_functions.find(functionName) !=
+                m_localization_functions.cend())
+                {
+                m_localizable_strings.emplace_back(string_info(
+                    std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                    string_info::usage_info(
+                        string_info::usage_info::usage_type::function,
+                        functionName),
+                    m_file_name, get_line_and_column(currentTextPos - m_file_start)));
+
+                assert(functionVarNamePos);
+                if (functionVarNamePos &&
+                    m_reviewStyles & check_suspect_l10n_string_usage)
+                    {
+                    std::wstring functionNameOuter, variableNameOuter,
+                                    variableTypeOuter, deprecatedMacroOuterEncountered;
+                    read_var_or_function_name(functionVarNamePos, m_file_start,
+                                              functionNameOuter, variableNameOuter,
+                                              variableTypeOuter, deprecatedMacroOuterEncountered);
+                    if (deprecatedMacroOuterEncountered.length() &&
+                        (m_reviewStyles & check_deprecated_macros))
+                        {
+                        m_deprecated_macros.emplace_back(
+                            string_info(deprecatedMacroOuterEncountered,
+                                string_info::usage_info(
+                                    string_info::usage_info::usage_type::function,
+                                    std::wstring{}, std::wstring{}),
+                                m_file_name,
+                                get_line_and_column(currentTextPos - m_file_start)));
+                        }
+                    // internal functions
+                    if (is_diagnostic_function(functionNameOuter) ||
+                        // CTORs whose arguments should not be translated
+                        m_variable_types_to_ignore.find(functionNameOuter) !=
+                        m_variable_types_to_ignore.cend())
+                        {
+                        m_localizable_strings_in_internal_call.emplace_back(
+                            string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                            string_info::usage_info(
+                                string_info::usage_info::usage_type::function,
+                                functionNameOuter),
+                            m_file_name,
+                            get_line_and_column(currentTextPos - m_file_start)));
+                        }
+                    // untranslatable variable types
+                    else if (m_variable_types_to_ignore.find(variableTypeOuter) !=
+                        m_variable_types_to_ignore.cend())
+                        {
+                        m_localizable_strings_in_internal_call.emplace_back(
+                            string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                            string_info::usage_info(
+                                string_info::usage_info::usage_type::variable,
+                                variableNameOuter, variableTypeOuter),
+                            m_file_name,
+                            get_line_and_column(currentTextPos - m_file_start)));
+                        }
+                    // untranslatable variable names (e.g., debugMsg)
+                    else if (variableNameOuter.length())
+                        {
+                        try
+                            {
+                            for (const auto& reg : get_ignored_variable_patterns())
+                                {
+                                if (std::regex_match(variableNameOuter, reg))
+                                    {
+                                    m_localizable_strings_in_internal_call.emplace_back(
+                                        string_info(std::wstring(currentTextPos, quoteEnd-currentTextPos),
+                                        string_info::usage_info(
+                                            string_info::usage_info::usage_type::variable,
+                                            variableNameOuter, variableTypeOuter),
+                                        m_file_name,
+                                        get_line_and_column(currentTextPos - m_file_start)));
+                                    break;
+                                    }
+                                }
+                            }
+                        catch (const std::exception& exp)
+                            { log_message(variableNameOuter, lazy_string_to_wstring(exp.what()), (currentTextPos - m_file_start)); }
+                        }
+                    }
+                }
+            else if (m_non_localizable_functions.find(functionName) !=
+                m_non_localizable_functions.cend())
+                {
+                m_marked_as_non_localizable_strings.emplace_back(
+                    string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                    string_info::usage_info(
+                        string_info::usage_info::usage_type::function,
+                        functionName),
+                    m_file_name,
+                    get_line_and_column(currentTextPos - m_file_start)));
+                }
+            else if (m_variable_types_to_ignore.find(functionName) !=
+                m_variable_types_to_ignore.cend())
+                {
+                m_internal_strings.emplace_back(
+                    string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                    string_info::usage_info(
+                        string_info::usage_info::usage_type::function,
+                        functionName),
+                    m_file_name,
+                    get_line_and_column(currentTextPos - m_file_start)));
+                }
+            else if (is_keyword(functionName))
+                {
+                classify_non_localizable_string(
+                    string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                    string_info::usage_info(
+                        string_info::usage_info::usage_type::orphan,
+                        std::wstring{}),
+                    m_file_name,
+                    get_line_and_column(currentTextPos - m_file_start)));
+                }
+            else
+                {
+                classify_non_localizable_string(
+                    string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                    string_info::usage_info(
+                        string_info::usage_info::usage_type::function,
+                        functionName),
+                    m_file_name,
+                    get_line_and_column(currentTextPos - m_file_start)));
+                }
+            }
+        else
+            {
+            classify_non_localizable_string(
+                string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                string_info::usage_info(
+                    string_info::usage_info::usage_type::orphan,
+                    std::wstring{}),
+                m_file_name,
+                get_line_and_column(currentTextPos - m_file_start)));
+            }
+        clear_section(currentTextPos, quoteEnd + 1);
         }
 
     //--------------------------------------------------
@@ -374,7 +553,7 @@ namespace i18n_check
             variableType != L"wxCFStringRef" &&
             variableType != L"wxStringTokenizer" &&
             variableType != L"MessageParameters")
-            { log_message(variableType, L"New variable type detected."); }
+            { log_message(variableType, L"New variable type detected.", quotePosition); }
     #endif
         if (get_ignored_variable_types().find(variableType) !=
             get_ignored_variable_types().cend())
@@ -405,19 +584,21 @@ namespace i18n_check
                     }
                 // didn't match any known internal variable name provided by user?
                 if (!matchedInternalVar)
-                    { classify_non_localizable_string(
+                    {
+                    classify_non_localizable_string(
                         string_info(value,
                         string_info::usage_info(
-                            string_info::usage_info::usage_type::variable, variableName),
-                        m_file_name, get_line_and_column(quotePosition))); }
+                            string_info::usage_info::usage_type::variable, variableName, variableType),
+                        m_file_name, get_line_and_column(quotePosition)));
+                    }
                 }
             catch (const std::exception& exp)
                 {
-                log_message(variableName, lazy_string_to_wstring(exp.what()));
+                log_message(variableName, lazy_string_to_wstring(exp.what()), quotePosition);
                 classify_non_localizable_string(
                     string_info(value,
                     string_info::usage_info(
-                        string_info::usage_info::usage_type::variable, variableName),
+                        string_info::usage_info::usage_type::variable, variableName, variableType),
                     m_file_name, get_line_and_column(quotePosition)));
                 }
             }
@@ -426,7 +607,7 @@ namespace i18n_check
             classify_non_localizable_string(
                 string_info(value,
                 string_info::usage_info(
-                    string_info::usage_info::usage_type::variable, variableName),
+                    string_info::usage_info::usage_type::variable, variableName, variableType),
                 m_file_name, get_line_and_column(quotePosition)));
             }
         }
@@ -471,7 +652,8 @@ namespace i18n_check
             }
         catch (const std::exception& exp)
             {
-            log_message(functionName, lazy_string_to_wstring(exp.what()));
+            log_message(functionName, lazy_string_to_wstring(exp.what()),
+                std::wstring::npos);
             return true;
             }
         }
@@ -598,7 +780,7 @@ namespace i18n_check
             }
         catch (const std::exception& exp)
             {
-            log_message(str, lazy_string_to_wstring(exp.what()));
+            log_message(str, lazy_string_to_wstring(exp.what()), std::wstring::npos);
             return false;
             }
         }
@@ -638,27 +820,42 @@ namespace i18n_check
         for (const auto& str : m_localizable_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
+                {
+                log_message(str.m_string,
+                    L"Unknown function or variable assignment for this string.", std::wstring::npos);
+                }
             }
         for (const auto& str : m_not_available_for_localization_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
+                {
+                log_message(str.m_string,
+                    L"Unknown function or variable assignment for this string.", std::wstring::npos);
+                }
             }
         for (const auto& str : m_marked_as_non_localizable_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
+                {
+                log_message(str.m_string,
+                    L"Unknown function or variable assignment for this string.", std::wstring::npos);
+                }
             }
         for (const auto& str : m_internal_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
+                {
+                log_message(str.m_string,
+                    L"Unknown function or variable assignment for this string.", std::wstring::npos);
+                }
             }
         for (const auto& str : m_unsafe_localizable_strings)
             {
             if (str.m_usage.m_value.empty())
-                { log_message(str.m_string, L"Unknown function or variable assignment for this string."); }
+                {
+                log_message(str.m_string,
+                    L"Unknown function or variable assignment for this string.", std::wstring::npos);
+                }
             }
         }
 
@@ -693,7 +890,7 @@ namespace i18n_check
                     { continue; }
                 // skip whitespace between open parenthesis and function name
                 while (startPos > startSentinel &&
-                        std::iswspace(*startPos))
+                       std::iswspace(*startPos))
                     { --startPos; }
                 functionOrVarNamePos = startPos;
                 while (functionOrVarNamePos > startSentinel &&
@@ -820,11 +1017,14 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    std::pair<size_t, size_t> i18n_review::get_line_and_column(size_t position) noexcept
+    std::pair<size_t, size_t> i18n_review::get_line_and_column(size_t position) const noexcept
         {
+        if (position == std::wstring::npos)
+            { return std::make_pair(std::wstring::npos, std::wstring::npos); }
+
         auto startSentinel = m_file_start;
         if (!startSentinel)
-            { return std::make_pair(-1,-1); }
+            { return std::make_pair(std::wstring::npos, std::wstring::npos); }
         size_t nextLinePosition{ 0 }, lineCount{ 0 };
         while ((nextLinePosition = std::wcscspn(startSentinel, L"\r\n")) < position)
             {
