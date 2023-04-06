@@ -74,14 +74,11 @@ namespace i18n_check
                     function, /*!< Message is called from within a function.*/
                     variable, /*!< Message is assigned to a variable.*/
                     orphan    /*!< Message is not connected directly to variable or function call.
-                                   Instead, it is being returned or within an
-                                   `if` statement (as an example).*/
+                                   Instead, it is being returned, being used in a comparison,
+                                   or within an `if` statement (as a few examples).*/
                     };
                 /// @private
                 usage_info() = default;
-                usage_info(const usage_type& type, const std::wstring& val) :
-                    m_type(type), m_value(val)
-                    {}
                 usage_info(const usage_type& type,const std::wstring& val,
                            const std::wstring& varType) :
                     m_type(type), m_value(val), m_variableType(varType)
@@ -415,6 +412,8 @@ namespace i18n_check
                 }
             }
         /// @returns @c true if a string is a keyword.
+        /// @note These are labels and commands (e.g., else, return),
+        ///     not intrinsic types (e.g., float, int).
         /// @param str The string to review.
         [[nodiscard]]
         bool is_keyword(const std::wstring& str) const

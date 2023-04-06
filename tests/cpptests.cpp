@@ -1066,52 +1066,125 @@ TEST_CASE("CPP Tests", "[cpp]")
     SECTION("Variable assignment")
         {
         cpp_i18n_review cpp;
-        cpp.add_variable_name_pattern_to_ignore(std::wregex(L"^debug"));
         const wchar_t* code = L"std::string userMessage = \"Enter your ID.\")";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
-        REQUIRE(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"userMessage");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"std::string");
         }
 
     SECTION("Variable assignment add")
         {
         cpp_i18n_review cpp;
-        cpp.add_variable_name_pattern_to_ignore(std::wregex(L"^debug"));
         const wchar_t* code = L"std::wstring userMessage += L\"Enter your ID.\")";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
-        REQUIRE(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"userMessage");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"std::wstring");
         }
 
     SECTION("Variable assignment with pattern")
         {
         cpp_i18n_review cpp;
-        cpp.add_variable_name_pattern_to_ignore(std::wregex(L"^debug.*"));
-        const wchar_t* code = L"std::string debugMessage = \"Enter your ID.\")";
+        cpp.add_variable_name_pattern_to_ignore(std::wregex(L"^test.*"));
+        const wchar_t* code = L"std::string testMessage = \"Enter your ID.\")";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
         CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"testMessage");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType == L"std::string");
         }
 
     SECTION("Variable assignment array")
         {
         cpp_i18n_review cpp;
-        const wchar_t* code = L"userMessage [3] = \"Enter your ID.\")";
+        const wchar_t* code = L"char userMessage [3] = \"Enter your ID.\")";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
-        REQUIRE(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"userMessage");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"char");
+        }
+
+    SECTION("Variable assignment template")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = L"std::basic_string<char> userMessage = \"Enter your ID.\")";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"userMessage");
+        // decorations get stripped
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"std::basic_string");
+        }
+
+    SECTION("Variable CTOR")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = L"std::string userMessage{ \"Enter your ID.\" }";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"userMessage");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"std::string");
+        }
+
+    SECTION("Variable CTOR template")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = L"std::basic_string<char> userMessage{ \"Enter your ID.\" }";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"userMessage");
+        // decorations get stripped
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"std::basic_string");
+        }
+
+    SECTION("Variable CTOR complex template")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = L"std::map<string, int> userMessage{ \"Enter your ID.\", 87 }";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"userMessage");
+        // decorations get stripped
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"std::map");
         }
 
     SECTION("String in parameters with other func calls")
@@ -1124,6 +1197,67 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_internal_strings()[0].m_string == L" called twice?");
+        }
+    
+    SECTION("Switch statement")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(switch ( GetWindowStyle() & wxBK_ALIGN_MASK )
+        {
+            case wxBK_TOP:
+                [[fallthrough]];
+            case wxBK_LEFT:
+                // posCtrl is already ok
+                break;
+            case wxBK_BOTTOM:
+                posCtrl.y = sizeClient.y - sizeNew.y;
+                break;
+            case wxBK_RIGHT:
+                posCtrl.x = sizeClient.x - sizeNew.x;
+                break;
+            default:
+                wxFAIL_MSG(L"unexpected alignment");
+        })";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"unexpected alignment");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"wxFAIL_MSG");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType.empty());
+        }
+    
+    SECTION("Pointers function")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(handlerInfo = m_frame->GetClassInfo()->
+                FindHandlerInfo(wxT("ButtonClickHandler"));)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"ButtonClickHandler");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"FindHandlerInfo");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType.empty());
+        CHECK(cpp.get_error_log().empty());
+        }
+
+    SECTION("Casts")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(Add(static_cast<CString*>("My ID"));)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"My ID");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"Add");
         }
 
     SECTION("String escaped")

@@ -146,8 +146,9 @@ namespace i18n_check
             // GNU's propername module
             L"proper_name", L"proper_name_utf8",
             // wxWidgets gettext wrapper functions
-            L"wxPLURAL", L"wxTRANSLATE", L"wxTRANSLATE_IN_CONTEXT", L"wxGetTranslation",
-            L"wxGETTEXT_IN_CONTEXT", L"wxGETTEXT_IN_CONTEXT_PLURAL" };
+            // (*_IN_CONTEXT macros are not included as they take string parameters as keys)
+            L"wxPLURAL", L"wxTRANSLATE", L"wxGetTranslation"
+            };
 
         // functions that indicate that a string is explicitly marked to not be translatable
         m_non_localizable_functions = { L"_DT", L"DONTTRANSLATE",
@@ -162,7 +163,7 @@ namespace i18n_check
             // Win32 text macros that should be skipped over
             L"_T", L"TEXT", L"_TEXT", L"__TEXT", L"_WIDE",
             // macOS
-            L"CFSTR",
+            L"CFSTR", L"CFStringRef",
             // similar macros from other libraries
             L"T",
             // wxWidgets
@@ -353,6 +354,7 @@ namespace i18n_check
                             L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION", L"vmsWarningHandler",
                             L"vmsErrorHandler", L"wxFFileOutputStream", L"wxFFile", L"wxFileName",
                             L"wxColor", L"wxColour", L"wxFont",
+                            L"LOGFONTW", L"SecretSchema", L"GtkTypeInfo",
                             L"wxRegEx", L"wregex", L"std::wregex", L"regex", L"std::regex",
                             L"wxDataObjectSimple" };
 
@@ -398,7 +400,7 @@ namespace i18n_check
                     std::wstring(currentTextPos, quoteEnd - currentTextPos),
                     string_info::usage_info(
                         string_info::usage_info::usage_type::function,
-                        functionName),
+                        functionName, std::wstring{}),
                     m_file_name, get_line_and_column(currentTextPos - m_file_start)));
                 }
             else if (m_localization_functions.find(functionName) !=
@@ -408,7 +410,7 @@ namespace i18n_check
                     std::wstring(currentTextPos, quoteEnd - currentTextPos),
                     string_info::usage_info(
                         string_info::usage_info::usage_type::function,
-                        functionName),
+                        functionName, std::wstring{}),
                     m_file_name, get_line_and_column(currentTextPos - m_file_start)));
 
                 assert(functionVarNamePos);
@@ -441,7 +443,7 @@ namespace i18n_check
                             string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
                             string_info::usage_info(
                                 string_info::usage_info::usage_type::function,
-                                functionNameOuter),
+                                functionNameOuter, std::wstring{}),
                             m_file_name,
                             get_line_and_column(currentTextPos - m_file_start)));
                         }
@@ -489,7 +491,7 @@ namespace i18n_check
                     string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
                     string_info::usage_info(
                         string_info::usage_info::usage_type::function,
-                        functionName),
+                        functionName, std::wstring{}),
                     m_file_name,
                     get_line_and_column(currentTextPos - m_file_start)));
                 }
@@ -500,7 +502,7 @@ namespace i18n_check
                     string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
                     string_info::usage_info(
                         string_info::usage_info::usage_type::function,
-                        functionName),
+                        functionName, std::wstring{}),
                     m_file_name,
                     get_line_and_column(currentTextPos - m_file_start)));
                 }
@@ -510,7 +512,7 @@ namespace i18n_check
                     string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
                     string_info::usage_info(
                         string_info::usage_info::usage_type::orphan,
-                        std::wstring{}),
+                        std::wstring{}, std::wstring{}),
                     m_file_name,
                     get_line_and_column(currentTextPos - m_file_start)));
                 }
@@ -520,7 +522,7 @@ namespace i18n_check
                     string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
                     string_info::usage_info(
                         string_info::usage_info::usage_type::function,
-                        functionName),
+                        functionName, std::wstring{}),
                     m_file_name,
                     get_line_and_column(currentTextPos - m_file_start)));
                 }
@@ -531,7 +533,7 @@ namespace i18n_check
                 string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
                 string_info::usage_info(
                     string_info::usage_info::usage_type::orphan,
-                    std::wstring{}),
+                    std::wstring{}, std::wstring{}),
                 m_file_name,
                 get_line_and_column(currentTextPos - m_file_start)));
             }
@@ -546,12 +548,33 @@ namespace i18n_check
     #ifndef NDEBUG
         if (variableType.length() &&
             get_ignored_variable_types().find(variableType) ==
-            get_ignored_variable_types().cend() &&
-            variableType != L"wxString" &&
-            variableType != L"wxDialog" &&
-            variableType != L"wxTextInputStream" &&
-            variableType != L"wxCFStringRef" &&
-            variableType != L"wxStringTokenizer" &&
+                get_ignored_variable_types().cend() &&
+            m_ctors_to_ignore.find(variableType) == m_ctors_to_ignore.cend() &&
+            (variableType.length() < 5 ||
+                std::wstring_view(variableType.c_str(), 5).compare(std::wstring_view{ L"std::", 5}) != 0) &&
+            (variableType.length() < 2 ||
+                std::wstring_view(variableType.c_str(), 2).compare(std::wstring_view{ L"wx", 2 }) != 0) &&
+            (variableType.length() < 3 ||
+                std::wstring_view(variableType.c_str(), 3).compare(std::wstring_view{ L"_wx", 3 }) != 0) &&
+            (variableType.length() < 2 ||
+                std::wstring_view(variableType.c_str(), 2).compare(std::wstring_view{ L"My", 2 }) != 0) &&
+            variableType != L"Bar" &&
+            variableType != L"ifstream" &&
+            variableType != L"ofstream" &&
+            variableType != L"const" &&
+            variableType != L"char" &&
+            variableType != L"int" &&
+            variableType != L"UINT" &&
+            variableType != L"size_t" &&
+            variableType != L"float" &&
+            variableType != L"double" &&
+            variableType != L"static_cast" &&
+            variableType != L"StyleInfo" &&
+            variableType != L"Utf8CharBuffer" &&
+            variableType != L"rgbRecord" &&
+            variableType != L"LPCTSTR" &&
+            variableType != L"CDialog" &&
+            variableType != L"LanguageInfo" &&
             variableType != L"MessageParameters")
             { log_message(variableType, L"New variable type detected.", quotePosition); }
     #endif
@@ -560,7 +583,7 @@ namespace i18n_check
             {
             m_internal_strings.emplace_back(
                 string_info(value,
-                string_info::usage_info(string_info::usage_info::usage_type::variable, variableName),
+                string_info::usage_info(string_info::usage_info::usage_type::variable, variableName, variableType),
                 m_file_name, get_line_and_column(quotePosition)));
             return;
             }
@@ -576,7 +599,7 @@ namespace i18n_check
                         m_internal_strings.emplace_back(
                             string_info(value,
                             string_info::usage_info(
-                                string_info::usage_info::usage_type::variable, variableName),
+                                string_info::usage_info::usage_type::variable, variableName, variableType),
                             m_file_name, get_line_and_column(quotePosition)));
                         matchedInternalVar = true;
                         break;
@@ -819,7 +842,7 @@ namespace i18n_check
         {
         for (const auto& str : m_localizable_strings)
             {
-            if (str.m_usage.m_value.empty())
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -827,7 +850,7 @@ namespace i18n_check
             }
         for (const auto& str : m_not_available_for_localization_strings)
             {
-            if (str.m_usage.m_value.empty())
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -835,7 +858,7 @@ namespace i18n_check
             }
         for (const auto& str : m_marked_as_non_localizable_strings)
             {
-            if (str.m_usage.m_value.empty())
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -843,7 +866,7 @@ namespace i18n_check
             }
         for (const auto& str : m_internal_strings)
             {
-            if (str.m_usage.m_value.empty())
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -851,7 +874,7 @@ namespace i18n_check
             }
         for (const auto& str : m_unsafe_localizable_strings)
             {
-            if (str.m_usage.m_value.empty())
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -870,7 +893,51 @@ namespace i18n_check
         variableType.clear();
         deprecatedMacroEncountered.clear();
         long closeParenCount{ 0 };
+        long closeBraseCount{ 0 };
+        bool quoteWrappedInCTOR{ false };
         const wchar_t* functionOrVarNamePos = startPos;
+
+        /// @todo experimental!!! Reads the variable type from a variable constructed from a string.
+        const auto readVarType = [&]()
+            {
+            variableType.clear();
+            --functionOrVarNamePos;
+            while (functionOrVarNamePos > startSentinel &&
+                std::iswspace(*functionOrVarNamePos))
+                { --functionOrVarNamePos; }
+            auto typeEnd = functionOrVarNamePos+1;
+            // if a template, then step over (going backwards) the template arguments
+            // to get to the root type
+            if (typeEnd - 1 > startSentinel &&
+                typeEnd[-1] == L'>')
+                {
+                // if a pointer accessor (->) then bail as it won't be a variable assignment
+                if (typeEnd - 2 > startSentinel &&
+                    typeEnd[-2] == L'-')
+                    { return; }
+                const auto openingAngle =
+                    string_util::find_last_of(startSentinel, L'<', functionOrVarNamePos - startSentinel);
+                if (openingAngle == std::wstring::npos)
+                    {
+                    log_message(L"Template parse error", L"Unable to find opening < for template variable.",
+                                functionOrVarNamePos - startSentinel);
+                    return;
+                    }
+                functionOrVarNamePos = startSentinel + openingAngle;
+                }
+            while (functionOrVarNamePos > startSentinel &&
+                is_valid_name_char_ex(*functionOrVarNamePos))
+                { --functionOrVarNamePos; }
+            if (!is_valid_name_char_ex(*functionOrVarNamePos))
+                { ++functionOrVarNamePos; }
+            variableType.assign(functionOrVarNamePos, typeEnd - functionOrVarNamePos);
+            remove_decorations(variableType);
+
+            // ignore case labels
+            if (is_keyword(variableType) ||
+                (variableType.length() && variableType.back() == L':'))
+                { variableType.clear(); }
+            };
 
         while (startPos > startSentinel)
             {
@@ -879,14 +946,25 @@ namespace i18n_check
                 ++closeParenCount;
                 --startPos;
                 }
-            else if (*startPos == L'(')
+            else if (*startPos == L'}')
                 {
+                ++closeBraseCount;
+                --startPos;
+                }
+            else if (*startPos == L'(' ||
+                *startPos == L'{')
+                {
+                const auto currentOpeningChar{ *startPos };
                 --startPos;
                 // if just closing the terminating parenthesis for a function
                 // call in the list of parameters, then skip it and keep going
                 // to find the outer function call that this string really belongs to.
-                --closeParenCount;
-                if (closeParenCount >= 0)
+                if (currentOpeningChar == L'(')
+                    { --closeParenCount; }
+                else if (currentOpeningChar == L'{')
+                    { --closeBraseCount; }
+                if (closeParenCount >= 0 &&
+                    closeBraseCount >= 0)
                     { continue; }
                 // skip whitespace between open parenthesis and function name
                 while (startPos > startSentinel &&
@@ -902,20 +980,34 @@ namespace i18n_check
                 if (!is_valid_name_char_ex(*functionOrVarNamePos) )
                     { ++functionOrVarNamePos; }
                 functionName.assign(functionOrVarNamePos, (startPos+1)-functionOrVarNamePos);
+                const bool hasExtraneousParens{ functionName.empty() };
                 remove_decorations(functionName);
                 // If wrapped in a string CTOR (e.g., std::wstring), then skip it
                 // and keep going backwards.
                 // Or, if no function name probably means extraneous parentheses, so keep going.
-                if (functionName.empty() ||
+                if (hasExtraneousParens ||
                     m_ctors_to_ignore.find(functionName) != m_ctors_to_ignore.cend())
                     {
                     startPos = std::min(startPos, functionOrVarNamePos);
                     // reset, the current open parenthesis isn't relevant
-                    closeParenCount = 0;
+                    if (currentOpeningChar == L'(')
+                        { closeParenCount = 0; }
+                    else if (currentOpeningChar == L'{')
+                        { closeBraseCount = 0; }
                     if (m_deprecated_string_macros.find(functionName) !=
                         m_deprecated_string_macros.cend())
                         { deprecatedMacroEncountered = functionName; }
                     functionName.clear();
+                    // now we should be looking for a + operator, comma, or ( or { proceeding this
+                    // (unless we are already on it because we stepped back too far
+                    //  due to the string being inside of an empty parenthesis)
+                    if (*startPos != L',' &&
+                        *startPos != L'+'&&
+                        *startPos != L'&'&&
+                        *startPos != L'=')
+                        { quoteWrappedInCTOR = true; }
+                    if (!hasExtraneousParens)
+                        { --startPos; }
                     continue;
                     }
                 // construction of a variable type that takes
@@ -926,31 +1018,17 @@ namespace i18n_check
                 // stop if a legit function call in front of parenthesis
                 if (functionName.length())
                     {
-                    /// @todo experimental!!! Reads the variable type from a variable
-                    // constructed from a string.
                     if (variableName.empty() &&
                         functionOrVarNamePos >= startSentinel && !is_keyword(functionName))
                         {
-                        --functionOrVarNamePos;
-                        while (functionOrVarNamePos > startSentinel &&
-                            std::iswspace(*functionOrVarNamePos))
-                            { --functionOrVarNamePos; }
-                        auto typeEnd = functionOrVarNamePos;
-                        while (functionOrVarNamePos > startSentinel &&
-                            is_valid_name_char(*functionOrVarNamePos))
-                            { --functionOrVarNamePos; }
-                        if (!is_valid_name_char(*functionOrVarNamePos))
-                            { ++functionOrVarNamePos; }
-                        variableType.assign(functionOrVarNamePos, (typeEnd+1)-functionOrVarNamePos);
-                        remove_decorations(variableType);
+                        readVarType();
 
-                        if (variableType.length() && !is_keyword(variableType))
+                        if (variableType.length())
                             {
                             variableName = functionName;
                             functionName.clear();
                             }
                         }
-                    // end experimental
                     break;
                     }
                 }
@@ -958,17 +1036,17 @@ namespace i18n_check
             // (note that comparisons (>=, <=, ==, !=) are handled as though this string
             //  is a parameter to a function.)
             else if (*startPos == L'=' &&
-                        startPos[1] != L'=' &&
-                        startPos > startSentinel &&
-                        *(startPos-1) != L'=' &&
-                        *(startPos-1) != L'!' &&
-                        *(startPos-1) != L'>' &&
-                        *(startPos-1) != L'<')
+                     startPos[1] != L'=' &&
+                     startPos > startSentinel &&
+                     *(startPos-1) != L'=' &&
+                     *(startPos-1) != L'!' &&
+                     *(startPos-1) != L'>' &&
+                     *(startPos-1) != L'<')
                 {
                 --startPos;
                 // skip spaces (and "+=" tokens)
                 while (startPos > startSentinel &&
-                        (std::iswspace(*startPos) || *startPos == L'+'))
+                       (std::iswspace(*startPos) || *startPos == L'+'))
                     { --startPos; }
                 // skip array info
                 if (startPos > startSentinel &&
@@ -991,24 +1069,25 @@ namespace i18n_check
                 // of the stream.
                 if (!is_valid_name_char_ex(*functionOrVarNamePos) )
                     { ++functionOrVarNamePos; }
-                variableName.assign(functionOrVarNamePos, (startPos+1)-functionOrVarNamePos);
+                variableName.assign(functionOrVarNamePos, (startPos+1) - functionOrVarNamePos);
 
-                // get the type
-                --functionOrVarNamePos;
-                while (functionOrVarNamePos > startSentinel &&
-                    std::iswspace(*functionOrVarNamePos))
-                    { --functionOrVarNamePos; }
-                auto typeEnd = functionOrVarNamePos+1;
-                while (functionOrVarNamePos > startSentinel &&
-                    is_valid_name_char_ex(*functionOrVarNamePos) )
-                    { --functionOrVarNamePos; }
-                variableType.assign(functionOrVarNamePos+1, typeEnd-(functionOrVarNamePos+1));
-                // ignore labels
-                if (variableType.length() && variableType.back() == L':')
-                    { variableType.clear(); }
+                readVarType();
+
                 if (variableName.length())
                     { break; }
                 }
+            else if (std::iswspace(*startPos))
+                { --startPos; }
+            else if (quoteWrappedInCTOR &&
+                     (*startPos == L',' ||
+                      *startPos == L'+' ||
+                      *startPos == L'&'))
+                { quoteWrappedInCTOR = false; }
+            else if (quoteWrappedInCTOR &&
+                     *startPos != L',' &&
+                     *startPos != L'+' &&
+                     *startPos != L'&')
+                { break; }
             else
                 { --startPos; }
             }
