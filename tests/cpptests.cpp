@@ -104,14 +104,13 @@ TEST_CASE("CPP Tests", "[cpp]")
     SECTION("Separated strings int 64")
         {
         cpp_i18n_review cpp;
-        const wchar_t* code = LR"(MessageBox("Invalid Likert response: %\n" PRIu64
-                                             "Column: %s\nValues should not exceed 7.");)";
+        const wchar_t* code = LR"(MessageBox("The amount is %0" PRId64 "\n");)";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-              LR"(Invalid Likert response: %\nColumn: %s\nValues should not exceed 7.)");
+              LR"(The amount is %0\n)");
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
@@ -935,6 +934,38 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
+        }
+
+    SECTION("String In CTOR variable")
+        {
+        cpp_i18n_review cpp;
+        // in call to assert
+        const wchar_t* code = L"wstring message( \"Enter your ID.\" );";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"wstring");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"message");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("String In CTOR variable with braces")
+        {
+        cpp_i18n_review cpp;
+        // in call to assert
+        const wchar_t* code = L"wstring message{ \"Enter your ID.\" };";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"wstring");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"message");
+        CHECK(cpp.get_internal_strings().size() == 0);
         }
 
     SECTION("String In CTOR With Namespace")
