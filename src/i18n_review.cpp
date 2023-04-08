@@ -29,8 +29,7 @@ namespace i18n_check
         m_function_signature_regex(L"[[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)]"),
         m_plural_regex(L"[[:alnum:]]{2,}[(]s[)]"),
         m_open_function_signature_regex(L"[[:alnum:]]{2,}[(]"),
-        m_assert_regex(L"([a-zA-Z0-9_]*|^)ASSERT([a-zA-Z0-9_]*|$)"),
-        m_profile_regex(L"([a-zA-Z0-9_]*|^)PROFILE([a-zA-Z0-9_]*|$)")
+        m_diagnostsic_function_regex(L"([a-zA-Z0-9_]*|^)(ASSERT|VERIFY|PROFILE|CHECK)([a-zA-Z0-9_]*|$)")
         {
         m_deprecated_string_macros = {
             { L"wxT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
@@ -95,8 +94,8 @@ namespace i18n_check
             std::wregex(L"[[:punct:]]*[A-Z]+[a-z0-9]+([A-Z]+[a-z0-9]+)+[[:punct:]]*"),
             // camel-case words (e.g., "getValueFromUser"); surrounding punctuation is stripped first.
             std::wregex(L"[[:punct:]]*[a-z]+[[:digit:]]*([A-Z]+[a-z0-9]+)+[[:punct:]]*"),
-            // formulas (e.g., ABS(-2.7), POW(-4, 2) )
-            std::wregex(LR"([A-Za-z0-9_]{3,}[(]([0-9\-\., ])*[)])"),
+            // formulas (e.g., ABS(-2.7), POW(-4, 2), =SUM(1; 2) )
+            std::wregex(LR"((=)?[A-Za-z0-9_]{3,}[(]([a-zA-Z0-9\-\.,;:\[\] ])*[)])"),
             // formulas (e.g., ComputeNumbers() )
             std::wregex(L"[A-Za-z0-9_]{3,}[(][)]"),
             // equal sign followed by a single word is probably some sort of config file tag or formula.
@@ -104,7 +103,7 @@ namespace i18n_check
             // character encodings
             std::wregex(L"(utf[-]?[[:digit:]]+|Shift[-_]JIS|us-ascii|windows-[[:digit:]]{4}|KOI8-R|Big5|GB2312|iso-[[:digit:]]{4}-[[:digit:]]+)",
                 std::regex_constants::icase),
-            // wwxWidgets constants
+            // wxWidgets constants
             std::wregex(L"(wx|WX)[A-Z_0-9]{2,}"),
             // ODCTask --surrounding punctuation is stripped first
             std::wregex(L"[[:punct:]]*[A-Z]{3,}[a-z_0-9]{2,}[[:punct:]]*"),
@@ -128,6 +127,11 @@ namespace i18n_check
             std::wregex(L"([/]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]+){2,}/?"), // UNIX or web folder (needs at least 1 folder in path)
             std::wregex(L"[a-zA-Z][:]([\\\\]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]*)+"), // Windows folder
             std::wregex(L"[/]?sys\\$.*"),
+            // URL
+            std::wregex(LR"(((http|ftp)s?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"),
+            // email address
+            std::wregex(LR"(^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$)"),
+            std::wregex(LR"(^[\w ]*<[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>$)"),
             // Windows HTML clipboard data
             std::wregex(L".*(End|Start)(HTML|Fragment)[:]?[[:digit:]]*.*"),
             // printer commands (e.g., @PAGECOUNT@)
@@ -665,8 +669,7 @@ namespace i18n_check
         {
         try
             {
-            return (std::regex_match(functionName, m_assert_regex) ||
-                    std::regex_match(functionName, m_profile_regex) ||
+            return (std::regex_match(functionName, m_diagnostsic_function_regex) ||
                     (m_internal_functions.find(functionName) !=
                         m_internal_functions.cend()) ||
                     (!can_log_messages_be_translatable() &&
@@ -729,10 +732,10 @@ namespace i18n_check
             // Note that we skip any punctuation (not word characters, excluding '<')
             // in front of the initial '<' (sometimes there are braces and brackets
             // in front of the HTML tags).
-            if (std::regex_match(str,m_html_regex) ||
-                std::regex_match(str,m_html_element_regex) ||
-                std::regex_match(str,m_html_tag_regex) ||
-                std::regex_match(str,m_html_tag_unicode_regex))
+            if (std::regex_match(str, m_html_regex) ||
+                std::regex_match(str, m_html_element_regex) ||
+                std::regex_match(str, m_html_tag_regex) ||
+                std::regex_match(str, m_html_tag_unicode_regex))
                 {
                 str = std::regex_replace(str,
                     std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
@@ -901,6 +904,8 @@ namespace i18n_check
         const auto readVarType = [&]()
             {
             variableType.clear();
+            if (functionOrVarNamePos == startSentinel)
+                { return; }
             --functionOrVarNamePos;
             while (functionOrVarNamePos > startSentinel &&
                 std::iswspace(*functionOrVarNamePos))
@@ -915,6 +920,7 @@ namespace i18n_check
                 if (typeEnd - 2 > startSentinel &&
                     typeEnd[-2] == L'-')
                     { return; }
+                assert(functionOrVarNamePos >= startSentinel);
                 const auto openingAngle =
                     string_util::find_last_of(startSentinel, L'<', functionOrVarNamePos - startSentinel);
                 if (openingAngle == std::wstring::npos)

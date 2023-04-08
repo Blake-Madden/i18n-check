@@ -10,6 +10,7 @@ Internationalization & localization analysis system for C++ code.
     - Regular expressions
     - Strings inside of debug functions
     - Formulas
+    - Strings that contain URLs or email addresses.
 - Strings not available for translation that possibly should be.
 - Strings that contain extended ASCII characters that are not encoded.
   ("Danke schön" instead of "Danke sch\U000000F6n".) Encoding extended ASCII characters is recommended for
@@ -36,16 +37,19 @@ Refer [here](Example.md) for example usage.
 [input]: The folder to analyze.
 
 --enable: Which checks to perform. Can be any combination of:
-  all:                 Perform all checks (the default).
-  suspectL10NString:   Check for translatable strings that shouldn't be
-                       (e.g., numbers, keywords, printf commands).
-  suspectL10NUsage:    Check for translatable strings being used in internal contexts
-                       (e.g., debugging functions).
-  notL10NAvailable:    Check for strings not exposed for translation.
-  deprecatedMacros:    Check for deprecated text macros (e.g., wxT()).
-  nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
-  unencodedExtASCII:   Check for strings containing extended ASCII characters that are not encoded.
-  printfSingleInteger: Check for printf()-like functions being used to just format an integer.
+  all:                Perform all checks (the default).
+  suspectL10NString:  Check for translatable strings that shouldn't be
+                      (e.g., numbers, keywords, printf commands).
+  suspectL10NUsage:   Check for translatable strings being used in internal contexts
+                      (e.g., debugging functions).
+  urlInL10NString:    Check for translatable strings that contain URLs or email addresses.
+                      It is recommended to dynamically format these into the string so that
+                      translators don't have to manage them.
+  notL10NAvailable:   Check for strings not exposed for translation.
+  deprecatedMacros:   Check for deprecated text macros (e.g., wxT()).
+  nonUTF8File:        Check that files containing extended ASCII characters are UTF-8 encoded.
+  unencodedExtASCII:  Check for strings containing extended ASCII characters that are not encoded.
+  printfSingleNumber: Check for printf()-like functions being used to just format a number.
 
 --disable: Which checks to not perform. (Refer to options available above.)
 

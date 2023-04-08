@@ -1105,13 +1105,13 @@ namespace string_util
         @param string The string to search.
         @param ch The character to search for.
         @param offset The offset in the string to begin the search from.
-            The default (@c -1) will begin the search at the end of the string.
-        @returns The offset of the found character, or @c -1 if not found.*/
+            The default (`std::basic_string<T>::npos`) will begin the search at the end of the string.
+        @returns The offset of the found character, or `std::basic_string<T>::npos` if not found.*/
     template<typename T>
     [[nodiscard]]
     size_t find_last_of(const T* string,
                         const T ch,
-                        size_t offset = -1) noexcept
+                        size_t offset = std::basic_string<T>::npos) noexcept
         {
         if (!string)
             { return std::basic_string<T>::npos; }
@@ -1122,7 +1122,6 @@ namespace string_util
                 { return std::basic_string<T>::npos; }
             --offset;
             }
-        assert(offset < string_util::strlen(string));
 
         while (offset != std::basic_string<T>::npos)
             {
@@ -1136,10 +1135,10 @@ namespace string_util
     /** @brief Searches for a single character from a sequence in a string in reverse.
         @param string The string to search in.
         @param search The sequence of characters to skip.
-        @param offset Where to begin the search. If @c -1, then the reverse search will
+        @param offset Where to begin the search. If `std::basic_string<T>::npos`, then the reverse search will
             begin at the end of the string.
         @returns The position of where the last matching character is at,
-            or @c -1 if it can't be found.*/
+            or `std::basic_string<T>::npos` if it can't be found.*/
     template<typename T>
     [[nodiscard]]
     size_t find_last_of(const T* string, const T* search,

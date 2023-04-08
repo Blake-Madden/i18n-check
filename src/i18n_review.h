@@ -45,15 +45,20 @@ namespace i18n_check
         check_utf8_encoded = 0x10,
         /// @brief Check for strings that contain extended ASCII characters that are not encoded.
         check_unencoded_ext_ascii = 0x20,
-        /// @brief Check for printf() commands being used to format a single integer.\n
+        /// @brief Check for printf() commands being used to format a single number
+        ///     (without any particular precision or padding features).\n
         ///     In this situation, it is better to use std::to_string() to avoid
         ///     potentially dangerous printf() commands.
-        check_printf_single_integer = 0x40,
+        check_printf_single_number = 0x40,
+        /// @brief Check for URLs or email addresses inside translatable strings.
+        /// @details It is recommended to format those into the strings dynamically,
+        ///     so that translators do not have to manage them.
+        check_l10n_contains_url = 0x80,
         /// @brief Perform all tests.
         all_l10n_checks = 
             (check_l10n_strings|check_suspect_l10n_string_usage|
              check_not_available_for_l10n|check_deprecated_macros|check_utf8_encoded|
-             check_unencoded_ext_ascii|check_printf_single_integer)
+             check_unencoded_ext_ascii|check_printf_single_number|check_l10n_contains_url)
         };
 
     /** @brief Class to extract and review localizable/nonlocalizable
@@ -164,7 +169,19 @@ namespace i18n_check
         ///     of your files via `operator()`.
         void review_strings()
             {
+            std::wregex urlEmailRE{ LR"(((http|ftp)s?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))" };
             process_strings();
+
+            if (m_reviewStyles & check_l10n_contains_url)
+                {
+                std::wsmatch results;
+                for (const auto& str : m_localizable_strings)
+                    {
+                    if (std::regex_search(str.m_string, results, urlEmailRE))
+                        { m_localizable_strings_with_urls.push_back(str); }
+                    }
+                }
+
             if (m_reviewStyles & check_l10n_strings)
                 {
                 for (const auto& str : m_localizable_strings)
@@ -182,7 +199,7 @@ namespace i18n_check
                         {
                         for (const auto& ch : str.m_string)
                             {
-                            if (ch > 127)
+                            if (ch >= 128)
                                 {
                                 m_unencoded_strings.push_back(str);
                                 break;
@@ -196,18 +213,21 @@ namespace i18n_check
                 classifyUnencodedStrings(m_internal_strings);
                 classifyUnencodedStrings(m_not_available_for_localization_strings);
                 classifyUnencodedStrings(m_unsafe_localizable_strings);
+                classifyUnencodedStrings(m_localizable_strings_with_urls);
                 classifyUnencodedStrings(m_localizable_strings_in_internal_call);
                 }
 
-            if (m_reviewStyles & check_printf_single_integer)
+            if (m_reviewStyles & check_printf_single_number)
                 {
-                std::wregex intPrintf{ LR"([%]([+]|[-] #)?(d|i|o|u|zu|c|C|e|E|l|I|I32|I64)(l)?)"};
-                const auto& classifyprintfIntStrings = [this, &intPrintf](const auto& strings)
+                std::wregex intPrintf{ LR"([%]([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|l|I|I32|I64))" };
+                std::wregex floatPrintf{ LR"([%]([+]|[-] #)?(l|L)?(f|F))" };
+                const auto& classifyprintfIntStrings = [&, this](const auto& strings)
                     {
                     for (const auto& str : strings)
                         {
-                        if (std::regex_match(str.m_string, intPrintf))
-                            { m_printf_single_integers.push_back(str); }
+                        if (std::regex_match(str.m_string, intPrintf) ||
+                            std::regex_match(str.m_string, floatPrintf))
+                            { m_printf_single_numbers.push_back(str); }
                         }
                     };
                 classifyprintfIntStrings(m_internal_strings);
@@ -253,6 +273,11 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_unsafe_localizable_strings() const noexcept
             { return m_unsafe_localizable_strings; }
+        /// @returns The strings that are being extracted as localizable,
+        ///     but contain URLs or email addresses.
+        [[nodiscard]]
+        const std::vector<string_info>& get_localizable_strings_with_urls() const noexcept
+            { return m_localizable_strings_with_urls; }
         /// @returns The strings that contain extended ASCII characters, but are not encoded.
         [[nodiscard]]
         const std::vector<string_info>& get_unencoded_ext_ascii_strings() const noexcept
@@ -261,8 +286,8 @@ namespace i18n_check
         ///     It is simpler to use std::to_string() variants to avoid potentially dangerous
         ///     printf() calls.
         [[nodiscard]]
-        const std::vector<string_info>& get_printf_single_integers() const noexcept
-            { return m_printf_single_integers; }
+        const std::vector<string_info>& get_printf_single_numbers() const noexcept
+            { return m_printf_single_numbers; }
         /** @brief Adds a regular expression pattern to determine if a variable should be
                 considered an internal string.
             @details For example, a pattern like "^utf8Name.*" would instruct
@@ -579,11 +604,12 @@ namespace i18n_check
         std::vector<string_info> m_internal_strings;
         // results that are probably issues
         std::vector<string_info> m_unsafe_localizable_strings;
+        std::vector<string_info> m_localizable_strings_with_urls;
         std::vector<string_info> m_localizable_strings_in_internal_call;
         std::vector<string_info> m_not_available_for_localization_strings;
         std::vector<string_info> m_deprecated_macros;
         std::vector<string_info> m_unencoded_strings;
-        std::vector<string_info> m_printf_single_integers;
+        std::vector<string_info> m_printf_single_numbers;
 
         std::wstring m_file_name;
 
@@ -598,8 +624,7 @@ namespace i18n_check
         std::wregex m_function_signature_regex;
         std::wregex m_plural_regex;
         std::wregex m_open_function_signature_regex;
-        std::wregex m_assert_regex;
-        std::wregex m_profile_regex;
+        std::wregex m_diagnostsic_function_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
 
         // helpers

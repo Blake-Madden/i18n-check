@@ -219,6 +219,7 @@ namespace i18n_check
                 else if (cpp_text[0] == L' ' && cpp_text + 1 < endSentinel &&
                     (cpp_text[1] == L'\n' || cpp_text[1] == L'\r'))
                     {
+                    assert(cpp_text >= m_file_start);
                     auto prevLineStart = string_util::find_last_of(m_file_start, L"\n\r", cpp_text - m_file_start);
                     if (prevLineStart == std::wstring::npos)
                         { prevLineStart = 0; }
@@ -331,6 +332,100 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
+    wchar_t* cpp_i18n_review::skip_preprocessor_define_block(wchar_t* directiveStart)
+        {
+        const std::wregex debugRE{ L"[_]*DEBUG[_]*" };
+        const std::wregex debugLevelRE{ L"[a-zA-Z_]*DEBUG_LEVEL" };
+        const std::wregex releaseRE{ L"[_]*RELEASE[_]*" };
+        const auto findSectionEnd = [](wchar_t* sectionStart)
+            {
+            auto closingElIf = string_util::find_matching_close_tag(sectionStart, L"#if", L"#elif");
+            auto closingEndIf = string_util::find_matching_close_tag(sectionStart, L"#if", L"#endif");
+            if (closingElIf != nullptr && closingEndIf != nullptr)
+                {
+                if (closingElIf < closingEndIf)
+                    {
+                    auto pDiff{ closingElIf - sectionStart };
+                    return sectionStart + pDiff + 5;
+                    }
+                else
+                    {
+                    auto pDiff{ closingEndIf - sectionStart };
+                    return sectionStart + pDiff + 6;
+                    }
+                }
+            else if (closingElIf != nullptr)
+                {
+                auto pDiff{ closingElIf - sectionStart };
+                return sectionStart + pDiff + 5;
+                }
+            else
+                {
+                auto pDiff{ closingEndIf - sectionStart };
+                return sectionStart + pDiff + 6;
+                }
+            };
+
+        if (std::wcsncmp(directiveStart, L"ifndef", 6) == 0)
+            {
+            directiveStart += 6;
+            while (std::iswspace(*directiveStart))
+                { ++directiveStart; }
+            auto defSymbolEnd{ directiveStart };
+            while (is_valid_name_char(*defSymbolEnd))
+                { ++defSymbolEnd; }
+            std::wstring defSymbol{ directiveStart,
+                                    static_cast<size_t>(defSymbolEnd - directiveStart) };
+            // NDEBUG (i.e., release) is a standard symbol;
+            // if not defined, then this is a debug preprocessor section
+            return (defSymbol.compare(L"NDEBUG") == 0 ||
+                    std::regex_match(defSymbol, releaseRE)) ?
+                findSectionEnd(defSymbolEnd) : nullptr;
+            }
+        else if (std::wcsncmp(directiveStart, L"ifdef", 5) == 0)
+            {
+            directiveStart += 5;
+            while (std::iswspace(*directiveStart))
+                { ++directiveStart; }
+            auto defSymbolEnd{ directiveStart };
+            while (is_valid_name_char(*defSymbolEnd))
+                { ++defSymbolEnd; }
+            std::wstring defSymbol{ directiveStart,
+                                    static_cast<size_t>(defSymbolEnd - directiveStart) };
+            return (std::regex_match(defSymbol, debugRE)) ?
+                findSectionEnd(defSymbolEnd) : nullptr;
+            }
+        else if (std::wcsncmp(directiveStart, L"if defined", 10) == 0)
+            {
+            directiveStart += 10;
+            while (std::iswspace(*directiveStart))
+                { ++directiveStart; }
+            auto defSymbolEnd{ directiveStart };
+            while (is_valid_name_char(*defSymbolEnd))
+                { ++defSymbolEnd; }
+            std::wstring defSymbol{ directiveStart,
+                                    static_cast<size_t>(defSymbolEnd - directiveStart) };
+            return (std::regex_match(defSymbol, debugRE)) ?
+                findSectionEnd(defSymbolEnd) : nullptr;
+            }
+        else if (std::wcsncmp(directiveStart, L"if", 2) == 0)
+            {
+            directiveStart += 2;
+            while (std::iswspace(*directiveStart))
+                { ++directiveStart; }
+            auto defSymbolEnd{ directiveStart };
+            while (is_valid_name_char(*defSymbolEnd))
+                { ++defSymbolEnd; }
+            std::wstring defSymbol{ directiveStart,
+                                    static_cast<size_t>(defSymbolEnd - directiveStart) };
+            return (std::regex_match(defSymbol, debugLevelRE)) ?
+                findSectionEnd(defSymbolEnd) : nullptr;
+            }
+        else
+            { return nullptr; }
+        }
+
+    //--------------------------------------------------
     wchar_t* cpp_i18n_review::process_preprocessor_directive(wchar_t* directiveStart,
                                                              const size_t directivePos)
         {
@@ -343,6 +438,14 @@ namespace i18n_check
         while (*directiveStart &&
             string_util::is_either(*directiveStart, L' ', L'\t'))
             { ++directiveStart; }
+
+        const auto blockEnd = skip_preprocessor_define_block(directiveStart);
+        if (blockEnd != nullptr)
+            {
+            clear_section(directiveStart, blockEnd);
+            return blockEnd;
+            }
+
         // skip single-line directives
         if (std::wcsncmp(directiveStart, L"pragma", 6) == 0 ||
             std::wcsncmp(directiveStart, L"include", 7) == 0)
@@ -351,15 +454,16 @@ namespace i18n_check
             clear_section(originalStart, directiveStart+end+1);
             return directiveStart+end+1;
             }
-        else if (std::wcsncmp(directiveStart, L"if",2) == 0 ||
-                 std::wcsncmp(directiveStart, L"ifdef",5) == 0 ||
-                 std::wcsncmp(directiveStart, L"ifndef",6) == 0 ||
-                 std::wcsncmp(directiveStart, L"else",4) == 0 ||
-                 std::wcsncmp(directiveStart, L"elif",4) == 0 ||
-                 std::wcsncmp(directiveStart, L"endif",5) == 0 ||
-                 std::wcsncmp(directiveStart, L"undef",5) == 0 ||
-                 std::wcsncmp(directiveStart, L"define",6) == 0 ||
-                 std::wcsncmp(directiveStart, L"warning",7) == 0)
+        else if (std::wcsncmp(directiveStart, L"if", 2) == 0 ||
+                 std::wcsncmp(directiveStart, L"ifdef", 5) == 0 ||
+                 std::wcsncmp(directiveStart, L"ifndef", 6) == 0 ||
+                 std::wcsncmp(directiveStart, L"else", 4) == 0 ||
+                 std::wcsncmp(directiveStart, L"elif", 4) == 0 ||
+                 std::wcsncmp(directiveStart, L"endif", 5) == 0 ||
+                 std::wcsncmp(directiveStart, L"undef", 5) == 0 ||
+                 std::wcsncmp(directiveStart, L"define", 6) == 0 ||
+                 std::wcsncmp(directiveStart, L"error", 5) == 0 ||
+                 std::wcsncmp(directiveStart, L"warning", 7) == 0)
             {
             wchar_t* end = directiveStart;
             while (*end != 0)

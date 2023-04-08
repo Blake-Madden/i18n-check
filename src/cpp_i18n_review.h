@@ -45,6 +45,12 @@ namespace i18n_check
         /// @returns The end of the current preprocessor block.
         [[nodiscard]]
         wchar_t* process_preprocessor_directive(wchar_t* directiveStart, const size_t directivePos);
+        /// @brief Skips a preprocessor define section.
+        /// @details These will be debug preprocessor sections that we won't want to analyze.
+        /// @param directiveStart The start of the preprocessor section.
+        /// @returns The end of the current preprocessor block.
+        [[nodiscard]]
+        wchar_t* skip_preprocessor_define_block(wchar_t* directiveStart);
 
         /// @brief Parses and processes an inline assembly block.
         /// @param asmStart The start of the asm section.

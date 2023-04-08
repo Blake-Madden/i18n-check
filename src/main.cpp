@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
-        "all, suspectL10NString, suspectL10NUsage, notL10NAvailable, deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleInteger)",
+        "all, suspectL10NString, suspectL10NUsage, urlInL10NString, notL10NAvailable, deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleNumber)",
         cxxopts::value<std::vector<std::string>>())
     ("disable", "Which checks to not perform (same as the options for enable)",
         cxxopts::value<std::vector<std::string>>())
@@ -285,6 +285,8 @@ int main(int argc, char* argv[])
                 { rs |= check_l10n_strings; }
             else if (r == "suspectL10NUsage")
                 { rs |= check_suspect_l10n_string_usage; }
+            else if (r == "urlInL10NString")
+                { rs |= check_l10n_contains_url; }
             else if (r == "notL10NAvailable")
                 { rs |= check_not_available_for_l10n; }
             else if (r == "deprecatedMacros")
@@ -293,8 +295,8 @@ int main(int argc, char* argv[])
                 { rs |= check_utf8_encoded; }
             else if (r == "unencodedExtASCII")
                 { rs |= check_unencoded_ext_ascii; }
-            else if (r == "printfSingleInteger")
-                { rs |= check_printf_single_integer; }
+            else if (r == "printfSingleNumber")
+                { rs |= check_printf_single_number; }
             else
                 {
                 std::wcout << L"Unknown option passed to --enable: " <<
@@ -322,6 +324,8 @@ int main(int argc, char* argv[])
                 { rs = rs & ~check_l10n_strings; }
             else if (r == "suspectL10NUsage")
                 { rs = rs & ~check_suspect_l10n_string_usage; }
+            else if (r == "urlInL10NString")
+                { rs = rs & ~check_l10n_contains_url; }
             else if (r == "notL10NAvailable")
                 { rs = rs & ~check_not_available_for_l10n; }
             else if (r == "deprecatedMacros")
@@ -330,8 +334,8 @@ int main(int argc, char* argv[])
                 { rs = rs & ~check_utf8_encoded; }
             else if (r == "unencodedExtASCII")
                 { rs = rs & ~check_unencoded_ext_ascii; }
-            else if (r == "printfSingleInteger")
-                { rs = rs & ~check_printf_single_integer; }
+            else if (r == "printfSingleNumber")
+                { rs = rs & ~check_printf_single_number; }
             else
                 {
                 std::wcout << L"Unknown option passed to --disable: " <<
@@ -405,6 +409,31 @@ int main(int argc, char* argv[])
             }
         report << L"[suspectL10NString]\n";
         }
+
+    for (const auto& val : cpp.get_localizable_strings_with_urls())
+        {
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
+            L"\"" << val.m_string << L"\"\t";
+        if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
+            {
+            report << L"String available for translation that contains an "
+                "URL or email address in function call: " <<
+                val.m_usage.m_value << L"\t";
+            }
+        else if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable)
+            {
+            report << L"String available for translation that contains an "
+                "URL or email address assigned to variable: " <<
+                val.m_usage.m_value << L"\t";
+            }
+        else
+            {
+            report << L"String available for translation that contains an "
+                "URL or email address within " <<
+                val.m_usage.m_value << L"\t";
+            }
+        report << L"[urlInL10NString]\n";
+        }
     
     for (const auto& val : cpp.get_localizable_strings_in_internal_call())
         {
@@ -457,21 +486,21 @@ int main(int argc, char* argv[])
             L"\t" << val.m_string << L"\t" <<
             (foundMessage == cpp.get_deprecated_messages().cend() ?
                 L"Deprecated function should be replaced." : foundMessage->second) <<
-            L"\t[deprecatedMacro]\n";
+                L"\t[deprecatedMacro]\n";
         }
 
-    for (const auto& val : cpp.get_printf_single_integers())
+    for (const auto& val : cpp.get_printf_single_numbers())
         {
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
             L"\t" << val.m_string << L"\t" <<
-            L"Prefer using std::to_wstring()/std::to_string() instead of printf() formatting a single integer."<<
-            L"\t[printfSingleInteger]\n";
+            L"Prefer using std::to_[w]string() instead of printf() formatting a single number."<<
+            L"\t[printfSingleNumber]\n";
         }
 
     for (const auto& file : filesThatShouldBeConvertedToUTF8)
         {
         report << file <<
-            L"\t\t\t\tFile contains extended ASCII characters, but is not encoding as UTF-8.\t[nonUTF8File]\n";
+            L"\t\t\t\tFile contains extended ASCII characters, but is not encoded as UTF-8.\t[nonUTF8File]\n";
         }
     
     for (const auto& val : cpp.get_unencoded_ext_ascii_strings())

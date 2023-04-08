@@ -26,6 +26,62 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
+    SECTION("Debug defined block")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(2);
+        const wchar_t* code = LR"(int Wisteria::UI::BaseApp::OnExit()
+            {
+            wxLogDebug(__WXFUNCTION__);
+            SaveFileHistoryMenu();
+            wxDELETE(m_docManager);
+
+        #ifdef __WXMSW__
+            #if wxDEBUG_LEVEL >= 2
+                // dump max memory usage
+                // https://docs.microsoft.com/en-us/windows/win32/psapi/collecting-memory-usage-information-for-a-process?redirectedfrom=MSDN
+                PROCESS_MEMORY_COUNTERS memCounter;
+                ::ZeroMemory(&memCounter, sizeof(PROCESS_MEMORY_COUNTERS));
+                if (::GetProcessMemoryInfo(::GetCurrentProcess(), &memCounter, sizeof(memCounter)))
+                    {
+                    const wxString memMsg = wxString::Format(L"Peak Memory Usage: %.02fGbs.",
+                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
+                    wxLogDebug(memMsg);
+                    OutputDebugString(memMsg.wc_str());
+                    }
+            #elif
+                const wxString memMsg = wxString::Format(L"Info: Peak Memory Usage: %.02fGbs.",
+                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
+                MsgBox(memMsg);
+            #endif
+            #ifdef _DEBUG
+                MsgBox("Debug message 0!");
+            #endif
+            #ifndef NDEBUG
+                MsgBox("Debug message 1!");
+            #endif
+            #ifndef NDEBUG
+                MsgBox("Debug message 2!");
+            #elif
+                MsgBox("Release message!");
+            #endif
+            #if defined _DEBUG
+                MsgBox("Debug message 3!");
+            #endif
+        #endif
+            return wxApp::OnExit();
+            })";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+            L"Info: Peak Memory Usage: %.02fGbs.");
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
+            L"Release message!");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
     SECTION("XML Tag")
         {
         cpp_i18n_review cpp;
@@ -177,35 +233,61 @@ TEST_CASE("CPP Tests", "[cpp]")
             cpp_i18n_review cpp;
             cpp(code, std::wcslen(code));
             cpp.review_strings();
-            CHECK(cpp.get_printf_single_integers().size() == 1);
+            CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%d", value))";
             {
             cpp_i18n_review cpp;
             cpp(code, std::wcslen(code));
             cpp.review_strings();
-            CHECK(cpp.get_printf_single_integers().size() == 1);
+            CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%+d", value))";
             {
             cpp_i18n_review cpp;
             cpp(code, std::wcslen(code));
             cpp.review_strings();
-            CHECK(cpp.get_printf_single_integers().size() == 1);
+            CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%ll", value))";
             {
             cpp_i18n_review cpp;
             cpp(code, std::wcslen(code));
             cpp.review_strings();
-            CHECK(cpp.get_printf_single_integers().size() == 1);
+            CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%s", value))";
             {
             cpp_i18n_review cpp;
             cpp(code, std::wcslen(code));
             cpp.review_strings();
-            CHECK(cpp.get_printf_single_integers().size() == 0);
+            CHECK(cpp.get_printf_single_numbers().size() == 0);
+            }
+        }
+
+    SECTION("Printf floats")
+        {
+        const wchar_t* code = LR"(auto = sprintf("%f", value))";
+            {
+            cpp_i18n_review cpp;
+            cpp(code, std::wcslen(code));
+            cpp.review_strings();
+            CHECK(cpp.get_printf_single_numbers().size() == 1);
+            }
+        code = LR"(auto = sprintf("%lf", value))";
+            {
+            cpp_i18n_review cpp;
+            cpp(code, std::wcslen(code));
+            cpp.review_strings();
+            CHECK(cpp.get_printf_single_numbers().size() == 1);
+            }
+        code = LR"(auto = sprintf("%0.4f", value))";
+            {
+            cpp_i18n_review cpp;
+            cpp(code, std::wcslen(code));
+            cpp.review_strings();
+            // specific formatting, so std::to_string() can't replace this
+            CHECK(cpp.get_printf_single_numbers().size() == 0);
             }
         }
     
@@ -221,6 +303,65 @@ TEST_CASE("CPP Tests", "[cpp]")
               L"Simple DirectMedia Layer");
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"");
         CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("Ignore email contact info")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(auto var = "Blake Madden <empty.name@company.mail.org>")";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+            L"Blake Madden <empty.name@company.mail.org>");
+        }
+
+    SECTION("Ignore email contact info should not be l10n")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(auto var = _("Blake Madden <empty.name@company.mail.org>"))";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        }
+
+    SECTION("Ignore email")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = "emptyname@mail.org")";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+            L"emptyname@mail.org");
+        }
+
+    SECTION("Ignore URL")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = "www.company.com")";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+            L"www.company.com");
+        }
+
+    SECTION("Ignore URL")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = _("Contact us at www.company.com"))";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
         }
 
     SECTION("Internal file name")
@@ -690,6 +831,10 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.is_untranslatable_string(L"Open()", false));
         CHECK(cpp.is_untranslatable_string(L"ABS(-2.7)", false));
         CHECK(cpp.is_untranslatable_string(L"POW(-4, 2)", false));
+        CHECK(cpp.is_untranslatable_string(L"SUM(5,6)", false));
+        CHECK(cpp.is_untranslatable_string(L"SUM(5;6)", false));
+        CHECK(cpp.is_untranslatable_string(L"SUM(R[-4]C:R[-1]C)", false));
+        CHECK(cpp.is_untranslatable_string(L"=SUM(R[-4]C:R[-1]C)", false));
         }
 
     SECTION("Variable name define")
