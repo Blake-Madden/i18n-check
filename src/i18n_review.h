@@ -169,7 +169,7 @@ namespace i18n_check
         ///     of your files via `operator()`.
         void review_strings()
             {
-            std::wregex urlEmailRE{ LR"(((http|ftp)s?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))" };
+            std::wregex urlEmailRE{ LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))" };
             process_strings();
 
             if (m_reviewStyles & check_l10n_contains_url)

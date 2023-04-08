@@ -341,6 +341,19 @@ TEST_CASE("CPP Tests", "[cpp]")
             L"emptyname@mail.org");
         }
 
+    SECTION("Not formula")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = L"auto var = _(\"%s item(s)\")";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 0);
+        }
+
     SECTION("Ignore URL")
         {
         cpp_i18n_review cpp;
@@ -355,13 +368,30 @@ TEST_CASE("CPP Tests", "[cpp]")
             L"www.company.com");
         }
 
-    SECTION("Ignore URL")
+    SECTION("URL in l10n string")
         {
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = _("Contact us at www.company.com"))";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
+        CHECK(cpp.get_localizable_strings_with_urls().size() == 1);
+        }
+
+    SECTION("Not URL in l10n string")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = _("..then by:"))";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings_with_urls().size() == 0);
+
+        cpp.clear_results();
+        code = LR"(auto var = _("A raster (i.e., pixel based) image format."))";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings_with_urls().size() == 0);
         }
 
     SECTION("Internal file name")

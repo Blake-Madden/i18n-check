@@ -95,7 +95,7 @@ namespace i18n_check
             // camel-case words (e.g., "getValueFromUser"); surrounding punctuation is stripped first.
             std::wregex(L"[[:punct:]]*[a-z]+[[:digit:]]*([A-Z]+[a-z0-9]+)+[[:punct:]]*"),
             // formulas (e.g., ABS(-2.7), POW(-4, 2), =SUM(1; 2) )
-            std::wregex(LR"((=)?[A-Za-z0-9_]{3,}[(]([a-zA-Z0-9\-\.,;:\[\] ])*[)])"),
+            std::wregex(LR"((=)?[A-Za-z0-9_]{3,}[(]([RC0-9\-\.,;:\[\] ])*[)])"),
             // formulas (e.g., ComputeNumbers() )
             std::wregex(L"[A-Za-z0-9_]{3,}[(][)]"),
             // equal sign followed by a single word is probably some sort of config file tag or formula.
@@ -128,7 +128,7 @@ namespace i18n_check
             std::wregex(L"[a-zA-Z][:]([\\\\]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]*)+"), // Windows folder
             std::wregex(L"[/]?sys\\$.*"),
             // URL
-            std::wregex(LR"(((http|ftp)s?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"),
+            std::wregex(LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"),
             // email address
             std::wregex(LR"(^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$)"),
             std::wregex(LR"(^[\w ]*<[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>$)"),
