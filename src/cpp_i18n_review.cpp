@@ -244,8 +244,8 @@ namespace i18n_check
                         { previousNewLine = 0; }
                     const auto currentLineLength{ currentPos - previousNewLine };
                     // traditionally, 80 chars is the recommended line width,
-                    // but 100 is a bit more reasonable
-                    if (currentLineLength > 100)
+                    // but 120 is a bit more reasonable
+                    if (currentLineLength > 120)
                         {
                         log_message(L"LINE WIDTH",
                                     L"Line is " +
