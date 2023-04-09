@@ -1647,4 +1647,30 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         CHECK(cpp.get_internal_strings().size() == 1);
         }
+
+    SECTION("Long line")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(/* Handle HTML syntax that is hard coded in the source file.
+Strip it down and then see if what's left contains translatable content.
+Note that we skip any punctuation (not word characters, excluding '<')
+in front of the initial '<' (sometimes there are braces and brackets
+in front of the HTML tags).
+*/
+if (std::regex_match(str, m_html_regex) ||
+    std::regex_match(str, m_html_element_regex) ||
+    std::regex_match(str, m_html_tag_regex) ||
+    std::regex_match(str, m_html_tag_unicode_regex))
+    {
+    str = std::regex_replace(str,
+                        std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
+    // strip things like &ldquo;
+    str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
+    str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
+    })";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        REQUIRE(cpp.get_error_log().size() == 1);
+        CHECK(cpp.get_error_log()[0].m_message == L"Line is 103 characters long.");
+        }
     }

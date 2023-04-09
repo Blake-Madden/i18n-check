@@ -215,18 +215,44 @@ namespace i18n_check
             else
                 {
                 if (cpp_text[0] == L'\t')
-                    { log_message(L"TAB", L"Tab detected in file; prefer using spaces.", (cpp_text - m_file_start)); }
+                    {
+                    log_message(L"TAB", L"Tab detected in file; prefer using spaces.",
+                                (cpp_text - m_file_start));
+                    }
                 else if (cpp_text[0] == L' ' && cpp_text + 1 < endSentinel &&
                     (cpp_text[1] == L'\n' || cpp_text[1] == L'\r'))
                     {
                     assert(cpp_text >= m_file_start);
-                    auto prevLineStart = string_util::find_last_of(m_file_start, L"\n\r", cpp_text - m_file_start);
+                    auto prevLineStart = string_util::find_last_of(m_file_start, L"\n\r",
+                                                                   cpp_text - m_file_start);
                     if (prevLineStart == std::wstring::npos)
                         { prevLineStart = 0; }
                     ++prevLineStart; // step forward to original line
-                    std::wstring codeLine(m_file_start + prevLineStart, (cpp_text - (m_file_start + prevLineStart)));
+                    std::wstring codeLine(m_file_start + prevLineStart,
+                                          (cpp_text - (m_file_start + prevLineStart)));
                     string_util::ltrim(codeLine);
-                    log_message(codeLine, L"Stray space(s) detected at end of line.", (cpp_text - m_file_start));
+                    log_message(codeLine, L"Stray space(s) detected at end of line.",
+                                (cpp_text - m_file_start));
+                    }
+                else if ((cpp_text[0] == L'\n' || cpp_text[0] == L'\r') &&
+                    cpp_text > m_file_start)
+                    {
+                    const auto currentPos{ (cpp_text - m_file_start) };
+                    auto previousNewLine =
+                        string_util::find_last_of(m_file_start, L"\n\r", currentPos - 1);
+                    if (previousNewLine == std::wstring::npos)
+                        { previousNewLine = 0; }
+                    const auto currentLineLength{ currentPos - previousNewLine };
+                    // traditionally, 80 chars is the recommended line width,
+                    // but 100 is a bit more reasonable
+                    if (currentLineLength > 100)
+                        {
+                        log_message(L"LINE WIDTH",
+                                    L"Line is " +
+                                    std::to_wstring(currentLineLength) +
+                                    L" characters long.",
+                                    currentPos);
+                        }
                     }
                 ++cpp_text;
                 }

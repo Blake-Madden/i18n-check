@@ -92,5 +92,8 @@ This will emit the following `debugParserInfo` warning:
 | ../samples/subset.cpp | 30 | 61 | m_comparisonType = subsetCriterion.m_comparisonType; | Stray space(s) detected at end of line. | [debugParserInfo]
 | ../samples/subset.cpp | 31 | 12 | | Stray space(s) detected at end of line. | [debugParserInfo]
 | ../samples/subset.cpp | 57 | 69 | subsetCriterion.m_columnName).ToUTF8()); | Stray space(s) detected at end of line. | [debugParserInfo]
+| ../samples/subset.cpp | 80 | 103 | LINE WIDTH | Line is 103 characters long. | [debugParserInfo]
 
-Although the `verbose` option is primarily used for debugging `i18n-check`, it can also be useful for detecting tabs and stray spaces in your code.
+Although the `verbose` option is primarily used for debugging `i18n-check`, it can also be useful for detecting tabs, stray spaces,
+and other formatting issues in your code. (Note that formatting issues are only checked for in the code,
+comments are ignored.)
