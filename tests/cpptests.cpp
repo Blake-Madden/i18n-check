@@ -1663,7 +1663,7 @@ if (std::regex_match(str, m_html_regex) ||
     std::regex_match(str, m_html_tag_unicode_regex))
     {
     str = std::regex_replace(str,
-                        std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
+                                            std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
     // strip things like &ldquo;
     str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
     str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
@@ -1671,6 +1671,6 @@ if (std::regex_match(str, m_html_regex) ||
         cpp(code, std::wcslen(code));
         cpp.review_strings();
         REQUIRE(cpp.get_error_log().size() == 1);
-        CHECK(cpp.get_error_log()[0].m_message == L"Line is 103 characters long.");
+        CHECK(cpp.get_error_log()[0].m_message == L"Line is 123 characters long.");
         }
     }
