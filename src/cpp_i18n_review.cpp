@@ -51,6 +51,14 @@ namespace i18n_check
                 else if (cpp_text[1] == L'/')
                     {
                     const size_t end = std::wcscspn(cpp_text, L"\n\r");
+                    if (std::iswalnum(cpp_text[2]) &&
+                        // something like "//--------" is OK
+                        cpp_text[2] != L'-')
+                        {
+                        log_message(L"MISSING SPACE",
+                                L"Space should be inserted between '//' and comment.",
+                                (cpp_text - m_file_start));
+                        }
                     clear_section(cpp_text, cpp_text + end);
                     cpp_text += end;
                     }
