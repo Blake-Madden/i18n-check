@@ -37,7 +37,7 @@ namespace i18n_string_util
         if (firstSlash)
             {
             const auto lastDotPos =
-                string_util::find_last_of(text, L'.', firstSlash - text); 
+                string_util::find_last_of(text, L'.', firstSlash - text);
             if (lastDotPos != std::wstring::npos &&
                 lastDotPos+4 == static_cast<size_t>(firstSlash-text) &&
                 std::iswalpha(text[lastDotPos+1]) &&

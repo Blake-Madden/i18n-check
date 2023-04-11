@@ -385,7 +385,7 @@ namespace string_util
         std::reverse<charT*>(out+signPos, out+i);
         return 0;
         }
-    
+
     /** @brief Determines whether a character is a hexadecimal digit (0-9,A-F,a-f).
         @param ch The letter to be analyzed.
         @returns @c true if @c ch is a hex digit.*/
@@ -734,7 +734,7 @@ namespace string_util
             { return 1; }
 
         size_t first_string_index = 0, second_string_index = 0;
- 
+
         while (true)
             {
             T ch1 = first_string[first_string_index];
@@ -970,7 +970,7 @@ namespace string_util
             }
         return (*stringToSearch == 0) ? nullptr : stringToSearch;
         }
-   
+
     /** @brief Searches for a single character in a string for n number of characters.
         @details Size argument should be less than or equal to the length of the string being searched.
         @param stringToSearch The string to search in.
@@ -1733,23 +1733,23 @@ namespace string_util
         @param replacementText The text to replace @c textToReplace with.
         @param index Where to start the search within @c text.*/
     template<typename T>
-	void replace_all_whole_word(T& text, const T& textToReplace, 
-							    const T& replacementText, 
-							    const size_t index = 0)
-		{
-		if (textToReplace.length() == 0 || replacementText.length() == 0)
-			{ return; }
+    void replace_all_whole_word(T& text, const T& textToReplace,
+                                const T& replacementText,
+                                const size_t index = 0)
+        {
+        if (textToReplace.length() == 0 || replacementText.length() == 0)
+            { return; }
         auto start{ index };
 
-		while (start != T::npos)
-			{
-			start = find_whole_word(text, textToReplace, start);
-			if (start == T::npos)
-				{ break; }
-			text.replace(start, textToReplace.length(), replacementText);
-			start += replacementText.length();
-			}
-		}
+        while (start != T::npos)
+            {
+            start = find_whole_word(text, textToReplace, start);
+            if (start == T::npos)
+                { break; }
+            text.replace(start, textToReplace.length(), replacementText);
+            start += replacementText.length();
+            }
+        }
 
     /** Strips extraneous spaces/tabs/carriage returns from a block of text so
         that there isn't more than one space consecutively.
@@ -1874,7 +1874,7 @@ namespace string_util
     [[nodiscard]]
     inline constexpr wchar_t full_width_to_narrow(const wchar_t ch) noexcept
         {
-        return 
+        return
             // lower area of Unicode, most likely branch
             (ch < 65'000) ? ch :
             (ch >= 65'281 && ch <= 65'374) ? (ch - 65'248) :

@@ -103,10 +103,10 @@ any progress messages.
 i18n-check C:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
 ```
 
-This example will exclude multiple folders and output the results to "WDVResults.txt."
+This example will exclude multiple folders (and files) and output the results to "WDVResults.txt."
 
 ```shellscript
-i18n-check C:\src\Wisteria-dataviz\src --ignore=import,i18n-check,wxsimplejson,math,easyexif,debug,utfcpp,CRCpp -o WDVresults.txt
+i18n-check C:\src\Wisteria-dataviz\src --ignore=import,i18n-check,wxsimplejson,math,easyexif,debug,utfcpp,CRCpp,base/colors.cpp,base/colors.h -o WDVresults.txt
 ```
 
 # GitHub Action

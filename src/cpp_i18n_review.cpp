@@ -19,7 +19,7 @@ namespace i18n_check
         if (src_text == nullptr || text_length == 0)
             { return; }
         assert(std::wcslen(src_text) == text_length);
-        
+
         auto cppBuffer = std::make_unique<wchar_t[]>(text_length + 1);
         wchar_t* cpp_text = cppBuffer.get();
         std::wcsncpy(cpp_text, src_text, text_length);
@@ -174,7 +174,7 @@ namespace i18n_check
                             // Format macros for the std::fprintf family of functions that may
                             // appear between quoted sections that will actually join the two quotes
                             const std::wregex intPrintfMacro{ L"PR[IN][uidoxX](8|16|32|64|FAST8|FAST16|FAST32|FAST64|LEAST8|LEAST16|LEAST32|LEAST64|MAX|PTR)" };
-                            const auto int64PrintfMacroLength{ 6 };
+                            constexpr size_t int64PrintfMacroLength{ 6 };
                             // see if there is more to this string on another line
                             wchar_t* connectedQuote = end + 1;
                             while (connectedQuote < endSentinel &&
@@ -250,16 +250,24 @@ namespace i18n_check
                         string_util::find_last_of(m_file_start, L"\n\r", currentPos - 1);
                     if (previousNewLine == std::wstring::npos)
                         { previousNewLine = 0; }
-                    const auto currentLineLength{ currentPos - previousNewLine };
+                    const size_t currentLineLength{ currentPos - previousNewLine };
                     // traditionally, 80 chars is the recommended line width,
                     // but 120 is a bit more reasonable
                     if (currentLineLength > 120)
                         {
-                        log_message(L"LINE WIDTH",
-                                    L"Line is " +
-                                    std::to_wstring(currentLineLength) +
-                                    L" characters long.",
-                                    currentPos);
+                        // ...also, only warn if the current line doesn't have a raw
+                        // string in it--those can make it impossible to break a line
+                        // into smaller lines.
+                        std::wstring_view currentLine{ m_file_start + previousNewLine, currentLineLength };
+                        if (currentLine.find(L"R\"") == std::wstring::npos &&
+                            currentLine.find(L"|") == std::wstring::npos)
+                            {
+                            log_message(L"LINE WIDTH",
+                                        L"Line is " +
+                                        std::to_wstring(currentLineLength) +
+                                        L" characters long.",
+                                        currentPos);
+                            }
                         }
                     }
                 ++cpp_text;

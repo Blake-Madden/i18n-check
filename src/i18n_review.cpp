@@ -251,7 +251,7 @@ namespace i18n_check
             L"QueryDWORDValue", L"GetTempFileName", L"QueryMultiStringValue",
             L"SetMultiStringValue", L"GetTempDirectory", L"FormatGmt", L"GetProgIDVersion",
             L"GetProfileInt", L"WriteProfileInt", L"RegOpenKeyEx",
-            L"QueryStringValue", L"lpVerb", L"Invoke", L"Invoke0", 
+            L"QueryStringValue", L"lpVerb", L"Invoke", L"Invoke0",
             L"ShellExecute", L"GetProfileString", L"GetProcAddress", L"RegisterClipboardFormat",
             L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue", L"CLSIDFromProgID",
             L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
@@ -352,8 +352,8 @@ namespace i18n_check
                             L"gzip", L"bz2" };
 
         // variables whose CTORs take a string that should never be translated
-        m_variable_types_to_ignore = { L"wxUxThemeHandle", L"wxRegKey", 
-                            L"wxLoadedDLL", L"wxConfigPathChanger", L"wxWebViewEvent", 
+        m_variable_types_to_ignore = { L"wxUxThemeHandle", L"wxRegKey",
+                            L"wxLoadedDLL", L"wxConfigPathChanger", L"wxWebViewEvent",
                             L"wxFileSystemWatcherEvent", L"wxStdioPipe",
                             L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION", L"vmsWarningHandler",
                             L"vmsErrorHandler", L"wxFFileOutputStream", L"wxFFile", L"wxFileName",
@@ -484,7 +484,10 @@ namespace i18n_check
                                 }
                             }
                         catch (const std::exception& exp)
-                            { log_message(variableNameOuter, lazy_string_to_wstring(exp.what()), (currentTextPos - m_file_start)); }
+                            {
+                            log_message(variableNameOuter, lazy_string_to_wstring(exp.what()),
+                                        (currentTextPos - m_file_start));
+                            }
                         }
                     }
                 }

@@ -80,7 +80,8 @@ int main(int argc, char* argv[])
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
-        "all, suspectL10NString, suspectL10NUsage, urlInL10NString, notL10NAvailable, deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleNumber)",
+        "all, suspectL10NString, suspectL10NUsage, urlInL10NString, notL10NAvailable, "
+        "deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleNumber)",
         cxxopts::value<std::vector<std::string>>())
     ("disable", "Which checks to not perform (same as the options for enable)",
         cxxopts::value<std::vector<std::string>>())
@@ -220,8 +221,8 @@ int main(int argc, char* argv[])
             L"###################################################\n\n";
         std::wcout << L"Searching for files to analyze in " << inputFolder << L"...\n\n";
         }
-    std::vector<std::string> filesToAnalyze; 
-    
+    std::vector<std::string> filesToAnalyze;
+
     for (const auto& p :
         fs::recursive_directory_iterator(inputFolder))
         {
@@ -261,7 +262,7 @@ int main(int argc, char* argv[])
             filesToAnalyze.push_back(p.path().string());
             }
         }
-        
+
     i18n_check::cpp_i18n_review cpp;
     cpp.log_messages_can_be_translatable(readBoolOption("log-l10n-allowed", true));
     cpp.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
@@ -434,7 +435,7 @@ int main(int argc, char* argv[])
             }
         report << L"[urlInL10NString]\n";
         }
-    
+
     for (const auto& val : cpp.get_localizable_strings_in_internal_call())
         {
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
@@ -502,7 +503,7 @@ int main(int argc, char* argv[])
         report << file <<
             L"\t\t\t\tFile contains extended ASCII characters, but is not encoded as UTF-8.\t[nonUTF8File]\n";
         }
-    
+
     for (const auto& val : cpp.get_unencoded_ext_ascii_strings())
         {
         std::wstringstream encodingRecommendationsStream;

@@ -55,7 +55,7 @@ namespace i18n_check
         ///     so that translators do not have to manage them.
         check_l10n_contains_url = 0x80,
         /// @brief Perform all tests.
-        all_l10n_checks = 
+        all_l10n_checks =
             (check_l10n_strings|check_suspect_l10n_string_usage|
              check_not_available_for_l10n|check_deprecated_macros|check_utf8_encoded|
              check_unencoded_ext_ascii|check_printf_single_number|check_l10n_contains_url)
@@ -236,7 +236,7 @@ namespace i18n_check
             // log any parsing errors
             run_diagnostics();
             }
-        
+
         /// @returns The strings in the code that are set to be extracted as translatable. 
         [[nodiscard]]
         const std::vector<string_info>& get_localizable_strings() const noexcept
@@ -504,9 +504,9 @@ namespace i18n_check
             return (i18n_string_util::is_numeric(wc) ||
                     i18n_string_util::is_alpha_7bit(wc) ||
                     wc == L'_' ||
-                    wc == L'.' || 
-                    wc == L':' || 
-                    wc == L'<' || 
+                    wc == L'.' ||
+                    wc == L':' ||
+                    wc == L'<' ||
                     wc == L'>');
             }
 
