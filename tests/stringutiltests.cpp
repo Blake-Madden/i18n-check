@@ -1808,3 +1808,27 @@ TEST_CASE("Replace whole word", "[stringutil][whole word]")
                                  "knitting-needle? Anyway, just find needle") == haystack);
         }
     }
+
+TEST_CASE("Is neither", "[isneither]")
+    {
+    SECTION("Is Either")
+        {
+        CHECK(is_either(5.1, 5.1, 0.9));
+        CHECK(is_either(L'a', L'a', L'z'));
+        CHECK(is_either(std::wstring(L"the"), std::wstring(L"there"), std::wstring(L"the")));
+
+        CHECK(is_either(5.1, 5.12, 0.9) == false);
+        CHECK(is_either(L'a', L'b', L'z') == false);
+        CHECK(is_either(std::wstring(L"the"), std::wstring(L"there"), std::wstring(L"The")) == false);
+        }
+    SECTION("Is Neither")
+        {
+        CHECK(is_neither(5.1, 5.1, 0.9) == false);
+        CHECK(is_neither(L'a', L'a', L'z') == false);
+        CHECK(is_neither(std::wstring(L"the"), std::wstring(L"there"), std::wstring(L"the")) == false);
+
+        CHECK(is_neither(5.1, 5.12, 0.9));
+        CHECK(is_neither(L'a', L'b', L'z'));
+        CHECK(is_neither(std::wstring(L"the"), std::wstring(L"there"), std::wstring(L"The")));
+        }
+    }
