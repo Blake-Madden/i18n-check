@@ -14,7 +14,7 @@ Internationalization & localization analysis system for C++ code.
     - Strings that contain URLs or email addresses.
 - Strings not available for translation that possibly should be.
 - Strings that contain extended ASCII characters that are not encoded.
-  ("Danke schön" instead of "Danke sch\U000000F6n".)\n
+  ("Danke schön" instead of "Danke sch\U000000F6n".)<br />
   Encoding extended ASCII characters is recommended for
   best portability between compilers.
 - The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
@@ -26,7 +26,7 @@ Internationalization & localization analysis system for C++ code.
       (e.g., "wxHIGHEST_ID + 1" being assigned to two menu ID constants).
     - Hard-coded numbers being assigned to ID variables.
 
-*[1]* Strings are considered translatable if inside of `gettext` (or related) macros. This includes functions and macros such as `gettext()`, `_()`, and `wxTRANSLATE()`.\n
+*[1]* Strings are considered translatable if inside of `gettext` (or related) macros. This includes functions and macros such as `gettext()`, `_()`, and `wxTRANSLATE()`.<br />
 *[2]* Variables are determined to be ID variables if they are integral types with "ID" in their name.
 
 Refer [here](Example.md) for example usage.
