@@ -26,6 +26,62 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
+    SECTION("Dead code block")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(2);
+        const wchar_t* code = LR"(int Wisteria::UI::BaseApp::OnExit()
+            {
+            wxLogDebug(__WXFUNCTION__);
+            SaveFileHistoryMenu();
+            wxDELETE(m_docManager);
+
+        #ifdef __WXMSW__
+            #if 0
+                // dump max memory usage
+                // https://docs.microsoft.com/en-us/windows/win32/psapi/collecting-memory-usage-information-for-a-process?redirectedfrom=MSDN
+                PROCESS_MEMORY_COUNTERS memCounter;
+                ::ZeroMemory(&memCounter, sizeof(PROCESS_MEMORY_COUNTERS));
+                if (::GetProcessMemoryInfo(::GetCurrentProcess(), &memCounter, sizeof(memCounter)))
+                    {
+                    const wxString memMsg = wxString::Format(L"Peak Memory Usage: %.02fGbs.",
+                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
+                    wxLogDebug(memMsg);
+                    OutputDebugString(memMsg.wc_str());
+                    }
+            #elif
+                const wxString memMsg = wxString::Format(L"Info: Peak Memory Usage: %.02fGbs.",
+                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
+                MsgBox(memMsg);
+            #endif
+            #ifdef _DEBUG
+                MsgBox("Debug message 0!");
+            #endif
+            #ifndef NDEBUG
+                MsgBox("Debug message 1!");
+            #endif
+            #ifndef NDEBUG
+                MsgBox("Debug message 2!");
+            #elif
+                MsgBox("Release message!");
+            #endif
+            #if defined _DEBUG
+                MsgBox("Debug message 3!");
+            #endif
+        #endif
+            return wxApp::OnExit();
+            })";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+            L"Info: Peak Memory Usage: %.02fGbs.");
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
+            L"Release message!");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
     SECTION("Debug defined block")
         {
         cpp_i18n_review cpp;
@@ -1627,6 +1683,16 @@ TEST_CASE("CPP Tests", "[cpp]")
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_internal_strings()[0].m_string == LR"(%Y%m%dT%H%M%S)");
         CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"DateFormat");
+        }
+    
+    SECTION("Missing space after semicolon")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"({ return wxSizerFlags::GetDefaultBorder() * 2;})";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        REQUIRE(cpp.get_error_log().size() == 1);
+        CHECK(cpp.get_error_log()[0].m_message == L"Space or newline should be inserted between ';' and '}'.");
         }
 
     SECTION("Clipboard")

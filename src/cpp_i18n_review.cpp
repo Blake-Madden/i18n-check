@@ -29,7 +29,7 @@ namespace i18n_check
 
         m_file_name = file_name;
 
-        while (cpp_text && cpp_text + 2 < endSentinel && cpp_text[0] != 0)
+        while (cpp_text && cpp_text + 1 < endSentinel && cpp_text[0] != 0)
             {
             // if a possible comment, then scan past it
             if (cpp_text[0] == L'/')
@@ -48,7 +48,8 @@ namespace i18n_check
                         { return; }
                     }
                 // or a single line comment
-                else if (cpp_text[1] == L'/')
+                else if (cpp_text[1] == L'/' &&
+                    cpp_text + 2 < endSentinel)
                     {
                     const size_t end = std::wcscspn(cpp_text, L"\n\r");
                     if (std::iswalnum(cpp_text[2]) &&
@@ -220,6 +221,14 @@ namespace i18n_check
                     cpp_text = end + (isRawString ? 2 : 1);
                     }
                 }
+            // ";}" should have a space or newline between them
+            else if (cpp_text[0] == L';' && cpp_text[1] == L'}')
+                {
+                log_message(L"MISSING SPACE",
+                        L"Space or newline should be inserted between ';' and '}'.",
+                        (cpp_text - m_file_start));
+                ++cpp_text;
+                }
             else
                 {
                 if (cpp_text[0] == L'\t')
@@ -377,7 +386,7 @@ namespace i18n_check
     wchar_t* cpp_i18n_review::skip_preprocessor_define_block(wchar_t* directiveStart)
         {
         const std::wregex debugRE{ L"[_]*DEBUG[_]*" };
-        const std::wregex debugLevelRE{ L"[a-zA-Z_]*DEBUG_LEVEL" };
+        const std::wregex debugLevelRE{ L"([a-zA-Z_]*DEBUG_LEVEL|0)" };
         const std::wregex releaseRE{ L"[_]*RELEASE[_]*" };
         const auto findSectionEnd = [](wchar_t* sectionStart)
             {
