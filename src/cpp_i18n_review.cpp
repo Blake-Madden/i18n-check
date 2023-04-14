@@ -24,6 +24,8 @@ namespace i18n_check
         wchar_t* cpp_text = cppBuffer.get();
         std::wcsncpy(cpp_text, src_text, text_length);
 
+        load_id_assignments(std::wstring_view{cpp_text, text_length}, file_name);
+
         m_file_start = cpp_text;
         const wchar_t* const endSentinel = cpp_text + text_length;
 

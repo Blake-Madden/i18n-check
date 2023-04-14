@@ -95,5 +95,5 @@ This will emit the following `debugParserInfo` warning:
 | ../samples/subset.cpp | 80 | 123 | LINE WIDTH | Line is 123 characters long. | [debugParserInfo]
 
 Although the `verbose` option is primarily used for debugging `i18n-check`, it can also be useful for detecting tabs, stray spaces,
-and other formatting issues in your code. (Note that formatting issues are only checked for in the code,
+and other formatting issues in your code. (Note that formatting issues are only checked for in the code;
 comments are ignored.)

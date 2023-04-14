@@ -81,7 +81,8 @@ int main(int argc, char* argv[])
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
         "all, suspectL10NString, suspectL10NUsage, urlInL10NString, notL10NAvailable, "
-        "deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleNumber)",
+        "deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleNumber,"
+        "numberAssignedToId, dupValAssignedToIds)",
         cxxopts::value<std::vector<std::string>>())
     ("disable", "Which checks to not perform (same as the options for enable)",
         cxxopts::value<std::vector<std::string>>())
@@ -298,6 +299,10 @@ int main(int argc, char* argv[])
                 { rs |= check_unencoded_ext_ascii; }
             else if (r == "printfSingleNumber")
                 { rs |= check_printf_single_number; }
+            else if (r == "numberAssignedToId")
+                { rs |= check_number_assigned_to_id; }
+            else if (r == "dupValAssignedToIds")
+                { rs |= check_duplicate_value_assigned_to_ids; }
             else
                 {
                 std::wcout << L"Unknown option passed to --enable: " <<
@@ -337,6 +342,10 @@ int main(int argc, char* argv[])
                 { rs = rs & ~check_unencoded_ext_ascii; }
             else if (r == "printfSingleNumber")
                 { rs = rs & ~check_printf_single_number; }
+            else if (r == "numberAssignedToId")
+                { rs = rs & ~check_number_assigned_to_id; }
+            else if (r == "dupValAssignedToIds")
+                { rs = rs & ~check_duplicate_value_assigned_to_ids; }
             else
                 {
                 std::wcout << L"Unknown option passed to --disable: " <<
@@ -498,10 +507,28 @@ int main(int argc, char* argv[])
             L"\t[printfSingleNumber]\n";
         }
 
+    for (const auto& val : cpp.get_duplicates_value_assigned_to_ids())
+        {
+        report << val.m_file_name << L"\t\t\t" << val.m_string << L"\t" <<
+            L"Verify that duplicate assignment was intended. "
+            "If correct, consider assigning the first ID variable by name "
+            "to the second one to make this intention clear."<<
+            L"\t[dupValAssignedToIds]\n";
+        }
+
+    for (const auto& val : cpp.get_ids_assigned_number())
+        {
+        report << val.m_file_name << L"\t\t\t" << val.m_string << L"\t" <<
+            L"Prefer using ID constants provided by your framework when "
+            "assigning values to an ID variable."<<
+            L"\t[numberAssignedToId]\n";
+        }
+
     for (const auto& file : filesThatShouldBeConvertedToUTF8)
         {
         report << file <<
-            L"\t\t\t\tFile contains extended ASCII characters, but is not encoded as UTF-8.\t[nonUTF8File]\n";
+            L"\t\t\t\tFile contains extended ASCII characters, "
+            "but is not encoded as UTF-8.\t[nonUTF8File]\n";
         }
 
     for (const auto& val : cpp.get_unencoded_ext_ascii_strings())

@@ -1684,7 +1684,66 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings()[0].m_string == LR"(%Y%m%dT%H%M%S)");
         CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"DateFormat");
         }
+
+    SECTION("ID assignments")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(int val = 5;
+static int const MENU_ID_NEW = 1000;
+wxWindowID MENU_ID_SAVE = 1001;
+uint32_t MENU_ID_PRINT{ 1'002 };
+UINT ID_EXPORT{ 1003 };
+UINT ID_EXPORT_AS{ wxID_HIGHEST };
+UINT ID_PRINT_ALL(wxID_HIGHEST+1);
+)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        REQUIRE(cpp.get_ids_assigned_number().size() == 4);
+        CHECK(cpp.get_ids_assigned_number()[0].m_string == L"1000 assigned to MENU_ID_NEW");
+        CHECK(cpp.get_ids_assigned_number()[1].m_string == L"1001 assigned to MENU_ID_SAVE");
+        CHECK(cpp.get_ids_assigned_number()[2].m_string == L"1002 assigned to MENU_ID_PRINT");
+        CHECK(cpp.get_ids_assigned_number()[3].m_string == L"1003 assigned to ID_EXPORT");
+        }
+
+    SECTION("Duplicate ID value assignments")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(int val = 5;
+static int const MENU_ID_NEW = 1000;
+wxWindowID MENU_ID_SAVE = wxID_HIGHEST;
+uint32_t MENU_ID_PRINT{ 1'002 };
+UINT ID_EXPORT{ wxID_HIGHEST + 1 };
+UINT ID_EXPORT_AS{ wxID_HIGHEST+1 };
+UINT ID_PRINT_ALL(wxID_HIGHEST  +1);
+)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        // complain about both duplicate assignments
+        REQUIRE(cpp.get_duplicates_value_assigned_to_ids().size() == 2);
+        CHECK(cpp.get_duplicates_value_assigned_to_ids()[0].m_string == L"wxID_HIGHEST+1 has been assigned to multiple variables");
+        CHECK(cpp.get_duplicates_value_assigned_to_ids()[0].m_string == L"wxID_HIGHEST+1 has been assigned to multiple variables");
+        }
+
+    SECTION("ID value assignments from function")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(const wxWindowID listID = lua_tonumber(L, 2);
+const wxWindowID reportID = lua_tonumber(L, 3);)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_duplicates_value_assigned_to_ids().size() == 0);
+        }
     
+    SECTION("ID value assignments not ID var")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(static const int THUMBNAIL_WIDTH = 320;
+    static const int THUMBNAIL_HEIGHT = 240;)";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_ids_assigned_number().size() == 0);
+        }
+
     SECTION("Missing space after semicolon")
         {
         cpp_i18n_review cpp;

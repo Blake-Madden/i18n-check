@@ -54,11 +54,17 @@ namespace i18n_check
         /// @details It is recommended to format those into the strings dynamically,
         ///     so that translators do not have to manage them.
         check_l10n_contains_url = 0x80,
+        /// @brief Check for ID variables being assigned a hard-coded number.
+        /// @details It may be preferred to assign framework-defined constant to ID.
+        check_number_assigned_to_id = 0x100,
+        /// @brief Check for the same value being assigned to different ID variables.
+        check_duplicate_value_assigned_to_ids = 0x200,
         /// @brief Perform all tests.
         all_l10n_checks =
             (check_l10n_strings|check_suspect_l10n_string_usage|
              check_not_available_for_l10n|check_deprecated_macros|check_utf8_encoded|
-             check_unencoded_ext_ascii|check_printf_single_number|check_l10n_contains_url)
+             check_unencoded_ext_ascii|check_printf_single_number|check_l10n_contains_url|
+             check_number_assigned_to_id|check_duplicate_value_assigned_to_ids)
         };
 
     /** @brief Class to extract and review localizable/nonlocalizable
@@ -288,6 +294,14 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_printf_single_numbers() const noexcept
             { return m_printf_single_numbers; }
+        /// @returns IDs that are assigned a hard-coded numeric value.
+        [[nodiscard]]
+        const std::vector<string_info>& get_ids_assigned_number() const noexcept
+            { return m_ids_assigned_number; }
+        /// @returns IDs that have the same value assigned to them.
+        [[nodiscard]]
+        const std::vector<string_info>& get_duplicates_value_assigned_to_ids() const noexcept
+            {  return m_duplicates_value_assigned_to_ids; }
         /** @brief Adds a regular expression pattern to determine if a variable should be
                 considered an internal string.
             @details For example, a pattern like "^utf8Name.*" would instruct
@@ -463,6 +477,11 @@ namespace i18n_check
             m_error_log.push_back(
                 parse_messages(m_file_name, get_line_and_column(positionInFile), info, message));
             }
+        /** @brief Loads ID assignments in the text to see if there are
+                hard-coded numbers or duplicated assignments.
+            @param fileText The source file's text to analyze.
+            @param fileName The file name being analyzed.*/
+        void load_id_assignments(const std::wstring_view fileText, const std::wstring& fileName);
 #ifdef __UNITTEST
     public:
 #endif
@@ -610,6 +629,8 @@ namespace i18n_check
         std::vector<string_info> m_deprecated_macros;
         std::vector<string_info> m_unencoded_strings;
         std::vector<string_info> m_printf_single_numbers;
+        std::vector<string_info> m_ids_assigned_number;
+        std::vector<string_info> m_duplicates_value_assigned_to_ids;
 
         std::wstring m_file_name;
 
@@ -625,6 +646,7 @@ namespace i18n_check
         std::wregex m_plural_regex;
         std::wregex m_open_function_signature_regex;
         std::wregex m_diagnostsic_function_regex;
+        std::wregex m_id_assignment_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
 
         // helpers

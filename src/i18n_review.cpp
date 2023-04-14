@@ -29,7 +29,8 @@ namespace i18n_check
         m_function_signature_regex(L"[[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)]"),
         m_plural_regex(L"[[:alnum:]]{2,}[(]s[)]"),
         m_open_function_signature_regex(L"[[:alnum:]]{2,}[(]"),
-        m_diagnostsic_function_regex(L"([a-zA-Z0-9_]*|^)(ASSERT|VERIFY|PROFILE|CHECK)([a-zA-Z0-9_]*|$)")
+        m_diagnostsic_function_regex(L"([a-zA-Z0-9_]*|^)(ASSERT|VERIFY|PROFILE|CHECK)([a-zA-Z0-9_]*|$)"),
+        m_id_assignment_regex(LR"((int|uint32_t|INT|UINT|wxWindowID)([[:space:]]|const)*([a-zA-Z0-9_]*ID[a-zA-Z0-9_]*)[[:space:]]*[=\({][[:space:]]*([a-zA-Z0-9_ \+\-\']+){1}(.?))")
         {
         m_deprecated_string_macros = {
             { L"wxT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
@@ -370,6 +371,76 @@ namespace i18n_check
             std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourDialogNames"));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourTable"));
+        }
+
+    //--------------------------------------------------
+    void i18n_review::load_id_assignments(const std::wstring_view fileText, const std::wstring& fileName)
+        {
+        std::vector<std::wstring> matches;
+        std::copy(
+            std::regex_token_iterator<decltype(fileText)::const_iterator>(
+                fileText.begin(), fileText.end(), m_id_assignment_regex),
+            std::regex_token_iterator<decltype(fileText)::const_iterator>(),
+            std::back_inserter(matches));
+
+        std::wregex varNamePartsRE{ L"([a-zA-Z0-9_]*)(ID)([a-zA-Z0-9_]*)" };
+        // no std::from_chars for wchar_t :(
+        std::wregex numRE{ L"^[0-9]+$" };
+        if (matches.size())
+            {
+            std::vector<std::pair<std::wstring, std::wstring>> idAssignments;
+            idAssignments.reserve(matches.size());
+            std::vector<std::wstring> subMatches;
+            std::vector<std::wstring> idNameParts;
+            std::set<std::wstring> assignedIds;
+            for (const auto& match : matches)
+                {
+                subMatches.clear();
+                idNameParts.clear();
+                std::copy(
+                    std::regex_token_iterator<std::remove_reference_t<decltype(match)>::const_iterator>(
+                        match.begin(), match.end(), m_id_assignment_regex, { 3, 4, 5 }),
+                    std::regex_token_iterator<std::remove_reference_t<decltype(match)>::const_iterator>(),
+                    std::back_inserter(subMatches));
+                // break the ID into parts and see what's around "ID",
+                // we don't want "ID" if it is part of a word like "WIDTH"
+                std::copy(
+                    std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>(
+                        subMatches[0].begin(), subMatches[0].end(), varNamePartsRE, { 1, 2, 3 }),
+                    std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>(),
+                    std::back_inserter(idNameParts));
+                if ((idNameParts[0].length() && std::iswupper(idNameParts[0].back())) ||
+                     (idNameParts[2].length() && std::iswupper(idNameParts[2].front())) )
+                    { continue; }
+                // ignore function calls or constructed objects assigning an ID
+                if (subMatches[2] == L"(" ||
+                    subMatches[2] == L"{")
+                    { continue; }
+                // 1'000 -> 1000
+                string_util::remove_all(subMatches[1], L'\'');
+                string_util::trim(subMatches[1]);
+                string_util::remove_all(subMatches[1], L' ');
+                idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
+                }
+            for (const auto& idAssignment : idAssignments)
+                {
+                if (std::regex_match(idAssignment.second, numRE))
+                    {
+                    m_ids_assigned_number.push_back(
+                        string_info(idAssignment.second + L" assigned to " + idAssignment.first,
+                            string_info::usage_info{},
+                            fileName, std::make_pair(std::wstring::npos, std::wstring::npos)));
+                    }
+                const auto [pos, inserted] = assignedIds.insert(idAssignment.second);
+                if (!inserted && idAssignment.second != L"wxID_ANY")
+                    {
+                    m_duplicates_value_assigned_to_ids.push_back(
+                        string_info(idAssignment.second + L" has been assigned to multiple variables",
+                            string_info::usage_info{},
+                            fileName, std::make_pair(std::wstring::npos, std::wstring::npos)));
+                    }
+                }
+            }
         }
 
     //--------------------------------------------------

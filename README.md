@@ -3,24 +3,31 @@
 Internationalization & localization analysis system for C++ code.
 
 `i18n-check` scans a folder of C++ code and reviews the following issues:
--	Strings exposed for translation\* that possibly should not be. This includes (but not limited to) strings such as:
+- Strings exposed for translation *[1]* that probably should not be. This includes (but not limited to):
     - Filenames
     - Strings only containing `printf()` commands
     - Numbers
     - Regular expressions
     - Strings inside of debug functions
     - Formulas
+    - Code (used for code generators)
     - Strings that contain URLs or email addresses.
 - Strings not available for translation that possibly should be.
 - Strings that contain extended ASCII characters that are not encoded.
-  ("Danke schön" instead of "Danke sch\U000000F6n".) Encoding extended ASCII characters is recommended for
+  ("Danke schön" instead of "Danke sch\U000000F6n".)\n
+  Encoding extended ASCII characters is recommended for
   best portability between compilers.
 - The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
 - Files that contain extended ASCII characters, but are not UTF-8 encoded.
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
 - `printf()`-like functions being used to just format an integer to a string. It is recommended to use `std::to_string()` to do this instead.
+- ID variable *[2]* assignment issues:
+    - The same value being assigned to different ID variables in the same source file
+      (e.g., "wxHIGHEST_ID + 1" being assigned to two menu ID constants).
+    - Hard-coded numbers being assigned to ID variables.
 
-\* Strings are considered translatable if inside of `gettext` (or related) macros. This includes functions and macros such as `gettext()`, `_()`, and `wxTRANSLATE()`. 
+*[1]* Strings are considered translatable if inside of `gettext` (or related) macros. This includes functions and macros such as `gettext()`, `_()`, and `wxTRANSLATE()`.\n
+*[2]* Variables are determined to be ID variables if they are integral types with "ID" in their name.
 
 Refer [here](Example.md) for example usage.
 
@@ -37,21 +44,25 @@ Refer [here](Example.md) for example usage.
 [input]: The folder to analyze.
 
 --enable: Which checks to perform. Can be any combination of:
-  all:                Perform all checks (the default).
-  suspectL10NString:  Check for translatable strings that shouldn't be
-                      (e.g., numbers, keywords, printf commands).
-  suspectL10NUsage:   Check for translatable strings being used in internal contexts
-                      (e.g., debugging functions).
-  urlInL10NString:    Check for translatable strings that contain URLs or email addresses.
-                      It is recommended to dynamically format these into the string so that
-                      translators don't have to manage them.
-  notL10NAvailable:   Check for strings not exposed for translation.
-  deprecatedMacros:   Check for deprecated text macros (e.g., wxT()).
-  nonUTF8File:        Check that files containing extended ASCII characters are UTF-8 encoded.
-  unencodedExtASCII:  Check for strings containing extended ASCII characters that are not encoded.
-  printfSingleNumber: Check for printf()-like functions being used to just format a number.
+  all:                 Perform all checks (the default).
+  suspectL10NString:   Check for translatable strings that shouldn't be
+                       (e.g., numbers, keywords, printf commands).
+  suspectL10NUsage:    Check for translatable strings being used in internal contexts
+                       (e.g., debugging functions).
+  urlInL10NString:     Check for translatable strings that contain URLs or email addresses.
+                       It is recommended to dynamically format these into the string so that
+                       translators don't have to manage them.
+  notL10NAvailable:    Check for strings not exposed for translation.
+  deprecatedMacros:    Check for deprecated text macros (e.g., wxT()).
+  nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
+  unencodedExtASCII:   Check for strings containing extended ASCII characters that are not encoded.
+  printfSingleNumber:  Check for printf()-like functions being used to just format a number.
+  dupValAssignedToIds: Check for the same value being assigned to different ID variables.
+  numberAssignedToId:  Check for ID variables being assigned a hard-coded number.
+                       It may be preferred to assign framework-defined constants to IDs.
 
 --disable: Which checks to not perform. (Refer to options available above.)
+           This will override any options passed to "--enable".
 
 --log-l10n-allowed: Whether it is acceptable to pass translatable strings to 
                     logging functions. Setting this to false will emit warnings
