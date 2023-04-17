@@ -24,7 +24,7 @@ Internationalization & localization analysis system for C++ code.
 - `printf()`-like functions being used to just format an integer to a string. It is recommended to use `std::to_string()` to do this instead.
 - ID variable *[2]* assignment issues:
     - The same value being assigned to different ID variables in the same source file
-      (e.g., "wxHIGHEST_ID + 1" being assigned to two menu ID constants).
+      (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
     - Hard-coded numbers being assigned to ID variables.
 
 Code formatting issues can also be checked for, such as:
@@ -133,6 +133,19 @@ This example will exclude multiple folders (and files) and output the results to
 ```shellscript
 i18n-check C:\src\Wisteria-dataviz\src --ignore=import,i18n-check,wxsimplejson,math,easyexif,debug,utfcpp,CRCpp,base/colors.cpp,base/colors.h -o WDVresults.txt
 ```
+
+# Building
+
+`i18n` can be configured with Cmake and then built with your compiler of choice.
+
+On Unix:
+
+```shellscript
+cmake ./
+make -j4
+```
+
+On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
 
 # GitHub Action
 
