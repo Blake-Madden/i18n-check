@@ -233,12 +233,16 @@ namespace i18n_check
                 }
             else
                 {
-                if (cpp_text[0] == L'\t')
+                if ((m_reviewStyles & check_tabs) &&
+                    cpp_text[0] == L'\t')
                     {
-                    log_message(L"TAB", L"Tab detected in file; prefer using spaces.",
-                                (cpp_text - m_file_start));
+                    m_tabs.push_back(
+                        string_info(std::wstring{},
+                                string_info::usage_info{},
+                                m_file_name, get_line_and_column((cpp_text - m_file_start))));
                     }
-                else if (cpp_text[0] == L' ' && cpp_text + 1 < endSentinel &&
+                else if ((m_reviewStyles & check_stray_spaces) &&
+                    cpp_text[0] == L' ' && cpp_text + 1 < endSentinel &&
                     (cpp_text[1] == L'\n' || cpp_text[1] == L'\r'))
                     {
                     assert(cpp_text >= m_file_start);
@@ -250,10 +254,13 @@ namespace i18n_check
                     std::wstring codeLine(m_file_start + prevLineStart,
                                           (cpp_text - (m_file_start + prevLineStart)));
                     string_util::ltrim(codeLine);
-                    log_message(codeLine, L"Stray space(s) detected at end of line.",
-                                (cpp_text - m_file_start));
+                    m_stray_spaces.push_back(
+                        string_info(codeLine,
+                            string_info::usage_info{},
+                            m_file_name, get_line_and_column((cpp_text - m_file_start))));
                     }
-                else if ((cpp_text[0] == L'\n' || cpp_text[0] == L'\r') &&
+                else if ((m_reviewStyles & check_line_width) &&
+                    (cpp_text[0] == L'\n' || cpp_text[0] == L'\r') &&
                     cpp_text > m_file_start)
                     {
                     const auto currentPos{ (cpp_text - m_file_start) };
@@ -269,15 +276,14 @@ namespace i18n_check
                         // ...also, only warn if the current line doesn't have a raw
                         // string in it--those can make it impossible to break a line
                         // into smaller lines.
-                        std::wstring_view currentLine{ m_file_start + previousNewLine, currentLineLength };
+                        const std::wstring currentLine{ m_file_start + previousNewLine, currentLineLength };
                         if (currentLine.find(L"R\"") == std::wstring::npos &&
                             currentLine.find(L"|") == std::wstring::npos)
                             {
-                            log_message(L"LINE WIDTH",
-                                        L"Line is " +
-                                        std::to_wstring(currentLineLength) +
-                                        L" characters long.",
-                                        currentPos);
+                            m_wide_lines.push_back(
+                                string_info(currentLine,
+                                    string_info::usage_info{},
+                                    m_file_name, get_line_and_column(currentPos)));
                             }
                         }
                     }
@@ -291,11 +297,26 @@ namespace i18n_check
     //--------------------------------------------------
     void cpp_i18n_review::remove_decorations(std::wstring& str) const
         {
+        while (str.length() && str.back() == L'&')
+            { str.pop_back(); }
         if (str.length() && str.back() == L'>')
             {
             const auto templateStart = str.find_last_of(L'<');
             if (templateStart != std::wstring::npos)
-                { str.erase(templateStart); }
+                {
+                // if constructing a shared_ptr, then use the type that it is constructing
+                if (std::wstring_view{ str }.substr(0, templateStart).compare(L"std::make_shared") == 0 ||
+                    std::wstring_view{ str }.substr(0, templateStart).compare(L"make_shared") == 0 ||
+                    std::wstring_view{ str }.substr(0, templateStart).compare(L"std::shared_ptr") == 0 ||
+                    std::wstring_view{ str }.substr(0, templateStart).compare(L"shared_ptr") == 0)
+                    {
+                    str.erase(0, templateStart + 1);
+                    str.pop_back();
+                    }
+                // use the root type of the variable with template info stripped off
+                else
+                    { str.erase(templateStart); }
+                }
             }
         // Strip off colons in front of string (e.g., the common practice of typing "::" in front
         // of items in the global namespace).
@@ -309,7 +330,7 @@ namespace i18n_check
         // lop off name of variable from member call (e.g., "str.Format" becomes "Format").
         const auto accessor = str.find_first_of(L">.");
         if (accessor != std::wstring::npos)
-            { str.erase(0,accessor+1); }
+            { str.erase(0, accessor + 1); }
         }
 
     //--------------------------------------------------

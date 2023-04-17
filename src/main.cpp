@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
     ("enable", "Which checks to perform (any combination of: "
         "all, suspectL10NString, suspectL10NUsage, urlInL10NString, notL10NAvailable, "
         "deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleNumber,"
-        "numberAssignedToId, dupValAssignedToIds)",
+        "numberAssignedToId, dupValAssignedToIds, malformedStrings, straySpaces, tabs, wideLines)",
         cxxopts::value<std::vector<std::string>>())
     ("disable", "Which checks to not perform (same as the options for enable)",
         cxxopts::value<std::vector<std::string>>())
@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
             {
             if (r == "all")
                 {
-                rs = i18n_check::review_style::all_l10n_checks;
+                rs = i18n_check::review_style::all_i18n_checks;
                 break;
                 }
             else if (r == "suspectL10NString")
@@ -303,6 +303,14 @@ int main(int argc, char* argv[])
                 { rs |= check_number_assigned_to_id; }
             else if (r == "dupValAssignedToIds")
                 { rs |= check_duplicate_value_assigned_to_ids; }
+            else if (r == "malformedStrings")
+                { rs |= check_malformed_strings; }
+            else if (r == "straySpaces")
+                { rs |= check_stray_spaces; }
+            else if (r == "tabs")
+                { rs |= check_tabs; }
+            else if (r == "wideLines")
+                { rs |= check_line_width; }
             else
                 {
                 std::wcout << L"Unknown option passed to --enable: " <<
@@ -346,6 +354,14 @@ int main(int argc, char* argv[])
                 { rs = rs & ~check_number_assigned_to_id; }
             else if (r == "dupValAssignedToIds")
                 { rs = rs & ~check_duplicate_value_assigned_to_ids; }
+            else if (r == "malformedStrings")
+                { rs = rs & ~check_malformed_strings; }
+            else if (r == "straySpaces")
+                { rs = rs & ~check_stray_spaces; }
+            else if (r == "tabs")
+                { rs = rs & ~check_tabs; }
+            else if (r == "wideLines")
+                { rs = rs & ~check_line_width; }
             else
                 {
                 std::wcout << L"Unknown option passed to --disable: " <<
@@ -502,7 +518,7 @@ int main(int argc, char* argv[])
     for (const auto& val : cpp.get_printf_single_numbers())
         {
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
-            L"\t" << val.m_string << L"\t" <<
+            L"\t\"" << val.m_string << L"\"\t" <<
             L"Prefer using std::to_[w]string() instead of printf() formatting a single number."<<
             L"\t[printfSingleNumber]\n";
         }
@@ -524,6 +540,14 @@ int main(int argc, char* argv[])
             L"\t[numberAssignedToId]\n";
         }
 
+    for (const auto& val : cpp.get_malformed_strings())
+        {
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
+            L"\t\"" << val.m_string << L"\"\t" <<
+            L"Malformed syntax in string." <<
+            L"\t[malformedStrings]\n";
+        }
+
     for (const auto& file : filesThatShouldBeConvertedToUTF8)
         {
         report << file <<
@@ -533,28 +557,48 @@ int main(int argc, char* argv[])
 
     for (const auto& val : cpp.get_unencoded_ext_ascii_strings())
         {
-        std::wstringstream encodingRecommendationsStream;
+        std::wstringstream encodingRecommendations;
         for (const auto& ch : val.m_string)
             {
             if (ch > 127)
                 {
-                encodingRecommendationsStream << ch << L" -> \\U" <<
+                encodingRecommendations << LR"(\U)" <<
                     std::setfill(L'0') << std::setw(8) << std::uppercase <<
-                    std::hex  <<
-                    static_cast<int>(ch) << L", ";
+                    std::hex  << static_cast<int>(ch);
                 }
+            else
+                { encodingRecommendations << ch; }
             }
-        auto encodingRecommendations = encodingRecommendationsStream.str();
-        if (encodingRecommendations.length() > 2)
-            {
-            encodingRecommendations.erase(encodingRecommendations.end()-2,
-                                          encodingRecommendations.end());
-            }
+
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
             L"\"" << val.m_string << L"\"\t" <<
-            L"String contains extended ASCII characters that should be encoded. Recommended changes: " <<
-            encodingRecommendations <<
+            L"String contains extended ASCII characters that should be encoded. Recommended change: " <<
+            encodingRecommendations.str() <<
             L"\t[unencodedExtASCII]\n";
+        }
+
+    for (const auto& val : cpp.get_stray_spaces())
+        {
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
+            L"\t\"" << val.m_string << L"\"\t" <<
+            L"Stray space(s) detected at end of line." <<
+            L"\t[straySpaces]\n";
+        }
+
+    for (const auto& val : cpp.get_tabs())
+        {
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
+            L"\t\"" << val.m_string << L"\"\t" <<
+            L"Tab detected in file; prefer using spaces." <<
+            L"\t[tabs]\n";
+        }
+
+    for (const auto& val : cpp.get_wide_lines())
+        {
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
+            L"\t\"" << val.m_string << L"\"\t" <<
+            L"Line is " << val.m_string.length() << L" characters long." <<
+            L"\t[wideLines]\n";
         }
 
     if (readBoolOption("verbose", false))
@@ -601,15 +645,18 @@ int main(int argc, char* argv[])
             std::wcout << L"\nFinished in " <<
                 std::chrono::duration_cast<std::chrono::milliseconds>
                     (endTime - startTime).count() <<
-                L" milliseconds.";
+                L" milliseconds.\n\n";
             }
         else
             {
             std::wcout << L"\nFinished in " <<
                 std::chrono::duration_cast<std::chrono::seconds>
                     (endTime - startTime).count() <<
-                L" seconds.\n";
+                L" seconds.\n\n";
             }
+
+        std::wcout << L"Statistics" << L"\n###################################################\n" <<
+            L"Strings available for translation: " << cpp.get_localizable_strings().size() << L"\n";
         }
 
     return 0;

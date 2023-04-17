@@ -32,39 +32,47 @@ namespace i18n_check
         /// @brief Check that strings exposed for localization are safe to translate.\n
         ///     For example, a printf statement with no actual words in it should
         ///     not be translatable.
-        check_l10n_strings = 0x01,
+        check_l10n_strings = (1 << 0),
         /// @brief Check for localizable strings being used with internal functions
         ///     (e.g., debug and logging messages).
-        check_suspect_l10n_string_usage = 0x02,
+        check_suspect_l10n_string_usage = (1 << 1),
         /// @brief Check for quotes strings in the source that are not available
         ///     for translation that probably should be.
-        check_not_available_for_l10n = 0x04,
+        check_not_available_for_l10n = (1 << 2),
         /// @brief Check for deprecated text macros (e.g., `wxT()`).
-        check_deprecated_macros = 0x08,
+        check_deprecated_macros = (1 << 3),
         /// @brief Check that files containing extended ASCII characters are UTF-8 encoded.
-        check_utf8_encoded = 0x10,
+        check_utf8_encoded = (1 << 4),
         /// @brief Check for strings that contain extended ASCII characters that are not encoded.
-        check_unencoded_ext_ascii = 0x20,
+        check_unencoded_ext_ascii = (1 << 5),
         /// @brief Check for printf() commands being used to format a single number
         ///     (without any particular precision or padding features).\n
         ///     In this situation, it is better to use std::to_string() to avoid
         ///     potentially dangerous printf() commands.
-        check_printf_single_number = 0x40,
+        check_printf_single_number = (1 << 6),
         /// @brief Check for URLs or email addresses inside translatable strings.
         /// @details It is recommended to format those into the strings dynamically,
         ///     so that translators do not have to manage them.
-        check_l10n_contains_url = 0x80,
+        check_l10n_contains_url = (1 << 7),
         /// @brief Check for ID variables being assigned a hard-coded number.
         /// @details It may be preferred to assign framework-defined constant to ID.
-        check_number_assigned_to_id = 0x100,
+        check_number_assigned_to_id = (1 << 8),
         /// @brief Check for the same value being assigned to different ID variables.
-        check_duplicate_value_assigned_to_ids = 0x200,
+        check_duplicate_value_assigned_to_ids = (1 << 9),
+        /// @brief Check for malformed syntax in strings (e.g., malformed HTML tags).
+        check_malformed_strings = (1 << 10),
         /// @brief Perform all tests.
-        all_l10n_checks =
-            (check_l10n_strings|check_suspect_l10n_string_usage|
-             check_not_available_for_l10n|check_deprecated_macros|check_utf8_encoded|
-             check_unencoded_ext_ascii|check_printf_single_number|check_l10n_contains_url|
-             check_number_assigned_to_id|check_duplicate_value_assigned_to_ids)
+        all_i18n_checks =
+            (check_l10n_strings  |check_suspect_l10n_string_usage |
+             check_not_available_for_l10n | check_deprecated_macros|check_utf8_encoded |
+             check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
+             check_number_assigned_to_id | check_duplicate_value_assigned_to_ids | check_malformed_strings),
+        /// @brief Check for stray spaces at the end of each line.
+        check_stray_spaces = (1 << 11),
+        /// @brief Check for tabs (spaces are recommended).
+        check_tabs = (1 << 12),
+        /// @brief Check for overly long lines.
+        check_line_width = (1 << 13)
         };
 
     /** @brief Class to extract and review localizable/nonlocalizable
@@ -175,7 +183,8 @@ namespace i18n_check
         ///     of your files via `operator()`.
         void review_strings()
             {
-            std::wregex urlEmailRE{ LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))" };
+            const std::wregex urlEmailRE{
+                LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))" };
             process_strings();
 
             if (m_reviewStyles & check_l10n_contains_url)
@@ -192,11 +201,34 @@ namespace i18n_check
                 {
                 for (const auto& str : m_localizable_strings)
                     {
+                    auto strToReview{ str.m_string };
                     if (str.m_string.length() &&
-                        is_untranslatable_string(str.m_string, false))
+                        is_untranslatable_string(strToReview, false))
                         { m_unsafe_localizable_strings.push_back(str); }
                     }
                 }
+
+            if (m_reviewStyles & check_malformed_strings)
+                {
+                const auto& classifyMalformedStrings = [this](const auto& strings)
+                    {
+                    for (const auto& str : strings)
+                        {
+                        if (std::regex_search(str.m_string, m_malformed_html_tag) ||
+                            std::regex_search(str.m_string, m_malformed_html_tag_bad_amp))
+                            { m_malformed_strings.push_back(str); }
+                        }
+                    };
+
+                classifyMalformedStrings(m_localizable_strings);
+                classifyMalformedStrings(m_marked_as_non_localizable_strings);
+                classifyMalformedStrings(m_internal_strings);
+                classifyMalformedStrings(m_not_available_for_localization_strings);
+                classifyMalformedStrings(m_unsafe_localizable_strings);
+                classifyMalformedStrings(m_localizable_strings_with_urls);
+                classifyMalformedStrings(m_localizable_strings_in_internal_call);
+                }
+
             if (m_reviewStyles & check_unencoded_ext_ascii)
                 {
                 const auto& classifyUnencodedStrings = [this](const auto& strings)
@@ -302,6 +334,22 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_duplicates_value_assigned_to_ids() const noexcept
             {  return m_duplicates_value_assigned_to_ids; }
+        /// @returns Malformed strings.
+        [[nodiscard]]
+        const std::vector<string_info>& get_malformed_strings() const noexcept
+            { return m_malformed_strings; }
+        /// @returns Lines with stray spaces.
+        [[nodiscard]]
+        const std::vector<string_info>& get_stray_spaces() const noexcept
+            { return m_stray_spaces; }
+        /// @returns Tabs in the files.
+        [[nodiscard]]
+        const std::vector<string_info>& get_tabs() const noexcept
+            { return m_tabs; }
+        /// @returns Overly long lines.
+        [[nodiscard]]
+        const std::vector<string_info>& get_wide_lines() const noexcept
+            { return m_wide_lines; }
         /** @brief Adds a regular expression pattern to determine if a variable should be
                 considered an internal string.
             @details For example, a pattern like "^utf8Name.*" would instruct
@@ -435,7 +483,7 @@ namespace i18n_check
         ///     exposed for translation or not. If so, then it will be added to the queue of
         ///     non-localizable strings; otherwise, it will be considered an internal string.
         /// @param str The string to review.
-        void classify_non_localizable_string(const string_info& str)
+        void classify_non_localizable_string(string_info& str)
             {
             if (m_reviewStyles & check_not_available_for_l10n)
                 {
@@ -444,6 +492,7 @@ namespace i18n_check
                     { return; }
                 if (m_log_functions.find(str.m_usage.m_value) != m_log_functions.cend())
                     { return; }
+
                 if (is_untranslatable_string(str.m_string, true))
                     { m_internal_strings.emplace_back(str); }
                 else
@@ -486,7 +535,8 @@ namespace i18n_check
     public:
 #endif
         /// @returns Whether @c str is a string that should be translated.
-        /// @param str The string to review.
+        /// @param[in,out] str The string to review.\n
+        ///     This string may have text like HTML and CSS tags removed, as well as being trimmed.
         /// @param limitWordCount If @c true, will consider a word as
         ///    untranslatable if it doesn't meet
         ///    get_min_words_for_classifying_unavailable_string()'s threshold.
@@ -494,7 +544,7 @@ namespace i18n_check
         ///     for l10n as these strings should always be reviewed for safety reasons,
         ///     regardless of length.
         [[nodiscard]]
-        bool is_untranslatable_string(std::wstring str, const bool limitWordCount) const;
+        bool is_untranslatable_string(std::wstring& str, const bool limitWordCount) const;
         /// @returns Whether @c functionName is a diagnostic function (e.g., ASSERT) whose
         ///     string parameters shouldn't be translatable.
         /// @param functionName The name of the function to review.
@@ -577,6 +627,12 @@ namespace i18n_check
             std::wstring& functionName, std::wstring& variableName, std::wstring& variableType,
             std::wstring& deprecatedMacroEncountered);
 
+        /// @returns @c true if provided variable type is just a decorator after the real
+        ///     variable type (e.g., const) and should be skipped.
+        /// @param variableType The parsed variable type to review.
+        [[nodiscard]]
+        virtual bool is_variable_type_decorator(const std::wstring_view variableType) const = 0;
+
         /// @returns The line and column postion from a character position.
         /// @param position The character position in the file.
         [[nodiscard]]
@@ -601,7 +657,7 @@ namespace i18n_check
         bool m_log_messages_are_translatable{ true };
         size_t m_min_words_for_unavailable_string{ 2 };
 
-        review_style m_reviewStyles{ review_style::all_l10n_checks };
+        review_style m_reviewStyles{ review_style::all_i18n_checks };
 
         // once these are set (by our CTOR and/or by client), they shouldn't be reset
         std::set<std::wstring> m_localization_functions;
@@ -631,22 +687,42 @@ namespace i18n_check
         std::vector<string_info> m_printf_single_numbers;
         std::vector<string_info> m_ids_assigned_number;
         std::vector<string_info> m_duplicates_value_assigned_to_ids;
+        std::vector<string_info> m_malformed_strings;
+        std::vector<string_info> m_stray_spaces;
+        std::vector<string_info> m_tabs;
+        std::vector<string_info> m_wide_lines;
 
         std::wstring m_file_name;
 
-        // regex
-        std::wregex m_html_regex;
-        std::wregex m_html_element_regex;
-        std::wregex m_html_tag_regex;
-        std::wregex m_html_tag_unicode_regex;
-        std::wregex m_2letter_regex;
-        std::wregex m_hashtag_regex;
-        std::wregex m_key_shortcut_regex;
-        std::wregex m_function_signature_regex;
-        std::wregex m_plural_regex;
-        std::wregex m_open_function_signature_regex;
-        std::wregex m_diagnostsic_function_regex;
-        std::wregex m_id_assignment_regex;
+        // HTML, but also includes some GTK formatting tags
+        std::wregex m_html_regex{
+            LR"([^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*)",
+            std::regex_constants::icase };
+        // <doc-val>Some text</doc-val>
+        std::wregex m_html_element_regex{
+            LR"(<[a-zA-Z0-9_\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\-]+>)",
+            std::regex_constants::icase };
+        std::wregex m_html_tag_regex{ LR"(&[[:alpha:]]{2,5};.*)" };
+        std::wregex m_html_tag_unicode_regex{ LR"(&#[[:digit:]]{2,4};.*)" };
+        std::wregex m_2letter_regex{ LR"([[:alpha:]]{2,})" };
+        std::wregex m_hashtag_regex{ LR"(#[[:alnum:]]{2,})" };
+        std::wregex m_key_shortcut_regex{
+            LR"((CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+)",
+            std::regex_constants::icase };
+        std::wregex m_function_signature_regex{
+            LR"([[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)])" };
+        std::wregex m_plural_regex{ LR"([[:alnum:]]{2,}[(]s[)])" };
+        std::wregex m_open_function_signature_regex{ LR"([[:alnum:]]{2,}[(])" };
+        std::wregex m_diagnostsic_function_regex{
+            LR"(([a-zA-Z0-9_]*|^)(ASSERT|VERIFY|PROFILE|CHECK)([a-zA-Z0-9_]*|$))" };
+        // UINT MENU_ID_PRINT = 1'000;
+        std::wregex m_id_assignment_regex{
+            LR"((int|uint32_t|INT|UINT|wxWindowID)([[:space:]]|const)*([a-zA-Z0-9_]*ID[a-zA-Z0-9_]*)[[:space:]]*[=\({][[:space:]\({]*([a-zA-Z0-9_ \+\-\'<>:\.]+){1}(.?))" };
+        std::wregex m_sql_code{
+            LR"(.*(SELECT \*|CREATE TABLE|CREATE INDEX|COLLATE NOCASE|ALTER TABLE|DROP TABLE|COLLATE DATABASE_DEFAULT).*)",
+            std::regex_constants::icase };
+        std::wregex m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
+        std::wregex m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
         std::vector<std::wregex> m_untranslatable_regexes;
 
         // helpers

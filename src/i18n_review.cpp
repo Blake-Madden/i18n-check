@@ -13,24 +13,7 @@ using namespace i18n_string_util;
 namespace i18n_check
     {
     //--------------------------------------------------
-    i18n_review::i18n_review() :
-        // HTML, but also includes some GTK formatting tags
-        m_html_regex(L"[^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*",
-            std::regex_constants::icase),
-        // <doc-val>Some text</doc-val>
-        m_html_element_regex(L"<[a-zA-Z0-9_\\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\\-]+>",
-            std::regex_constants::icase),
-        m_html_tag_regex(L"&[[:alpha:]]{2,5};.*"),
-        m_html_tag_unicode_regex(L"&#[[:digit:]]{2,4};.*"),
-        m_2letter_regex(L"[[:alpha:]]{2,}"),
-        m_hashtag_regex(L"#[[:alnum:]]{2,}"),
-        m_key_shortcut_regex(L"(CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+",
-            std::regex_constants::icase),
-        m_function_signature_regex(L"[[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)]"),
-        m_plural_regex(L"[[:alnum:]]{2,}[(]s[)]"),
-        m_open_function_signature_regex(L"[[:alnum:]]{2,}[(]"),
-        m_diagnostsic_function_regex(L"([a-zA-Z0-9_]*|^)(ASSERT|VERIFY|PROFILE|CHECK)([a-zA-Z0-9_]*|$)"),
-        m_id_assignment_regex(LR"((int|uint32_t|INT|UINT|wxWindowID)([[:space:]]|const)*([a-zA-Z0-9_]*ID[a-zA-Z0-9_]*)[[:space:]]*[=\({][[:space:]]*([a-zA-Z0-9_ \+\-\']+){1}(.?))")
+    i18n_review::i18n_review()
         {
         m_deprecated_string_macros = {
             { L"wxT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
@@ -55,8 +38,11 @@ namespace i18n_check
             // placeholder text
             std::wregex(L"Lorem ipsum.*"),
             // SQL code
-            std::wregex(L"(INSERT INTO|SELECT [*])[[:space:]].*",
+            m_sql_code,
+            std::wregex(LR"(^(INSERT INTO|DELETE FROM).*)",
                 std::regex_constants::icase),
+            std::wregex(LR"(^ORDER BY.*)"), // more strict
+            std::wregex(LR"([(]*^SELECT[[:space:]]+[A-Z_0-9]+,.*)"),
             // a regex expression
             std::wregex(L"[(][?]i[)].*"),
             // single file filter that just has a file extension as its "name"
@@ -71,15 +57,24 @@ namespace i18n_check
             // debug messages
             std::wregex(L"Assert(ion)? (f|F)ail.*"),
             std::wregex(L"ASSERT *"),
+            // HTML doc start
+            std::wregex(LR"(<!DOCTYPE html)"),
             // HTML entities
             std::wregex(L"&[#]?[xX]?[[:alnum:]]+;"),
+            // JS
+            std::wregex(LR"(class[[:space:]]*=[[:space:]]*['"][[:alnum:]\- _]*['"])"),
             // An opening HTML element
-            std::wregex(L"<(body|html|img|head|meta|style|span|p|tr|td)"),
+            std::wregex(LR"(<(body|html|img|head|meta|style|span|p|tr|td))"),
             // PostScript element
-            std::wregex(L"%%[[:alpha:]]+:.*"),
+            std::wregex(LR"(%%[[:alpha:]]+:.*)"),
+            std::wregex(LR"((<< [\/()[:alnum:][:space:]]*(\\n|[[:space:]])*)+)"),
+            std::wregex(LR"((\/[[:alnum:][:space:]]* \[[[:alnum:][:space:]%]+\](\\n|[[:space:]])*)+)"),
+            // C header include
+            std::wregex(LR"((#include[[:space:]]+([\\]?"|<)[[:alnum:]_\\\.\/]+([\\]?"|>)(\\n|[[:space:]])*)+)"),
             // XML elements
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
-            std::wregex(LR"(xml[ ]*version[ ]*=[ ]*\\["'][0-9\.]+\\["'][>]?)"),
+            std::wregex(LR"(xml[ ]*version[ ]*=[ ]*\\["'][0-9\.]+\\["'][>]?)"), // partial header
+            std::wregex(LR"(<[\\]?\?xml[ a-zA-Z0-9=\\"'%\-]*[\?]?>)"), // full header
             std::wregex(LR"(<[A-Za-z]+[A-Za-z0-9_/\\\-\.'"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\-.']*>)"),
             std::wregex(LR"(<[A-Za-z]+([A-Za-z0-9_\-\.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*)"),
             // <image x=%d y=\"%d\" width = '%dpx' height="%dpx"
@@ -140,7 +135,11 @@ namespace i18n_check
             // [CMD]
             std::wregex(L"\\[[A-Z0-9]+\\]"),
             // Windows OS names
-            std::wregex(L"(Microsoft )?Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2}")
+            std::wregex(L"(Microsoft )?Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2}"),
+            // products
+            std::wregex(LR"((Microsoft )?Visual Studio)"),
+            std::wregex(LR"((Microsoft )?Visual C\+\+)"),
+            std::wregex(LR"((Microsoft )?Visual Basic)")
             };
 
         // functions/macros that indicate that a string will be localizable
@@ -186,7 +185,7 @@ namespace i18n_check
             L"pmr::u16string", L"pmr::u32string",
             // MFC, ATL
             L"CString", L"_bstr_t",
-            // formatting functions that should be skipped over
+            // formatting functions (not actually a CTOR) that should be skipped over
             L"wxString::Format" };
 
         // debugging & system call functions that should never have
@@ -213,6 +212,7 @@ namespace i18n_check
             L"wxIconHandler", L"wxBitmapHandler", L"OutputDumpLine", L"wxFileTypeInfo",
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo",
             L"Platform::DebugPrintf", L"wxGetCommandOutput",
+            L"SetKeyWords",
             // Catch2
             L"TEST_CASE", L"BENCHMARK", L"TEMPLATE_TEST_CASE", L"SECTION",
             L"DYNAMIC_SECTION", L"REQUIRE", L"REQUIRE_THROWS_WITH", L"REQUIRE_THAT",
@@ -236,8 +236,8 @@ namespace i18n_check
             L"g_object_get",
             // TCL
             L"Tcl_PkgRequire", L"Tcl_PkgRequireEx",
-            // debugging functions from open-source projects
-            L"check_assertion", L"print_debug", L"DPRINTF", L"print_warning", L"perror",
+            // debugging functions from various open-source projects
+            L"check_assertion", L"print_debug", L"DPRINTF", L"print_warning", L"perror", L"LogDebug",
             // system functions that don't process user messages
             L"fopen", L"getenv", L"setenv", L"system", L"run", L"exec", L"execute",
             // Unix calls
@@ -301,6 +301,7 @@ namespace i18n_check
             L"UNIX", L"macOS", L"Apple Mac OS", L"Apple Mac OS X", L"OSX",
             L"Linux", L"FreeBSD", L"POSIX", L"NetBSD" };
 
+        // keywords in the language that can appear in front of a string only
         m_keywords = { L"return", L"else", L"if", L"goto", L"new", L"delete",
                        L"throw" };
 
@@ -369,6 +370,8 @@ namespace i18n_check
                                             std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"xpm([[:alnum:]_\\-])*",
             std::regex_constants::icase));
+        add_variable_name_pattern_to_ignore(std::wregex(L"(sql|db|database)(Table|Update|Query|Command|Upgrade)?[[:alnum:]_\\-]*",
+            std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourDialogNames"));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourTable"));
         }
@@ -376,6 +379,9 @@ namespace i18n_check
     //--------------------------------------------------
     void i18n_review::load_id_assignments(const std::wstring_view fileText, const std::wstring& fileName)
         {
+        if (!((m_reviewStyles & check_duplicate_value_assigned_to_ids) ||
+              (m_reviewStyles & check_number_assigned_to_id)))
+            { return; }
         std::vector<std::wstring> matches;
         std::copy(
             std::regex_token_iterator<decltype(fileText)::const_iterator>(
@@ -383,16 +389,17 @@ namespace i18n_check
             std::regex_token_iterator<decltype(fileText)::const_iterator>(),
             std::back_inserter(matches));
 
-        std::wregex varNamePartsRE{ L"([a-zA-Z0-9_]*)(ID)([a-zA-Z0-9_]*)" };
+        const std::wregex varNamePartsRE{ L"([a-zA-Z0-9_]*)(ID)([a-zA-Z0-9_]*)" };
         // no std::from_chars for wchar_t :(
-        std::wregex numRE{ L"^[0-9]+$" };
+        const std::wregex numRE{ LR"(^[\-0-9']+$)" };
         if (matches.size())
             {
             std::vector<std::pair<std::wstring, std::wstring>> idAssignments;
             idAssignments.reserve(matches.size());
             std::vector<std::wstring> subMatches;
             std::vector<std::wstring> idNameParts;
-            std::set<std::wstring> assignedIds;
+            // ID and variable name assigned to
+            std::map<std::wstring, std::wstring> assignedIds;
             for (const auto& match : matches)
                 {
                 subMatches.clear();
@@ -402,7 +409,7 @@ namespace i18n_check
                         match.begin(), match.end(), m_id_assignment_regex, { 3, 4, 5 }),
                     std::regex_token_iterator<std::remove_reference_t<decltype(match)>::const_iterator>(),
                     std::back_inserter(subMatches));
-                // break the ID into parts and see what's around "ID",
+                // break the ID into parts and see what's around "ID,"
                 // we don't want "ID" if it is part of a word like "WIDTH"
                 std::copy(
                     std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>(
@@ -424,18 +431,29 @@ namespace i18n_check
                 }
             for (const auto& idAssignment : idAssignments)
                 {
-                if (std::regex_match(idAssignment.second, numRE))
+                if ((m_reviewStyles & check_number_assigned_to_id) &&
+                    std::regex_match(idAssignment.second, numRE) &&
+                    // -1 or 0 are usually generic IDs for the framework or temporary init values
+                    idAssignment.second != L"-1" &&
+                    idAssignment.second != L"0")
                     {
                     m_ids_assigned_number.push_back(
                         string_info(idAssignment.second + L" assigned to " + idAssignment.first,
                             string_info::usage_info{},
                             fileName, std::make_pair(std::wstring::npos, std::wstring::npos)));
                     }
-                const auto [pos, inserted] = assignedIds.insert(idAssignment.second);
-                if (!inserted && idAssignment.second != L"wxID_ANY")
+                const auto [pos, inserted] = assignedIds.insert(std::make_pair(idAssignment.second, idAssignment.first));
+                if ((m_reviewStyles & check_duplicate_value_assigned_to_ids) &&
+                    !inserted &&
+                    idAssignment.second.length() &&
+                    // ignore if same ID is assigned to variables with the same name
+                    idAssignment.first != pos->second &&
+                    idAssignment.second != L"wxID_ANY" &&
+                    idAssignment.second != L"-1" &&
+                    idAssignment.second != L"0")
                     {
                     m_duplicates_value_assigned_to_ids.push_back(
-                        string_info(idAssignment.second + L" has been assigned to multiple variables",
+                        string_info(idAssignment.second + L" has been assigned to multiple ID variables",
                             string_info::usage_info{},
                             fileName, std::make_pair(std::wstring::npos, std::wstring::npos)));
                     }
@@ -759,7 +777,7 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    bool i18n_review::is_untranslatable_string(std::wstring str,
+    bool i18n_review::is_untranslatable_string(std::wstring& str,
                                                const bool limitWordCount) const
         {
         static const std::wregex oneWordRE{ LR"((\b[\w'\-]+([\.\-\/:]*[\w'\-]*)*))" };
@@ -788,6 +806,30 @@ namespace i18n_check
 
         try
             {
+            // Handle HTML syntax that is hard coded in the source file.
+            // Strip it down and then see if what's left contains translatable content.
+            // Note that we skip any punctuation (not word characters, excluding '<')
+            // in front of the initial '<' (sometimes there are braces and brackets
+            // in front of the HTML tags).
+            str = std::regex_replace(str,
+                std::wregex(LR"(<br[[:space:]]*\/>)"), L"\n");
+            string_util::trim(str);
+            if (std::regex_match(str, m_html_regex) ||
+                std::regex_match(str, m_html_element_regex) ||
+                std::regex_match(str, m_html_tag_regex) ||
+                std::regex_match(str, m_html_tag_unicode_regex))
+                {
+                str = std::regex_replace(str,
+                    std::wregex(LR"(<script[\d\D]*?>[\d\D]*?</script>)"), L"");
+                str = std::regex_replace(str,
+                    std::wregex(LR"(<style[\d\D]*?>[\d\D]*?</style>)"), L"");
+                str = std::regex_replace(str,
+                    std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
+                // strip things like &ldquo;
+                str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
+                str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
+                }
+
             if (limitWordCount)
                 {
                 // see if it has enough words
@@ -800,22 +842,6 @@ namespace i18n_check
                 if (static_cast<size_t>(matchCount) <
                     get_min_words_for_classifying_unavailable_string())
                     { return true; }
-                }
-            // Handle HTML syntax that is hard coded in the source file.
-            // Strip it down and then see if what's left contains translatable content.
-            // Note that we skip any punctuation (not word characters, excluding '<')
-            // in front of the initial '<' (sometimes there are braces and brackets
-            // in front of the HTML tags).
-            if (std::regex_match(str, m_html_regex) ||
-                std::regex_match(str, m_html_element_regex) ||
-                std::regex_match(str, m_html_tag_regex) ||
-                std::regex_match(str, m_html_tag_unicode_regex))
-                {
-                str = std::regex_replace(str,
-                    std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
-                // strip things like &ldquo;
-                str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
-                str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
                 }
 
             // Nothing but punctuation? If that's OK to allow, then let it through.
@@ -854,7 +880,8 @@ namespace i18n_check
             // then it being more than 200 characters means that it probably is
             // a real user-message (not an internal string)
             else if (str.length() > 200 &&
-                !std::regex_match(str, loremIpsum))
+                !std::regex_match(str, loremIpsum) &&
+                !std::regex_match(str, m_sql_code))
                 { return false; }
 
             for (const auto& reg : m_untranslatable_regexes)
@@ -977,43 +1004,50 @@ namespace i18n_check
         /// @todo experimental!!! Reads the variable type from a variable constructed from a string.
         const auto readVarType = [&]()
             {
-            variableType.clear();
-            if (functionOrVarNamePos == startSentinel)
-                { return; }
-            --functionOrVarNamePos;
-            while (functionOrVarNamePos > startSentinel &&
-                std::iswspace(*functionOrVarNamePos))
-                { --functionOrVarNamePos; }
-            auto typeEnd = functionOrVarNamePos+1;
-            // if a template, then step over (going backwards) the template arguments
-            // to get to the root type
-            if (typeEnd - 1 > startSentinel &&
-                typeEnd[-1] == L'>')
+            const auto loadVarType = [&]()
                 {
-                // if a pointer accessor (->) then bail as it won't be a variable assignment
-                if (typeEnd - 2 > startSentinel &&
-                    typeEnd[-2] == L'-')
+                variableType.clear();
+                if (functionOrVarNamePos == startSentinel)
                     { return; }
-                assert(functionOrVarNamePos >= startSentinel);
-                const auto openingAngle =
-                    string_util::find_last_of(startSentinel, L'<', functionOrVarNamePos - startSentinel);
-                if (openingAngle == std::wstring::npos)
+                --functionOrVarNamePos;
+                while (functionOrVarNamePos > startSentinel &&
+                    std::iswspace(*functionOrVarNamePos))
+                    { --functionOrVarNamePos; }
+                auto typeEnd = functionOrVarNamePos+1;
+                // if a template, then step over (going backwards) the template arguments
+                // to get to the root type
+                if (typeEnd - 1 > startSentinel &&
+                    typeEnd[-1] == L'>')
                     {
-                    log_message(L"Template parse error", L"Unable to find opening < for template variable.",
-                                functionOrVarNamePos - startSentinel);
-                    return;
+                    // if a pointer accessor (->) then bail as it won't be a variable assignment
+                    if (typeEnd - 2 > startSentinel &&
+                        typeEnd[-2] == L'-')
+                        { return; }
+                    assert(functionOrVarNamePos >= startSentinel);
+                    const auto openingAngle =
+                        string_util::find_last_of(startSentinel, L'<', functionOrVarNamePos - startSentinel);
+                    if (openingAngle == std::wstring::npos)
+                        {
+                        log_message(L"Template parse error", L"Unable to find opening < for template variable.",
+                                    functionOrVarNamePos - startSentinel);
+                        return;
+                        }
+                    functionOrVarNamePos = startSentinel + openingAngle;
                     }
-                functionOrVarNamePos = startSentinel + openingAngle;
-                }
-            while (functionOrVarNamePos > startSentinel &&
-                is_valid_name_char_ex(*functionOrVarNamePos))
-                { --functionOrVarNamePos; }
-            if (!is_valid_name_char_ex(*functionOrVarNamePos))
-                { ++functionOrVarNamePos; }
-            variableType.assign(functionOrVarNamePos, typeEnd - functionOrVarNamePos);
-            remove_decorations(variableType);
+                while (functionOrVarNamePos > startSentinel &&
+                    (is_valid_name_char_ex(*functionOrVarNamePos) || *functionOrVarNamePos == L'&'))
+                    { --functionOrVarNamePos; }
+                if (!is_valid_name_char_ex(*functionOrVarNamePos))
+                    { ++functionOrVarNamePos; }
+                variableType.assign(functionOrVarNamePos, typeEnd - functionOrVarNamePos);
+                remove_decorations(variableType);
+                };
 
-            // ignore case labels
+            loadVarType();
+            if (is_variable_type_decorator(variableType))
+                { loadVarType(); }
+
+            // ignore case labels, else commands, etc.
             if (is_keyword(variableType) ||
                 (variableType.length() && variableType.back() == L':'))
                 { variableType.clear(); }

@@ -17,6 +17,7 @@ Internationalization & localization analysis system for C++ code.
   ("Danke schön" instead of "Danke sch\U000000F6n".)<br />
   Encoding extended ASCII characters is recommended for
   best portability between compilers.
+- Strings with malformed syntax (e.g., malformed HTML tags).
 - The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
 - Files that contain extended ASCII characters, but are not UTF-8 encoded.
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
@@ -25,6 +26,11 @@ Internationalization & localization analysis system for C++ code.
     - The same value being assigned to different ID variables in the same source file
       (e.g., "wxHIGHEST_ID + 1" being assigned to two menu ID constants).
     - Hard-coded numbers being assigned to ID variables.
+
+Code formatting issues can also be checked for, such as:
+- Stray spaces at the end of a line.
+- Tabs (instead of spaces).
+- Lines longer than 120 characters.
 
 *[1]* Strings are considered translatable if inside of `gettext` (or related) macros. This includes functions and macros such as `gettext()`, `_()`, and `wxTRANSLATE()`.<br />
 *[2]* Variables are determined to be ID variables if they are integral types with "ID" in their name.
@@ -44,7 +50,8 @@ Refer [here](Example.md) for example usage.
 [input]: The folder to analyze.
 
 --enable: Which checks to perform. Can be any combination of:
-  all:                 Perform all checks (the default).
+  all:                 Perform all i18n checks (the default).
+                       This does not include code formatting checks.
   suspectL10NString:   Check for translatable strings that shouldn't be
                        (e.g., numbers, keywords, printf commands).
   suspectL10NUsage:    Check for translatable strings being used in internal contexts
@@ -60,6 +67,13 @@ Refer [here](Example.md) for example usage.
   dupValAssignedToIds: Check for the same value being assigned to different ID variables.
   numberAssignedToId:  Check for ID variables being assigned a hard-coded number.
                        It may be preferred to assign framework-defined constants to IDs.
+  malformedStrings:    Check for malformed syntax in strings (e.g., malformed HTML tags).
+  straySpaces:         Check for stray spaces at the end of each line.
+                       This is a code formatting check and is not enabled by default.
+  tabs:                Check for tabs (spaces are recommended).
+                       This is a code formatting check and is not enabled by default.
+  wideLines:           Check for overly long lines.
+                       This is a code formatting check and is not enabled by default.
 
 --disable: Which checks to not perform. (Refer to options available above.)
            This will override any options passed to "--enable".

@@ -39,6 +39,11 @@ namespace i18n_check
         /// @brief Strips off the trailing template and global accessor (i.e., "::")
         ///     information from a function/variable.
         void remove_decorations(std::wstring& str) const final;
+        /// @returns @c true if provided variable type is just a decorator after the real
+        ///     variable type (e.g., const) and should be skipped.
+        /// @param variableType The parsed variable type to review.
+        bool is_variable_type_decorator(const std::wstring_view variableType) const final
+            { return variableType.compare(L"const") == 0; }
         /// @brief Parses and processes a preprocessor directive.
         /// @param directiveStart The start of the preprocessor section.
         /// @param directivePos The position in the overall text that the preprocessor block is at.

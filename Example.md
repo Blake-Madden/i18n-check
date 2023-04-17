@@ -12,12 +12,12 @@ output like this:
 
 | File  | Line | Column | Value| Explanation | WarningID |
 |-----------|-----------|-----------|-----------|-----------|-----------|
-| ../samples/subset.cpp | 281 | 38 | GreaterThanOrEqualTo | String available for translation that probably should not be in function call: _ | [suspectL10NString]
-| ../samples/subset.cpp | 17 | 39 | Invalid dataset passed to column filter. | Localizable string being used within non-user facing function call: wxASSERT_MSG | [suspectL10NUsage]
-| ../samples/subset.cpp | 93 | 52 | '%s': string value not found for '%s' column filter. | String not available for translation in function call: std::runtime_error | [notL10NAvailable]
+| ../samples/subset.cpp | 281 | 38 | "GreaterThanOrEqualTo" | String available for translation that probably should not be in function call: _ | [suspectL10NString]
+| ../samples/subset.cpp | 17 | 39 | "Invalid dataset passed to column filter." | Localizable string being used within non-user facing function call: wxASSERT_MSG | [suspectL10NUsage]
+| ../samples/subset.cpp | 93 | 52 | "'%s': string value not found for '%s' column filter." | String not available for translation in function call: std::runtime_error | [notL10NAvailable]
 | ../samples/subset.cpp | 131 | 38 | wxT | Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.) | [deprecatedMacro]
 | ../samples/subset.cpp |  |  |  | File contains extended ASCII characters, but is not encoding as UTF-8. | [nonUTF8File]
-| ../samples/subset.cpp | 56 | 33 | '%s'— column not found for filtering. | String contains extended ASCII characters that should be encoded. | [unencodedExtASCII]
+| ../samples/subset.cpp | 56 | 33 | "'%s'— column not found for filtering." | String contains extended ASCII characters that should be encoded. | [unencodedExtASCII]
 
 The `suspectL10NString` warning is because there is a string "GreaterThanOrEqualTo" that is inside of a `_()`
 macro, making it available for translation. This does not appear to be something appropriate for
@@ -72,27 +72,21 @@ To consider all log messages to never be appropriate for translation, do the fol
 i18n-check ../samples --log-l10n-allowed=false
 ```
 
-To display any parsing or formatting issues encountered, enable the `verbose` flag:
+To display any code-formatting issues, enable them explicitly:
 
 ```shellscript
-i18n-check ../samples --verbose=true
-```
-
-or
-
-```shellscript
-i18n-check ../samples -v
+i18n-check ../samples --enable=all,straySpaces,tabs,wideLines
 ```
 
 This will emit the following `debugParserInfo` warning:
 
 | File  | Line | Column | Value| Explanation | WarningID |
 |-----------|-----------|-----------|-----------|-----------|-----------|
-| ../samples/subset.cpp | 18 | 1 | TAB | Tab detected in file; prefer using spaces. | [debugParserInfo]
-| ../samples/subset.cpp | 30 | 61 | m_comparisonType = subsetCriterion.m_comparisonType; | Stray space(s) detected at end of line. | [debugParserInfo]
-| ../samples/subset.cpp | 31 | 12 | | Stray space(s) detected at end of line. | [debugParserInfo]
-| ../samples/subset.cpp | 57 | 69 | subsetCriterion.m_columnName).ToUTF8()); | Stray space(s) detected at end of line. | [debugParserInfo]
-| ../samples/subset.cpp | 80 | 123 | LINE WIDTH | Line is 123 characters long. | [debugParserInfo]
+| ../samples/subset.cpp | 18 | 1 | "" | Tab detected in file; prefer using spaces. | [tabs]
+| ../samples/subset.cpp | 30 | 61 | "m_comparisonType = subsetCriterion.m_comparisonType;" | Stray space(s) detected at end of line. | [straySpaces]
+| ../samples/subset.cpp | 31 | 12 | "" | Stray space(s) detected at end of line. | [straySpaces]
+| ../samples/subset.cpp | 57 | 69 | "subsetCriterion.m_columnName).ToUTF8());" | Stray space(s) detected at end of line. | [straySpaces]
+| ../samples/subset.cpp | 80 | 123 | "                                                        wxString::Format(_(L"                                           )," | Line is 123 characters long. | [wideLines]
 
 Although the `verbose` option is primarily used for debugging `i18n-check`, it can also be useful for detecting tabs, stray spaces,
 and other formatting issues in your code. (Note that formatting issues are only checked for in the code;
