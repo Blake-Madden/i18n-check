@@ -156,7 +156,7 @@ namespace i18n_check
 
         // functions that indicate that a string is explicitly marked to not be translatable
         m_non_localizable_functions = { L"_DT", L"DONTTRANSLATE",
-            // these are not defined explicitly in gettext, but their documenation suggests
+            // these are not defined explicitly in gettext, but their documentation suggests
             // that you can add them as defines in your code and use them
             L"gettext_noop", L"N_" };
 
@@ -761,7 +761,7 @@ namespace i18n_check
         {
         try
             {
-            return (std::regex_match(functionName, m_diagnostsic_function_regex) ||
+            return (std::regex_match(functionName, m_diagnostic_function_regex) ||
                     (m_internal_functions.find(functionName) !=
                         m_internal_functions.cend()) ||
                     (!can_log_messages_be_translatable() &&

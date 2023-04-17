@@ -259,7 +259,7 @@ namespace i18n_check
                 {
                 std::wregex intPrintf{ LR"([%]([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|l|I|I32|I64))" };
                 std::wregex floatPrintf{ LR"([%]([+]|[-] #)?(l|L)?(f|F))" };
-                const auto& classifyprintfIntStrings = [&, this](const auto& strings)
+                const auto& classifyPrintfIntStrings = [&, this](const auto& strings)
                     {
                     for (const auto& str : strings)
                         {
@@ -268,8 +268,8 @@ namespace i18n_check
                             { m_printf_single_numbers.push_back(str); }
                         }
                     };
-                classifyprintfIntStrings(m_internal_strings);
-                classifyprintfIntStrings(m_localizable_strings_in_internal_call);
+                classifyPrintfIntStrings(m_internal_strings);
+                classifyPrintfIntStrings(m_localizable_strings_in_internal_call);
                 }
             // log any parsing errors
             run_diagnostics();
@@ -713,7 +713,7 @@ namespace i18n_check
             LR"([[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)])" };
         std::wregex m_plural_regex{ LR"([[:alnum:]]{2,}[(]s[)])" };
         std::wregex m_open_function_signature_regex{ LR"([[:alnum:]]{2,}[(])" };
-        std::wregex m_diagnostsic_function_regex{
+        std::wregex m_diagnostic_function_regex{
             LR"(([a-zA-Z0-9_]*|^)(ASSERT|VERIFY|PROFILE|CHECK)([a-zA-Z0-9_]*|$))" };
         // UINT MENU_ID_PRINT = 1'000;
         std::wregex m_id_assignment_regex{
