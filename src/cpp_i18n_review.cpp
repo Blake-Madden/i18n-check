@@ -241,7 +241,7 @@ namespace i18n_check
                                 string_info::usage_info{},
                                 m_file_name, get_line_and_column((cpp_text - m_file_start))));
                     }
-                else if ((m_reviewStyles & check_stray_spaces) &&
+                else if ((m_reviewStyles & check_trailing_spaces) &&
                     cpp_text[0] == L' ' && cpp_text + 1 < endSentinel &&
                     (cpp_text[1] == L'\n' || cpp_text[1] == L'\r'))
                     {
@@ -254,7 +254,7 @@ namespace i18n_check
                     std::wstring codeLine(m_file_start + prevLineStart,
                                           (cpp_text - (m_file_start + prevLineStart)));
                     string_util::ltrim(codeLine);
-                    m_stray_spaces.push_back(
+                    m_trailing_spaces.push_back(
                         string_info(codeLine,
                             string_info::usage_info{},
                             m_file_name, get_line_and_column((cpp_text - m_file_start))));

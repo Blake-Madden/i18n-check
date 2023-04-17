@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
     ("enable", "Which checks to perform (any combination of: "
         "all, suspectL10NString, suspectL10NUsage, urlInL10NString, notL10NAvailable, "
         "deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleNumber,"
-        "numberAssignedToId, dupValAssignedToIds, malformedStrings, straySpaces, tabs, wideLines)",
+        "numberAssignedToId, dupValAssignedToIds, malformedStrings, trailingSpaces, tabs, wideLines)",
         cxxopts::value<std::vector<std::string>>())
     ("disable", "Which checks to not perform (same as the options for enable)",
         cxxopts::value<std::vector<std::string>>())
@@ -305,8 +305,8 @@ int main(int argc, char* argv[])
                 { rs |= check_duplicate_value_assigned_to_ids; }
             else if (r == "malformedStrings")
                 { rs |= check_malformed_strings; }
-            else if (r == "straySpaces")
-                { rs |= check_stray_spaces; }
+            else if (r == "trailingSpaces")
+                { rs |= check_trailing_spaces; }
             else if (r == "tabs")
                 { rs |= check_tabs; }
             else if (r == "wideLines")
@@ -356,8 +356,8 @@ int main(int argc, char* argv[])
                 { rs = rs & ~check_duplicate_value_assigned_to_ids; }
             else if (r == "malformedStrings")
                 { rs = rs & ~check_malformed_strings; }
-            else if (r == "straySpaces")
-                { rs = rs & ~check_stray_spaces; }
+            else if (r == "trailingSpaces")
+                { rs = rs & ~check_trailing_spaces; }
             else if (r == "tabs")
                 { rs = rs & ~check_tabs; }
             else if (r == "wideLines")
@@ -577,12 +577,12 @@ int main(int argc, char* argv[])
             L"\t[unencodedExtASCII]\n";
         }
 
-    for (const auto& val : cpp.get_stray_spaces())
+    for (const auto& val : cpp.get_trailing_spaces())
         {
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
             L"\t\"" << val.m_string << L"\"\t" <<
-            L"Stray space(s) detected at end of line." <<
-            L"\t[straySpaces]\n";
+            L"Trailing space(s) detected at end of line." <<
+            L"\t[trailingSpaces]\n";
         }
 
     for (const auto& val : cpp.get_tabs())

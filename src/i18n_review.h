@@ -67,8 +67,8 @@ namespace i18n_check
              check_not_available_for_l10n | check_deprecated_macros|check_utf8_encoded |
              check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
              check_number_assigned_to_id | check_duplicate_value_assigned_to_ids | check_malformed_strings),
-        /// @brief Check for stray spaces at the end of each line.
-        check_stray_spaces = (1 << 11),
+        /// @brief Check for trailing spaces at the end of each line.
+        check_trailing_spaces = (1 << 11),
         /// @brief Check for tabs (spaces are recommended).
         check_tabs = (1 << 12),
         /// @brief Check for overly long lines.
@@ -338,10 +338,10 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_malformed_strings() const noexcept
             { return m_malformed_strings; }
-        /// @returns Lines with stray spaces.
+        /// @returns Lines with trailing spaces.
         [[nodiscard]]
-        const std::vector<string_info>& get_stray_spaces() const noexcept
-            { return m_stray_spaces; }
+        const std::vector<string_info>& get_trailing_spaces() const noexcept
+            { return m_trailing_spaces; }
         /// @returns Tabs in the files.
         [[nodiscard]]
         const std::vector<string_info>& get_tabs() const noexcept
@@ -688,7 +688,7 @@ namespace i18n_check
         std::vector<string_info> m_ids_assigned_number;
         std::vector<string_info> m_duplicates_value_assigned_to_ids;
         std::vector<string_info> m_malformed_strings;
-        std::vector<string_info> m_stray_spaces;
+        std::vector<string_info> m_trailing_spaces;
         std::vector<string_info> m_tabs;
         std::vector<string_info> m_wide_lines;
 

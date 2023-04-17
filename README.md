@@ -28,7 +28,7 @@ Internationalization & localization analysis system for C++ code.
     - Hard-coded numbers being assigned to ID variables.
 
 Code formatting issues can also be checked for, such as:
-- Stray spaces at the end of a line.
+- Trailing spaces at the end of a line.
 - Tabs (instead of spaces).
 - Lines longer than 120 characters.
 
@@ -68,7 +68,7 @@ Refer [here](Example.md) for example usage.
   numberAssignedToId:  Check for ID variables being assigned a hard-coded number.
                        It may be preferred to assign framework-defined constants to IDs.
   malformedStrings:    Check for malformed syntax in strings (e.g., malformed HTML tags).
-  straySpaces:         Check for stray spaces at the end of each line.
+  trailingSpaces:         Check for trailing spaces at the end of each line.
                        This is a code formatting check and is not enabled by default.
   tabs:                Check for tabs (spaces are recommended).
                        This is a code formatting check and is not enabled by default.
