@@ -483,7 +483,7 @@ namespace i18n_check
         ///     exposed for translation or not. If so, then it will be added to the queue of
         ///     non-localizable strings; otherwise, it will be considered an internal string.
         /// @param str The string to review.
-        void classify_non_localizable_string(string_info& str)
+        void classify_non_localizable_string(string_info str)
             {
             if (m_reviewStyles & check_not_available_for_l10n)
                 {
