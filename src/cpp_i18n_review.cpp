@@ -50,12 +50,12 @@ namespace i18n_check
                         { return; }
                     }
                 // or a single line comment
-                else if ((m_reviewStyles & check_space_after_comment) &&
-                    cpp_text[1] == L'/' &&
+                else if (cpp_text[1] == L'/' &&
                     cpp_text + 2 < endSentinel)
                     {
                     const size_t end = std::wcscspn(cpp_text, L"\n\r");
-                    if (std::iswalnum(cpp_text[2]) &&
+                    if ((m_reviewStyles & check_space_after_comment) &&
+                        std::iswalnum(cpp_text[2]) &&
                         // something like "//--------" is OK
                         cpp_text[2] != L'-')
                         {

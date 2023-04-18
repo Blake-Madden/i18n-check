@@ -260,9 +260,7 @@ namespace i18n_check
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
-            L"luaL_error", L"lua_pushstring", L"lua_setglobal",
-            // dictionary functions that use strings as a key
-            L"Key", L"Index", L"key", L"index"
+            L"luaL_error", L"lua_pushstring", L"lua_setglobal"
             };
 
         m_log_functions = {
@@ -1043,6 +1041,10 @@ namespace i18n_check
                 if (!is_valid_name_char_ex(*functionOrVarNamePos))
                     { ++functionOrVarNamePos; }
                 variableType.assign(functionOrVarNamePos, typeEnd - functionOrVarNamePos);
+                // make sure the variable type is a word, not something like "<<"
+                if (variableType.length() &&
+                    !std::iswalpha(variableType.front()))
+                    { variableType.clear(); }
                 remove_decorations(variableType);
                 };
 
@@ -1132,10 +1134,15 @@ namespace i18n_check
                 else if (m_variable_types_to_ignore.find(functionName) !=
                     m_variable_types_to_ignore.cend())
                     { break; }
-                // stop if a legit function call in front of parenthesis
+
                 if (functionName.length())
                     {
+                    // see if function is actually a CTOR
                     if (variableName.empty() &&
+                        m_localization_functions.find(functionName) == m_localization_functions.cend() &&
+                        m_non_localizable_functions.find(functionName) == m_non_localizable_functions.cend() &&
+                        m_internal_functions.find(functionName) == m_internal_functions.cend() &&
+                        m_log_functions.find(functionName) == m_log_functions.cend() &&
                         functionOrVarNamePos >= startSentinel && !is_keyword(functionName))
                         {
                         readVarType();

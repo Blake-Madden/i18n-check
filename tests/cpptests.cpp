@@ -222,7 +222,7 @@ TEST_CASE("CPP Tests", "[cpp]")
     SECTION("Stream")
         {
         cpp_i18n_review cpp;
-        const wchar_t* code = LR"(s << _("Can't open file") << "\n" << _("You must specify path to another database file") << "\n";)";
+        const wchar_t* code = LR"(s << _("Can't open file") << _("You must specify path to another database file");)";
         cpp(code, std::wcslen(code));
         CHECK(cpp.get_localizable_strings().size() == 2);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1085,7 +1085,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         const wchar_t* code = L"customTestMenu->Append(XRCID(\"ID_ADD_CUSTOM_NEW_DALE_CHALL_TEST\"), wxString::Format(_(\"Add Custom \\\"%s\\\"...\"), wxT(\"New Dale-Chall\")) );";
         cpp(code, std::wcslen(code));
         cpp.review_strings();
-        CHECK(cpp.get_localizable_strings().size() == 1);
+        REQUIRE(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_localizable_strings()[0].m_string == L"Add Custom \\\"%s\\\"...");
