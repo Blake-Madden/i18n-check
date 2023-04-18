@@ -72,7 +72,9 @@ namespace i18n_check
         /// @brief Check for tabs (spaces are recommended).
         check_tabs = (1 << 12),
         /// @brief Check for overly long lines.
-        check_line_width = (1 << 13)
+        check_line_width = (1 << 13),
+        /// @brief Check that there is a space at the start of a comment.
+        check_space_after_comment = (1 << 14)
         };
 
     /** @brief Class to extract and review localizable/nonlocalizable
@@ -350,6 +352,10 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_wide_lines() const noexcept
             { return m_wide_lines; }
+        /// @returns Comments missing a space at their start.
+        [[nodiscard]]
+        const std::vector<string_info>& get_comments_missing_space() const noexcept
+            { return m_comments_missing_space; }
         /** @brief Adds a regular expression pattern to determine if a variable should be
                 considered an internal string.
             @details For example, a pattern like "^utf8Name.*" would instruct
@@ -691,6 +697,7 @@ namespace i18n_check
         std::vector<string_info> m_trailing_spaces;
         std::vector<string_info> m_tabs;
         std::vector<string_info> m_wide_lines;
+        std::vector<string_info> m_comments_missing_space;
 
         std::wstring m_file_name;
 

@@ -68,11 +68,13 @@ Refer [here](Example.md) for example usage.
   numberAssignedToId:  Check for ID variables being assigned a hard-coded number.
                        It may be preferred to assign framework-defined constants to IDs.
   malformedStrings:    Check for malformed syntax in strings (e.g., malformed HTML tags).
-  trailingSpaces:         Check for trailing spaces at the end of each line.
+  trailingSpaces:      Check for trailing spaces at the end of each line.
                        This is a code formatting check and is not enabled by default.
   tabs:                Check for tabs (spaces are recommended).
                        This is a code formatting check and is not enabled by default.
   wideLines:           Check for overly long lines.
+                       This is a code formatting check and is not enabled by default.
+  commentMissingSpace: Check that there is a space at the start of a comment.
                        This is a code formatting check and is not enabled by default.
 
 --disable: Which checks to not perform. (Refer to options available above.)

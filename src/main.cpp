@@ -82,7 +82,8 @@ int main(int argc, char* argv[])
     ("enable", "Which checks to perform (any combination of: "
         "all, suspectL10NString, suspectL10NUsage, urlInL10NString, notL10NAvailable, "
         "deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleNumber,"
-        "numberAssignedToId, dupValAssignedToIds, malformedStrings, trailingSpaces, tabs, wideLines)",
+        "numberAssignedToId, dupValAssignedToIds, malformedStrings, "
+        "trailingSpaces, tabs, wideLines, commentMissingSpace)",
         cxxopts::value<std::vector<std::string>>())
     ("disable", "Which checks to not perform (same as the options for enable)",
         cxxopts::value<std::vector<std::string>>())
@@ -311,6 +312,8 @@ int main(int argc, char* argv[])
                 { rs |= check_tabs; }
             else if (r == "wideLines")
                 { rs |= check_line_width; }
+            else if (r == "commentMissingSpace")
+                { rs |= check_space_after_comment; }
             else
                 {
                 std::wcout << L"Unknown option passed to --enable: " <<
@@ -362,6 +365,8 @@ int main(int argc, char* argv[])
                 { rs = rs & ~check_tabs; }
             else if (r == "wideLines")
                 { rs = rs & ~check_line_width; }
+            else if (r == "commentMissingSpace")
+                { rs = rs & ~check_space_after_comment; }
             else
                 {
                 std::wcout << L"Unknown option passed to --disable: " <<
@@ -599,6 +604,14 @@ int main(int argc, char* argv[])
             L"\t\"" << val.m_string << L"\"\t" <<
             L"Line is " << val.m_string.length() << L" characters long." <<
             L"\t[wideLines]\n";
+        }
+
+    for (const auto& val : cpp.get_comments_missing_space())
+        {
+        report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
+            L"\t\"" << val.m_string << L"\"\t" <<
+            L"Space should be inserted between comment tag and comment." <<
+            L"\t[commentMissingSpace]\n";
         }
 
     if (readBoolOption("verbose", false))

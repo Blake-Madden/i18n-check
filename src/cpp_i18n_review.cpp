@@ -50,7 +50,8 @@ namespace i18n_check
                         { return; }
                     }
                 // or a single line comment
-                else if (cpp_text[1] == L'/' &&
+                else if ((m_reviewStyles & check_space_after_comment) &&
+                    cpp_text[1] == L'/' &&
                     cpp_text + 2 < endSentinel)
                     {
                     const size_t end = std::wcscspn(cpp_text, L"\n\r");
@@ -58,9 +59,10 @@ namespace i18n_check
                         // something like "//--------" is OK
                         cpp_text[2] != L'-')
                         {
-                        log_message(L"MISSING SPACE",
-                                L"Space should be inserted between '//' and comment.",
-                                (cpp_text - m_file_start));
+                        m_comments_missing_space.push_back(
+                            string_info(L"MISSING SPACE",
+                                string_info::usage_info{},
+                                m_file_name, get_line_and_column((cpp_text - m_file_start))));
                         }
                     clear_section(cpp_text, cpp_text + end);
                     cpp_text += end;
