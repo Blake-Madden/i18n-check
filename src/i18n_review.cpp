@@ -260,7 +260,9 @@ namespace i18n_check
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
-            L"luaL_error", L"lua_pushstring", L"lua_setglobal"
+            L"luaL_error", L"lua_pushstring", L"lua_setglobal",
+            // dictionary functions that use strings as a key
+            L"Key", L"Index", L"key", L"index"
             };
 
         m_log_functions = {
@@ -654,6 +656,7 @@ namespace i18n_check
                 std::wstring_view(variableType.c_str(), 3).compare(std::wstring_view{ L"_wx", 3 }) != 0) &&
             (variableType.length() < 2 ||
                 std::wstring_view(variableType.c_str(), 2).compare(std::wstring_view{ L"My", 2 }) != 0) &&
+            variableType != L"auto" &&
             variableType != L"Bar" &&
             variableType != L"ifstream" &&
             variableType != L"ofstream" &&

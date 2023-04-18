@@ -218,6 +218,16 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         CHECK(cpp.get_internal_strings().size() == 0);
         }
+    
+    SECTION("Stream")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(s << _("Can't open file") << "\n" << _("You must specify path to another database file") << "\n";)";
+        cpp(code, std::wcslen(code));
+        CHECK(cpp.get_localizable_strings().size() == 2);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
 
     SECTION("Dead code block")
         {
