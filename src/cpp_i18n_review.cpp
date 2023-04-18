@@ -60,7 +60,7 @@ namespace i18n_check
                         cpp_text[2] != L'-')
                         {
                         m_comments_missing_space.push_back(
-                            string_info(L"MISSING SPACE",
+                            string_info(std::wstring{},
                                 string_info::usage_info{},
                                 m_file_name, get_line_and_column((cpp_text - m_file_start))));
                         }
@@ -73,7 +73,7 @@ namespace i18n_check
                 }
             else if (cpp_text[0] == L'#')
                 {
-                cpp_text = process_preprocessor_directive(cpp_text, cpp_text-m_file_start);
+                cpp_text = process_preprocessor_directive(cpp_text, cpp_text - m_file_start);
                 }
             else if (((cpp_text == m_file_start) ||
                 !is_valid_name_char(cpp_text[-1])) &&

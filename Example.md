@@ -78,7 +78,7 @@ To display any code-formatting issues, enable them explicitly:
 i18n-check ../samples --enable=all,trailingSpaces,tabs,wideLines
 ```
 
-This will emit the following `debugParserInfo` warning:
+This will emit the following warnings:
 
 | File  | Line | Column | Value| Explanation | WarningID |
 |-----------|-----------|-----------|-----------|-----------|-----------|
@@ -87,7 +87,3 @@ This will emit the following `debugParserInfo` warning:
 | ../samples/subset.cpp | 31 | 12 | "" | Trailing space(s) detected at end of line. | [trailingSpaces]
 | ../samples/subset.cpp | 57 | 69 | "subsetCriterion.m_columnName).ToUTF8());" | Trailing space(s) detected at end of line. | [trailingSpaces]
 | ../samples/subset.cpp | 80 | 123 | "                                                        wxString::Format(_(L"                                           )," | Line is 123 characters long. | [wideLines]
-
-Although the `verbose` option is primarily used for debugging `i18n-check`, it can also be useful for detecting tabs, trailing spaces,
-and other formatting issues in your code. (Note that formatting issues are only checked for in the code;
-comments are ignored.)
