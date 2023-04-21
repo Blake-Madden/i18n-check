@@ -22,6 +22,11 @@
 /// @brief Classes for checking source code for internationalization/localization issues.
 /// @details Refer to https://www.gnu.org/software/gettext/manual/gettext.html
 ///     for i18n best practices, which this library attempts to enforce.
+/// @par References:
+///     https://www.gnu.org/software/gettext/manual/gettext.html <br />
+///     https://www.gnu.org/software/gettext/ <br />
+///     https://docs.wxwidgets.org/latest/classwx_translations.html <br />
+///     https://doc.qt.io/qt-5/i18n-source-translation.html
 namespace i18n_check
     {
     /// @brief Tests to perform.
@@ -61,7 +66,7 @@ namespace i18n_check
         check_duplicate_value_assigned_to_ids = (1 << 9),
         /// @brief Check for malformed syntax in strings (e.g., malformed HTML tags).
         check_malformed_strings = (1 << 10),
-        /// @brief Perform all tests.
+        /// @brief Perform all aforemented checks.
         all_i18n_checks =
             (check_l10n_strings  |check_suspect_l10n_string_usage |
              check_not_available_for_l10n | check_deprecated_macros|check_utf8_encoded |
@@ -479,12 +484,14 @@ namespace i18n_check
             @param functionName If this quote is inside of function, the function name.
             @param variableType If being assigned to a variable, the variable's type.
             @param deprecatedMacroEncountered If the quote is inside of a deprecated
-                macro, then name of this macro.*/
+                macro, then name of this macro.
+            @param parameterPosition The string's position in the function call (if applicable).*/
         void process_quote(wchar_t* currentTextPos, const wchar_t* quoteEnd,
             const wchar_t* functionVarNamePos,
             const std::wstring& variableName, const std::wstring& functionName,
             const std::wstring& variableType,
-            const std::wstring& deprecatedMacroEncountered);
+            const std::wstring& deprecatedMacroEncountered,
+            const size_t parameterPosition);
         /// Determines whether a hard-coded string should actually be
         ///     exposed for translation or not. If so, then it will be added to the queue of
         ///     non-localizable strings; otherwise, it will be considered an internal string.
@@ -662,11 +669,13 @@ namespace i18n_check
             @param[out] variableType What the string was being assigned to (function or variable).
             @param[out] deprecatedMacroEncountered If a deprecated text macro is encountered,
                 will write that to this parameter.
+            @param[out] parameterPosition The strings parameter position in the function call.
             @returns The position of the function or variable related to the string.*/
         const wchar_t* read_var_or_function_name(const wchar_t* startPos,
             const wchar_t* const startSentinel,
             std::wstring& functionName, std::wstring& variableName, std::wstring& variableType,
-            std::wstring& deprecatedMacroEncountered);
+            std::wstring& deprecatedMacroEncountered,
+            size_t& parameterPosition);
 
         /// @returns @c true if provided variable type is just a decorator after the real
         ///     variable type (e.g., const) and should be skipped.

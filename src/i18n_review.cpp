@@ -150,10 +150,11 @@ namespace i18n_check
             // GNU's propername module
             L"proper_name", L"proper_name_utf8",
             // wxWidgets gettext wrapper functions
-            // (*_IN_CONTEXT macros are not included as they take string parameters as keys)
-            L"wxPLURAL", L"wxTRANSLATE", L"wxGetTranslation",
-            // Qt (note that NOOP functions actually do load for translation)
-            L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP"
+            L"wxPLURAL", L"wxGETTEXT_IN_CONTEXT", L"wxGETTEXT_IN_CONTEXT_PLURAL",
+            L"wxTRANSLATE", L"wxTRANSLATE_IN_CONTEXT",
+            L"wxGetTranslation",
+            // Qt (note that NOOP functions actually do load for translation, just not in-place)
+            L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP", L"QT_TRANSLATE_NOOP"
             };
 
         // functions that indicate that a string is explicitly marked to not be translatable
@@ -468,7 +469,8 @@ namespace i18n_check
         const wchar_t* functionVarNamePos,
         const std::wstring& variableName, const std::wstring& functionName,
         const std::wstring& variableType,
-        const std::wstring& deprecatedMacroEncountered)
+        const std::wstring& deprecatedMacroEncountered,
+        const size_t parameterPosition)
         {
         if (deprecatedMacroEncountered.length() &&
             (m_reviewStyles & check_deprecated_macros))
@@ -500,83 +502,108 @@ namespace i18n_check
                 }
             else if (is_localizatin_function(functionName))
                 {
-                m_localizable_strings.emplace_back(string_info(
-                    std::wstring(currentTextPos, quoteEnd - currentTextPos),
-                    string_info::usage_info(
-                        string_info::usage_info::usage_type::function,
-                        functionName, std::wstring{}),
-                    m_file_name, get_line_and_column(currentTextPos - m_file_start)));
-
-                assert(functionVarNamePos);
-                if (functionVarNamePos &&
-                    m_reviewStyles & check_suspect_l10n_string_usage)
+                if (// Qt
+                    (functionName == L"translate" && parameterPosition == 0) ||
+                    (functionName == L"tr" && parameterPosition == 1) ||
+                    (functionName == L"trUtf8" && parameterPosition == 1) ||
+                    (functionName == L"QT_TRANSLATE_NOOP" && parameterPosition == 0) ||
+                    // wxWidgets
+                    (functionName == L"wxTRANSLATE_IN_CONTEXT" && parameterPosition == 0) ||
+                    (functionName == L"wxGETTEXT_IN_CONTEXT_PLURAL" && parameterPosition == 0) ||
+                    (functionName == L"wxGETTEXT_IN_CONTEXT" && parameterPosition == 0) ||
+                    (functionName == L"wxGetTranslation" && (parameterPosition == 1 ||
+                                                             parameterPosition == 3 ||
+                                                             parameterPosition == 4)) )
                     {
-                    std::wstring functionNameOuter, variableNameOuter,
-                                    variableTypeOuter, deprecatedMacroOuterEncountered;
-                    read_var_or_function_name(functionVarNamePos, m_file_start,
-                                              functionNameOuter, variableNameOuter,
-                                              variableTypeOuter, deprecatedMacroOuterEncountered);
-                    if (deprecatedMacroOuterEncountered.length() &&
-                        (m_reviewStyles & check_deprecated_macros))
+                    m_internal_strings.emplace_back(string_info(
+                        std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                        string_info::usage_info(
+                            string_info::usage_info::usage_type::function,
+                            functionName, std::wstring{}),
+                        m_file_name, get_line_and_column(currentTextPos - m_file_start)));
+                    }
+                else
+                    {
+                    m_localizable_strings.emplace_back(string_info(
+                        std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                        string_info::usage_info(
+                            string_info::usage_info::usage_type::function,
+                            functionName, std::wstring{}),
+                        m_file_name, get_line_and_column(currentTextPos - m_file_start)));
+
+                    assert(functionVarNamePos);
+                    if (functionVarNamePos &&
+                        m_reviewStyles & check_suspect_l10n_string_usage)
                         {
-                        m_deprecated_macros.emplace_back(
-                            string_info(deprecatedMacroOuterEncountered,
+                        std::wstring functionNameOuter, variableNameOuter,
+                                     variableTypeOuter, deprecatedMacroOuterEncountered;
+                        size_t parameterPositionOuter{ 0 };
+                        read_var_or_function_name(functionVarNamePos, m_file_start,
+                                                  functionNameOuter, variableNameOuter,
+                                                  variableTypeOuter, deprecatedMacroOuterEncountered,
+                                                  parameterPositionOuter);
+                        if (deprecatedMacroOuterEncountered.length() &&
+                            (m_reviewStyles & check_deprecated_macros))
+                            {
+                            m_deprecated_macros.emplace_back(
+                                string_info(deprecatedMacroOuterEncountered,
+                                    string_info::usage_info(
+                                        string_info::usage_info::usage_type::function,
+                                        std::wstring{}, std::wstring{}),
+                                    m_file_name,
+                                    get_line_and_column(currentTextPos - m_file_start)));
+                            }
+                        // internal functions
+                        if (is_diagnostic_function(functionNameOuter) ||
+                            // CTORs whose arguments should not be translated
+                            m_variable_types_to_ignore.find(functionNameOuter) !=
+                            m_variable_types_to_ignore.cend())
+                            {
+                            m_localizable_strings_in_internal_call.emplace_back(
+                                string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
                                 string_info::usage_info(
                                     string_info::usage_info::usage_type::function,
-                                    std::wstring{}, std::wstring{}),
+                                    functionNameOuter, std::wstring{}),
                                 m_file_name,
                                 get_line_and_column(currentTextPos - m_file_start)));
-                        }
-                    // internal functions
-                    if (is_diagnostic_function(functionNameOuter) ||
-                        // CTORs whose arguments should not be translated
-                        m_variable_types_to_ignore.find(functionNameOuter) !=
-                        m_variable_types_to_ignore.cend())
-                        {
-                        m_localizable_strings_in_internal_call.emplace_back(
-                            string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
-                            string_info::usage_info(
-                                string_info::usage_info::usage_type::function,
-                                functionNameOuter, std::wstring{}),
-                            m_file_name,
-                            get_line_and_column(currentTextPos - m_file_start)));
-                        }
-                    // untranslatable variable types
-                    else if (m_variable_types_to_ignore.find(variableTypeOuter) !=
-                        m_variable_types_to_ignore.cend())
-                        {
-                        m_localizable_strings_in_internal_call.emplace_back(
-                            string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
-                            string_info::usage_info(
-                                string_info::usage_info::usage_type::variable,
-                                variableNameOuter, variableTypeOuter),
-                            m_file_name,
-                            get_line_and_column(currentTextPos - m_file_start)));
-                        }
-                    // untranslatable variable names (e.g., debugMsg)
-                    else if (variableNameOuter.length())
-                        {
-                        try
+                            }
+                        // untranslatable variable types
+                        else if (m_variable_types_to_ignore.find(variableTypeOuter) !=
+                            m_variable_types_to_ignore.cend())
                             {
-                            for (const auto& reg : get_ignored_variable_patterns())
+                            m_localizable_strings_in_internal_call.emplace_back(
+                                string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                                string_info::usage_info(
+                                    string_info::usage_info::usage_type::variable,
+                                    variableNameOuter, variableTypeOuter),
+                                m_file_name,
+                                get_line_and_column(currentTextPos - m_file_start)));
+                            }
+                        // untranslatable variable names (e.g., debugMsg)
+                        else if (variableNameOuter.length())
+                            {
+                            try
                                 {
-                                if (std::regex_match(variableNameOuter, reg))
+                                for (const auto& reg : get_ignored_variable_patterns())
                                     {
-                                    m_localizable_strings_in_internal_call.emplace_back(
-                                        string_info(std::wstring(currentTextPos, quoteEnd-currentTextPos),
-                                        string_info::usage_info(
-                                            string_info::usage_info::usage_type::variable,
-                                            variableNameOuter, variableTypeOuter),
-                                        m_file_name,
-                                        get_line_and_column(currentTextPos - m_file_start)));
-                                    break;
+                                    if (std::regex_match(variableNameOuter, reg))
+                                        {
+                                        m_localizable_strings_in_internal_call.emplace_back(
+                                            string_info(std::wstring(currentTextPos, quoteEnd-currentTextPos),
+                                            string_info::usage_info(
+                                                string_info::usage_info::usage_type::variable,
+                                                variableNameOuter, variableTypeOuter),
+                                            m_file_name,
+                                            get_line_and_column(currentTextPos - m_file_start)));
+                                        break;
+                                        }
                                     }
                                 }
-                            }
-                        catch (const std::exception& exp)
-                            {
-                            log_message(variableNameOuter, lazy_string_to_wstring(exp.what()),
-                                        (currentTextPos - m_file_start));
+                            catch (const std::exception& exp)
+                                {
+                                log_message(variableNameOuter, lazy_string_to_wstring(exp.what()),
+                                            (currentTextPos - m_file_start));
+                                }
                             }
                         }
                     }
@@ -993,11 +1020,13 @@ namespace i18n_check
     const wchar_t* i18n_review::read_var_or_function_name(const wchar_t* startPos,
             const wchar_t* const startSentinel,
             std::wstring& functionName, std::wstring& variableName, std::wstring& variableType,
-            std::wstring& deprecatedMacroEncountered)
+            std::wstring& deprecatedMacroEncountered,
+            size_t& parameterPosition)
         {
         functionName.clear();
         variableName.clear();
         variableType.clear();
+        parameterPosition = 0;
         deprecatedMacroEncountered.clear();
         long closeParenCount{ 0 };
         long closeBraseCount{ 0 };
@@ -1215,7 +1244,11 @@ namespace i18n_check
                      *startPos != L'&')
                 { break; }
             else
-                { --startPos; }
+                {
+                if (*startPos == L',')
+                    { ++parameterPosition; }
+                --startPos;
+                }
             }
 
         return functionOrVarNamePos;

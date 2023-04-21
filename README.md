@@ -33,7 +33,10 @@ Code formatting issues can also be checked for, such as:
 - Lines longer than 120 characters.
 - Spaces missing between "//" and their comments.
 
-*[1]* Strings are considered translatable if inside of `gettext` (or related) macros. This includes functions and macros such as `gettext()`, `_()`, and `wxTRANSLATE()`.<br />
+*[1]* Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
+[wxWidgets](https://www.wxwidgets.org), or [Qt](https://www.qt.io) l10n functions.
+This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translate()`,
+`QT_TR_NOOP()`, `wxTRANSLATE()`, etc.<br />
 *[2]* Variables are determined to be ID variables if they are integral types with "ID" in their name.
 
 Refer [here](Example.md) for example usage.

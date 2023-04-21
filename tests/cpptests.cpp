@@ -10,6 +10,94 @@
 using namespace i18n_check;
 using namespace Catch::Matchers;
 
+TEST_CASE("Qt", "[i18n]")
+    {
+    SECTION("tr & translate")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"( void some_global_function(LoginWidget *logwid)
+ {
+     QLabel *label = new QLabel(
+                 LoginWidget::tr("Password:"), logwid);
+ }
+
+ void same_global_function(LoginWidget *logwid)
+ {
+     QLabel *label = new QLabel(
+                 qApp->translate("LoginWidget", "Password:"), logwid);
+ }
+
+MyWindow::MyWindow()
+{
+    QLabel *senderLabel = new QLabel(tr("Name:"));
+    QLabel *recipientLabel = new QLabel(tr("Name:", "recipient"));
+})";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        REQUIRE(cpp.get_localizable_strings().size() == 4);
+        CHECK(cpp.get_localizable_strings()[0].m_string == L"Password:");
+        CHECK(cpp.get_localizable_strings()[1].m_string == L"Password:");
+        CHECK(cpp.get_localizable_strings()[2].m_string == L"Name:");
+        CHECK(cpp.get_localizable_strings()[3].m_string == L"Name:");
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 2);
+        // context portion of translate() and tr()
+        CHECK(cpp.get_internal_strings()[0].m_string == L"LoginWidget");
+        CHECK(cpp.get_internal_strings()[1].m_string == L"recipient");
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        }
+
+    SECTION("QT_TR_NOOP")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(QString FriendlyConversation::greeting(int type)
+ {
+     static const char *greeting_strings[] = {
+         QT_TR_NOOP("Hello"),
+         QT_TR_NOOP("Goodbye")
+     };
+     return tr(greeting_strings[type]);
+ })";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        REQUIRE(cpp.get_localizable_strings().size() == 2);
+        CHECK(cpp.get_localizable_strings()[0].m_string == L"Hello");
+        CHECK(cpp.get_localizable_strings()[1].m_string == L"Goodbye");
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("QT_TRANSLATE_NOOP")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"( static const char *greeting_strings[] = {
+     QT_TRANSLATE_NOOP("FriendlyConversation", "Hello"),
+     QT_TRANSLATE_NOOP("FriendlyConversation", "Goodbye")
+ };
+
+ QString FriendlyConversation::greeting(int type)
+ {
+     return tr(greeting_strings[type]);
+ }
+
+ QString global_greeting(int type)
+ {
+     return qApp->translate("FriendlyConversation",
+                            greeting_strings[type]);
+ })";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        REQUIRE(cpp.get_localizable_strings().size() == 2);
+        CHECK(cpp.get_localizable_strings()[0].m_string == L"Hello");
+        CHECK(cpp.get_localizable_strings()[1].m_string == L"Goodbye");
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 3);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"FriendlyConversation");
+        CHECK(cpp.get_internal_strings()[1].m_string == L"FriendlyConversation");
+        CHECK(cpp.get_internal_strings()[2].m_string == L"FriendlyConversation");
+        }
+    }
+
 TEST_CASE("Code generator strings", "[i18n]")
     {
     SECTION("HTML CSS style")

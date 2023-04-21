@@ -104,6 +104,7 @@ namespace i18n_check
                 // and gauge whether it is meant to be translatable or not
                 std::wstring functionName, variableName,
                              variableType, deprecatedMacroEncountered;
+                size_t parameterPosition{ 0 };
                 const wchar_t* startPos = cpp_text - 1;
                 const wchar_t* functionVarNamePos{ nullptr };
                 bool isRawString{ false};
@@ -142,7 +143,8 @@ namespace i18n_check
                     {
                     functionVarNamePos =
                         read_var_or_function_name(startPos, m_file_start, functionName,
-                                                  variableName, variableType, deprecatedMacroEncountered);
+                                                  variableName, variableType, deprecatedMacroEncountered,
+                                                  parameterPosition);
                     }
                 // find the end of the string now and feed it into the system
                 ++cpp_text;
@@ -221,7 +223,7 @@ namespace i18n_check
                 if (end && end < endSentinel)
                     {
                     process_quote(cpp_text, end, functionVarNamePos, variableName, functionName,
-                                  variableType, deprecatedMacroEncountered);
+                                  variableType, deprecatedMacroEncountered, parameterPosition);
                     cpp_text = end + (isRawString ? 2 : 1);
                     }
                 }
