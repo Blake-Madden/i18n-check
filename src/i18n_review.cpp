@@ -151,7 +151,9 @@ namespace i18n_check
             L"proper_name", L"proper_name_utf8",
             // wxWidgets gettext wrapper functions
             // (*_IN_CONTEXT macros are not included as they take string parameters as keys)
-            L"wxPLURAL", L"wxTRANSLATE", L"wxGetTranslation"
+            L"wxPLURAL", L"wxTRANSLATE", L"wxGetTranslation",
+            // Qt (note that NOOP functions actually do load for translation)
+            L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP"
             };
 
         // functions that indicate that a string is explicitly marked to not be translatable
@@ -496,8 +498,7 @@ namespace i18n_check
                         functionName, std::wstring{}),
                     m_file_name, get_line_and_column(currentTextPos - m_file_start)));
                 }
-            else if (m_localization_functions.find(functionName) !=
-                m_localization_functions.cend())
+            else if (is_localizatin_function(functionName))
                 {
                 m_localizable_strings.emplace_back(string_info(
                     std::wstring(currentTextPos, quoteEnd - currentTextPos),
@@ -580,8 +581,7 @@ namespace i18n_check
                         }
                     }
                 }
-            else if (m_non_localizable_functions.find(functionName) !=
-                m_non_localizable_functions.cend())
+            else if (is_non_localizatin_function(functionName))
                 {
                 m_marked_as_non_localizable_strings.emplace_back(
                     string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),
@@ -764,6 +764,8 @@ namespace i18n_check
             {
             return (std::regex_match(functionName, m_diagnostic_function_regex) ||
                     (m_internal_functions.find(functionName) !=
+                        m_internal_functions.cend()) ||
+                    (m_internal_functions.find(extract_base_function(functionName)) !=
                         m_internal_functions.cend()) ||
                     (!can_log_messages_be_translatable() &&
                      m_log_functions.find(functionName) !=

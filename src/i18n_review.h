@@ -505,6 +505,41 @@ namespace i18n_check
                     { m_not_available_for_localization_strings.emplace_back(str); }
                 }
             }
+        /// @returns Just the function name from a full function call, stripping
+        ///     off any class or namespace information.
+        /// @param str The string to extract the function name from.
+        /// @note This assumes that the functions trailing parentheses and template
+        ///     specifications have alread been removed.
+        [[nodiscard]]
+        std::wstring extract_base_function(const std::wstring& str) const
+            {
+            for (auto rPos = str.rbegin(); rPos != str.rend(); ++rPos)
+                {
+                if (!is_valid_name_char(*rPos))
+                    { return std::wstring(rPos.base(), str.cend()); }
+                }
+            return str;
+            }
+        /// @returns @c true if a function name is a translation extraction function.
+        /// @param functionName The function name to review.
+        [[nodiscard]]
+        bool is_localizatin_function(const std::wstring& functionName) const
+            {
+            return m_localization_functions.find(functionName) !=
+                m_localization_functions.cend() ||
+                m_localization_functions.find(extract_base_function(functionName)) !=
+                m_localization_functions.cend();
+            }
+        /// @returns @c true if a function name is a translation noop function.
+        /// @param functionName The function name to review.
+        [[nodiscard]]
+        bool is_non_localizatin_function(const std::wstring& functionName) const
+            {
+            return m_non_localizable_functions.find(functionName) !=
+                m_non_localizable_functions.cend() ||
+                m_non_localizable_functions.find(extract_base_function(functionName)) !=
+                m_non_localizable_functions.cend();
+            }
         /// @returns @c true if a string is a keyword.
         /// @note These are labels and commands (e.g., else, return),
         ///     not intrinsic types (e.g., float, int).
@@ -558,7 +593,7 @@ namespace i18n_check
         bool is_diagnostic_function(const std::wstring& functionName) const;
         /// @returns Whether @c wc is an allowable character for function/variable names.
         /// @param wc The character to review.
-        /// @note this will only work for the simple part of a function.
+        /// @note This will only work for the simple part of a function.\n
         ///     If you need to include namespace accessors and template information,
         ///     then use is_valid_name_char_ex() instead.
         [[nodiscard]]
