@@ -3,7 +3,7 @@
 Internationalization & localization analysis system for C++ code.
 
 `i18n-check` scans a folder of C++ code and reviews the following issues:
-- Strings exposed for translation *[1]* that probably should not be. This includes (but not limited to):
+- Strings exposed for translation¹ that probably should not be. This includes (but not limited to):
     - Filenames
     - Strings only containing `printf()` commands
     - Numbers
@@ -22,7 +22,7 @@ Internationalization & localization analysis system for C++ code.
 - Files that contain extended ASCII characters, but are not UTF-8 encoded.
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
 - `printf()`-like functions being used to just format an integer to a string. It is recommended to use `std::to_string()` to do this instead.
-- ID variable *[2]* assignment issues:
+- ID variable² assignment issues:
     - The same value being assigned to different ID variables in the same source file
       (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
     - Hard-coded numbers being assigned to ID variables.
@@ -33,11 +33,11 @@ Code formatting issues can also be checked for, such as:
 - Lines longer than 120 characters.
 - Spaces missing between "//" and their comments.
 
-*[1]* Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
+¹ Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
 [wxWidgets](https://www.wxwidgets.org), or [Qt](https://www.qt.io) l10n functions.
 This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translate()`,
 `QT_TR_NOOP()`, `wxTRANSLATE()`, etc.<br />
-*[2]* Variables are determined to be ID variables if they are integral types with "ID" in their name.
+² Variables are determined to be ID variables if they are integral types with the whole word "ID" in their name.
 
 Refer [here](Example.md) for example usage.
 
@@ -74,7 +74,8 @@ Refer [here](Example.md) for example usage.
   malformedStrings:    Check for malformed syntax in strings (e.g., malformed HTML tags).
   trailingSpaces:      Check for trailing spaces at the end of each line.
                        This is a code formatting check and is not enabled by default.
-  tabs:                Check for tabs (spaces are recommended).
+  tabs:                Check for tabs.
+                       (Spaces are recommended as tabs may appear differently between editors.)
                        This is a code formatting check and is not enabled by default.
   wideLines:           Check for overly long lines.
                        This is a code formatting check and is not enabled by default.
@@ -134,15 +135,17 @@ any progress messages.
 i18n-check C:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
 ```
 
-This example will exclude multiple folders (and files) and output the results to "WDVResults.txt."
+This example will ignore multiple folders (and files) and output the results to "WDVResults.txt."
 
 ```shellscript
-i18n-check C:\src\Wisteria-dataviz\src --ignore=import,i18n-check,wxsimplejson,math,easyexif,debug,utfcpp,CRCpp,base/colors.cpp,base/colors.h -o WDVresults.txt
+i18n-check C:\src\Wisteria-dataviz\src --ignore=import,i18n-check,wxsimplejson,wxStartPage,math,easyexif,debug,utfcpp,CRCpp,base/colors.cpp,base/colors.h -o WDVresults.txt
 ```
+
+Refer [here](Example.md) for more examples.
 
 # Building
 
-`i18n` can be configured with Cmake and then built with your compiler of choice.
+`i18n-check` can be configured with Cmake and then built with your compiler of choice.
 
 On Unix:
 
@@ -152,6 +155,8 @@ make -j4
 ```
 
 On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
+
+After building, "i18n-check" will then be available in the "bin" folder.
 
 # GitHub Action
 
