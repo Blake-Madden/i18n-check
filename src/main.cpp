@@ -414,6 +414,9 @@ int main(int argc, char* argv[])
         { std::wcout << L"Reviewing strings...\n"; }
     cpp.review_strings();
 
+    /* Note: yes, I am aware of the irony of i18n bad practices here :)
+       Normally, you shouldn't piece strings together, not make them available for translation, etc.
+       However, I am just keeping this tool simple for now.*/
     std::wstringstream report;
     report << "File\tLine\tColumn\tValue\tExplanation\tWarningID\n";
     for (const auto& val : cpp.get_unsafe_localizable_strings())
@@ -577,9 +580,9 @@ int main(int argc, char* argv[])
 
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
             L"\"" << val.m_string << L"\"\t" <<
-            L"String contains extended ASCII characters that should be encoded. Recommended change: " <<
+            L"String contains extended ASCII characters that should be encoded. Recommended change: '" <<
             encodingRecommendations.str() <<
-            L"\t[unencodedExtASCII]\n";
+            L"'\t[unencodedExtASCII]\n";
         }
 
     for (const auto& val : cpp.get_trailing_spaces())
