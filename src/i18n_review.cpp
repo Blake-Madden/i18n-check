@@ -500,7 +500,7 @@ namespace i18n_check
                         functionName, std::wstring{}),
                     m_file_name, get_line_and_column(currentTextPos - m_file_start)));
                 }
-            else if (is_localizatin_function(functionName))
+            else if (is_localization_function(functionName))
                 {
                 if (// Qt
                     (functionName == L"translate" && parameterPosition == 0) ||
@@ -608,7 +608,7 @@ namespace i18n_check
                         }
                     }
                 }
-            else if (is_non_localizatin_function(functionName))
+            else if (is_non_localization_function(functionName))
                 {
                 m_marked_as_non_localizable_strings.emplace_back(
                     string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),

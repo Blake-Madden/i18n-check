@@ -391,7 +391,7 @@ namespace i18n_check
             { m_variable_types_to_ignore.insert(varType); }
         /// @returns The variable types that will have their string values marked as internal.
         [[nodiscard]]
-        const std::set<std::wstring>& get_ignored_variable_types() const noexcept
+        const std::set<std::wstring_view>& get_ignored_variable_types() const noexcept
             { return m_variable_types_to_ignore; }
 
         /// @brief Allocates space for the results.
@@ -487,11 +487,11 @@ namespace i18n_check
                 macro, then name of this macro.
             @param parameterPosition The string's position in the function call (if applicable).*/
         void process_quote(wchar_t* currentTextPos, const wchar_t* quoteEnd,
-            const wchar_t* functionVarNamePos,
-            const std::wstring& variableName, const std::wstring& functionName,
-            const std::wstring& variableType,
-            const std::wstring& deprecatedMacroEncountered,
-            const size_t parameterPosition);
+                           const wchar_t* functionVarNamePos,
+                           const std::wstring& variableName, const std::wstring& functionName,
+                           const std::wstring& variableType,
+                           const std::wstring& deprecatedMacroEncountered,
+                           const size_t parameterPosition);
         /// Determines whether a hard-coded string should actually be
         ///     exposed for translation or not. If so, then it will be added to the queue of
         ///     non-localizable strings; otherwise, it will be considered an internal string.
@@ -518,19 +518,22 @@ namespace i18n_check
         /// @note This assumes that the functions trailing parentheses and template
         ///     specifications have alread been removed.
         [[nodiscard]]
-        std::wstring extract_base_function(const std::wstring& str) const
+        std::wstring_view extract_base_function(const std::wstring_view str) const
             {
-            for (auto rPos = str.rbegin(); rPos != str.rend(); ++rPos)
+            if (str.length() == 0 ||
+                !is_valid_name_char(str.back()))
+                { return std::wstring_view{}; }
+            for (int64_t i = str.length() - 2; i >= 0; --i)
                 {
-                if (!is_valid_name_char(*rPos))
-                    { return std::wstring(rPos.base(), str.cend()); }
+                if (!is_valid_name_char(str[i]))
+                    { return str.substr(i + 1, str.length()); }
                 }
             return str;
             }
         /// @returns @c true if a function name is a translation extraction function.
         /// @param functionName The function name to review.
         [[nodiscard]]
-        bool is_localizatin_function(const std::wstring& functionName) const
+        bool is_localization_function(const std::wstring_view functionName) const
             {
             return m_localization_functions.find(functionName) !=
                 m_localization_functions.cend() ||
@@ -540,7 +543,7 @@ namespace i18n_check
         /// @returns @c true if a function name is a translation noop function.
         /// @param functionName The function name to review.
         [[nodiscard]]
-        bool is_non_localizatin_function(const std::wstring& functionName) const
+        bool is_non_localization_function(const std::wstring_view& functionName) const
             {
             return m_non_localizable_functions.find(functionName) !=
                 m_non_localizable_functions.cend() ||
@@ -710,16 +713,16 @@ namespace i18n_check
         review_style m_reviewStyles{ review_style::all_i18n_checks };
 
         // once these are set (by our CTOR and/or by client), they shouldn't be reset
-        std::set<std::wstring> m_localization_functions;
-        std::set<std::wstring> m_non_localizable_functions;
-        std::set<std::wstring> m_internal_functions;
-        std::set<std::wstring> m_log_functions;
-        std::set<std::wstring> m_exceptions;
-        std::set<std::wstring> m_ctors_to_ignore;
+        std::set<std::wstring_view> m_localization_functions;
+        std::set<std::wstring_view> m_non_localizable_functions;
+        std::set<std::wstring_view> m_internal_functions;
+        std::set<std::wstring_view> m_log_functions;
+        std::set<std::wstring_view> m_exceptions;
+        std::set<std::wstring_view> m_ctors_to_ignore;
         std::vector<std::wregex> m_variable_name_patterns_to_ignore;
-        std::set<std::wstring> m_variable_types_to_ignore;
+        std::set<std::wstring_view> m_variable_types_to_ignore;
         std::set<string_util::case_insensitive_wstring> m_known_internal_strings;
-        std::set<std::wstring> m_keywords;
+        std::set<std::wstring_view> m_keywords;
         std::set<string_util::case_insensitive_wstring> m_font_names;
         std::set<string_util::case_insensitive_wstring> m_file_extensions;
         std::map<std::wstring_view, std::wstring_view> m_deprecated_string_macros;
