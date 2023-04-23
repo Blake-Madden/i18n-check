@@ -525,8 +525,8 @@ namespace i18n_check
                 { return std::wstring_view{}; }
             for (int64_t i = str.length() - 2; i >= 0; --i)
                 {
-                if (!is_valid_name_char(str[i]))
-                    { return str.substr(i + 1, str.length()); }
+                if (!is_valid_name_char(str[static_cast<size_t>(i)]))
+                    { return str.substr(static_cast<size_t>(i) + 1, str.length()); }
                 }
             return str;
             }
