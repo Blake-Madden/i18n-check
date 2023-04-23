@@ -30,6 +30,14 @@ bool valid_utf8_file(const std::string& file_name)
     std::istreambuf_iterator<char> it(ifs.rdbuf());
     std::istreambuf_iterator<char> eos;
 
+    if (utf8::starts_with_bom(it, eos))
+        {
+        std::cout << file_name << ": file is UTF-8 with BoM (i.e., file signature). "
+            "It is recommended to save without the file signature for best "
+            "compiler portability.\n";
+        std::advance(it, std::size(utf8::bom));
+        }
+
     return utf8::is_valid(it, eos);
     }
 
