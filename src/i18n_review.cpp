@@ -824,7 +824,7 @@ namespace i18n_check
 
         i18n_string_util::remove_hex_color_values(str);
         i18n_string_util::remove_printf_commands(str);
-        i18n_string_util::decode_escaped_unicode_values(str);
+        i18n_string_util::remove_escaped_unicode_values(str);
         string_util::trim(str);
         // strip control characters (these wreak havoc with the regex parser)
         for (auto& ch : str)

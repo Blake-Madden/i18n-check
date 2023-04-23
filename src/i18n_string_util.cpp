@@ -189,9 +189,9 @@ namespace i18n_string_util
         }
 
     //--------------------------------------------------
-    void decode_escaped_unicode_values(std::wstring& str)
+    void remove_escaped_unicode_values(std::wstring& str)
         {
-        for (size_t i = 0; i < str.length(); ++i)
+        for (size_t i = 0; i < str.length(); /* in loop*/)
             {
             // '\' that is not escaped by a proceeding '\'
             if (str[i] == L'\\' &&
@@ -205,11 +205,9 @@ namespace i18n_string_util
                     string_util::is_hex_digit(str[i+4]) &&
                     string_util::is_hex_digit(str[i+5]) )
                     {
-                    size_t length{ 4 };
-                    const wchar_t decodedCharacter{
-                        static_cast<wchar_t>(string_util::axtoi(str.c_str() + i + 2, length))
-                        };
-                    str.replace(i,6,std::wstring(1,decodedCharacter));
+                    str.replace(i, 6, 6, ' ');
+                    i += 6;
+                    continue;
                     }
                 // "\U000FF254" format
                 else if (i < str.length()-8 &&
@@ -222,7 +220,9 @@ namespace i18n_string_util
                     string_util::is_hex_digit(str[i+7]) &&
                     string_util::is_hex_digit(str[i+8]))
                     {
-                    str.erase(i, 10);
+                    str.replace(i, 10, 10, ' ');
+                    i += 10;
+                    continue;
                     }
                 // "\xFF" format (can be variable number of hex digits)
                 else if (i < str.length()-3 &&
@@ -231,13 +231,12 @@ namespace i18n_string_util
                     string_util::is_hex_digit(str[i+2]) &&
                     string_util::is_hex_digit(str[i+3]))
                     {
-                    size_t length{ static_cast<size_t>(-1) };
-                    const wchar_t decodedCharacter{
-                        static_cast<wchar_t>(string_util::axtoi(str.c_str() + i + 2, length))
-                        };
-                    str.replace(i,length + 2,std::wstring(1, decodedCharacter));
+                    str.replace(i, 4, 4, ' ');
+                    i += 4;
+                    continue;
                     }
                 }
+            ++i;
             }
         }
     }

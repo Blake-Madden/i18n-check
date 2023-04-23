@@ -113,12 +113,10 @@ namespace i18n_string_util
             { return; }
         }
 
-    /// @brief Replaces escaped unicode values in @c str with their real values
-    ///     (e.g., "\u266f" will be converted to the sharp symbol).
-    /// @note 32-bit Unicode values (escaped by "\U") are not supported by
-    ///     16-bit `std::wstring` and will simply be removed.
+    /// @brief Removes escaped unicode values in @c str.
+    ///     (e.g., "\u266f" will be replaced with spaces).
     /// @param[out] str The string being escaped.
-    void decode_escaped_unicode_values(std::wstring& str);
+    void remove_escaped_unicode_values(std::wstring& str);
 
     /** @brief Converts a string to wstring (assuming that the string is simple 8-bit ASCII).
         @param str The string to convert.
