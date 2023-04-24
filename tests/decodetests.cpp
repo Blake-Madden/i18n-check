@@ -33,7 +33,7 @@ TEST_CASE("Text decode", "[decode]")
         std::wstring str = L"Russian: \\x043f\\x0440\\x0438\\x0432\\x0435\\x0442 and Pound Sterling: \\xA3.";
         remove_escaped_unicode_values(str);
         // привет and £
-        CHECK(str == L"Russian:                                        and Pound Sterling:     .");
+        CHECK(str == L"Russian:                                      and Pound Sterling:     .");
         }
 
     SECTION("Digits")
@@ -48,7 +48,7 @@ TEST_CASE("Text decode", "[decode]")
         {
         std::wstring str = L"Some text \\U000FF254.";
         remove_escaped_unicode_values(str);
-        CHECK(str == L"Some text         .");
+        CHECK(str == L"Some text           .");
         }
 
     SECTION("Bogus Specifiers")

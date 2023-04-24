@@ -210,7 +210,7 @@ namespace i18n_string_util
                     continue;
                     }
                 // "\U000FF254" format
-                else if (i < str.length()-8 &&
+                else if (i+8 < str.length() &&
                     str[i+1] == L'U' &&
                     string_util::is_hex_digit(str[i+2]) &&
                     string_util::is_hex_digit(str[i+3]) &&
@@ -224,8 +224,21 @@ namespace i18n_string_util
                     i += 10;
                     continue;
                     }
+                // "\xFFFF" format (can be variable number of hex digits)
+                else if (i+5 < str.length() &&
+                    str[i+1] == L'x' &&
+                    // at least two hex digits needed
+                    string_util::is_hex_digit(str[i+2]) &&
+                    string_util::is_hex_digit(str[i+3]) &&
+                    string_util::is_hex_digit(str[i+4]) &&
+                    string_util::is_hex_digit(str[i+5]))
+                    {
+                    str.replace(i, 6, 6, ' ');
+                    i += 6;
+                    continue;
+                    }
                 // "\xFF" format (can be variable number of hex digits)
-                else if (i < str.length()-3 &&
+                else if (i+3 < str.length() &&
                     str[i+1] == L'x' &&
                     // at least two hex digits needed
                     string_util::is_hex_digit(str[i+2]) &&
