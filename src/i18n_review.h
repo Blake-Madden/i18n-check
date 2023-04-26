@@ -66,20 +66,26 @@ namespace i18n_check
         check_duplicate_value_assigned_to_ids = (1 << 9),
         /// @brief Check for malformed syntax in strings (e.g., malformed HTML tags).
         check_malformed_strings = (1 << 10),
+        /// @brief Check for UTF-8 encoded files which start with a BoM/UTF-8 signature.
+        check_utf8_with_signature = (1 << 11),
         /// @brief Perform all aforemented checks.
         all_i18n_checks =
-            (check_l10n_strings  |check_suspect_l10n_string_usage |
+            (check_l10n_strings | check_suspect_l10n_string_usage |
              check_not_available_for_l10n | check_deprecated_macros|check_utf8_encoded |
              check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
-             check_number_assigned_to_id | check_duplicate_value_assigned_to_ids | check_malformed_strings),
+             check_number_assigned_to_id | check_duplicate_value_assigned_to_ids | check_malformed_strings |
+             check_utf8_with_signature),
         /// @brief Check for trailing spaces at the end of each line.
-        check_trailing_spaces = (1 << 11),
+        check_trailing_spaces = (1 << 20),
         /// @brief Check for tabs (spaces are recommended).
-        check_tabs = (1 << 12),
+        check_tabs = (1 << 21),
         /// @brief Check for overly long lines.
-        check_line_width = (1 << 13),
+        check_line_width = (1 << 22),
         /// @brief Check that there is a space at the start of a comment.
-        check_space_after_comment = (1 << 14)
+        check_space_after_comment = (1 << 23),
+        /// @brief Check all aforemented code formatting issues.
+        all_code_formatting_checks = (check_trailing_spaces | check_tabs |
+                                      check_line_width | check_space_after_comment)
         };
 
     /** @brief Class to extract and review localizable/nonlocalizable

@@ -75,7 +75,13 @@ i18n-check ../samples --log-l10n-allowed=false
 To display any code-formatting issues, enable them explicitly:
 
 ```shellscript
-i18n-check ../samples --enable=all,trailingSpaces,tabs,wideLines
+i18n-check ../samples --enable=allI18N,trailingSpaces,tabs,wideLines
+```
+
+or
+
+```shellscript
+i18n-check ../samples --enable=allI18N,allCodeFormatting
 ```
 
 This will emit the following warnings:

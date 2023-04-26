@@ -21,8 +21,9 @@ using namespace string_util;
 using namespace i18n_string_util;
 
 //-------------------------------------------------
-bool valid_utf8_file(const std::string& file_name)
+bool valid_utf8_file(const std::string& file_name, bool& startsWithBom)
     {
+    startsWithBom = false;
     std::ifstream ifs(file_name);
     if (!ifs)
         { return false; }
@@ -32,9 +33,7 @@ bool valid_utf8_file(const std::string& file_name)
 
     if (utf8::starts_with_bom(it, eos))
         {
-        std::cout << file_name << ": file is UTF-8 with BoM (i.e., file signature). "
-            "It is recommended to save without the file signature for best "
-            "compiler portability.\n";
+        startsWithBom = true;
         std::advance(it, std::size(utf8::bom));
         }
 
@@ -42,9 +41,10 @@ bool valid_utf8_file(const std::string& file_name)
     }
 
 //-------------------------------------------------
-std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name)
+std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name,
+                                             bool& startsWithBom)
     {
-    if (!valid_utf8_file(file_name))
+    if (!valid_utf8_file(file_name, startsWithBom))
         { return std::make_pair(false, std::wstring{}); }
 
     std::ifstream fs8(file_name);
@@ -88,8 +88,9 @@ int main(int argc, char* argv[])
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
-        "all, suspectL10NString, suspectL10NUsage, urlInL10NString, notL10NAvailable, "
-        "deprecatedMacros, nonUTF8File, unencodedExtASCII, printfSingleNumber,"
+        "allI18N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
+        "rlInL10NString, notL10NAvailable, "
+        "deprecatedMacros, nonUTF8File, UTF8FileWithBoM, unencodedExtASCII, printfSingleNumber,"
         "numberAssignedToId, dupValAssignedToIds, malformedStrings, "
         "trailingSpaces, tabs, wideLines, commentMissingSpace)",
         cxxopts::value<std::vector<std::string>>())
@@ -287,41 +288,42 @@ int main(int argc, char* argv[])
         int rs{ no_l10n_checks };
         for (const auto& r : styles)
             {
-            if (r == "all")
-                {
-                rs = i18n_check::review_style::all_i18n_checks;
-                break;
-                }
+            if (r == "allI18N")
+                { rs |= review_style::all_i18n_checks; }
+            else if (r == "allCodeFormatting")
+                { rs |= review_style::all_code_formatting_checks; }
             else if (r == "suspectL10NString")
-                { rs |= check_l10n_strings; }
+                { rs |= review_style::check_l10n_strings; }
             else if (r == "suspectL10NUsage")
-                { rs |= check_suspect_l10n_string_usage; }
+                { rs |= review_style::check_suspect_l10n_string_usage; }
             else if (r == "urlInL10NString")
-                { rs |= check_l10n_contains_url; }
+                { rs |= review_style::check_l10n_contains_url; }
             else if (r == "notL10NAvailable")
-                { rs |= check_not_available_for_l10n; }
+                { rs |= review_style::check_not_available_for_l10n; }
             else if (r == "deprecatedMacros")
-                { rs |= check_deprecated_macros; }
+                { rs |= review_style::check_deprecated_macros; }
             else if (r == "nonUTF8File")
-                { rs |= check_utf8_encoded; }
+                { rs |= review_style::check_utf8_encoded; }
+            else if (r == "UTF8FileWithBoM")
+                { rs |= review_style::check_utf8_with_signature; }
             else if (r == "unencodedExtASCII")
-                { rs |= check_unencoded_ext_ascii; }
+                { rs |= review_style::check_unencoded_ext_ascii; }
             else if (r == "printfSingleNumber")
-                { rs |= check_printf_single_number; }
+                { rs |= review_style::check_printf_single_number; }
             else if (r == "numberAssignedToId")
-                { rs |= check_number_assigned_to_id; }
+                { rs |= review_style::check_number_assigned_to_id; }
             else if (r == "dupValAssignedToIds")
-                { rs |= check_duplicate_value_assigned_to_ids; }
+                { rs |= review_style::check_duplicate_value_assigned_to_ids; }
             else if (r == "malformedStrings")
-                { rs |= check_malformed_strings; }
+                { rs |= review_style::check_malformed_strings; }
             else if (r == "trailingSpaces")
-                { rs |= check_trailing_spaces; }
+                { rs |= review_style::check_trailing_spaces; }
             else if (r == "tabs")
-                { rs |= check_tabs; }
+                { rs |= review_style::check_tabs; }
             else if (r == "wideLines")
-                { rs |= check_line_width; }
+                { rs |= review_style::check_line_width; }
             else if (r == "commentMissingSpace")
-                { rs |= check_space_after_comment; }
+                { rs |= review_style::check_space_after_comment; }
             else
                 {
                 std::wcout << L"Unknown option passed to --enable: " <<
@@ -340,41 +342,42 @@ int main(int argc, char* argv[])
         int rs{ static_cast<int>(cpp.get_style()) };
         for (const auto& r : styles)
             {
-            if (r == "all")
-                {
-                std::wcout << L"At least one check should be performed.";
-                return 1;
-                }
+            if (r == "allI18N")
+                { rs = rs & ~review_style::all_i18n_checks; }
+            else if (r == "allCodeFormatting")
+                { rs = rs & ~review_style::all_code_formatting_checks; }
             else if (r == "suspectL10NString")
-                { rs = rs & ~check_l10n_strings; }
+                { rs = rs & ~review_style::check_l10n_strings; }
             else if (r == "suspectL10NUsage")
-                { rs = rs & ~check_suspect_l10n_string_usage; }
+                { rs = rs & ~review_style::check_suspect_l10n_string_usage; }
             else if (r == "urlInL10NString")
-                { rs = rs & ~check_l10n_contains_url; }
+                { rs = rs & ~review_style::check_l10n_contains_url; }
             else if (r == "notL10NAvailable")
-                { rs = rs & ~check_not_available_for_l10n; }
+                { rs = rs & ~review_style::check_not_available_for_l10n; }
             else if (r == "deprecatedMacros")
-                { rs = rs & ~check_deprecated_macros; }
+                { rs = rs & ~review_style::check_deprecated_macros; }
             else if (r == "nonUTF8File")
-                { rs = rs & ~check_utf8_encoded; }
+                { rs = rs & ~review_style::check_utf8_encoded; }
+            else if (r == "UTF8FileWithBoM")
+                { rs = rs & ~review_style::check_utf8_with_signature; }
             else if (r == "unencodedExtASCII")
-                { rs = rs & ~check_unencoded_ext_ascii; }
+                { rs = rs & ~review_style::check_unencoded_ext_ascii; }
             else if (r == "printfSingleNumber")
-                { rs = rs & ~check_printf_single_number; }
+                { rs = rs & ~review_style::check_printf_single_number; }
             else if (r == "numberAssignedToId")
-                { rs = rs & ~check_number_assigned_to_id; }
+                { rs = rs & ~review_style::check_number_assigned_to_id; }
             else if (r == "dupValAssignedToIds")
-                { rs = rs & ~check_duplicate_value_assigned_to_ids; }
+                { rs = rs & ~review_style::check_duplicate_value_assigned_to_ids; }
             else if (r == "malformedStrings")
-                { rs = rs & ~check_malformed_strings; }
+                { rs = rs & ~review_style::check_malformed_strings; }
             else if (r == "trailingSpaces")
-                { rs = rs & ~check_trailing_spaces; }
+                { rs = rs & ~review_style::check_trailing_spaces; }
             else if (r == "tabs")
-                { rs = rs & ~check_tabs; }
+                { rs = rs & ~review_style::check_tabs; }
             else if (r == "wideLines")
-                { rs = rs & ~check_line_width; }
+                { rs = rs & ~review_style::check_line_width; }
             else if (r == "commentMissingSpace")
-                { rs = rs & ~check_space_after_comment; }
+                { rs = rs & ~review_style::check_space_after_comment; }
             else
                 {
                 std::wcout << L"Unknown option passed to --disable: " <<
@@ -387,6 +390,7 @@ int main(int argc, char* argv[])
         }
 
     std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
+    std::vector<std::wstring> filesThatContainUTF8Signature;
     size_t currentFileIndex{ 0 };
     for (const auto& file : filesToAnalyze)
         {
@@ -399,9 +403,13 @@ int main(int argc, char* argv[])
 
         try
             {
-            if (const auto [readOk, fileText] = read_utf8_file(file);
+            bool startsWithBom{ false };
+            if (const auto [readOk, fileText] = read_utf8_file(file, startsWithBom);
                 readOk)
                 {
+                if (startsWithBom &&
+                    cpp.get_style() & check_utf8_with_signature)
+                    { filesThatContainUTF8Signature.push_back(lazy_string_to_wstring(file)); } 
                 cpp(fileText.c_str(), fileText.length(), fs::path(file).wstring());
                 }
             else
@@ -569,6 +577,14 @@ int main(int argc, char* argv[])
         report << file <<
             L"\t\t\t\tFile contains extended ASCII characters, "
             "but is not encoded as UTF-8.\t[nonUTF8File]\n";
+        }
+    
+    for (const auto& file : filesThatContainUTF8Signature)
+        {
+        report << file <<
+            L"\t\t\t\tFile contains UTF-8 signature; "
+            "It is recommended to save without the file signature for "
+            "best compiler portability.\t[UTF8FileWithBoM]\n";
         }
 
     for (const auto& val : cpp.get_unencoded_ext_ascii_strings())

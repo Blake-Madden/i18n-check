@@ -19,9 +19,12 @@ Internationalization & localization analysis system for C++ code.
   best portability between compilers.
 - Strings with malformed syntax (e.g., malformed HTML tags).
 - The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
-- Files that contain extended ASCII characters, but are not UTF-8 encoded.
+- Files that contain extended ASCII characters, but are not UTF-8 encoded.<br />
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
-- `printf()`-like functions being used to just format an integer to a string. It is recommended to use `std::to_string()` to do this instead.
+- UTF-8 encoded files which start with a BoM/UTF-8 signature.<br />
+  It is recommended to save without the file signature for best compiler portability.
+- `printf()`-like functions being used to just format an integer to a string.<br />
+  It is recommended to use `std::to_string()` to do this instead.
 - ID variable² assignment issues:
     - The same value being assigned to different ID variables in the same source file
       (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
@@ -54,7 +57,7 @@ Refer [here](Example.md) for example usage.
 [input]: The folder to analyze.
 
 --enable: Which checks to perform. Can be any combination of:
-  all:                 Perform all i18n checks (the default).
+  allI18N:             Perform all i18n checks (the default).
                        This does not include code formatting checks.
   suspectL10NString:   Check for translatable strings that shouldn't be
                        (e.g., numbers, keywords, printf commands).
@@ -66,12 +69,17 @@ Refer [here](Example.md) for example usage.
   notL10NAvailable:    Check for strings not exposed for translation.
   deprecatedMacros:    Check for deprecated text macros (e.g., wxT()).
   nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
+  UTF8FileWithBoM:     Check for UTF-8 encoded files which start with a BoM/UTF-8 signature.
+                       It is recommended to save without the file signature for
+                       best compiler portability.
   unencodedExtASCII:   Check for strings containing extended ASCII characters that are not encoded.
   printfSingleNumber:  Check for printf()-like functions being used to just format a number.
   dupValAssignedToIds: Check for the same value being assigned to different ID variables.
   numberAssignedToId:  Check for ID variables being assigned a hard-coded number.
                        It may be preferred to assign framework-defined constants to IDs.
   malformedStrings:    Check for malformed syntax in strings (e.g., malformed HTML tags).
+  allCodeFormatting:   Check all code formatting issues (see below).
+                       These are not enabled by default.
   trailingSpaces:      Check for trailing spaces at the end of each line.
                        This is a code formatting check and is not enabled by default.
   tabs:                Check for tabs.
