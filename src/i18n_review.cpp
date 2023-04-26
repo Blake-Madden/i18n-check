@@ -37,6 +37,8 @@ namespace i18n_check
             std::wregex(L"([[:digit:][:space:][:punct:][:cntrl:]]|\\\\[rnt])+"),
             // placeholder text
             std::wregex(L"Lorem ipsum.*"),
+            // webpage content type
+            std::wregex(LR"([[:alnum:]\-]+/[[:alnum:]\-]+;[[:space:]]*[[:alnum:]\-]+=[[:alnum:]\-]+)"),
             // SQL code
             m_sql_code,
             std::wregex(LR"(^(INSERT INTO|DELETE FROM).*)",

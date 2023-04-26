@@ -578,6 +578,19 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
+    SECTION("Content type")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(var = "text/html; charset=utf-8")";
+        cpp(code, std::wcslen(code));
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+              L"text/html; charset=utf-8");
+        }
+
     SECTION("File filter")
         {
         cpp_i18n_review cpp;
