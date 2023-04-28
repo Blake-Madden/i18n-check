@@ -1,4 +1,5 @@
-# i18n-check
+i18n-check
+=============================
 
 <img src="i18n.svg" width="150" />
 
