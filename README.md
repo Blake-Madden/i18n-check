@@ -1,4 +1,7 @@
 # i18n-check
+=================================
+
+<img src="i18n.svg" width="200" />
 
 Internationalization & localization analysis system for C++ code.
 
