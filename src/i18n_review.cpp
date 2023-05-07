@@ -23,22 +23,69 @@ namespace i18n_check
             { L"TEXT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
             { L"_TEXT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
             { L"__TEXT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
-            { L"_WIDE", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
+            { L"_WIDE", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" }
+        };
+
+        // Whole file needs to be scanned for these, as string variables can be passed to these
+        // as well as hard-coded strings.
+        m_deprecated_string_functions = {
+            // Win32 TCHAR functions (which mapped between _MBCS and _UNICODE builds).
+            // Nowadays, you should be using _UNICODE (i.e., UTF-16) always.
+            { L"_tcscat", L"Consider using std::wcscat() instead." },
+            { L"_tcschr", L"Consider using std::wcschr() instead." },
+            { L"_tcscmp", L"Consider using std::wcscmp() instead." },
+            { L"_tcscoll", L"Consider using std::wcscoll() instead." },
+            { L"_tcscpy", L"Consider using std::wcscpy() instead." },
+            { L"_tcsdup", L"Consider using std::wcsdup() instead." },
+            { L"_tcslen", L"Consider using std::wcslen() or (wrap in a std::wstring_view) instead." },
+            { L"_tcsncat", L"Consider using std::wcsncat() instead." },
+            { L"_tcsnccmp", L"Consider using std::wcsncmp() instead." },
+            { L"_tcsncpy", L"Consider using std::wcsncpy() instead." },
+            { L"_tcspbrk", L"Consider using std::wcspbrk() instead." },
+            { L"_tcsrchr", L"Consider using std::wcsrchr() instead." },
+            { L"_tcsspn", L"Consider using std::wcsspn() instead." },
+            { L"_tcsstr", L"Consider using std::wcsstr() instead." },
+            { L"_tcstok", L"Consider using std::wcstok() instead." },
+            { L"_tcsxfrm", L"Consider using std::wcsxfrm() instead." },
+            // wxWidgets
             { L"wxStrlen", L"Consider using std::wcslen() or (wrap in a std::wstring_view) instead." },
+            { L"wxStrstr", L"Consider using std::wcsstr() instead." },
+            { L"wxStrchr", L"Consider using std::wcschr() instead." },
+            { L"wxStrdup", L"Consider using std::wcsdup() instead." },
+            { L"wxStrcpy", L"Consider using std::wcscpy() instead." },
+            { L"wxStrncpy", L"Consider using std::wcsncpy() instead." },
+            { L"wxStrcat ", L"Consider using std::wcscat() instead." },
+            { L"wxStrncat", L"Consider using std::wcsncat() instead." },
+            { L"wxStrtok", L"Consider using std::wcstok() instead." },
+            { L"wxStrrchr", L"Consider using std::wcsrchr() instead." },
+            { L"wxStrpbrk", L"Consider using std::wcspbrk() instead." },
+            { L"wxStrxfrm", L"Consider using std::wcsxfrm() instead." },
+            { L"wxIsEmpty", L"Consider using wxString's empty() member instead." },
+            { L"wxIsdigit", L"Consider using std::iswdigit() instead." },
+            { L"wxIsalnum", L"Consider using std::iswalnum() instead." },
+            { L"wxIsalpha", L"Consider using std::iswalpha() instead." },
+            { L"wxIsctrl", L"Consider using std::iswctrl() instead." },
+            { L"wxIspunct", L"Consider using std::iswpunct() instead." },
+            { L"wxIsspace", L"Consider using std::iswpspace() instead." },
+            { L"wxStrftime", L"Consider using wxDateTime's formatting functions instead." },
+            { L"wxStrtod", L"Consider using wxString::ToDouble() instead." },
             { L"wxTrace", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
             { L"WXTRACE", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
             { L"wxTraceLevel", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
             { L"wxUnix2DosFilename", L"Construct a wxFileName with wxPATH_UNIX and then use wxFileName::GetFullPath(wxPATH_DOS) instead." },
-            { L"wxSplitPath", L"This function is obsolete, please use wxFileName::SplitPath() instead." }
+            { L"wxSplitPath", L"This function is obsolete, please use wxFileName::SplitPath() instead." },
+            // not i18n related, but it is recommended to use Bind in more modern wxWidget apps
+            { L"wxDECLARE_EVENT_TABLE", L"Consider using the class's Bind() function to connect events instead." },
+            { L"wxBEGIN_EVENT_TABLE", L"Consider using the class's Bind() function to connect events instead." }
         };
 
         m_untranslatable_regexes = {
-            // nothing but numbers, punctuation, control characters?
+            // nothing but numbers, punctuation, or control characters?
             std::wregex(L"([[:digit:][:space:][:punct:][:cntrl:]]|\\\\[rnt])+"),
             // placeholder text
             std::wregex(L"Lorem ipsum.*"),
             // webpage content type
-            std::wregex(LR"([[:alnum:]\-]+/[[:alnum:]\-]+;[[:space:]]*[[:alnum:]\-]+=[[:alnum:]\-]+)"),
+            std::wregex(LR"([A-Za-z0-9\-]+/[A-Za-z0-9\-]+;[[:space:]]*[A-Za-z0-9\-]+=[A-Za-z0-9\-]+)"),
             // SQL code
             m_sql_code,
             std::wregex(LR"(^(INSERT INTO|DELETE FROM).*)",
@@ -52,8 +99,8 @@ namespace i18n_check
             // TIFF (*.tif;*.tiff)|*.tif;*.tiff
             // special case for the word "bitmap" also, wouldn't normally translate that
             std::wregex(
-                L"([A-Z]+|[bB]itmap) [(]([*][.][[:alnum:]]{1,5})(;[*][.][[:alnum:]]{1,5})*[)][|]"
-                 "([*][.][[:alnum:]]{1,5})(;[*][.][[:alnum:]]{1,5})*"),
+                L"(([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[)][|]"
+                 "([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[|]{0,2})+"),
             // generic measuring string (or regex expression)
             std::wregex(L"[[:space:]]*(ABCDEFG|abcdefg).*"),
             // debug messages
@@ -62,17 +109,17 @@ namespace i18n_check
             // HTML doc start
             std::wregex(LR"(<!DOCTYPE html)"),
             // HTML entities
-            std::wregex(L"&[#]?[xX]?[[:alnum:]]+;"),
+            std::wregex(L"&[#]?[xX]?[A-Za-z0-9]+;"),
             // JS
-            std::wregex(LR"(class[[:space:]]*=[[:space:]]*['"][[:alnum:]\- _]*['"])"),
+            std::wregex(LR"(class[[:space:]]*=[[:space:]]*['"][A-Za-z0-9\- _]*['"])"),
             // An opening HTML element
             std::wregex(LR"(<(body|html|img|head|meta|style|span|p|tr|td))"),
             // PostScript element
             std::wregex(LR"(%%[[:alpha:]]+:.*)"),
-            std::wregex(LR"((<< [\/()[:alnum:][:space:]]*(\\n|[[:space:]])*)+)"),
-            std::wregex(LR"((\/[[:alnum:][:space:]]* \[[[:alnum:][:space:]%]+\](\\n|[[:space:]])*)+)"),
+            std::wregex(LR"((<< [\/()A-Za-z0-9[:space:]]*(\\n|[[:space:]])*)+)"),
+            std::wregex(LR"((\/[A-Za-z0-9[:space:]]* \[[A-Za-z0-9[:space:]%]+\](\\n|[[:space:]])*)+)"),
             // C header include
-            std::wregex(LR"((#include[[:space:]]+([\\]?"|<)[[:alnum:]_\\\.\/]+([\\]?"|>)(\\n|[[:space:]])*)+)"),
+            std::wregex(LR"((#include[[:space:]]+([\\]?"|<)[A-Za-z0-9_\\\.\/]+([\\]?"|>)(\\n|[[:space:]])*)+)"),
             // XML elements
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
             std::wregex(LR"(xml[ ]*version[ ]*=[ ]*\\["'][0-9\.]+\\["'][>]?)"), // partial header
@@ -155,7 +202,7 @@ namespace i18n_check
             L"wxPLURAL", L"wxGETTEXT_IN_CONTEXT", L"wxGETTEXT_IN_CONTEXT_PLURAL",
             L"wxTRANSLATE", L"wxTRANSLATE_IN_CONTEXT",
             L"wxGetTranslation",
-            // Qt (note that NOOP functions actually do load for translation, just not in-place)
+            // Qt (note that NOOP functions actually do load something for translation, just not in-place)
             L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP", L"QT_TRANSLATE_NOOP"
             };
 
@@ -179,7 +226,7 @@ namespace i18n_check
             L"wxT", L"wxT_2", L"wxS", L"wxString", L"wxBasicString", L"wxCFStringRef",
             L"wxASCII_STR",
             // Qt
-            L"QString",
+            L"QString", L"QLatin1String",
             // standard string objects
             L"basic_string", L"string", L"wstring", L"u8string", L"u16string", L"u32string",
             L"std::basic_string", L"std::string", L"std::wstring", L"std::u8string",
@@ -218,6 +265,8 @@ namespace i18n_check
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo",
             L"Platform::DebugPrintf", L"wxGetCommandOutput",
             L"SetKeyWords",
+            // Qt
+            L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern",
             // Catch2
             L"TEST_CASE", L"BENCHMARK", L"TEMPLATE_TEST_CASE", L"SECTION",
             L"DYNAMIC_SECTION", L"REQUIRE", L"REQUIRE_THROWS_WITH", L"REQUIRE_THAT",
@@ -243,6 +292,7 @@ namespace i18n_check
             L"Tcl_PkgRequire", L"Tcl_PkgRequireEx",
             // debugging functions from various open-source projects
             L"check_assertion", L"print_debug", L"DPRINTF", L"print_warning", L"perror", L"LogDebug",
+            L"DebugMsg",
             // system functions that don't process user messages
             L"fopen", L"getenv", L"setenv", L"system", L"run", L"exec", L"execute",
             // Unix calls
@@ -276,6 +326,9 @@ namespace i18n_check
             L"wxLogWarning", L"wxLogDebug", L"wxLogApiError", L"LogTraceArray",
             L"DoLogRecord", L"DoLogText", L"DoLogTextAtLevel", L"LogRecord",
             L"DDELogError", L"LogTraceLargeArray",
+            // Qt
+            L"qDebug", L"qInfo", L"qWarning", L"qCritical", L"qFatal",
+            L"qCDebug", L"qCInfo", L"qCWarning", L"qCCritical",
             // SDL
             L"SDL_Log", L"SDL_LogCritical", L"SDL_LogDebug", L"SDL_LogError",
             L"SDL_LogInfo", L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose",
@@ -379,6 +432,37 @@ namespace i18n_check
             std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourDialogNames"));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourTable"));
+        add_variable_name_pattern_to_ignore(std::wregex(L"QT_MESSAGE_PATTERN"));
+        }
+
+    //--------------------------------------------------
+    void i18n_review::load_deprecated_functions(const std::wstring_view fileText, const std::wstring& fileName)
+        {
+        if (!(m_reviewStyles & check_deprecated_macros))
+            { return; }
+
+        for (size_t i = 0; i < fileText.length(); /* in loop*/)
+            {
+            for (const auto& func : m_deprecated_string_functions)
+                {
+                if (fileText.substr(i, func.first.length()).compare(func.first) == 0 &&
+                    // ensure function is a whole-word match and has something after it
+                    (i + func.first.length() < fileText.length() &&
+                     !is_valid_name_char(fileText[i + func.first.length()])) &&
+                    (i == 0 || !is_valid_name_char(fileText[i - 1])))
+                    {
+                    m_deprecated_macros.push_back(
+                        string_info(std::wstring{ func.first.data(), func.first.length() },
+                            string_info::usage_info(
+                                string_info::usage_info::usage_type::function,
+                                std::wstring(func.second), std::wstring{}), fileName,
+                            get_line_and_column(i, fileText.data())));
+                    i += func.first.length();
+                    continue;
+                    }
+                }
+            ++i;
+            }
         }
 
     //--------------------------------------------------
@@ -391,10 +475,13 @@ namespace i18n_check
         std::copy(
             std::regex_token_iterator<decltype(fileText)::const_iterator>(
                 fileText.begin(), fileText.end(), m_id_assignment_regex),
-            std::regex_token_iterator<decltype(fileText)::const_iterator>(),
+            std::regex_token_iterator<decltype(fileText)::const_iterator>{},
             std::back_inserter(matches));
 
-        const std::wregex varNamePartsRE{ L"([a-zA-Z0-9_]*)(ID)([a-zA-Z0-9_]*)" };
+        const std::wregex varNamePartsRE{
+            L"([a-zA-Z0-9_]*)(ID)([a-zA-Z0-9_]*)" };
+        const std::wregex varNameIDPartsRE{
+            L"([a-zA-Z0-9_]*)(ID[A-Z]?[_]?)([a-zA-Z0-9_]*)" };
         // no std::from_chars for wchar_t :(
         const std::wregex numRE{ LR"(^[\-0-9']+$)" };
         if (matches.size())
@@ -409,34 +496,103 @@ namespace i18n_check
                 {
                 subMatches.clear();
                 idNameParts.clear();
+                // get the var name and ID
                 std::copy(
                     std::regex_token_iterator<std::remove_reference_t<decltype(match)>::const_iterator>(
                         match.begin(), match.end(), m_id_assignment_regex, { 3, 4, 5 }),
-                    std::regex_token_iterator<std::remove_reference_t<decltype(match)>::const_iterator>(),
+                    std::regex_token_iterator<std::remove_reference_t<decltype(match)>::const_iterator>{},
                     std::back_inserter(subMatches));
-                // break the ID into parts and see what's around "ID,"
-                // we don't want "ID" if it is part of a word like "WIDTH"
-                std::copy(
-                    std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>(
-                        subMatches[0].begin(), subMatches[0].end(), varNamePartsRE, { 1, 2, 3 }),
-                    std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>(),
-                    std::back_inserter(idNameParts));
-                if ((idNameParts[0].length() && std::iswupper(idNameParts[0].back())) ||
-                     (idNameParts[2].length() && std::iswupper(idNameParts[2].front())) )
-                    { continue; }
                 // ignore function calls or constructed objects assigning an ID
                 if (subMatches[2] == L"(" ||
                     subMatches[2] == L"{")
                     { continue; }
-                // 1'000 -> 1000
+                // clean up ID (e.g., 1'000 -> 1000)
                 string_util::remove_all(subMatches[1], L'\'');
                 string_util::trim(subMatches[1]);
                 string_util::remove_all(subMatches[1], L' ');
+                // break the ID into parts and see what's around "ID";
+                // we don't want "ID" if it is part of a word like "WIDTH"
+                std::copy(
+                    std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>(
+                        subMatches[0].cbegin(), subMatches[0].cend(), varNamePartsRE, { 1, 2, 3, 4, 5 }),
+                    std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>{},
+                    std::back_inserter(idNameParts));
+                // MFC IDs
+                if (idNameParts[2].compare(0, 2, L"R_") == 0 ||
+                    idNameParts[2].compare(0, 2, L"D_") == 0 ||
+                    idNameParts[2].compare(0, 2, L"C_") == 0 ||
+                    idNameParts[2].compare(0, 2, L"I_") == 0 ||
+                    idNameParts[2].compare(0, 2, L"B_") == 0 ||
+                    idNameParts[2].compare(0, 2, L"S_") == 0 ||
+                    idNameParts[2].compare(0, 2, L"M_") == 0 ||
+                    idNameParts[2].compare(0, 2, L"P_") == 0)
+                    {
+                    idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
+                    continue;
+                    }
+                if ((idNameParts[0].length() && std::iswupper(idNameParts[0].back())) ||
+                     (idNameParts[2].length() && std::iswupper(idNameParts[2].front())) )
+                    { continue; }
+
                 idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
                 }
             for (const auto& idAssignment : idAssignments)
                 {
+                idNameParts.clear();
+                std::copy(
+                    std::regex_token_iterator<std::remove_reference_t<decltype(idAssignment.first)>::const_iterator>(
+                        idAssignment.first.cbegin(), idAssignment.first.cend(), varNameIDPartsRE, { 1, 2, 3 }),
+                    std::regex_token_iterator<std::remove_reference_t<decltype(idAssignment.first)>::const_iterator>(),
+                    std::back_inserter(idNameParts));
+                const auto IdVal = [&idAssignment]()
+                    {
+                    try
+                        { return std::optional<long>(std::stol(idAssignment.second)); }
+                    catch (...)
+                        { return std::optional<long>{ std::nullopt }; }
+                    }();
                 if ((m_reviewStyles & check_number_assigned_to_id) &&
+                    IdVal &&
+                    !(IdVal.value() >= 1 && IdVal.value() <= 0x6FFF) &&
+                    (idNameParts[1].compare(L"IDR_") == 0 ||
+                     idNameParts[1].compare(L"IDD_") == 0 ||
+                     idNameParts[1].compare(L"IDM_") == 0 ||
+                     idNameParts[1].compare(L"IDC_") == 0 ||
+                     idNameParts[1].compare(L"IDI_") == 0 ||
+                     idNameParts[1].compare(L"IDB_") == 0 ||
+                     idNameParts[1].compare(L"IDB_") == 0))
+                    {
+                    m_ids_assigned_number.push_back(
+                        string_info(idAssignment.second + L" assigned to " + idAssignment.first +
+                            L"; value should be between 1 and 0x6FFF if this is an MFC project.",
+                            string_info::usage_info{},
+                            fileName, std::make_pair(std::wstring::npos, std::wstring::npos)));
+                    }
+                else if ((m_reviewStyles & check_number_assigned_to_id) &&
+                    IdVal &&
+                    !(IdVal.value() >= 1 && IdVal.value() <= 0x7FFF) &&
+                    (idNameParts[1].compare(L"IDS_") == 0 ||
+                     idNameParts[1].compare(L"IDP_") == 0))
+                    {
+                    m_ids_assigned_number.push_back(
+                        string_info(idAssignment.second + L" assigned to " + idAssignment.first +
+                            L"; value should be between 1 and 0x7FFF if this is an MFC project.",
+                            string_info::usage_info{},
+                            fileName, std::make_pair(std::wstring::npos, std::wstring::npos)));
+                    }
+                else if ((m_reviewStyles & check_number_assigned_to_id) &&
+                    IdVal &&
+                    !(IdVal.value() >= 8 && IdVal.value() <= 0xDFFF) &&
+                    idNameParts[1].compare(L"IDC_") == 0)
+                    {
+                    m_ids_assigned_number.push_back(
+                        string_info(idAssignment.second + L" assigned to " + idAssignment.first +
+                            L"; value should be between 8 and 0xDFFF if this is an MFC project.",
+                            string_info::usage_info{},
+                            fileName, std::make_pair(std::wstring::npos, std::wstring::npos)));
+                    }
+                else if ((m_reviewStyles & check_number_assigned_to_id) &&
+                    idNameParts[1].length() <= 3 && // ignore MFC IDs (handled above)
                     std::regex_match(idAssignment.second, numRE) &&
                     // -1 or 0 are usually generic IDs for the framework or temporary init values
                     idAssignment.second != L"-1" &&
@@ -454,11 +610,12 @@ namespace i18n_check
                     // ignore if same ID is assigned to variables with the same name
                     idAssignment.first != pos->second &&
                     idAssignment.second != L"wxID_ANY" &&
+                    idAssignment.second != L"wxID_NONE" &&
                     idAssignment.second != L"-1" &&
                     idAssignment.second != L"0")
                     {
                     m_duplicates_value_assigned_to_ids.push_back(
-                        string_info(idAssignment.second + L" has been assigned to multiple ID variables",
+                        string_info(idAssignment.second + L" has been assigned to multiple ID variables.",
                             string_info::usage_info{},
                             fileName, std::make_pair(std::wstring::npos, std::wstring::npos)));
                     }
@@ -477,11 +634,14 @@ namespace i18n_check
         if (deprecatedMacroEncountered.length() &&
             (m_reviewStyles & check_deprecated_macros))
             {
+            const auto foundMessage = m_deprecated_string_macros.find(deprecatedMacroEncountered);
             m_deprecated_macros.emplace_back(
                 string_info(deprecatedMacroEncountered,
                     string_info::usage_info(
                         string_info::usage_info::usage_type::function,
-                        std::wstring{}, std::wstring{}),
+                        (foundMessage != m_deprecated_string_macros.cend()) ?
+                            std::wstring{ foundMessage->second } : std::wstring{},
+                        std::wstring{}),
                     m_file_name,
                     get_line_and_column(currentTextPos - m_file_start)));
             }
@@ -1257,12 +1417,13 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    std::pair<size_t, size_t> i18n_review::get_line_and_column(size_t position) const noexcept
+    std::pair<size_t, size_t> i18n_review::get_line_and_column(size_t position,
+                                                               const wchar_t* fileStart /*= nullptr*/) const noexcept
         {
         if (position == std::wstring::npos)
             { return std::make_pair(std::wstring::npos, std::wstring::npos); }
 
-        auto startSentinel = m_file_start;
+        auto startSentinel = ((fileStart != nullptr) ? fileStart : m_file_start);
         if (!startSentinel)
             { return std::make_pair(std::wstring::npos, std::wstring::npos); }
         size_t nextLinePosition{ 0 }, lineCount{ 0 };

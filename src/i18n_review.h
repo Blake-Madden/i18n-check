@@ -27,7 +27,9 @@
 ///     https://www.gnu.org/software/gettext/manual/gettext.html <br />
 ///     https://www.gnu.org/software/gettext/ <br />
 ///     https://docs.wxwidgets.org/latest/classwx_translations.html <br />
-///     https://doc.qt.io/qt-5/i18n-source-translation.html
+///     https://doc.qt.io/qt-5/i18n-source-translation.html <br />
+///     https://learn.microsoft.com/en-us/cpp/mfc/tn020-id-naming-and-numbering-conventions?view=msvc-170 <br />
+///     https://learn.microsoft.com/en-us/windows/win32/menurc/stringtable-resource
 namespace i18n_check
     {
     /// @brief Tests to perform.
@@ -301,11 +303,6 @@ namespace i18n_check
         [[nodiscard]]
         const std::vector<string_info>& get_deprecated_macros() const noexcept
             { return m_deprecated_macros; }
-        [[nodiscard]]
-        /// @returns The map of deprecated functions and macros being searched for and their
-        ///     respective recommendation for fixing.
-        const std::map<std::wstring_view, std::wstring_view>& get_deprecated_messages() const noexcept
-            { return m_deprecated_string_macros; }
         /// @returns Strings that have been explicitly set to not be translatable
         ///     (usually by the DONTTRANSLATE() function).
         [[nodiscard]]
@@ -588,10 +585,14 @@ namespace i18n_check
             @param fileText The source file's text to analyze.
             @param fileName The file name being analyzed.*/
         void load_id_assignments(const std::wstring_view fileText, const std::wstring& fileName);
+        /** @brief Loads any deprecated functions found in the text.
+            @param fileText The source file's text to analyze.
+            @param fileName The file name being analyzed.*/
+        void load_deprecated_functions(const std::wstring_view fileText, const std::wstring& fileName);
 #ifdef __UNITTEST
     public:
 #endif
-        /// @returns Whether @c str is a string that should be translated.
+        /// @returns Whether @c str is a string that should probably not be translated.
         /// @param[in,out] str The string to review.\n
         ///     This string may have text like HTML and CSS tags removed, as well as being trimmed.
         /// @param limitWordCount If @c true, will consider a word as
@@ -690,12 +691,16 @@ namespace i18n_check
         ///     variable type (e.g., const) and should be skipped.
         /// @param variableType The parsed variable type to review.
         [[nodiscard]]
-        virtual bool is_variable_type_decorator(const std::wstring_view variableType) const = 0;
+        virtual bool is_variable_type_decorator(const std::wstring_view variableType) const
+            { return false; }
 
         /// @returns The line and column postion from a character position.
         /// @param position The character position in the file.
+        /// @param fileStart The start of a file buffer to begin the search from.\n
+        ///     If @c nullptr, will use the currently loaded file.
         [[nodiscard]]
-        std::pair<size_t, size_t> get_line_and_column(size_t position) const noexcept;
+        std::pair<size_t, size_t> get_line_and_column(size_t position,
+                                                      const wchar_t* fileStart = nullptr) const noexcept;
 
         /// @brief Removes the quotes and whitespace between multiple quotes
         ///     strings that constitute a single string.
@@ -732,6 +737,7 @@ namespace i18n_check
         std::set<string_util::case_insensitive_wstring> m_font_names;
         std::set<string_util::case_insensitive_wstring> m_file_extensions;
         std::map<std::wstring_view, std::wstring_view> m_deprecated_string_macros;
+        std::map<std::wstring_view, std::wstring_view> m_deprecated_string_functions;
         // results after parsing what the client should maybe review
         std::vector<string_info> m_localizable_strings;
         std::vector<string_info> m_marked_as_non_localizable_strings;
@@ -777,13 +783,15 @@ namespace i18n_check
             LR"(([a-zA-Z0-9_]*|^)(ASSERT|VERIFY|PROFILE|CHECK)([a-zA-Z0-9_]*|$))" };
         // UINT MENU_ID_PRINT = 1'000;
         std::wregex m_id_assignment_regex{
-            LR"((int|uint32_t|INT|UINT|wxWindowID)([[:space:]]|const)*([a-zA-Z0-9_]*ID[a-zA-Z0-9_]*)[[:space:]]*[=\({][[:space:]\({]*([a-zA-Z0-9_ \+\-\'<>:\.]+){1}(.?))" };
+            LR"((int|uint32_t|INT|UINT|wxWindowID|#define)([[:space:]]|const)*([a-zA-Z0-9_]*ID[a-zA-Z0-9_]*)[[:space:]]*[=\({]?[[:space:]\({]*([a-zA-Z0-9_ \+\-\'<>:\.]+){1}(.?))" };
         std::wregex m_sql_code{
             LR"(.*(SELECT \*|CREATE TABLE|CREATE INDEX|COLLATE NOCASE|ALTER TABLE|DROP TABLE|COLLATE DATABASE_DEFAULT).*)",
             std::regex_constants::icase };
         std::wregex m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
         std::wregex m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
         std::vector<std::wregex> m_untranslatable_regexes;
+        // causes stack exception std::wregex m_win32_string_table{ LR"(STRINGTABLE[[:space:]]*(BEGIN|\{)[\n\r]*([[:space:]]*[A-Za-z0-9_]+[,]?[[:space:]]*[L]?"[^\n\r]*[\n\r]*)+(END|\}))"};
+        std::wregex m_win32_string_table_begin{ LR"(STRINGTABLE[[:space:]]*(BEGIN|\{)[\n\r])"};
 
         // helpers
         mutable std::vector<parse_messages> m_error_log;
