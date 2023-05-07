@@ -5,7 +5,7 @@ i18n-check
 
 Internationalization & localization analysis system for C++ code.
 
-`i18n-check` scans a folder of C++ code and reviews the following issues:
+`i18n-check` is a command-line utility that scans a folder of C++ code and checks for the following issues:
 - Strings exposed for translation¹ that probably should not be. This includes (but not limited to):
     - Filenames
     - Strings only containing `printf()` commands
@@ -21,7 +21,7 @@ Internationalization & localization analysis system for C++ code.
   Encoding extended ASCII characters is recommended for
   best portability between compilers.
 - Strings with malformed syntax (e.g., malformed HTML tags).
-- Use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
+- Use of deprecated text macros (e.g., `wxT()` in wxWidgets, `_T()` in Win32).
 - Use of deprecated string functions (e.g., `_tcsncpy` in Win32).
 - Files that contain extended ASCII characters, but are not UTF-8 encoded.<br />
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
