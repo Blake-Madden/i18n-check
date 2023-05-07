@@ -21,8 +21,8 @@ Internationalization & localization analysis system for C++ code.
   Encoding extended ASCII characters is recommended for
   best portability between compilers.
 - Strings with malformed syntax (e.g., malformed HTML tags).
-- The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
-- The use of deprecated string functions (e.g., `_tcsncpy` in Win32).
+- Use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
+- Use of deprecated string functions (e.g., `_tcsncpy` in Win32).
 - Files that contain extended ASCII characters, but are not UTF-8 encoded.<br />
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
 - UTF-8 encoded files which start with a BOM/UTF-8 signature.<br />
@@ -41,8 +41,8 @@ Code formatting issues can also be checked for, such as:
 - Lines longer than 120 characters.
 - Spaces missing between "//" and their comments.
 
-`i18n-check` will work with C code, modern C++, '98/'03 C++ code, and Windows resource files (*.RC).
-It also has specialized support for the following frameworks:
+`i18n-check` will work with C, modern C++, and '98/'03 C++ code, and also Windows resource files (*.rc).
+In particular, it offers specialized support for the following frameworks:
 
 - wxWidgets
 - Qt
