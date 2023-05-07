@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "cpp_i18n_review.h"
+#include "rc_file_review.h"
 #include "cxxopts/include/cxxopts.hpp"
 #include "utfcpp/source/utf8.h"
 #include <fstream>
@@ -83,14 +84,14 @@ std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name,
 //-------------------------------------------------
 int main(int argc, char* argv[])
     {
-    cxxopts::Options options("i18n-check 1.0",
+    cxxopts::Options options("i18n-check .1",
         "Internationalization/localization analysis system, (c) 2021-2023 Blake Madden");
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
         "allI18N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
         "rlInL10NString, notL10NAvailable, "
-        "deprecatedMacros, nonUTF8File, UTF8FileWithBoM, unencodedExtASCII, printfSingleNumber,"
+        "deprecatedMacros, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
         "numberAssignedToId, dupValAssignedToIds, malformedStrings, "
         "trailingSpaces, tabs, wideLines, commentMissingSpace)",
         cxxopts::value<std::vector<std::string>>())
@@ -265,7 +266,8 @@ int main(int argc, char* argv[])
             }
         if (p.exists() && p.is_regular_file() &&
             !inExcludedPath &&
-            (ext.compare(fs::path(L".c")) == 0 ||
+            (ext.compare(fs::path(L".rc")) == 0 || 
+             ext.compare(fs::path(L".c")) == 0 ||
              ext.compare(fs::path(L".cpp")) == 0 ||
              ext.compare(fs::path(L".h")) == 0 ||
              ext.compare(fs::path(L".hpp")) == 0))
@@ -280,6 +282,11 @@ int main(int argc, char* argv[])
     cpp.exceptions_should_be_translatable(readBoolOption("exceptions-l10n-required", true));
     cpp.set_min_words_for_classifying_unavailable_string(readIntOption("min-l10n-wordcount", 2));
     cpp.reserve(filesToAnalyze.size());
+
+    i18n_check::rc_file_review rc;
+    rc.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
+    rc.reserve(filesToAnalyze.size());
+
     // see which checks are being performed
     if (result.count("enable"))
         {
@@ -304,7 +311,7 @@ int main(int argc, char* argv[])
                 { rs |= review_style::check_deprecated_macros; }
             else if (r == "nonUTF8File")
                 { rs |= review_style::check_utf8_encoded; }
-            else if (r == "UTF8FileWithBoM")
+            else if (r == "UTF8FileWithBOM")
                 { rs |= review_style::check_utf8_with_signature; }
             else if (r == "unencodedExtASCII")
                 { rs |= review_style::check_unencoded_ext_ascii; }
@@ -358,7 +365,7 @@ int main(int argc, char* argv[])
                 { rs = rs & ~review_style::check_deprecated_macros; }
             else if (r == "nonUTF8File")
                 { rs = rs & ~review_style::check_utf8_encoded; }
-            else if (r == "UTF8FileWithBoM")
+            else if (r == "UTF8FileWithBOM")
                 { rs = rs & ~review_style::check_utf8_with_signature; }
             else if (r == "unencodedExtASCII")
                 { rs = rs & ~review_style::check_unencoded_ext_ascii; }
@@ -401,6 +408,11 @@ int main(int argc, char* argv[])
                 fs::path(file).filename() << L")\n";
             }
 
+        const bool isRcFile = [&file]()
+            {
+            return fs::path{ file }.extension().compare(fs::path(L".rc")) == 0;
+            }();
+
         try
             {
             bool startsWithBom{ false };
@@ -410,7 +422,10 @@ int main(int argc, char* argv[])
                 if (startsWithBom &&
                     cpp.get_style() & check_utf8_with_signature)
                     { filesThatContainUTF8Signature.push_back(lazy_string_to_wstring(file)); } 
-                cpp(fileText.c_str(), fileText.length(), fs::path(file).wstring());
+                if (isRcFile)
+                    { rc(fileText, fs::path(file).wstring()); }
+                else
+                    { cpp(fileText, fs::path(file).wstring()); }
                 }
             else
                 {
@@ -419,7 +434,10 @@ int main(int argc, char* argv[])
                 std::wifstream ifs(file);
                 std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                 std::istreambuf_iterator<wchar_t>());
-                cpp(str.c_str(), str.length(), fs::path(file).wstring());
+                if (isRcFile)
+                    { rc(str, fs::path(file).wstring()); }
+                else
+                    { cpp(str, fs::path(file).wstring()); }
                 }
             }
         catch (const std::exception& expt)
@@ -431,10 +449,20 @@ int main(int argc, char* argv[])
     cpp.review_strings();
 
     /* Note: yes, I am aware of the irony of i18n bad practices here :)
-       Normally, you shouldn't piece strings together, not make them available for translation, etc.
-       However, I am just keeping this tool simple for now.*/
+       Normally, you shouldn't piece strings together, should make them available for translation, etc.
+       However, I am just keeping this tool simple.*/
     std::wstringstream report;
     report << "File\tLine\tColumn\tValue\tExplanation\tWarningID\n";
+    // Windows resource file warnings
+    for (const auto& val : rc.get_unsafe_localizable_strings())
+        {
+        report << val.m_file_name << L"\t\t\t" <<
+            L"\"" << val.m_string << L"\"\t" <<
+            L"String available for translation that probably should not be" <<
+            L"\t[suspectL10NString]\n";
+        }
+
+    // C/C++ warnings
     for (const auto& val : cpp.get_unsafe_localizable_strings())
         {
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" <<
@@ -531,12 +559,9 @@ int main(int argc, char* argv[])
 
     for (const auto& val : cpp.get_deprecated_macros())
         {
-        const auto foundMessage = cpp.get_deprecated_messages().find(val.m_string);
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
-            L"\t" << val.m_string << L"\t" <<
-            (foundMessage == cpp.get_deprecated_messages().cend() ?
-                L"Deprecated function should be replaced." : foundMessage->second) <<
-                L"\t[deprecatedMacro]\n";
+            L"\t" << val.m_string << L"\t" << val.m_usage.m_value <<
+            L"\t[deprecatedMacro]\n";
         }
 
     for (const auto& val : cpp.get_printf_single_numbers())
@@ -584,7 +609,7 @@ int main(int argc, char* argv[])
         report << file <<
             L"\t\t\t\tFile contains UTF-8 signature; "
             "It is recommended to save without the file signature for "
-            "best compiler portability.\t[UTF8FileWithBoM]\n";
+            "best compiler portability.\t[UTF8FileWithBOM]\n";
         }
 
     for (const auto& val : cpp.get_unencoded_ext_ascii_strings())
@@ -696,7 +721,9 @@ int main(int argc, char* argv[])
             }
 
         std::wcout << L"Statistics" << L"\n###################################################\n" <<
-            L"Strings available for translation: " << cpp.get_localizable_strings().size() << L"\n";
+            L"Strings available for translation within C/C++ source files: " <<
+            cpp.get_localizable_strings().size() << L"\n" <<
+            L"String table entries within Windows resource files: " << rc.get_localizable_strings().size() << L"\n";
         }
 
     return 0;

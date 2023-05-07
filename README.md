@@ -14,7 +14,7 @@ Internationalization & localization analysis system for C++ code.
     - Strings inside of debug functions
     - Formulas
     - Code (used for code generators)
-    - Strings that contain URLs or email addresses.
+    - Strings that contain URLs or email addresses
 - Strings not available for translation that possibly should be.
 - Strings that contain extended ASCII characters that are not encoded.
   ("Danke schön" instead of "Danke sch\U000000F6n".)<br />
@@ -22,9 +22,10 @@ Internationalization & localization analysis system for C++ code.
   best portability between compilers.
 - Strings with malformed syntax (e.g., malformed HTML tags).
 - The use of deprecated text macros (e.g., the `wxT()` macro in wxWidgets).
+- The use of deprecated string functions (e.g., `_tcsncpy` in Win32).
 - Files that contain extended ASCII characters, but are not UTF-8 encoded.<br />
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
-- UTF-8 encoded files which start with a BoM/UTF-8 signature.<br />
+- UTF-8 encoded files which start with a BOM/UTF-8 signature.<br />
   It is recommended to save without the file signature for best compiler portability.
 - `printf()`-like functions being used to just format an integer to a string.<br />
   It is recommended to use `std::to_string()` to do this instead.
@@ -32,12 +33,21 @@ Internationalization & localization analysis system for C++ code.
     - The same value being assigned to different ID variables in the same source file
       (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
     - Hard-coded numbers being assigned to ID variables.
+    - Out-of-range values being assigned to MFC IDs.
 
 Code formatting issues can also be checked for, such as:
 - Trailing spaces at the end of a line.
 - Tabs (instead of spaces).
 - Lines longer than 120 characters.
 - Spaces missing between "//" and their comments.
+
+`i18n-check` will work with C code, modern C++, '98/'03 C++ code, and Windows resource files (*.RC).
+It also has specialized support for the following frameworks:
+
+- wxWidgets
+- Qt
+- Win32
+- MFC
 
 ¹ Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
 [wxWidgets](https://www.wxwidgets.org), or [Qt](https://www.qt.io) l10n functions.
@@ -72,7 +82,7 @@ Refer [here](Example.md) for example usage.
   notL10NAvailable:    Check for strings not exposed for translation.
   deprecatedMacros:    Check for deprecated text macros (e.g., wxT()).
   nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
-  UTF8FileWithBoM:     Check for UTF-8 encoded files which start with a BoM/UTF-8 signature.
+  UTF8FileWithBOM:     Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
                        It is recommended to save without the file signature for
                        best compiler portability.
   unencodedExtASCII:   Check for strings containing extended ASCII characters that are not encoded.

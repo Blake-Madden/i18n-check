@@ -15,7 +15,8 @@ SET(CMAKE_CXX_STANDARD 17)
 ADD_COMPILE_OPTIONS("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 ADD_COMPILE_OPTIONS("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
-SET(FILES src/main.cpp src/i18n_string_util.cpp src/i18n_review.cpp src/cpp_i18n_review.cpp)
+SET(FILES src/main.cpp src/i18n_string_util.cpp src/i18n_review.cpp
+          src/cpp_i18n_review.cpp src/rc_file_review.cpp)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 ADD_EXECUTABLE(i18n-check ${FILES})

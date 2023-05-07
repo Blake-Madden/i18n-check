@@ -30,8 +30,9 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ../src/i18n_string_util.cpp
 ../src/i18n_review.cpp ../src/cpp_i18n_review.cpp
+../src/rc_file_review.cpp
 i18nstringtests.cpp stringutiltests.cpp cpptests.cpp
-decodetests.cpp)
+decodetests.cpp rctests.cpp)
 IF(MSVC)
     TARGET_COMPILE_DEFINITIONS(${CMAKE_PROJECT_NAME} PUBLIC _CRT_SECURE_NO_WARNINGS __UNITTEST)
 ELSE()
