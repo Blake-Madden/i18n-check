@@ -13,23 +13,23 @@ using namespace i18n_string_util;
 namespace i18n_check
     {
     //--------------------------------------------------
-    void cpp_i18n_review::operator()(const wchar_t* src_text, const size_t text_length,
+    void cpp_i18n_review::operator()(const std::wstring_view src_text,
         const std::wstring& file_name)
         {
-        if (src_text == nullptr || text_length == 0)
+        m_file_name = file_name;
+
+        if (src_text.length() == 0)
             { return; }
-        assert(std::wcslen(src_text) == text_length);
 
-        auto cppBuffer = std::make_unique<wchar_t[]>(text_length + 1);
+        auto cppBuffer = std::make_unique<wchar_t[]>(src_text.length() + 1);
         wchar_t* cpp_text = cppBuffer.get();
-        std::wcsncpy(cpp_text, src_text, text_length);
+        std::wcsncpy(cpp_text, src_text.data(), src_text.length());
 
-        load_id_assignments(std::wstring_view{cpp_text, text_length}, file_name);
+        load_id_assignments(src_text, file_name);
+        load_deprecated_functions(src_text, file_name);
 
         m_file_start = cpp_text;
-        const wchar_t* const endSentinel = cpp_text + text_length;
-
-        m_file_name = file_name;
+        const wchar_t* const endSentinel = cpp_text + src_text.length();
 
         while (cpp_text && cpp_text + 1 < endSentinel && cpp_text[0] != 0)
             {
@@ -278,7 +278,7 @@ namespace i18n_check
                     if (currentLineLength > 120)
                         {
                         // ...also, only warn if the current line doesn't have a raw
-                        // string in it--those can make it impossible to break a line
+                        // string in it--those can make it complicated to break a line
                         // into smaller lines.
                         const std::wstring currentLine{ m_file_start + previousNewLine, currentLineLength };
                         if (currentLine.find(L"R\"") == std::wstring::npos &&

@@ -28,9 +28,8 @@ namespace i18n_check
     public:
         /** @brief Main interface for extracting resource text from C++ source code.
             @param cpp_text The C++ code text to extract text from.
-            @param text_length The length of the text.
             @param file_name The (optional) name of source file being analyzed.*/
-        void operator()(const wchar_t* cpp_text, const size_t text_length,
+        void operator()(const std::wstring_view cpp_text,
                         const std::wstring& file_name = L"") final;
     private:
 #ifdef __UNITTEST

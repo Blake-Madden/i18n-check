@@ -17,6 +17,7 @@
 #include <set>
 #include <map>
 #include <utility>
+#include <optional>
 #include "i18n_string_util.h"
 
 /// @brief Classes for checking source code for internationalization/localization issues.
@@ -66,9 +67,9 @@ namespace i18n_check
         check_duplicate_value_assigned_to_ids = (1 << 9),
         /// @brief Check for malformed syntax in strings (e.g., malformed HTML tags).
         check_malformed_strings = (1 << 10),
-        /// @brief Check for UTF-8 encoded files which start with a BoM/UTF-8 signature.
+        /// @brief Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
         check_utf8_with_signature = (1 << 11),
-        /// @brief Perform all aforemented checks.
+        /// @brief Perform all aforementioned checks.
         all_i18n_checks =
             (check_l10n_strings | check_suspect_l10n_string_usage |
              check_not_available_for_l10n | check_deprecated_macros|check_utf8_encoded |
@@ -83,7 +84,7 @@ namespace i18n_check
         check_line_width = (1 << 22),
         /// @brief Check that there is a space at the start of a comment.
         check_space_after_comment = (1 << 23),
-        /// @brief Check all aforemented code formatting issues.
+        /// @brief Check all aforementioned code formatting issues.
         all_code_formatting_checks = (check_trailing_spaces | check_tabs |
                                       check_line_width | check_space_after_comment)
         };
@@ -96,7 +97,7 @@ namespace i18n_check
         /// @brief Information about a string found in the source code.
         struct string_info
             {
-            /// @brief How the string is being used.
+            /// @brief What the string is being used for.
             struct usage_info
                 {
                 /// @brief What a string is being used for
@@ -184,10 +185,9 @@ namespace i18n_check
         review_style get_style() const noexcept
             { return m_reviewStyles; }
         /** @brief Main interface for extracting resource text from C++ source code.
-            @param cpp_text The code text to review.
-            @param text_length The length of the text.
+            @param file_text The text to review.
             @param file_name The (optional) name of source file being analyzed.*/
-        virtual void operator()(const wchar_t* cpp_text, const size_t text_length,
+        virtual void operator()(const std::wstring_view file_text,
                                 const std::wstring& file_name = L"") = 0;
         /// @brief Finalizes the review process after all files have been loaded.
         /// @details Reviews any strings that are available for translation that are suspect,
