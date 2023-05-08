@@ -91,6 +91,15 @@ namespace i18n_check
                                       check_line_width | check_space_after_comment)
         };
 
+    /// @brief File types that can be analyzed.
+    enum class file_review_type
+        {
+        /// @brief C/C++ files.
+        cpp,
+        /// @brief Microsoft Windows resource files.
+        rc
+        };
+
     /** @brief Class to extract and review localizable/nonlocalizable
             text from source code.*/
     class i18n_review
@@ -114,25 +123,40 @@ namespace i18n_check
                     };
                 /// @private
                 usage_info() = default;
+                /// @private
                 usage_info(const usage_type& type,const std::wstring& val,
                            const std::wstring& varType) :
                     m_type(type), m_value(val), m_variableType(varType)
                     {}
+                /// @private
                 usage_type m_type{ usage_type::function };
+                /// @private
                 std::wstring m_value;
+                /// @private
                 std::wstring m_variableType;
                 };
+            /** @brief Constructor.
+                @param str The string value.
+                @param usage What the string is being used for.
+                @param fileName The filename.
+                @param lineAndColumn The line and column number.*/
             string_info(const std::wstring& str, const usage_info& usage,
                         const std::wstring& fileName,
                         const std::pair<size_t,size_t> lineAndColumn) :
                 m_string(str), m_usage(usage), m_file_name(fileName),
                 m_line(lineAndColumn.first), m_column(lineAndColumn.second)
                 {}
+            /// @private
             string_info() = default;
+            /// @brief The string value.
             std::wstring m_string;
+            /// @brief What the string is being used for.
             usage_info m_usage;
+            /// @brief The filename.
             std::wstring m_file_name;
+            /// @brief The line number.
             size_t m_line{ 0 };
+            /// @brief The column number.
             size_t m_column{ 0 };
             };
 
@@ -790,8 +814,6 @@ namespace i18n_check
         std::wregex m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
         std::wregex m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
         std::vector<std::wregex> m_untranslatable_regexes;
-        // causes stack exception std::wregex m_win32_string_table{ LR"(STRINGTABLE[[:space:]]*(BEGIN|\{)[\n\r]*([[:space:]]*[A-Za-z0-9_]+[,]?[[:space:]]*[L]?"[^\n\r]*[\n\r]*)+(END|\}))"};
-        std::wregex m_win32_string_table_begin{ LR"(STRINGTABLE[[:space:]]*(BEGIN|\{)[\n\r])"};
 
         // helpers
         mutable std::vector<parse_messages> m_error_log;

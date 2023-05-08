@@ -84,7 +84,7 @@ std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name,
 //-------------------------------------------------
 int main(int argc, char* argv[])
     {
-    cxxopts::Options options("i18n-check .1",
+    cxxopts::Options options("i18n-check 0.1",
         "Internationalization/localization analysis system, (c) 2021-2023 Blake Madden");
     options.add_options()
     ("input", "The folder to analyze", cxxopts::value<std::string>())
@@ -408,9 +408,13 @@ int main(int argc, char* argv[])
                 fs::path(file).filename() << L")\n";
             }
 
-        const bool isRcFile = [&file]()
+        const file_review_type fileType = [&file]()
             {
-            return fs::path{ file }.extension().compare(fs::path(L".rc")) == 0;
+            const auto ext = fs::path{ file }.extension();
+            if (ext.compare(fs::path(L".rc")) == 0)
+                { return file_review_type::rc; }
+            else
+                { return file_review_type::cpp; }
             }();
 
         try
@@ -422,7 +426,7 @@ int main(int argc, char* argv[])
                 if (startsWithBom &&
                     cpp.get_style() & check_utf8_with_signature)
                     { filesThatContainUTF8Signature.push_back(lazy_string_to_wstring(file)); } 
-                if (isRcFile)
+                if (fileType == file_review_type::rc)
                     { rc(fileText, fs::path(file).wstring()); }
                 else
                     { cpp(fileText, fs::path(file).wstring()); }
@@ -434,7 +438,7 @@ int main(int argc, char* argv[])
                 std::wifstream ifs(file);
                 std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                 std::istreambuf_iterator<wchar_t>());
-                if (isRcFile)
+                if (fileType == file_review_type::rc)
                     { rc(str, fs::path(file).wstring()); }
                 else
                     { cpp(str, fs::path(file).wstring()); }
@@ -719,6 +723,24 @@ int main(int argc, char* argv[])
                     (endTime - startTime).count() <<
                 L" seconds.\n\n";
             }
+
+        std::wcout << L"Checks Performed" << L"\n###################################################\n" <<
+            ((cpp.get_style() & check_l10n_strings) ? L"suspectL10NString\n" : L"") <<
+            ((cpp.get_style() & check_suspect_l10n_string_usage) ? L"suspectL10NUsage\n" : L"") <<
+            ((cpp.get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"") <<
+            ((cpp.get_style() & check_not_available_for_l10n) ? L"notL10NAvailable\n" : L"") <<
+            ((cpp.get_style() & check_deprecated_macros) ? L"deprecatedMacros\n" : L"") <<
+            ((cpp.get_style() & check_utf8_encoded) ? L"nonUTF8File\n" : L"") <<
+            ((cpp.get_style() & check_utf8_with_signature) ? L"UTF8FileWithBOM\n" : L"") <<
+            ((cpp.get_style() & check_unencoded_ext_ascii) ? L"unencodedExtASCII\n" : L"") <<
+            ((cpp.get_style() & check_printf_single_number) ? L"printfSingleNumber\n" : L"") <<
+            ((cpp.get_style() & check_number_assigned_to_id) ? L"numberAssignedToId\n" : L"") <<
+            ((cpp.get_style() & check_duplicate_value_assigned_to_ids) ? L"dupValAssignedToIds\n" : L"") <<
+            ((cpp.get_style() & check_malformed_strings) ? L"malformedStrings\n" : L"") <<
+            ((cpp.get_style() & check_trailing_spaces) ? L"trailingSpaces\n" : L"") <<
+            ((cpp.get_style() & check_tabs) ? L"tabs\n" : L"") <<
+            ((cpp.get_style() & check_line_width) ? L"wideLines\n" : L"") <<
+            ((cpp.get_style() & check_space_after_comment) ? L"commentMissingSpace\n" : L"") << L"\n";
 
         std::wcout << L"Statistics" << L"\n###################################################\n" <<
             L"Strings available for translation within C/C++ source files: " <<
