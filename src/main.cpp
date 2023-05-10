@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
         "allI18N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
         "rlInL10NString, notL10NAvailable, "
         "deprecatedMacro, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
-        "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue"
+        "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue,"
         "trailingSpaces, tabs, wideLine, commentMissingSpace)",
         cxxopts::value<std::vector<std::string>>())
     ("disable", "Which checks to not perform (same as the options for enable)",
