@@ -31,6 +31,17 @@ namespace i18n_check
             @param file_name The (optional) name of source file being analyzed.*/
         void operator()(const std::wstring_view rcFileText,
                         const std::wstring& file_name = L"") final;
+        /// @returns Font sizes used for dialogs that are too large or small.
+        [[nodiscard]]
+        const std::vector<string_info>& get_bad_dialog_font_sizes() const noexcept
+            { return m_badFontSizes; }
+        /// @returns Fonts used for dialogs that aren't MS Shell Dlg variants.
+        [[nodiscard]]
+        const std::vector<string_info>& get_non_system_dialog_fonts() const noexcept
+            { return m_nonSystemFontNames; }
+    private:
+        std::vector<string_info> m_badFontSizes;
+        std::vector<string_info> m_nonSystemFontNames;
         };
     }
 
