@@ -10,6 +10,51 @@
 using namespace i18n_check;
 using namespace Catch::Matchers;
 
+TEST_CASE("Place holders", "[cpp][i18n]")
+    {
+    SECTION("Xes")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(auto var = _(L"XXXXXX XXXXXX");)";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        }
+
+    SECTION("X numbers")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(auto var = _(L"XXXXXX -X.XXXXX, +X.XXXXX");)";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        }
+    }
+
+TEST_CASE("Version Info", "[cpp][i18n]")
+    {
+    SECTION("vString")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(auto var = _(L"ClientTest v1.2");)";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        }
+    }
+
+TEST_CASE("C/C++ code", "[cpp][i18n]")
+    {
+    SECTION("Pointer")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(auto var = _(L"pVal->Dosomething();");)";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        }
+    }
+
 TEST_CASE("IDs", "[cpp][i18n]")
     {
     SECTION("ID assignments")
@@ -508,6 +553,14 @@ TEST_CASE("Code generator strings", "[i18n]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         CHECK(cpp.get_internal_strings().size() == 1);
 
+        code = LR"(auto var = "version=\"1.0\"")";
+        cpp.clear_results();
+        cpp(code);
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
         code = LR"(auto var = "<a href=\"#scores\">")";
         cpp.clear_results();
         cpp(code);
@@ -564,6 +617,34 @@ TEST_CASE("Code generator strings", "[i18n]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("C code")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(2);
+        const wchar_t* code = LR"(auto var = "#ifndef _";)";
+        cpp(code);
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        code = LR"(auto var = "#endif // _";)";
+        cpp.clear_results();
+        cpp(code);
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+        
+        code = LR"(auto var = "#define _";)";
+        cpp.clear_results();
+        cpp(code);
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
         }
     }
 

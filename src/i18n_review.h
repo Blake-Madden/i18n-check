@@ -71,13 +71,16 @@ namespace i18n_check
         check_malformed_strings = (1 << 10),
         /// @brief Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
         check_utf8_with_signature = (1 << 11),
+        /// @brief Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
+        ///     or using unusual font sizes).
+        check_fonts = (1 << 12),
         /// @brief Perform all aforementioned checks.
         all_i18n_checks =
             (check_l10n_strings | check_suspect_l10n_string_usage |
              check_not_available_for_l10n | check_deprecated_macros|check_utf8_encoded |
              check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
              check_number_assigned_to_id | check_duplicate_value_assigned_to_ids | check_malformed_strings |
-             check_utf8_with_signature),
+             check_utf8_with_signature | check_fonts),
         /// @brief Check for trailing spaces at the end of each line.
         check_trailing_spaces = (1 << 20),
         /// @brief Check for tabs (spaces are recommended).

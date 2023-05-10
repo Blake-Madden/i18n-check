@@ -91,7 +91,7 @@ namespace i18n_check
             std::wregex(LR"(^(INSERT INTO|DELETE FROM).*)",
                 std::regex_constants::icase),
             std::wregex(LR"(^ORDER BY.*)"), // more strict
-            std::wregex(LR"([(]*^SELECT[[:space:]]+[A-Z_0-9]+,.*)"),
+            std::wregex(LR"([(]*^SELECT[[:space:]]+[A-Z_0-9\.]+,.*)"),
             // a regex expression
             std::wregex(L"[(][?]i[)].*"),
             // single file filter that just has a file extension as its "name"
@@ -118,9 +118,12 @@ namespace i18n_check
             std::wregex(LR"(%%[[:alpha:]]+:.*)"),
             std::wregex(LR"((<< [\/()A-Za-z0-9[:space:]]*(\\n|[[:space:]])*)+)"),
             std::wregex(LR"((\/[A-Za-z0-9[:space:]]* \[[A-Za-z0-9[:space:]%]+\](\\n|[[:space:]])*)+)"),
-            // C header include
-            std::wregex(LR"((#include[[:space:]]+([\\]?"|<)[A-Za-z0-9_\\\.\/]+([\\]?"|>)(\\n|[[:space:]])*)+)"),
+            // C
+            std::wregex(LR"(^#(include|define|if|ifdef|ifndef|endif|elif|pragma|warning)[[:space:]].*)"),
+            // C++
+            std::wregex(LR"([a-zA-Z0-9_]+([-][>]|::)[a-zA-Z0-9_]+([(][)];)?)"),
             // XML elements
+            std::wregex(LR"(version[ ]?=\\"[0-9\.]+\\")"),
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
             std::wregex(LR"(xml[ ]*version[ ]*=[ ]*\\["'][0-9\.]+\\["'][>]?)"), // partial header
             std::wregex(LR"(<[\\]?\?xml[ a-zA-Z0-9=\\"'%\-]*[\?]?>)"), // full header
@@ -130,8 +133,10 @@ namespace i18n_check
             std::wregex(L"<[A-Za-z0-9_\\-\\.]+[[:space:]]*([A-Za-z0-9_\\-\\.]+[[:space:]]*=[[:space:]]*[\"'\\\\]{0,2}[a-zA-Z0-9\\-]*[\"'\\\\]{0,2}[[:space:]]*)+"),
             std::wregex(L"charset[[:space:]]*=.*",
                 std::regex_constants::icase),
-            // all 'X'es and spaces, usually a placeholder of some sort
-            std::wregex(L"[xX ]+"),
+            // all 'X'es, spaces, and commas are usually a placeholder of some sort
+            std::wregex(LR"((([\+\-]?[xX\.]+)[ ,]*)+)"),
+            // program version string
+            std::wregex(LR"([a-zA-Z\-]+ v(ersion)?[ ]?[0-9\.]+)"),
             // bash command (e.g., "lpstat -p") and system variables
             std::wregex(L"[[:alpha:]]{3,} [\\-][[:alpha:]]+"),
             std::wregex(L"sys[$].*"),
@@ -299,9 +304,9 @@ namespace i18n_check
             L"popen", L"dlopen", L"dlsym", L"g_signal_connect", L"g_object_set", L"handle_system_error",
             // macOS calls
             L"CFBundleCopyResourceURL",
-            // Windows calls
+            // Windows/MFC calls
             L"OutputDebugString", L"OutputDebugStringA", L"OutputDebugStringW",
-            L"QueryValue", L"ASSERT", L"_ASSERTE", L"TRACE", L"ATLTRACE",
+            L"QueryValue", L"ASSERT", L"_ASSERTE", L"TRACE", L"ATLTRACE", L"TRACE0",
             L"ATLTRACE2", L"ATLENSURE", L"ATLASSERT", L"VERIFY",
             L"LoadLibrary", L"LoadLibraryEx", L"LoadModule", L"GetModuleHandle",
             L"QueryDWORDValue", L"GetTempFileName", L"QueryMultiStringValue",
@@ -312,10 +317,13 @@ namespace i18n_check
             L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue", L"CLSIDFromProgID",
             L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
             L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
+            L"SetRegistryKey",
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
-            L"luaL_error", L"lua_pushstring", L"lua_setglobal"
+            L"luaL_error", L"lua_pushstring", L"lua_setglobal",
+            // more generic functions
+            L"trace"
             };
 
         m_log_functions = {
@@ -474,7 +482,7 @@ namespace i18n_check
         std::vector<std::wstring> matches;
         std::copy(
             std::regex_token_iterator<decltype(fileText)::const_iterator>(
-                fileText.begin(), fileText.end(), m_id_assignment_regex),
+                fileText.cbegin(), fileText.cend(), m_id_assignment_regex),
             std::regex_token_iterator<decltype(fileText)::const_iterator>{},
             std::back_inserter(matches));
 
@@ -499,7 +507,7 @@ namespace i18n_check
                 // get the var name and ID
                 std::copy(
                     std::regex_token_iterator<std::remove_reference_t<decltype(match)>::const_iterator>(
-                        match.begin(), match.end(), m_id_assignment_regex, { 3, 4, 5 }),
+                        match.cbegin(), match.cend(), m_id_assignment_regex, { 3, 4, 5 }),
                     std::regex_token_iterator<std::remove_reference_t<decltype(match)>::const_iterator>{},
                     std::back_inserter(subMatches));
                 // ignore function calls or constructed objects assigning an ID
@@ -518,14 +526,16 @@ namespace i18n_check
                     std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>{},
                     std::back_inserter(idNameParts));
                 // MFC IDs
-                if (idNameParts[2].compare(0, 2, L"R_") == 0 ||
-                    idNameParts[2].compare(0, 2, L"D_") == 0 ||
-                    idNameParts[2].compare(0, 2, L"C_") == 0 ||
-                    idNameParts[2].compare(0, 2, L"I_") == 0 ||
-                    idNameParts[2].compare(0, 2, L"B_") == 0 ||
-                    idNameParts[2].compare(0, 2, L"S_") == 0 ||
-                    idNameParts[2].compare(0, 2, L"M_") == 0 ||
-                    idNameParts[2].compare(0, 2, L"P_") == 0)
+                if (((idNameParts[0].empty() ||
+                     idNameParts[0].length() && !std::iswupper(idNameParts[0].back()))) &&
+                    (idNameParts[2].compare(0, 2, L"R_") == 0 ||
+                     idNameParts[2].compare(0, 2, L"D_") == 0 ||
+                     idNameParts[2].compare(0, 2, L"C_") == 0 ||
+                     idNameParts[2].compare(0, 2, L"I_") == 0 ||
+                     idNameParts[2].compare(0, 2, L"B_") == 0 ||
+                     idNameParts[2].compare(0, 2, L"S_") == 0 ||
+                     idNameParts[2].compare(0, 2, L"M_") == 0 ||
+                     idNameParts[2].compare(0, 2, L"P_") == 0))
                     {
                     idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
                     continue;
