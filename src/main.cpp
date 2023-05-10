@@ -8,6 +8,7 @@
 
 #include "cpp_i18n_review.h"
 #include "rc_file_review.h"
+#include "unicode_extract_text.h"
 #include "cxxopts/include/cxxopts.hpp"
 #include "utfcpp/source/utf8.h"
 #include <fstream>
@@ -20,6 +21,36 @@ namespace fs = std::filesystem;
 using namespace i18n_check;
 using namespace string_util;
 using namespace i18n_string_util;
+
+//-------------------------------------------------
+std::pair<bool, std::wstring> read_utf16_file(const std::string& file_name)
+    {
+    std::ifstream fs8(file_name);
+    if (!fs8.is_open())
+        {
+        std::cout << "Could not open " << file_name << "\n";
+        return std::make_pair(false, std::wstring{});
+        }
+
+    std::string line;
+    std::string buffer;
+    buffer.reserve(static_cast<size_t>(std::filesystem::file_size(file_name)));
+
+    fs8.seekg(0, std::ios_base::end);
+    const auto fileLength = fs8.tellg();
+    fs8.seekg(0);
+    std::vector<char> fileData(fileLength);
+    fs8.read(&fileData[0], fileLength);
+
+    if (lily_of_the_valley::unicode_extract_text::is_unicode(&fileData[0]))
+        {
+        lily_of_the_valley::unicode_extract_text uExtract;
+        uExtract(&fileData[0], fileData.size(),
+            lily_of_the_valley::unicode_extract_text::is_little_endian(&fileData[0]));
+        return std::make_pair(true, std::wstring{ uExtract.get_filtered_text() });
+        }
+    return std::make_pair(false, std::wstring{});
+    }
 
 //-------------------------------------------------
 bool valid_utf8_file(const std::string& file_name, bool& startsWithBom)
@@ -87,12 +118,12 @@ int main(int argc, char* argv[])
     cxxopts::Options options("i18n-check 0.1",
         "Internationalization/localization analysis system, (c) 2021-2023 Blake Madden");
     options.add_options()
-    ("input", "The folder to analyze", cxxopts::value<std::string>())
+    ("input", "The folder (or file) to analyze", cxxopts::value<std::string>())
     ("enable", "Which checks to perform (any combination of: "
         "allI18N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
         "rlInL10NString, notL10NAvailable, "
-        "deprecatedMacros, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
-        "numberAssignedToId, dupValAssignedToIds, malformedStrings, "
+        "deprecatedMacro, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
+        "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue"
         "trailingSpaces, tabs, wideLines, commentMissingSpace)",
         cxxopts::value<std::vector<std::string>>())
     ("disable", "Which checks to not perform (same as the options for enable)",
@@ -235,44 +266,53 @@ int main(int argc, char* argv[])
         }
     std::vector<std::string> filesToAnalyze;
 
-    for (const auto& p :
-        fs::recursive_directory_iterator(inputFolder))
+    if (fs::is_regular_file(inputFolder) &&
+        fs::exists(inputFolder))
         {
-        const auto ext = p.path().extension();
-        bool inExcludedPath{ false };
-        for (const auto& ePath : excludedPaths)
+        filesToAnalyze.push_back(inputFolder.string());
+        }
+    else if (fs::is_directory(inputFolder) &&
+        fs::exists(inputFolder))
+        {
+        for (const auto& p :
+            fs::recursive_directory_iterator(inputFolder))
             {
-            fs::path excPath(ePath, fs::path::native_format);
-            if (p.exists() && fs::exists(excPath) &&
-                fs::equivalent(p.path().parent_path(), excPath) )
+            const auto ext = p.path().extension();
+            bool inExcludedPath{ false };
+            for (const auto& ePath : excludedPaths)
                 {
-                inExcludedPath = true;
-                break;
-                }
-            }
-        // compare against excluded files if not already in an excluded folder
-        if (!inExcludedPath)
-            {
-            for (const auto& eFile : excludedFiles)
-                {
-                fs::path excFile(eFile, fs::path::native_format);
-                if (p.exists() && fs::exists(excFile) &&
-                    fs::equivalent(p, excFile) )
+                fs::path excPath(ePath, fs::path::native_format);
+                if (p.exists() && fs::exists(excPath) &&
+                    fs::equivalent(p.path().parent_path(), excPath) )
                     {
                     inExcludedPath = true;
                     break;
                     }
                 }
-            }
-        if (p.exists() && p.is_regular_file() &&
-            !inExcludedPath &&
-            (ext.compare(fs::path(L".rc")) == 0 || 
-             ext.compare(fs::path(L".c")) == 0 ||
-             ext.compare(fs::path(L".cpp")) == 0 ||
-             ext.compare(fs::path(L".h")) == 0 ||
-             ext.compare(fs::path(L".hpp")) == 0))
-            {
-            filesToAnalyze.push_back(p.path().string());
+            // compare against excluded files if not already in an excluded folder
+            if (!inExcludedPath)
+                {
+                for (const auto& eFile : excludedFiles)
+                    {
+                    fs::path excFile(eFile, fs::path::native_format);
+                    if (p.exists() && fs::exists(excFile) &&
+                        fs::equivalent(p, excFile) )
+                        {
+                        inExcludedPath = true;
+                        break;
+                        }
+                    }
+                }
+            if (p.exists() && p.is_regular_file() &&
+                !inExcludedPath &&
+                (ext.compare(fs::path(L".rc")) == 0 || 
+                 ext.compare(fs::path(L".c")) == 0 ||
+                 ext.compare(fs::path(L".cpp")) == 0 ||
+                 ext.compare(fs::path(L".h")) == 0 ||
+                 ext.compare(fs::path(L".hpp")) == 0))
+                {
+                filesToAnalyze.push_back(p.path().string());
+                }
             }
         }
 
@@ -307,7 +347,7 @@ int main(int argc, char* argv[])
                 { rs |= review_style::check_l10n_contains_url; }
             else if (r == "notL10NAvailable")
                 { rs |= review_style::check_not_available_for_l10n; }
-            else if (r == "deprecatedMacros")
+            else if (r == "deprecatedMacro")
                 { rs |= review_style::check_deprecated_macros; }
             else if (r == "nonUTF8File")
                 { rs |= review_style::check_utf8_encoded; }
@@ -321,8 +361,10 @@ int main(int argc, char* argv[])
                 { rs |= review_style::check_number_assigned_to_id; }
             else if (r == "dupValAssignedToIds")
                 { rs |= review_style::check_duplicate_value_assigned_to_ids; }
-            else if (r == "malformedStrings")
+            else if (r == "malformedString")
                 { rs |= review_style::check_malformed_strings; }
+            else if (r == "fontIssue")
+                { rs |= review_style::check_fonts; }
             else if (r == "trailingSpaces")
                 { rs |= review_style::check_trailing_spaces; }
             else if (r == "tabs")
@@ -361,7 +403,7 @@ int main(int argc, char* argv[])
                 { rs = rs & ~review_style::check_l10n_contains_url; }
             else if (r == "notL10NAvailable")
                 { rs = rs & ~review_style::check_not_available_for_l10n; }
-            else if (r == "deprecatedMacros")
+            else if (r == "deprecatedMacro")
                 { rs = rs & ~review_style::check_deprecated_macros; }
             else if (r == "nonUTF8File")
                 { rs = rs & ~review_style::check_utf8_encoded; }
@@ -375,8 +417,10 @@ int main(int argc, char* argv[])
                 { rs = rs & ~review_style::check_number_assigned_to_id; }
             else if (r == "dupValAssignedToIds")
                 { rs = rs & ~review_style::check_duplicate_value_assigned_to_ids; }
-            else if (r == "malformedStrings")
+            else if (r == "malformedString")
                 { rs = rs & ~review_style::check_malformed_strings; }
+            else if (r == "fontIssue")
+                { rs = rs & ~review_style::check_fonts; }
             else if (r == "trailingSpaces")
                 { rs = rs & ~review_style::check_trailing_spaces; }
             else if (r == "tabs")
@@ -431,6 +475,17 @@ int main(int argc, char* argv[])
                 else
                     { cpp(fileText, fs::path(file).wstring()); }
                 }
+            else if (const auto [readOk, fileText] = read_utf16_file(file);
+                readOk)
+                {
+                // UTF-16 may not be supported consistently on all platforms and compilers
+                if (cpp.get_style() & check_utf8_encoded)
+                    { filesThatShouldBeConvertedToUTF8.push_back(lazy_string_to_wstring(file)); }
+                if (fileType == file_review_type::rc)
+                    { rc(fileText, fs::path(file).wstring()); }
+                else
+                    { cpp(fileText, fs::path(file).wstring()); }
+                }
             else
                 {
                 if (cpp.get_style() & check_utf8_encoded)
@@ -457,6 +512,7 @@ int main(int argc, char* argv[])
        However, I am just keeping this tool simple.*/
     std::wstringstream report;
     report << "File\tLine\tColumn\tValue\tExplanation\tWarningID\n";
+
     // Windows resource file warnings
     for (const auto& val : rc.get_unsafe_localizable_strings())
         {
@@ -464,6 +520,22 @@ int main(int argc, char* argv[])
             L"\"" << val.m_string << L"\"\t" <<
             L"String available for translation that probably should not be" <<
             L"\t[suspectL10NString]\n";
+        }
+
+    for (const auto& val : rc.get_bad_dialog_font_sizes())
+        {
+        report << val.m_file_name << L"\t\t\t" <<
+            L"\"" << val.m_string << L"\"\t" <<
+            L"Font issue in resource file dialog definition." <<
+            L"\t[fontIssue]\n";
+        }
+
+    for (const auto& val : rc.get_non_system_dialog_fonts())
+        {
+        report << val.m_file_name << L"\t\t\t" <<
+            L"\"" << val.m_string << L"\"\t" <<
+            L"Font issue in resource file dialog definition." <<
+            L"\t[fontIssue]\n";
         }
 
     // C/C++ warnings
@@ -598,7 +670,7 @@ int main(int argc, char* argv[])
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
             L"\t\"" << val.m_string << L"\"\t" <<
             L"Malformed syntax in string." <<
-            L"\t[malformedStrings]\n";
+            L"\t[malformedString]\n";
         }
 
     for (const auto& file : filesThatShouldBeConvertedToUTF8)
@@ -729,14 +801,15 @@ int main(int argc, char* argv[])
             ((cpp.get_style() & check_suspect_l10n_string_usage) ? L"suspectL10NUsage\n" : L"") <<
             ((cpp.get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"") <<
             ((cpp.get_style() & check_not_available_for_l10n) ? L"notL10NAvailable\n" : L"") <<
-            ((cpp.get_style() & check_deprecated_macros) ? L"deprecatedMacros\n" : L"") <<
+            ((cpp.get_style() & check_deprecated_macros) ? L"deprecatedMacro\n" : L"") <<
             ((cpp.get_style() & check_utf8_encoded) ? L"nonUTF8File\n" : L"") <<
             ((cpp.get_style() & check_utf8_with_signature) ? L"UTF8FileWithBOM\n" : L"") <<
             ((cpp.get_style() & check_unencoded_ext_ascii) ? L"unencodedExtASCII\n" : L"") <<
             ((cpp.get_style() & check_printf_single_number) ? L"printfSingleNumber\n" : L"") <<
             ((cpp.get_style() & check_number_assigned_to_id) ? L"numberAssignedToId\n" : L"") <<
             ((cpp.get_style() & check_duplicate_value_assigned_to_ids) ? L"dupValAssignedToIds\n" : L"") <<
-            ((cpp.get_style() & check_malformed_strings) ? L"malformedStrings\n" : L"") <<
+            ((cpp.get_style() & check_malformed_strings) ? L"malformedString\n" : L"") <<
+            ((cpp.get_style() & check_fonts) ? L"fontIssue\n" : L"") <<
             ((cpp.get_style() & check_trailing_spaces) ? L"trailingSpaces\n" : L"") <<
             ((cpp.get_style() & check_tabs) ? L"tabs\n" : L"") <<
             ((cpp.get_style() & check_line_width) ? L"wideLines\n" : L"") <<
