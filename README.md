@@ -7,14 +7,14 @@ Internationalization & localization analysis system for C++ code.
 
 `i18n-check` is a command-line utility that scans a folder of C++ code and checks for the following issues:
 - Strings exposed for translation¹ that probably should not be. This includes (but not limited to):
-    - Filenames
-    - Strings only containing `printf()` commands
-    - Numbers
-    - Regular expressions
-    - Strings inside of debug functions
-    - Formulas
-    - Code (used for code generators)
-    - Strings that contain URLs or email addresses
+  - Filenames
+  - Strings only containing `printf()` commands
+  - Numbers
+  - Regular expressions
+  - Strings inside of debug functions
+  - Formulas
+  - Code (used for code generators)
+  - Strings that contain URLs or email addresses
 - Strings not available for translation that possibly should be.
 - Strings that contain extended ASCII characters that are not encoded.
   ("Danke schön" instead of "Danke sch\U000000F6n".)<br />
@@ -30,10 +30,13 @@ Internationalization & localization analysis system for C++ code.
 - `printf()`-like functions being used to just format an integer to a string.<br />
   It is recommended to use `std::to_string()` to do this instead.
 - ID variable² assignment issues:
-    - The same value being assigned to different ID variables in the same source file
-      (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
-    - Hard-coded numbers being assigned to ID variables.
-    - Out-of-range values being assigned to MFC IDs.
+  - The same value being assigned to different ID variables in the same source file
+    (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
+  - Hard-coded numbers being assigned to ID variables.
+  - Out-of-range values being assigned to MFC IDs.
+- Font issues in Windows resource files:
+  - Dialogs not using "MS Shell Dlg" or "MS Shell Dlg 2."
+  - Dialogs with non-standard font sizes.
 
 Code formatting issues can also be checked for, such as:
 - Trailing spaces at the end of a line.
@@ -80,7 +83,7 @@ Refer [here](Example.md) for example usage.
                        It is recommended to dynamically format these into the string so that
                        translators don't have to manage them.
   notL10NAvailable:    Check for strings not exposed for translation.
-  deprecatedMacros:    Check for deprecated text macros (e.g., wxT()).
+  deprecatedMacro:     Check for deprecated text macros (e.g., wxT()).
   nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
   UTF8FileWithBOM:     Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
                        It is recommended to save without the file signature for
@@ -90,7 +93,9 @@ Refer [here](Example.md) for example usage.
   dupValAssignedToIds: Check for the same value being assigned to different ID variables.
   numberAssignedToId:  Check for ID variables being assigned a hard-coded number.
                        It may be preferred to assign framework-defined constants to IDs.
-  malformedStrings:    Check for malformed syntax in strings (e.g., malformed HTML tags).
+  malformedString:     Check for malformed syntax in strings (e.g., malformed HTML tags).
+  fontIssue:           Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
+                       or using unusual font sizes).
   allCodeFormatting:   Check all code formatting issues (see below).
                        These are not enabled by default.
   trailingSpaces:      Check for trailing spaces at the end of each line.
