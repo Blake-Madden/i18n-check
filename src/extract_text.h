@@ -14,10 +14,9 @@
 
 #include <exception>
 #include <string_view>
-#include "../i18n-check/src/string_util.h"
-#include "../i18n-check/src/char_traits.h"
-#include "../i18n-check/src/donttranslate.h"
-#include "../math/safe_math.h"
+#include "string_util.h"
+#include "char_traits.h"
+#include "donttranslate.h"
 
 namespace lily_of_the_valley
     {

@@ -39,7 +39,7 @@ std::pair<bool, std::wstring> read_utf16_file(const std::string& file_name)
     fs8.seekg(0, std::ios_base::end);
     const auto fileLength = fs8.tellg();
     fs8.seekg(0);
-    std::vector<char> fileData(fileLength);
+    std::vector<char> fileData(static_cast<size_t>(fileLength));
     fs8.read(&fileData[0], fileLength);
 
     if (lily_of_the_valley::unicode_extract_text::is_unicode(&fileData[0]))
