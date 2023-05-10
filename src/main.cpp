@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
         "rlInL10NString, notL10NAvailable, "
         "deprecatedMacro, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
         "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue"
-        "trailingSpaces, tabs, wideLines, commentMissingSpace)",
+        "trailingSpaces, tabs, wideLine, commentMissingSpace)",
         cxxopts::value<std::vector<std::string>>())
     ("disable", "Which checks to not perform (same as the options for enable)",
         cxxopts::value<std::vector<std::string>>())
@@ -369,7 +369,7 @@ int main(int argc, char* argv[])
                 { rs |= review_style::check_trailing_spaces; }
             else if (r == "tabs")
                 { rs |= review_style::check_tabs; }
-            else if (r == "wideLines")
+            else if (r == "wideLine")
                 { rs |= review_style::check_line_width; }
             else if (r == "commentMissingSpace")
                 { rs |= review_style::check_space_after_comment; }
@@ -425,7 +425,7 @@ int main(int argc, char* argv[])
                 { rs = rs & ~review_style::check_trailing_spaces; }
             else if (r == "tabs")
                 { rs = rs & ~review_style::check_tabs; }
-            else if (r == "wideLines")
+            else if (r == "wideLine")
                 { rs = rs & ~review_style::check_line_width; }
             else if (r == "commentMissingSpace")
                 { rs = rs & ~review_style::check_space_after_comment; }
@@ -731,7 +731,7 @@ int main(int argc, char* argv[])
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
             L"\t\"" << val.m_string << L"\"\t" <<
             L"Line is " << val.m_string.length() << L" characters long." <<
-            L"\t[wideLines]\n";
+            L"\t[wideLine]\n";
         }
 
     for (const auto& val : cpp.get_comments_missing_space())
@@ -812,7 +812,7 @@ int main(int argc, char* argv[])
             ((cpp.get_style() & check_fonts) ? L"fontIssue\n" : L"") <<
             ((cpp.get_style() & check_trailing_spaces) ? L"trailingSpaces\n" : L"") <<
             ((cpp.get_style() & check_tabs) ? L"tabs\n" : L"") <<
-            ((cpp.get_style() & check_line_width) ? L"wideLines\n" : L"") <<
+            ((cpp.get_style() & check_line_width) ? L"wideLine\n" : L"") <<
             ((cpp.get_style() & check_space_after_comment) ? L"commentMissingSpace\n" : L"") << L"\n";
 
         std::wcout << L"Statistics" << L"\n###################################################\n" <<

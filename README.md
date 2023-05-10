@@ -103,7 +103,7 @@ Refer [here](Example.md) for example usage.
   tabs:                Check for tabs.
                        (Spaces are recommended as tabs may appear differently between editors.)
                        This is a code formatting check and is not enabled by default.
-  wideLines:           Check for overly long lines.
+  wideLine:            Check for overly long lines.
                        This is a code formatting check and is not enabled by default.
   commentMissingSpace: Check that there is a space at the start of a comment.
                        This is a code formatting check and is not enabled by default.

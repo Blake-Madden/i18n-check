@@ -75,7 +75,7 @@ i18n-check ../samples --log-l10n-allowed=false
 To display any code-formatting issues, enable them explicitly:
 
 ```shellscript
-i18n-check ../samples --enable=allI18N,trailingSpaces,tabs,wideLines
+i18n-check ../samples --enable=allI18N,trailingSpaces,tabs,wideLine
 ```
 
 or
@@ -92,4 +92,4 @@ This will emit the following warnings:
 | ../samples/subset.cpp | 30 | 61 | "m_comparisonType = subsetCriterion.m_comparisonType;" | Trailing space(s) detected at end of line. | [trailingSpaces]
 | ../samples/subset.cpp | 31 | 12 | "" | Trailing space(s) detected at end of line. | [trailingSpaces]
 | ../samples/subset.cpp | 57 | 69 | "subsetCriterion.m_columnName).ToUTF8());" | Trailing space(s) detected at end of line. | [trailingSpaces]
-| ../samples/subset.cpp | 80 | 123 | "                                                        wxString::Format(_(L"                                           )," | Line is 123 characters long. | [wideLines]
+| ../samples/subset.cpp | 80 | 123 | "                                                        wxString::Format(_(L"                                           )," | Line is 123 characters long. | [wideLine]
