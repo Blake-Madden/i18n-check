@@ -497,7 +497,7 @@ namespace i18n_check
     protected:
         // traditionally, 80 chars is the recommended line width,
         // but 120 is a bit more reasonable
-        static constexpr auto m_max_line_lenght{ 120 };
+        static constexpr auto m_max_line_length{ 120 };
         /// @private
         struct exclusion_block_find_info
             {
@@ -552,7 +552,7 @@ namespace i18n_check
         ///     off any class or namespace information.
         /// @param str The string to extract the function name from.
         /// @note This assumes that the functions trailing parentheses and template
-        ///     specifications have alread been removed.
+        ///     specifications have already been removed.
         [[nodiscard]]
         std::wstring_view extract_base_function(const std::wstring_view str) const
             {

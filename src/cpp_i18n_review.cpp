@@ -275,7 +275,7 @@ namespace i18n_check
                     if (previousNewLine == std::wstring::npos)
                         { previousNewLine = 0; }
                     const size_t currentLineLength{ currentPos - (++previousNewLine) };
-                    if (currentLineLength > m_max_line_lenght)
+                    if (currentLineLength > m_max_line_length)
                         {
                         // ...also, only warn if the current line doesn't have a raw
                         // string in it--those can make it complicated to break a line
