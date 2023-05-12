@@ -180,7 +180,8 @@ namespace i18n_check
 
                             // Format macros for the std::fprintf family of functions that may
                             // appear between quoted sections that will actually join the two quotes
-                            const std::wregex intPrintfMacro{ L"PR[IN][uidoxX](8|16|32|64|FAST8|FAST16|FAST32|FAST64|LEAST8|LEAST16|LEAST32|LEAST64|MAX|PTR)" };
+                            const std::wregex intPrintfMacro
+                                { L"PR[IN][uidoxX](8|16|32|64|FAST8|FAST16|FAST32|FAST64|LEAST8|LEAST16|LEAST32|LEAST64|MAX|PTR)" };
                             constexpr size_t int64PrintfMacroLength{ 6 };
                             // see if there is more to this string on another line
                             wchar_t* connectedQuote = end + 1;
@@ -254,7 +255,8 @@ namespace i18n_check
                                                                    cpp_text - m_file_start);
                     if (prevLineStart == std::wstring::npos)
                         { prevLineStart = 0; }
-                    ++prevLineStart; // step forward to original line
+                    // step forward to original line
+                    ++prevLineStart;
                     std::wstring codeLine(m_file_start + prevLineStart,
                                           (cpp_text - (m_file_start + prevLineStart)));
                     string_util::ltrim(codeLine);
@@ -272,21 +274,25 @@ namespace i18n_check
                         string_util::find_last_of(m_file_start, L"\n\r", currentPos - 1);
                     if (previousNewLine == std::wstring::npos)
                         { previousNewLine = 0; }
-                    const size_t currentLineLength{ currentPos - previousNewLine };
-                    // traditionally, 80 chars is the recommended line width,
-                    // but 120 is a bit more reasonable
-                    if (currentLineLength > 120)
+                    const size_t currentLineLength{ currentPos - (++previousNewLine) };
+                    if (currentLineLength > m_max_line_lenght)
                         {
                         // ...also, only warn if the current line doesn't have a raw
                         // string in it--those can make it complicated to break a line
                         // into smaller lines.
-                        const std::wstring currentLine{ m_file_start + previousNewLine, currentLineLength };
+                        // We will also ignore the line if it appears to be a long bitmask.
+                        const std::wstring_view currentLine{ m_file_start + previousNewLine, currentLineLength };
                         if (currentLine.find(L"R\"") == std::wstring::npos &&
                             currentLine.find(L"|") == std::wstring::npos)
                             {
                             m_wide_lines.push_back(
-                                string_info(currentLine,
-                                    string_info::usage_info{},
+                                // truncate and add ellipsis
+                                string_info(std::wstring{ currentLine.substr(0, 32 ) }.append(L"..."),
+                                    string_info::usage_info{
+                                        string_info::usage_info::usage_type::orphan,
+                                        std::to_wstring(currentLineLength),
+                                        std::wstring{}
+                                        },
                                     m_file_name, get_line_and_column(currentPos)));
                             }
                         }

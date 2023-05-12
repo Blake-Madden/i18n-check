@@ -492,6 +492,9 @@ namespace i18n_check
         void add_file_extension_to_ignore(const string_util::case_insensitive_wstring& str)
             { m_file_extensions.emplace(str); }
     protected:
+        // traditionally, 80 chars is the recommended line width,
+        // but 120 is a bit more reasonable
+        static constexpr auto m_max_line_lenght{ 120 };
         /// @private
         struct exclusion_block_find_info
             {

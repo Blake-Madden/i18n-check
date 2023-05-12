@@ -730,7 +730,7 @@ int main(int argc, char* argv[])
         {
         report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column <<
             L"\t\"" << val.m_string << L"\"\t" <<
-            L"Line is " << val.m_string.length() << L" characters long." <<
+            L"Line is " << val.m_usage.m_value << L" characters long." <<
             L"\t[wideLine]\n";
         }
 
