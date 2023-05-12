@@ -47,6 +47,9 @@ namespace i18n_check
             { L"_tcsstr", L"Consider using std::wcsstr() instead." },
             { L"_tcstok", L"Consider using std::wcstok() instead." },
             { L"_tcsxfrm", L"Consider using std::wcsxfrm() instead." },
+            { L"wsprintf", L"Consider using std::swprintf() instead." },
+            { L"_stprintf", L"Consider using std::swprintf() instead." },
+            { L"TCHAR", L"Consider using wchar_t instead." },
             // wxWidgets
             { L"wxStrlen", L"Consider using std::wcslen() or (wrap in a std::wstring_view) instead." },
             { L"wxStrstr", L"Consider using std::wcsstr() instead." },
@@ -67,6 +70,7 @@ namespace i18n_check
             { L"wxIsctrl", L"Consider using std::iswctrl() instead." },
             { L"wxIspunct", L"Consider using std::iswpunct() instead." },
             { L"wxIsspace", L"Consider using std::iswpspace() instead." },
+            { L"wxChar", L"Consider using wchar_t instead." },
             { L"wxStrftime", L"Consider using wxDateTime's formatting functions instead." },
             { L"wxStrtod", L"Consider using wxString::ToDouble() instead." },
             { L"wxTrace", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
@@ -76,7 +80,14 @@ namespace i18n_check
             { L"wxSplitPath", L"This function is obsolete, please use wxFileName::SplitPath() instead." },
             // not i18n related, but it is recommended to use Bind in more modern wxWidget apps
             { L"wxDECLARE_EVENT_TABLE", L"Consider using the class's Bind() function to connect events instead." },
-            { L"wxBEGIN_EVENT_TABLE", L"Consider using the class's Bind() function to connect events instead." }
+            { L"wxBEGIN_EVENT_TABLE", L"Consider using the class's Bind() function to connect events instead." },
+            // not i18n related, just legacy wx functions that can be modernized after c++11
+            { L"wxMin", L"Consider using std::min() instead." },
+            { L"wxMax", L"Consider using std::max() instead." },
+            { L"wxRound", L"Consider using std::lround() instead." },
+            { L"wxIsNan", L"Consider using std::isnan() instead." },
+            { L"wxOVERRIDE", L"Consider using override or final instead." },
+            { L"wxNOEXCEPT", L"Consider using noexcept instead." },
         };
 
         m_untranslatable_regexes = {
@@ -95,9 +106,11 @@ namespace i18n_check
             // a regex expression
             std::wregex(L"[(][?]i[)].*"),
             // single file filter that just has a file extension as its "name"
+            // PNG (*.png)
             // PNG (*.png)|*.png
             // TIFF (*.tif;*.tiff)|*.tif;*.tiff
             // special case for the word "bitmap" also, wouldn't normally translate that
+            std::wregex(LR"(([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,5}[)]))"),
             std::wregex(
                 L"(([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[)][|]"
                  "([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[|]{0,2})+"),
@@ -110,6 +123,9 @@ namespace i18n_check
             std::wregex(LR"(<!DOCTYPE html)"),
             // HTML entities
             std::wregex(L"&[#]?[xX]?[A-Za-z0-9]+;"),
+            std::wregex(LR"(<a href=.*)"),
+            // CSS
+            std::wregex(LR"([\s\S]*(\{[[:space:]]*[a-zA-Z\-]+[[:space:]]*[:][[:space:]]*[0-9a-zA-Z\- \(\);\:%#'",]+[[:space:]]*\})+[\s\S]*)"),
             // JS
             std::wregex(LR"(class[[:space:]]*=[[:space:]]*['"][A-Za-z0-9\- _]*['"])"),
             // An opening HTML element
@@ -177,6 +193,8 @@ namespace i18n_check
             std::wregex(L"([/]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]+){2,}/?"), // UNIX or web folder (needs at least 1 folder in path)
             std::wregex(L"[a-zA-Z][:]([\\\\]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]*)+"), // Windows folder
             std::wregex(L"[/]?sys\\$.*"),
+            // Debug message
+            std::wregex(LR"(^DEBUG:[\s\S]*)"),
             // URL
             std::wregex(LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"),
             // email address
@@ -208,7 +226,9 @@ namespace i18n_check
             L"wxTRANSLATE", L"wxTRANSLATE_IN_CONTEXT",
             L"wxGetTranslation",
             // Qt (note that NOOP functions actually do load something for translation, just not in-place)
-            L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP", L"QT_TRANSLATE_NOOP"
+            L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP", L"QT_TRANSLATE_NOOP",
+            // KDE (ki18n)
+            L"i18n", L"i18np", L"i18ncp", L"i18nc", L"xi18n", L"xi18nc"
             };
 
         // functions that indicate that a string is explicitly marked to not be translatable
@@ -231,7 +251,7 @@ namespace i18n_check
             L"wxT", L"wxT_2", L"wxS", L"wxString", L"wxBasicString", L"wxCFStringRef",
             L"wxASCII_STR",
             // Qt
-            L"QString", L"QLatin1String",
+            L"QString", L"QLatin1String", L"QStringLiteral", L"setStyleSheet",
             // standard string objects
             L"basic_string", L"string", L"wstring", L"u8string", L"u16string", L"u32string",
             L"std::basic_string", L"std::string", L"std::wstring", L"std::u8string",
@@ -272,6 +292,9 @@ namespace i18n_check
             L"SetKeyWords",
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern",
+            L"qmlRegisterUncreatableMetaObject", L"addShaderFromSourceCode",
+            L"QStandardPaths::findExecutable", L"QDateTime::fromString",
+            L"qCDebug", L"qDebug",
             // Catch2
             L"TEST_CASE", L"BENCHMARK", L"TEMPLATE_TEST_CASE", L"SECTION",
             L"DYNAMIC_SECTION", L"REQUIRE", L"REQUIRE_THROWS_WITH", L"REQUIRE_THAT",
@@ -288,6 +311,8 @@ namespace i18n_check
             L"CPPUNIT_ASSERT", L"CPPUNIT_ASSERT_EQUAL", L"CPPUNIT_ASSERT_DOUBLES_EQUAL",
             // low-level printf functions
             L"wprintf", L"printf", L"sprintf", L"snprintf", L"fprintf", L"wxSnprintf",
+            // KDE
+            L"getDocumentProperty", L"setDocumentProperty",
             // GTK
             L"gtk_tree_view_column_new_with_attributes", L"gtk_assert_dialog_append_text_column",
             L"gtk_assert_dialog_add_button_to", L"gtk_assert_dialog_add_button",
@@ -982,7 +1007,7 @@ namespace i18n_check
     bool i18n_review::is_untranslatable_string(std::wstring& str,
                                                const bool limitWordCount) const
         {
-        static const std::wregex oneWordRE{ LR"((\b[\w'\-]+([\.\-\/:]*[\w'\-]*)*))" };
+        static const std::wregex oneWordRE{ LR"((\b[a-zA-Z'\-]+([\.\-\/:]*[\w'\-]*)*))" };
         static const std::wregex loremIpsum(L"Lorem ipsum.*");
 
         i18n_string_util::replace_escaped_control_chars(str);
@@ -1415,6 +1440,25 @@ namespace i18n_check
                      *startPos != L'+' &&
                      *startPos != L'&')
                 { break; }
+            // << stream operator in some languages,
+            // skip over it and skip over ')' in front of it if there is one
+            // to allow things like:
+            //     gDebug() << "message"
+            else if (*startPos == L'<')
+                {
+                --startPos;
+                if (startPos > startSentinel &&
+                    *startPos == L'<')
+                    {
+                    --startPos;
+                    while (startPos > startSentinel &&
+                        std::iswspace(*startPos))
+                        { --startPos; }
+                    if (startPos > startSentinel &&
+                        *startPos == L')')
+                        { --startPos; }
+                    }
+                }
             else
                 {
                 if (*startPos == L',')

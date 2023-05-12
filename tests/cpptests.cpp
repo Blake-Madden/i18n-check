@@ -10,6 +10,27 @@
 using namespace i18n_check;
 using namespace Catch::Matchers;
 
+TEST_CASE("<<", "[cpp][i18n]")
+    {
+    SECTION("<< with params")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(qCDebug(KDE_LOG) << "Rendered image")";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        }
+
+    SECTION("<< empty params")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(qDebug() << "################### THERE IS A MESSAGE #################";)";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        }
+    }
+
 TEST_CASE("Place holders", "[cpp][i18n]")
     {
     SECTION("Xes")
@@ -2463,6 +2484,6 @@ if (std::regex_match(str, m_html_regex) ||
         cpp(code);
         cpp.review_strings();
         REQUIRE(cpp.get_wide_lines().size() == 1);
-        CHECK(cpp.get_wide_lines()[0].m_string.length() == 123);
+        CHECK(cpp.get_wide_lines()[0].m_usage.m_value == L"122");
         }
     }

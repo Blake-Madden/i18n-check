@@ -22,12 +22,15 @@
 
 /// @brief Classes for checking source code for internationalization/localization issues.
 /// @details Refer to https://www.gnu.org/software/gettext/manual/gettext.html
-///     for i18n best practices, which this library attempts to enforce.
+///     for i18n best practices, which this library attempts to enforce.\n
+///     https://techbase.kde.org/Development/Tutorials/Localization/i18n_Mistakes is a good
+///     reference for i18n pitfalls.
 /// @par References:
 ///     https://www.gnu.org/software/gettext/manual/gettext.html <br />
 ///     https://www.gnu.org/software/gettext/ <br />
 ///     https://docs.wxwidgets.org/latest/classwx_translations.html <br />
 ///     https://doc.qt.io/qt-5/i18n-source-translation.html <br />
+///     https://develop.kde.org/docs/plasma/widget/translations-i18n/ <br />
 ///     https://learn.microsoft.com/en-us/cpp/mfc/tn020-id-naming-and-numbering-conventions?view=msvc-170 <br />
 ///     https://learn.microsoft.com/en-us/windows/win32/menurc/stringtable-resource
 namespace i18n_check
