@@ -61,13 +61,14 @@ This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translat
 
 Refer [here](Example.md) for example usage.
 
-[![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
-[![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
 [![unix build](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml)
 [![macOS build](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml)
 [![Windows build](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-build.yml)
 [![unit-tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/unit-tests.yml)
 [![macOS unit tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/macos-unit-test.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macos-unit-test.yml)
+[![Windows unit tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-unit-tests.yml)
+[![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
+[![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
 
 # Usage
 
