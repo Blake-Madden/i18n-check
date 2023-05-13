@@ -12,7 +12,7 @@ on: [push]
 env:
   # Path to the CMake build directory.
   build: '${{ github.workspace }}'
-
+  
 permissions:
   contents: read
 
