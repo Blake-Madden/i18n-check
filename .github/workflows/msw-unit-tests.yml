@@ -1,6 +1,10 @@
 name: Windows Unit Tests
 on: [push]
 
+env:
+  testrunner: 'i18nTestRunner'
+  outfile: 'i18n-junit.xml'
+
 jobs:
   build:
     name: unit-tests
@@ -19,11 +23,11 @@ jobs:
              git clone https://github.com/catchorg/Catch2.git
              cd ${{ github.workspace }}/tests
              cmake ./
-             msbuild i18nTestRunner.sln
+             msbuild ${{ env.testrunner }}.sln
              cd bin\Debug
-             ./i18nTestRunner --reporter JUnit::out=out-junit.xml
-             cat out-junit.xml
-             $FileContent = Get-Content out-junit.xml
+             ./${{ env.testrunner }} --reporter JUnit::out=${{ env.outfile }}
+             cat ${{ env.outfile }}
+             $FileContent = Get-Content ${{ env.outfile }}
              $errors = (Select-String -InputObject $FileContent -Pattern 'errors="([0-9]+)"' | % { $($_.matches.groups[1]) } )
              $failures = (Select-String -InputObject $FileContent -Pattern 'failures="([0-9]+)"' | % { $($_.matches.groups[1]) } )
              if ($errors.Value -gt 0)
