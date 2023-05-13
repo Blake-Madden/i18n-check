@@ -1,15 +1,5 @@
 name: Check Spelling
-
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
-permissions:
-  contents: read
+on: [push]
 
 jobs:
   check-unix:
