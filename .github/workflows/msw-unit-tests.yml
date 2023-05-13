@@ -35,15 +35,15 @@ jobs:
              ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
              cat i18n-junit.xml
              $FileContent = Get-Content i18n-junit.xml
-             $errors = Select-String -InputObject $FileContent -Pattern "(errors)="[^"]*" -AllMatches
-             $failures = Select-String -InputObject $FileContent -Pattern "(failures)="[^"]*" -AllMatches
-             if ($errors.Matches.Count -gt 0)
+             $errors = (Select-String -InputObject $FileContent -Pattern 'errors="([0-9]+)"' | % { $($_.matches.groups[1]) } )
+             $failures = (Select-String -InputObject $FileContent -Pattern 'failures="([0-9]+)"' | % { $($_.matches.groups[1]) } )
+             if ($errors.Value -gt 0)
                {
-               Write-Host "Error count is: " + $errors.Matches.Count
+               Write-Host "Error count is: " + $errors.Value
                exit 1
                }
-             if ($failures.Matches.Count -gt 0)
+             if ($failures.Value -gt 0)
                {
-               Write-Host "Failure count is: " + $failures.Matches.Count
+               Write-Host "Failure count is: " + $failures.Value
                exit 1
                }
