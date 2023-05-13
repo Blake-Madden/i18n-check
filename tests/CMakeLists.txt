@@ -32,13 +32,13 @@ ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ../src/i18n_string_util.cpp
 ../src/i18n_review.cpp ../src/cpp_i18n_review.cpp
 ../src/rc_file_review.cpp
 i18nstringtests.cpp stringutiltests.cpp cpptests.cpp
-decodetests.cpp rctests.cpp)
+decodetests.cpp rctests.cpp testingmain.cpp)
 IF(MSVC)
     TARGET_COMPILE_DEFINITIONS(${CMAKE_PROJECT_NAME} PUBLIC _CRT_SECURE_NO_WARNINGS __UNITTEST)
 ELSE()
     TARGET_COMPILE_DEFINITIONS(${CMAKE_PROJECT_NAME} PUBLIC _CRT_SECURE_NO_WARNINGS __UNITTEST)
 ENDIF()
-TARGET_LINK_LIBRARIES(${CMAKE_PROJECT_NAME} PRIVATE Catch2::Catch2WithMain)
+TARGET_LINK_LIBRARIES(${CMAKE_PROJECT_NAME} PRIVATE Catch2::Catch2)
 
 # load the test cases into the runner
 INCLUDE(CTest)
