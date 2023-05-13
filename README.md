@@ -72,6 +72,8 @@ Refer [here](Example.md) for example usage.
 
 [![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
 [![CodeQL](https://github.com/Blake-Madden/i18n-check/actions/workflows/codeql.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/codeql.yml)
+[![Microsoft C++ Code Analysis](https://github.com/Blake-Madden/i18n-check/actions/workflows/msvc.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msvc.yml)
+
 [![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
 [![Check Spelling](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml)
 
