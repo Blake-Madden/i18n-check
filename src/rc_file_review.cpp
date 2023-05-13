@@ -80,7 +80,7 @@ void rc_file_review::operator()(const std::wstring_view rcFileText,
         {
         std::vector<std::wstring> fontEntries;
         std::vector<std::wstring> fontParts;
-        const std::wregex fontRE{ L"^FONT[ ]*([0-9]+),[ ]*\"([^\"]*)\"" };
+        const std::wregex fontRE{ L"\\bFONT[ ]*([0-9]+),[ ]*\"([^\"]*)\"" };
         std::copy(
             std::regex_token_iterator<decltype(rcFileText)::const_iterator>(
                 rcFileText.cbegin(), rcFileText.cend(), fontRE),
