@@ -54,7 +54,8 @@ In particular, it offers specialized support for the following frameworks:
 - MFC
 
 ¹ Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
-[wxWidgets](https://www.wxwidgets.org), or [Qt](https://www.qt.io) i18n functions.
+[wxWidgets](https://www.wxwidgets.org), [Qt](https://www.qt.io), or
+[KDE](https://develop.kde.org/docs/plasma/widget/translations-i18n) (ki18n) i18n functions.
 This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translate()`,
 `QT_TR_NOOP()`, `wxTRANSLATE()`, `i18n()`, etc.<br />
 ² Variables are determined to be ID variables if they are integral types with the whole word "ID" in their name.
