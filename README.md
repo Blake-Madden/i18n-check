@@ -69,6 +69,7 @@ Refer [here](Example.md) for example usage.
 [![macOS unit tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/macos-unit-test.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macos-unit-test.yml)
 [![Windows unit tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-unit-tests.yml)
 [![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
+[![CodeQL](https://github.com/Blake-Madden/i18n-check/actions/workflows/codeql.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/codeql.yml)
 [![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
 [![Check Spelling](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml)
 
