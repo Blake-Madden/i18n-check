@@ -15,7 +15,7 @@ jobs:
           pip install codespell
       - name: Run codespell
         run: |
-          codespell src/ *.md -L BERKLEY
+          codespell src/ *.md
           rc=$?
           if [ $rc != 0 ]; then
           cat <<EOF
