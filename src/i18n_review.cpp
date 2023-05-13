@@ -16,14 +16,46 @@ namespace i18n_check
     i18n_review::i18n_review()
         {
         m_deprecated_string_macros = {
-            { L"wxT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
-            { L"wxT_2", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
-            { L"wxS", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
-            { L"_T", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
-            { L"TEXT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
-            { L"_TEXT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
-            { L"__TEXT", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" },
-            { L"_WIDE", L"Deprecated text macro that can be removed. (Add 'L' in front of string to make it double-byte.)" }
+            {
+                L"wxT",
+                L"Deprecated text macro that can be removed. "
+                 "(Add 'L' in front of string to make it double-byte.)"
+            },
+            {
+                L"wxT_2",
+                L"Deprecated text macro that can be removed. "
+                 "(Add 'L' in front of string to make it double-byte.)"
+            },
+            {
+                L"wxS",
+                L"Deprecated text macro that can be removed. "
+                 "(Add 'L' in front of string to make it double-byte.)"
+            },
+            {
+                L"_T",
+                L"Deprecated text macro that can be removed. "
+                 "(Add 'L' in front of string to make it double-byte.)"
+            },
+            {
+                L"TEXT",
+                L"Deprecated text macro that can be removed. "
+                 "(Add 'L' in front of string to make it double-byte.)"
+            },
+            {
+                L"_TEXT",
+                L"Deprecated text macro that can be removed. "
+                 "(Add 'L' in front of string to make it double-byte.)"
+            },
+            {
+                L"__TEXT",
+                L"Deprecated text macro that can be removed. "
+                 "(Add 'L' in front of string to make it double-byte.)"
+            },
+            {
+                L"_WIDE",
+                L"Deprecated text macro that can be removed. "
+                 "(Add 'L' in front of string to make it double-byte.)"
+            }
         };
 
         // Whole file needs to be scanned for these, as string variables can be passed to these
@@ -73,14 +105,33 @@ namespace i18n_check
             { L"wxChar", L"Consider using wchar_t instead." },
             { L"wxStrftime", L"Consider using wxDateTime's formatting functions instead." },
             { L"wxStrtod", L"Consider using wxString::ToDouble() instead." },
-            { L"wxTrace", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
-            { L"WXTRACE", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
-            { L"wxTraceLevel", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead." },
-            { L"wxUnix2DosFilename", L"Construct a wxFileName with wxPATH_UNIX and then use wxFileName::GetFullPath(wxPATH_DOS) instead." },
+            {
+                L"wxTrace",
+                L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead."
+            },
+            {
+                L"WXTRACE",
+                L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead."
+            },
+            {
+                L"wxTraceLevel",
+                L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() functions instead."
+            },
+            {
+                L"wxUnix2DosFilename",
+                L"Construct a wxFileName with wxPATH_UNIX and then use "
+                 "wxFileName::GetFullPath(wxPATH_DOS) instead."
+            },
             { L"wxSplitPath", L"This function is obsolete, please use wxFileName::SplitPath() instead." },
             // not i18n related, but it is recommended to use Bind in more modern wxWidget apps
-            { L"wxDECLARE_EVENT_TABLE", L"Consider using the class's Bind() function to connect events instead." },
-            { L"wxBEGIN_EVENT_TABLE", L"Consider using the class's Bind() function to connect events instead." },
+            {
+                L"wxDECLARE_EVENT_TABLE",
+                L"Consider using the class's Bind() function to connect events instead."
+            },
+            {
+                L"wxBEGIN_EVENT_TABLE",
+                L"Consider using the class's Bind() function to connect events instead."
+            },
             // not i18n related, just legacy wx functions that can be modernized after c++11
             { L"wxMin", L"Consider using std::min() instead." },
             { L"wxMax", L"Consider using std::max() instead." },
@@ -125,7 +176,8 @@ namespace i18n_check
             std::wregex(L"&[#]?[xX]?[A-Za-z0-9]+;"),
             std::wregex(LR"(<a href=.*)"),
             // CSS
-            std::wregex(LR"([\s\S]*(\{[[:space:]]*[a-zA-Z\-]+[[:space:]]*[:][[:space:]]*[0-9a-zA-Z\- \(\);\:%#'",]+[[:space:]]*\})+[\s\S]*)"),
+            std::wregex(
+                LR"([\s\S]*(\{[[:space:]]*[a-zA-Z\-]+[[:space:]]*[:][[:space:]]*[0-9a-zA-Z\- \(\);\:%#'",]+[[:space:]]*\})+[\s\S]*)"),
             // JS
             std::wregex(LR"(class[[:space:]]*=[[:space:]]*['"][A-Za-z0-9\- _]*['"])"),
             // An opening HTML element
@@ -143,10 +195,12 @@ namespace i18n_check
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
             std::wregex(LR"(xml[ ]*version[ ]*=[ ]*\\["'][0-9\.]+\\["'][>]?)"), // partial header
             std::wregex(LR"(<[\\]?\?xml[ a-zA-Z0-9=\\"'%\-]*[\?]?>)"), // full header
-            std::wregex(LR"(<[A-Za-z]+[A-Za-z0-9_/\\\-\.'"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\-.']*>)"),
+            std::wregex(
+                LR"(<[A-Za-z]+[A-Za-z0-9_/\\\-\.'"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\-.']*>)"),
             std::wregex(LR"(<[A-Za-z]+([A-Za-z0-9_\-\.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*)"),
             // <image x=%d y=\"%d\" width = '%dpx' height="%dpx"
-            std::wregex(L"<[A-Za-z0-9_\\-\\.]+[[:space:]]*([A-Za-z0-9_\\-\\.]+[[:space:]]*=[[:space:]]*[\"'\\\\]{0,2}[a-zA-Z0-9\\-]*[\"'\\\\]{0,2}[[:space:]]*)+"),
+            std::wregex(
+                LR"(<[A-Za-z0-9_\-\.]+[[:space:]]*([A-Za-z0-9_\-\.]+[[:space:]]*=[[:space:]]*[\"'\\]{0,2}[a-zA-Z0-9\-]*[\"'\\]{0,2}[[:space:]]*)+)"),
             std::wregex(L"charset[[:space:]]*=.*",
                 std::regex_constants::icase),
             // all 'X'es, spaces, and commas are usually a placeholder of some sort
@@ -167,7 +221,8 @@ namespace i18n_check
             // equal sign followed by a single word is probably some sort of config file tag or formula.
             std::wregex(L"=[A-Za-z0-9_]+"),
             // character encodings
-            std::wregex(L"(utf[-]?[[:digit:]]+|Shift[-_]JIS|us-ascii|windows-[[:digit:]]{4}|KOI8-R|Big5|GB2312|iso-[[:digit:]]{4}-[[:digit:]]+)",
+            std::wregex(
+                LR"((utf[-]?[[:digit:]]+|Shift[-_]JIS|us-ascii|windows-[[:digit:]]{4}|KOI8-R|Big5|GB2312|iso-[[:digit:]]{4}-[[:digit:]]+))",
                 std::regex_constants::icase),
             // wxWidgets constants
             std::wregex(L"(wx|WX)[A-Z_0-9]{2,}"),
@@ -176,7 +231,8 @@ namespace i18n_check
             // Config_File, "user_level_permission", "__HIGH_SCORE__"
             std::wregex(L"[_]*[a-zA-Z0-9]+(_[a-zA-Z0-9]+)+[_]*"),
             // CSS strings
-            std::wregex(L"font-(style|weight|family|size|face-name|underline|point-size)[[:space:]]*[:]?.*",
+            std::wregex(
+                L"font-(style|weight|family|size|face-name|underline|point-size)[[:space:]]*[:]?.*",
                 std::regex_constants::icase),
             std::wregex(L"text-decoration[[:space:]]*[:]?.*", std::regex_constants::icase),
             std::wregex(L"(background-)?color[[:space:]]*:.*", std::regex_constants::icase),
@@ -187,19 +243,26 @@ namespace i18n_check
                 std::regex_constants::icase), // common file extension that might be missing the period
             std::wregex(L"[.][a-zA-Z0-9]{1,5}"), // file extension
             std::wregex(L"[.]DS_Store"), // macOS file
-            std::wregex(L"[\\\\/]?[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]+([.][a-zA-Z0-9]{1,4})+"), // file name (supports multiple extensions)
-            std::wregex(L"([[:alnum:]_-]+[\\\\/]){1,2}[[:alnum:]_-]+([.][a-zA-Z0-9]{1,4})+"), // ultra simple relative file path (e.g., "shaders/player1.vert")
+            // file name (supports multiple extensions)
+            std::wregex(L"[\\\\/]?[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]+([.][a-zA-Z0-9]{1,4})+"),
+            // ultra simple relative file path (e.g., "shaders/player1.vert")
+            std::wregex(L"([[:alnum:]_-]+[\\\\/]){1,2}[[:alnum:]_-]+([.][a-zA-Z0-9]{1,4})+"),
             std::wregex(L"\\*[.][a-zA-Z0-9]{1,5}"), // wild card file extension
-            std::wregex(L"([/]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]+){2,}/?"), // UNIX or web folder (needs at least 1 folder in path)
-            std::wregex(L"[a-zA-Z][:]([\\\\]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]*)+"), // Windows folder
+            // UNIX or web folder (needs at least 1 folder in path)
+            std::wregex(L"([/]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]+){2,}/?"),
+            // Windows folder
+            std::wregex(L"[a-zA-Z][:]([\\\\]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\\[\\]\\-]*)+"),
             std::wregex(L"[/]?sys\\$.*"),
             // Debug message
             std::wregex(LR"(^DEBUG:[\s\S]*)"),
             // URL
-            std::wregex(LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"),
+            std::wregex(
+                LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"),
             // email address
-            std::wregex(LR"(^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$)"),
-            std::wregex(LR"(^[\w ]*<[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>$)"),
+            std::wregex(
+                LR"(^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$)"),
+            std::wregex(
+                LR"(^[\w ]*<[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>$)"),
             // Windows HTML clipboard data
             std::wregex(L".*(End|Start)(HTML|Fragment)[:]?[[:digit:]]*.*"),
             // printer commands (e.g., @PAGECOUNT@)
@@ -207,7 +270,8 @@ namespace i18n_check
             // [CMD]
             std::wregex(L"\\[[A-Z0-9]+\\]"),
             // Windows OS names
-            std::wregex(L"(Microsoft )?Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2}"),
+            std::wregex(
+                LR"((Microsoft )?Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2})"),
             // products
             std::wregex(LR"((Microsoft )?Visual Studio)"),
             std::wregex(LR"((Microsoft )?Visual C\+\+)"),
@@ -461,7 +525,8 @@ namespace i18n_check
                                             std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"xpm([[:alnum:]_\\-])*",
             std::regex_constants::icase));
-        add_variable_name_pattern_to_ignore(std::wregex(L"(sql|db|database)(Table|Update|Query|Command|Upgrade)?[[:alnum:]_\\-]*",
+        add_variable_name_pattern_to_ignore(std::wregex(
+            L"(sql|db|database)(Table|Update|Query|Command|Upgrade)?[[:alnum:]_\\-]*",
             std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourDialogNames"));
         add_variable_name_pattern_to_ignore(std::wregex(L"wxColourTable"));
@@ -469,7 +534,8 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    void i18n_review::load_deprecated_functions(const std::wstring_view fileText, const std::wstring& fileName)
+    void i18n_review::load_deprecated_functions(const std::wstring_view fileText,
+                                                const std::wstring& fileName)
         {
         if (!(m_reviewStyles & check_deprecated_macros))
             { return; }
@@ -546,9 +612,11 @@ namespace i18n_check
                 // break the ID into parts and see what's around "ID";
                 // we don't want "ID" if it is part of a word like "WIDTH"
                 std::copy(
-                    std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>(
+                    std::regex_token_iterator<
+                        std::remove_reference_t<decltype(subMatches[0])>::const_iterator>(
                         subMatches[0].cbegin(), subMatches[0].cend(), varNamePartsRE, { 1, 2, 3, 4, 5 }),
-                    std::regex_token_iterator<std::remove_reference_t<decltype(subMatches[0])>::const_iterator>{},
+                    std::regex_token_iterator<
+                        std::remove_reference_t<decltype(subMatches[0])>::const_iterator>{},
                     std::back_inserter(idNameParts));
                 // MFC IDs
                 if (((idNameParts[0].empty() ||
@@ -575,9 +643,12 @@ namespace i18n_check
                 {
                 idNameParts.clear();
                 std::copy(
-                    std::regex_token_iterator<std::remove_reference_t<decltype(idAssignment.first)>::const_iterator>(
-                        idAssignment.first.cbegin(), idAssignment.first.cend(), varNameIDPartsRE, { 1, 2, 3 }),
-                    std::regex_token_iterator<std::remove_reference_t<decltype(idAssignment.first)>::const_iterator>(),
+                    std::regex_token_iterator<
+                        std::remove_reference_t<decltype(idAssignment.first)>::const_iterator>(
+                        idAssignment.first.cbegin(), idAssignment.first.cend(),
+                            varNameIDPartsRE, { 1, 2, 3 }),
+                    std::regex_token_iterator<
+                        std::remove_reference_t<decltype(idAssignment.first)>::const_iterator>(),
                     std::back_inserter(idNameParts));
                 const auto IdVal = [&idAssignment]()
                     {
@@ -638,7 +709,8 @@ namespace i18n_check
                             string_info::usage_info{},
                             fileName, std::make_pair(std::wstring::npos, std::wstring::npos)));
                     }
-                const auto [pos, inserted] = assignedIds.insert(std::make_pair(idAssignment.second, idAssignment.first));
+                const auto [pos, inserted] =
+                    assignedIds.insert(std::make_pair(idAssignment.second, idAssignment.first));
                 if ((m_reviewStyles & check_duplicate_value_assigned_to_ids) &&
                     !inserted &&
                     idAssignment.second.length() &&
@@ -904,7 +976,8 @@ namespace i18n_check
             {
             m_internal_strings.emplace_back(
                 string_info(value,
-                string_info::usage_info(string_info::usage_info::usage_type::variable, variableName, variableType),
+                string_info::usage_info(
+                    string_info::usage_info::usage_type::variable, variableName, variableType),
                 m_file_name, get_line_and_column(quotePosition)));
             return;
             }
@@ -1173,7 +1246,8 @@ namespace i18n_check
         {
         for (const auto& str : m_localizable_strings)
             {
-            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type !=
+                string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -1181,7 +1255,8 @@ namespace i18n_check
             }
         for (const auto& str : m_not_available_for_localization_strings)
             {
-            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type !=
+                string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -1189,7 +1264,8 @@ namespace i18n_check
             }
         for (const auto& str : m_marked_as_non_localizable_strings)
             {
-            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type !=
+                string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -1197,7 +1273,8 @@ namespace i18n_check
             }
         for (const auto& str : m_internal_strings)
             {
-            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type !=
+                string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -1205,7 +1282,8 @@ namespace i18n_check
             }
         for (const auto& str : m_unsafe_localizable_strings)
             {
-            if (str.m_usage.m_value.empty() && str.m_usage.m_type != string_info::usage_info::usage_type::orphan)
+            if (str.m_usage.m_value.empty() && str.m_usage.m_type !=
+                string_info::usage_info::usage_type::orphan)
                 {
                 log_message(str.m_string,
                     L"Unknown function or variable assignment for this string.", std::wstring::npos);
@@ -1257,7 +1335,8 @@ namespace i18n_check
                         string_util::find_last_of(startSentinel, L'<', functionOrVarNamePos - startSentinel);
                     if (openingAngle == std::wstring::npos)
                         {
-                        log_message(L"Template parse error", L"Unable to find opening < for template variable.",
+                        log_message(L"Template parse error",
+                                    L"Unable to find opening < for template variable.",
                                     functionOrVarNamePos - startSentinel);
                         return;
                         }
@@ -1471,8 +1550,8 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    std::pair<size_t, size_t> i18n_review::get_line_and_column(size_t position,
-                                                               const wchar_t* fileStart /*= nullptr*/) const noexcept
+    std::pair<size_t, size_t> i18n_review::get_line_and_column(
+        size_t position, const wchar_t* fileStart /*= nullptr*/) const noexcept
         {
         if (position == std::wstring::npos)
             { return std::make_pair(std::wstring::npos, std::wstring::npos); }

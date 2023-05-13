@@ -305,7 +305,7 @@ int main(int argc, char* argv[])
                 }
             if (p.exists() && p.is_regular_file() &&
                 !inExcludedPath &&
-                (ext.compare(fs::path(L".rc")) == 0 || 
+                (ext.compare(fs::path(L".rc")) == 0 ||
                  ext.compare(fs::path(L".c")) == 0 ||
                  ext.compare(fs::path(L".cpp")) == 0 ||
                  ext.compare(fs::path(L".h")) == 0 ||
@@ -469,7 +469,7 @@ int main(int argc, char* argv[])
                 {
                 if (startsWithBom &&
                     cpp.get_style() & check_utf8_with_signature)
-                    { filesThatContainUTF8Signature.push_back(lazy_string_to_wstring(file)); } 
+                    { filesThatContainUTF8Signature.push_back(lazy_string_to_wstring(file)); }
                 if (fileType == file_review_type::rc)
                     { rc(fileText, fs::path(file).wstring()); }
                 else
@@ -679,7 +679,7 @@ int main(int argc, char* argv[])
             L"\t\t\t\tFile contains extended ASCII characters, "
             "but is not encoded as UTF-8.\t[nonUTF8File]\n";
         }
-    
+
     for (const auto& file : filesThatContainUTF8Signature)
         {
         report << file <<

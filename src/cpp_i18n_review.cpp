@@ -181,7 +181,7 @@ namespace i18n_check
                             // Format macros for the std::fprintf family of functions that may
                             // appear between quoted sections that will actually join the two quotes
                             const std::wregex intPrintfMacro
-                                { L"PR[IN][uidoxX](8|16|32|64|FAST8|FAST16|FAST32|FAST64|LEAST8|LEAST16|LEAST32|LEAST64|MAX|PTR)" };
+                                { LR"(PR[IN][uidoxX](8|16|32|64|FAST8|FAST16|FAST32|FAST64|LEAST8|LEAST16|LEAST32|LEAST64|MAX|PTR))" };
                             constexpr size_t int64PrintfMacroLength{ 6 };
                             // see if there is more to this string on another line
                             wchar_t* connectedQuote = end + 1;

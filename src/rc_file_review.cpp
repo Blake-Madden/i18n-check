@@ -21,18 +21,18 @@ void rc_file_review::operator()(const std::wstring_view rcFileText,
         std::vector<std::wstring> stringTables;
         const std::wregex STRINGTABLE{ LR"(STRINGTABLE[[:space:]]*(BEGIN|\{)[[:space:]]*)" };
         const std::wregex END{ LR"([\r\n]+(END|\}))" };
-        std::match_results<decltype(rcFileText)::const_iterator> stPostions;
-        std::match_results<decltype(rcFileText)::const_iterator> endPostions;
+        std::match_results<decltype(rcFileText)::const_iterator> stPositions;
+        std::match_results<decltype(rcFileText)::const_iterator> endPositions;
         auto currentPos{ rcFileText };
-        while (std::regex_search(currentPos.cbegin(), currentPos.cend(), stPostions, STRINGTABLE))
+        while (std::regex_search(currentPos.cbegin(), currentPos.cend(), stPositions, STRINGTABLE))
             {
-            currentPos = currentPos.substr(stPostions.position());
-            if (std::regex_search(currentPos.cbegin(), currentPos.cend(), endPostions, END))
+            currentPos = currentPos.substr(stPositions.position());
+            if (std::regex_search(currentPos.cbegin(), currentPos.cend(), endPositions, END))
                 {
                 stringTables.push_back(
-                    std::wstring(currentPos.substr(0, endPostions.position() + endPostions.length())));
+                    std::wstring(currentPos.substr(0, endPositions.position() + endPositions.length())));
 
-                currentPos = currentPos.substr(endPostions.position() + endPostions.length());
+                currentPos = currentPos.substr(endPositions.position() + endPositions.length());
                 }
             }
 
@@ -112,7 +112,8 @@ void rc_file_review::operator()(const std::wstring_view rcFileText,
                 {
                 m_badFontSizes.push_back(
                     string_info{
-                        fontEntry + L": font size " + fontParts[0] + L" is non-standard (8 is recommended).",
+                        fontEntry + L": font size " + fontParts[0] +
+                        L" is non-standard (8 is recommended).",
                         string_info::usage_info{},
                         file_name, std::make_pair(-1, -1) });
                 }
@@ -122,7 +123,8 @@ void rc_file_review::operator()(const std::wstring_view rcFileText,
                 {
                 m_nonSystemFontNames.push_back(
                     string_info{
-                        fontEntry + L": font name '" + fontParts[1] + L"' may not map well on some systems (MS Shell Dlg is recommended).",
+                        fontEntry + L": font name '" + fontParts[1] +
+                        L"' may not map well on some systems (MS Shell Dlg is recommended).",
                         string_info::usage_info{},
                         file_name, std::make_pair(-1, -1) });
                 }
