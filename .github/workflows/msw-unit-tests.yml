@@ -30,7 +30,7 @@ jobs:
              git clone https://github.com/catchorg/Catch2.git
              cd i18n-check/tests
              cmake ./
-             msbuild i18n-check.sln
+             msbuild i18nTestRunner.sln
              cd bin
              ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
              cat i18n-junit.xml
