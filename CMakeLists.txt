@@ -27,6 +27,6 @@ IF(MSVC)
                          $<$<CONFIG:Debug>:/Od> $<$<CONFIG:Release>:/O2>)
   TARGET_COMPILE_DEFINITIONS(${CMAKE_PROJECT_NAME} PRIVATE -D_CRT_SECURE_NO_WARNINGS)
 ELSE()
-  TARGET_COMPILE_OPTIONS(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wshadow
+  TARGET_COMPILE_OPTIONS(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Werror
                          $<$<CONFIG:Debug>:-Og> $<$<CONFIG:Release>:-O2>)
 ENDIF()
