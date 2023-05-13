@@ -23,10 +23,13 @@ jobs:
         run: |
              # just analyze code formatting while we are here
              cd bin
+             ls
              ./i18n-check ../src --enable=allCodeFormatting -q -o i18nresults.txt
 
       - name: review results
         run: |
+             pwd
+             ls
              REPORTFILE=./i18nresults.txt
              WARNINGSFILE=./warnings.txt
              if test -f "$REPORTFILE"; then
