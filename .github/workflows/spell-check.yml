@@ -1,4 +1,4 @@
-name: Check Spelling
+name: Spell Check
 on: [push]
 
 jobs:
