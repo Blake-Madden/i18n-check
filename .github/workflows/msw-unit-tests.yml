@@ -32,7 +32,8 @@ jobs:
              cmake ./
              msbuild i18nTestRunner.sln
              cd bin
-             ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
+             dir
+             i18nTestRunner --reporter JUnit::out=i18n-junit.xml
              cat i18n-junit.xml
              $errors=$(cat i18n-junit.xml | grep -Po '(errors)="\K[^"]*')
              $failures=$(cat i18n-junit.xml | grep -Po '(failures)="\K[^"]*')
