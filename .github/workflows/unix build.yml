@@ -23,7 +23,7 @@ jobs:
         run: |
              # just analyze code formatting while we are here
              cd bin
-             ./i18n-check ../src --ignore=cxxopts,utf8cpp --enable=allCodeFormatting -q -o i18nresults.txt
+             ./i18n-check ../src --ignore=cxxopts,utfcpp --enable=allCodeFormatting -q -o i18nresults.txt
 
       - name: review results
         run: |
