@@ -1226,12 +1226,12 @@ namespace i18n_check
     //--------------------------------------------------
     void i18n_review::process_strings()
         {
-        const auto processStrings = [this](auto& strings)
+        const auto processStrings = [](auto& strings)
             {
             std::for_each(strings.begin(),
                           strings.end(),
-                [this](auto& val)
-                { val.m_string = collapse_multipart_string(val.m_string); });
+                [](auto& val)
+                { val.m_string = i18n_review::collapse_multipart_string(val.m_string); });
             };
         processStrings(m_localizable_strings);
         processStrings(m_localizable_strings_in_internal_call);
