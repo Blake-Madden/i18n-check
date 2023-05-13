@@ -15,5 +15,5 @@ jobs:
           pip install codespell
       - name: Run codespell
         run: |
-          ./codespell ./src > codespell-results.txt
+          codespell ./src > codespell-results.txt
           cat codespell-results.txt
