@@ -619,8 +619,8 @@ namespace i18n_check
                         std::remove_reference_t<decltype(subMatches[0])>::const_iterator>{},
                     std::back_inserter(idNameParts));
                 // MFC IDs
-                if (((idNameParts[0].empty() ||
-                     idNameParts[0].length() && !std::iswupper(idNameParts[0].back()))) &&
+                if ((idNameParts[0].empty() ||
+                     (idNameParts[0].length() && !std::iswupper(idNameParts[0].back()))) &&
                     (idNameParts[2].compare(0, 2, L"R_") == 0 ||
                      idNameParts[2].compare(0, 2, L"D_") == 0 ||
                      idNameParts[2].compare(0, 2, L"C_") == 0 ||

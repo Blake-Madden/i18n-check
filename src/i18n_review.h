@@ -724,7 +724,7 @@ namespace i18n_check
         ///     variable type (e.g., const) and should be skipped.
         /// @param variableType The parsed variable type to review.
         [[nodiscard]]
-        virtual bool is_variable_type_decorator(const std::wstring_view variableType) const
+        virtual bool is_variable_type_decorator([[maybe_unused]] const std::wstring_view variableType) const
             { return false; }
 
         /// @returns The line and column position from a character position.
