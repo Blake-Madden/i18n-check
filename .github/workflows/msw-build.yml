@@ -20,8 +20,8 @@ jobs:
       - name: build
         run: |
              cd ${{ github.workspace }}
-             cmake
+             cmake ./
       - name: Build Solution (windows)
         run: |
           dir
-          MSBuild.exe i18n-check.sln
+          cl i18n-check.sln
