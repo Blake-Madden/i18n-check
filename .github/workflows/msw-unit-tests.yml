@@ -36,11 +36,11 @@ jobs:
              cat i18n-junit.xml
              errors=$(cat i18n-junit.xml | grep -Po '(errors)="\K[^"]*')
              failures=$(cat i18n-junit.xml | grep -Po '(failures)="\K[^"]*')
-             if %errors% > 0 (
+             if %errors% GEQ 1 (
                echo "Error count is: %errors%"
                exit 1
              )
-             if %failures% > 0 (
+             if %failures% GEQ 1 (
                echo "Failure count is: %failures%"
                exit 1
              )
