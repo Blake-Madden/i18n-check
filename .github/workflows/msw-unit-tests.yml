@@ -9,17 +9,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: 'true'
-      - run: git config --global core.autocrlf input
-      - name: Install Cygwin Action
-        uses: cygwin/cygwin-install-action@v4
-      - name: Installing vcpkg (windows)
-        run: |
-          cd ..
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
-          git checkout
-          .\bootstrap-vcpkg.bat
-          .\vcpkg.exe install cppzmq:x64-windows
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1.1.3
         with:
@@ -28,13 +17,13 @@ jobs:
         run: |
              cd ..
              git clone https://github.com/catchorg/Catch2.git
-             cd i18n-check/tests
+             cd ${{ github.workspace }}/tests
              cmake ./
              msbuild i18nTestRunner.sln
              cd bin\Debug
-             ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
-             cat i18n-junit.xml
-             $FileContent = Get-Content i18n-junit.xml
+             ./i18nTestRunner --reporter JUnit::out=out-junit.xml
+             cat out-junit.xml
+             $FileContent = Get-Content out-junit.xml
              $errors = (Select-String -InputObject $FileContent -Pattern 'errors="([0-9]+)"' | % { $($_.matches.groups[1]) } )
              $failures = (Select-String -InputObject $FileContent -Pattern 'failures="([0-9]+)"' | % { $($_.matches.groups[1]) } )
              if ($errors.Value -gt 0)
