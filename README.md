@@ -66,6 +66,7 @@ Refer [here](Example.md) for example usage.
 [![unix build](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml)
 [![macOS build](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml)
 [![unit-tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/unit-tests.yml)
+[![macOS unit tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/macos-unit-test.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macos-unit-test.yml)
 
 # Usage
 
