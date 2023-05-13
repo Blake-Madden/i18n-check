@@ -17,11 +17,14 @@ jobs:
           git checkout
           .\bootstrap-vcpkg.bat
           .\vcpkg.exe install cppzmq:x64-windows
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1.1.3
+        with:
+            vs-prerelease: true
       - name: build
         run: |
              cd ${{ github.workspace }}
              cmake ./
       - name: Build Solution (windows)
         run: |
-          dir
-          cl i18n-check.sln
+          msbuild i18n-check.sln
