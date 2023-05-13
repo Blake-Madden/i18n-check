@@ -34,15 +34,15 @@ jobs:
              cd bin
              ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
              cat i18n-junit.xml
-             errors=$(cat i18n-junit.xml | grep -Po '(errors)="\K[^"]*')
-             failures=$(cat i18n-junit.xml | grep -Po '(failures)="\K[^"]*')
-             if (%errors% GEQ 1)
+             $errors=$(cat i18n-junit.xml | grep -Po '(errors)="\K[^"]*')
+             $failures=$(cat i18n-junit.xml | grep -Po '(failures)="\K[^"]*')
+             if ($errors -gt 0)
                {
-               echo "Error count is: %errors%"
+               Write-Host "Error count is: " + $errors
                exit 1
                }
-             if (%failures% GEQ 1)
+             if ($failures - \gt 0)
                {
-               echo "Failure count is: %failures%"
+               Write-Host "Failure count is: " + $failures
                exit 1
                }
