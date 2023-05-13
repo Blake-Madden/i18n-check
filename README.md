@@ -69,6 +69,7 @@ Refer [here](Example.md) for example usage.
 [![Windows unit tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-unit-tests.yml)
 [![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
 [![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
+[![Check Spelling](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml)
 
 # Usage
 
