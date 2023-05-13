@@ -32,17 +32,18 @@ jobs:
              cmake ./
              msbuild i18nTestRunner.sln
              cd bin\Debug
-             ./i18nTestRunner.exe --reporter JUnit::out=i18n-junit.xml
+             ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
              cat i18n-junit.xml
-             $errors=$(cat i18n-junit.xml | grep -Po '(errors)="[^"]*')
-             $failures=$(cat i18n-junit.xml | grep -Po '(failures)="[^"]*')
-             if ($errors -gt 0)
+             $FileContent = Get-Content i18n-junit.xml
+             $errors = Select-String -InputObject $FileContent -Pattern "(errors)="[^"]*" -AllMatches
+             $failures = Select-String -InputObject $FileContent -Pattern "(failures)="[^"]*" -AllMatches
+             if ($errors.Matches.Count -gt 0)
                {
-               Write-Host "Error count is: " + $errors
+               Write-Host "Error count is: " + $errors.Matches.Count
                exit 1
                }
-             if ($failures -gt 0)
+             if ($failures.Matches.Count -gt 0)
                {
-               Write-Host "Failure count is: " + $failures
+               Write-Host "Failure count is: " + $failures.Matches.Count
                exit 1
                }
