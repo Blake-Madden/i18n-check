@@ -48,13 +48,14 @@ void rc_file_review::operator()(const std::wstring_view rcFileText,
             }
 
         // review table entries
-        for (auto& te : tableEntries)
+        for (auto& tabEntry : tableEntries)
             {
             // strip off trailing quote
-            if (te.length() > 0)
-                { te.pop_back(); }
-            const auto originalStr{ te }; // don't include transformed string in report
-            if (is_untranslatable_string(te, false))
+            if (tabEntry.length() > 0)
+                { tabEntry.pop_back(); }
+            // don't include transformed string in report
+            const auto originalStr{ tabEntry };
+            if (is_untranslatable_string(tabEntry, false))
                 {
                 m_unsafe_localizable_strings.push_back(
                     string_info(originalStr,

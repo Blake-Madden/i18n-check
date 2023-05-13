@@ -401,7 +401,7 @@ namespace i18n_check
                          L".Helvetica Neue DeskInterface", L".Lucida Grande UI",
                          L"Times New Roman", L"Georgia", L"Segoe UI", L"Segoe Script",
                          L"Century Gothic", L"Century", L"Cascadia Mono", L"URW Bookman L",
-                         L"AR BERKLEY", L"Brush Script", L"Consolas", L"Century Schoolbook L",
+                         L"AR Berkley", L"Brush Script", L"Consolas", L"Century Schoolbook L",
                          L"Lucida Grande", L"Helvetica Neue", L"Liberation Serif", L"Luxi Serif",
                          L"Ms Shell Dlg", L"Ms Shell Dlg 2", L"Bitstream Vera Serif", L"URW Palladio L",
                          L"URW Chancery L", L"Comic Sans MS", L"DejaVu Serif", L"DejaVu LGC Serif",

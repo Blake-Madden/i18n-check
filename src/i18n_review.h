@@ -468,7 +468,7 @@ namespace i18n_check
         /// @brief Set whether strings sent to logging functions can be translatable.
         /// @details The default is @c true.
         /// @note This will not require that strings sent to logging functions
-        ///     must be localizable, only that it is OK it send translatable stings
+        ///     must be localizable, only that it is OK it send translatable strings
         ///     to functions. Setting this to @c false will signal
         ///     warnings when localizable strings are sent to these types of functions.
         /// @param allow @c true to consider log messages as localizable.
@@ -727,7 +727,7 @@ namespace i18n_check
         virtual bool is_variable_type_decorator(const std::wstring_view variableType) const
             { return false; }
 
-        /// @returns The line and column postion from a character position.
+        /// @returns The line and column position from a character position.
         /// @param position The character position in the file.
         /// @param fileStart The start of a file buffer to begin the search from.\n
         ///     If @c nullptr, will use the currently loaded file.
