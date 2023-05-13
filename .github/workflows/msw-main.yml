@@ -1,0 +1,30 @@
+name: Windows build
+on: [push]
+
+jobs:
+  build:
+    name: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+      - name: Installing vcpkg (windows)
+        run: |
+          cd ..
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          git checkout
+          .\bootstrap-vcpkg.bat
+          .\vcpkg.exe install cppzmq:x64-windows
+      - name: build
+        run: |
+             cd ${{ github.workspace }}
+             mkdir build
+             cd build
+             cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}
+                  /../vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Build Solution (windows)
+        run: |
+          cd build
+          MSBuild.exe i18n-check.sln
