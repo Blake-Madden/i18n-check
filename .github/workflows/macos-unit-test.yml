@@ -1,0 +1,31 @@
+name: macOS unit tests
+on: [push]
+
+jobs:
+  build:
+    name: unit-tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+      - name: build & run tests
+        run: |
+             cd ..
+             git clone https://github.com/catchorg/Catch2.git
+             cd i18n-check/tests
+             cmake ./
+             make -j4
+             cd bin
+             ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
+             cat i18n-junit.xml
+             errors=$(cat i18n-junit.xml | grep -Po '(errors)="\K[^"]*')
+             failures=$(cat i18n-junit.xml | grep -Po '(failures)="\K[^"]*')
+             if [ "$errors" -gt 0 ]; then
+               echo "Error count is: ${errors}"
+               exit 1
+             fi
+             if [ "$failures" -gt 0 ]; then
+               echo "Failure count is: ${failures}"
+               exit 1
+             fi
