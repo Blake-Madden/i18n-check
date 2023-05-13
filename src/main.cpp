@@ -464,27 +464,27 @@ int main(int argc, char* argv[])
         try
             {
             bool startsWithBom{ false };
-            if (const auto [readUtf8Ok, fileText] = read_utf8_file(file, startsWithBom);
+            if (const auto [readUtf8Ok, fileUtf8Text] = read_utf8_file(file, startsWithBom);
                 readUtf8Ok)
                 {
                 if (startsWithBom &&
                     cpp.get_style() & check_utf8_with_signature)
                     { filesThatContainUTF8Signature.push_back(lazy_string_to_wstring(file)); }
                 if (fileType == file_review_type::rc)
-                    { rc(fileText, fs::path(file).wstring()); }
+                    { rc(fileUtf8Text, fs::path(file).wstring()); }
                 else
-                    { cpp(fileText, fs::path(file).wstring()); }
+                    { cpp(fileUtf8Text, fs::path(file).wstring()); }
                 }
-            else if (const auto [readUtf16Ok, fileText] = read_utf16_file(file);
+            else if (const auto [readUtf16Ok, fileUtf16Text] = read_utf16_file(file);
                 readUtf16Ok)
                 {
                 // UTF-16 may not be supported consistently on all platforms and compilers
                 if (cpp.get_style() & check_utf8_encoded)
                     { filesThatShouldBeConvertedToUTF8.push_back(lazy_string_to_wstring(file)); }
                 if (fileType == file_review_type::rc)
-                    { rc(fileText, fs::path(file).wstring()); }
+                    { rc(fileUtf16Text, fs::path(file).wstring()); }
                 else
-                    { cpp(fileText, fs::path(file).wstring()); }
+                    { cpp(fileUtf16Text, fs::path(file).wstring()); }
                 }
             else
                 {
