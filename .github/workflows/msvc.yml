@@ -39,7 +39,7 @@ jobs:
       #   run: cmake --build ${{ env.build }}
 
       - name: Initialize MSVC Code Analysis
-        uses: microsoft/msvc-code-analysis-action@v0.1.1
+        uses: microsoft/msvc-code-analysis-action@9b19e4fadbbffe52bdda9b8a67b75a0af0d574de
         # Provide a unique ID to access the sarif output path
         id: run-analysis
         with:
