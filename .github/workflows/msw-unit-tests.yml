@@ -1,4 +1,4 @@
-name: Windows unit tests
+name: Windows Unit Tests
 on: [push]
 
 jobs:
