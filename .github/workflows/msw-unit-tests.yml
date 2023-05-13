@@ -41,7 +41,7 @@ jobs:
                Write-Host "Error count is: " + $errors
                exit 1
                }
-             if ($failures - \gt 0)
+             if ($failures -gt 0)
                {
                Write-Host "Failure count is: " + $failures
                exit 1
