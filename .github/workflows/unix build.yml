@@ -13,9 +13,35 @@ jobs:
       - name: install tools
         run: |
              sudo apt install cmake
-             sudo apt install lcov
 
       - name: build
         run: |
              cmake ./
              make -j4
+ 
+      - name: analyze
+        run: |
+             # just analyze code formatting while we are here
+             cd bin
+             ./i18n-check ../src --enable=allCodeFormatting -q -o i18nresults.txt
+
+      - name: review results
+        run: |
+             REPORTFILE=./i18nresults.txt
+             WARNINGSFILE=./warnings.txt
+             if test -f "$REPORTFILE"; then
+                cat "$REPORTFILE" > "$WARNINGSFILE"
+                # are there any warnings?
+                if grep -qP '\[[a-zA-Z0-9]+\]' "$WARNINGSFILE"; then
+                    # print the remaining warnings
+                    echo Warnings detected:
+                    echo ==================
+                    cat "$WARNINGSFILE" | grep -P '\[[a-zA-Z0-9]+\]'
+                    # fail the job
+                    exit 1
+                else
+                    echo No issues detected
+                fi
+             else
+                echo "$REPORTFILE" not found
+             fi
