@@ -23,5 +23,5 @@ jobs:
              cmake
       - name: Build Solution (windows)
         run: |
-          cd build
+          dir
           MSBuild.exe i18n-check.sln
