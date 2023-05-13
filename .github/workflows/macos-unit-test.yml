@@ -19,8 +19,8 @@ jobs:
              cd bin
              ./i18nTestRunner --reporter JUnit::out=i18n-junit.xml
              cat i18n-junit.xml
-             errors=$(cat i18n-junit.xml | grep -Po '(errors)="\K[^"]*')
-             failures=$(cat i18n-junit.xml | grep -Po '(failures)="\K[^"]*')
+             errors=$(cat i18n-junit.xml | grep -Po '(errors)="[^"]*')
+             failures=$(cat i18n-junit.xml | grep -Po '(failures)="[^"]*')
              if [ "$errors" -gt 0 ]; then
                echo "Error count is: ${errors}"
                exit 1
