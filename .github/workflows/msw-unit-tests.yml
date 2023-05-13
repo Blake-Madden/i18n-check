@@ -24,7 +24,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1.3
         with:
             vs-prerelease: true
-      - name: build & run tests
+      - name: Build & run tests
         run: |
              cd ..
              git clone https://github.com/catchorg/Catch2.git
@@ -36,11 +36,11 @@ jobs:
              cat i18n-junit.xml
              errors=$(cat i18n-junit.xml | grep -Po '(errors)="\K[^"]*')
              failures=$(cat i18n-junit.xml | grep -Po '(failures)="\K[^"]*')
-             if [ "$errors" -gt 0 ]; then
-               echo "Error count is: ${errors}"
+             if %errors% > 0 (
+               echo "Error count is: %errors%"
                exit 1
-             fi
-             if [ "$failures" -gt 0 ]; then
-               echo "Failure count is: ${failures}"
+             )
+             if %failures% > 0 (
+               echo "Failure count is: %failures%"
                exit 1
-             fi
+             )
