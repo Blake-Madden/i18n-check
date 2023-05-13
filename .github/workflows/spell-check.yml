@@ -1,0 +1,29 @@
+name: Check Spelling
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  check-unix:
+    runs-on: ubuntu-latest
+    name: Check Spelling
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install codespell
+        run: |
+          pip install codespell
+      - name: Run codespell
+        run: |
+          ./codespell ./src > codespell-results.txt
+          cat codespell-results.txt
