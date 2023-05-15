@@ -123,15 +123,6 @@ namespace i18n_check
                  "wxFileName::GetFullPath(wxPATH_DOS) instead."
             },
             { L"wxSplitPath", L"This function is obsolete, please use wxFileName::SplitPath() instead." },
-            // not i18n related, but it is recommended to use Bind in more modern wxWidget apps
-            {
-                L"wxDECLARE_EVENT_TABLE",
-                L"Consider using the class's Bind() function to connect events instead."
-            },
-            {
-                L"wxBEGIN_EVENT_TABLE",
-                L"Consider using the class's Bind() function to connect events instead."
-            },
             // not i18n related, just legacy wx functions that can be modernized after c++11
             { L"wxMin", L"Consider using std::min() instead." },
             { L"wxMax", L"Consider using std::max() instead." },
