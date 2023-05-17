@@ -10,6 +10,47 @@
 using namespace i18n_check;
 using namespace Catch::Matchers;
 
+TEST_CASE("Snake case words", "[cpp][i18n]")
+    {
+    SECTION("user_level_permission")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = "user_level_permission";)";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        }
+    SECTION("__HIGH_SCORE__")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = "__HIGH_SCORE__";)";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        }
+    SECTION("__HIGH_SCORE__")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = "Config_File_Path";)";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        }
+    SECTION("P_rinter")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = "P_rinter";)";
+        cpp(code);
+        cpp.review_strings();
+        REQUIRE(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        }
+    }
+
 TEST_CASE("<<", "[cpp][i18n]")
     {
     SECTION("<< with params")
@@ -1944,20 +1985,6 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
-        }
-
-    SECTION("Under Scored Word")
-        {
-        cpp_i18n_review cpp;
-        std::wstring str;
-        str = L"cOnfig_File1";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"cOnfig_File_1";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"User_cOnfig_File_1";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"__HIGH_SCORE__";
-        CHECK(cpp.is_untranslatable_string(str, false));
         }
 
     SECTION("Encodings")

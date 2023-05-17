@@ -50,6 +50,7 @@ In particular, it offers specialized support for the following frameworks:
 - wxWidgets
 - Qt
 - KDE
+- GTK
 - Win32
 - MFC
 

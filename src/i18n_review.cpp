@@ -219,8 +219,11 @@ namespace i18n_check
             std::wregex(L"(wx|WX)[A-Z_0-9]{2,}"),
             // ODCTask --surrounding punctuation is stripped first
             std::wregex(L"[[:punct:]]*[A-Z]{3,}[a-z_0-9]{2,}[[:punct:]]*"),
-            // Config_File, "user_level_permission", "__HIGH_SCORE__"
-            std::wregex(L"[_]*[a-zA-Z0-9]+(_[a-zA-Z0-9]+)+[_]*"),
+            // snake case words
+            // Note that "P_rinter" would be OK, as the '_' may be a hot-key accelerator
+            std::wregex(L"[_]*[a-z0-9]+(_[a-z0-9]+)+[_]*"), // user_level_permission
+            std::wregex(L"[_]*[A-Z0-9]+(_[A-Z0-9]+)+[_]*"), // __HIGH_SCORE__
+            std::wregex(L"[_]*[A-Z0-9][a-z0-9]+(_[A-Z0-9][a-z0-9]+)+[_]*"), // Config_File_Path
             // CSS strings
             std::wregex(
                 L"font-(style|weight|family|size|face-name|underline|point-size)[[:space:]]*[:]?.*",
@@ -364,15 +367,25 @@ namespace i18n_check
             L"CATCH_WARN", L"CATCH_SECTION",
             // CppUnit
             L"CPPUNIT_ASSERT", L"CPPUNIT_ASSERT_EQUAL", L"CPPUNIT_ASSERT_DOUBLES_EQUAL",
+            // Google Test
+            L"EXPECT_STREQ", L"EXPECT_STRNE", L"EXPECT_STRCASEEQ", L"EXPECT_STRCASENE",
+            L"EXPECT_TRUE", L"EXPECT_THAT", L"EXPECT_FALSE", L"EXPECT_EQ", L"EXPECT_NE",
+            L"EXPECT_LT", L"EXPECT_LE", L"EXPECT_GT", L"EXPECT_GE",
+            L"ASSERT_STREQ", L"ASSERT_STRNE", L"ASSERT_STRCASEEQ", L"ASSERT_STRCASENE",
+            L"ASSERT_TRUE", L"ASSERT_THAT", L"ASSERT_FALSE", L"ASSERT_EQ", L"ASSERT_NE",
+            L"ASSERT_LT", L"ASSERT_LE", L"ASSERT_GT", L"ASSERT_GE",
+            // other testing frameworks
+            L"do_test", L"run_check", L"GNC_TEST_ADD_FUNC", L"GNC_TEST_ADD", L"g_test_message",
+            L"check_binary_op", L"check_binary_op_equal", L"MockProvider",
             // low-level printf functions
             L"wprintf", L"printf", L"sprintf", L"snprintf", L"fprintf", L"wxSnprintf",
             // KDE
             L"getDocumentProperty", L"setDocumentProperty",
             // GTK
-            L"gtk_tree_view_column_new_with_attributes", L"gtk_assert_dialog_append_text_column",
+            L"gtk_assert_dialog_append_text_column",
             L"gtk_assert_dialog_add_button_to", L"gtk_assert_dialog_add_button",
             L"g_object_set_property", L"gdk_atom_intern", L"g_object_class_override_property",
-            L"g_object_get",
+            L"g_object_get", L"g_assert_cmpstr",
             // TCL
             L"Tcl_PkgRequire", L"Tcl_PkgRequireEx",
             // debugging functions from various open-source projects
@@ -381,7 +394,7 @@ namespace i18n_check
             // system functions that don't process user messages
             L"fopen", L"getenv", L"setenv", L"system", L"run", L"exec", L"execute",
             // Unix calls
-            L"popen", L"dlopen", L"dlsym", L"g_signal_connect", L"g_object_set", L"handle_system_error",
+            L"popen", L"dlopen", L"dlsym", L"g_signal_connect", L"handle_system_error",
             // macOS calls
             L"CFBundleCopyResourceURL",
             // Windows/MFC calls
@@ -402,8 +415,8 @@ namespace i18n_check
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
             L"luaL_error", L"lua_pushstring", L"lua_setglobal",
-            // more generic functions
-            L"trace"
+            // more functions from various apps
+            L"trace", L"ActionFormat", L"ErrorFormat", L"addPositionalArgument", L"DEBUG"
             };
 
         m_log_functions = {
@@ -417,10 +430,15 @@ namespace i18n_check
             // Qt
             L"qDebug", L"qInfo", L"qWarning", L"qCritical", L"qFatal",
             L"qCDebug", L"qCInfo", L"qCWarning", L"qCCritical",
+            // GLIB
+            L"g_error", L"g_info", L"g_log", L"g_message", L"g_debug", L"g_message",
+            L"g_log_structured",
             // SDL
             L"SDL_Log", L"SDL_LogCritical", L"SDL_LogDebug", L"SDL_LogError",
             L"SDL_LogInfo", L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose",
-            L"SDL_LogWarn"
+            L"SDL_LogWarn",
+            // GnuCash
+            L"PERR", L"PWARN", L"PINFO", L"ENTER", L"LEAVE"
             };
 
         m_exceptions = {
