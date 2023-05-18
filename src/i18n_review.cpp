@@ -777,8 +777,10 @@ namespace i18n_check
                         functionName, std::wstring{}),
                     m_file_name, get_line_and_column(currentTextPos - m_file_start)));
                 }
-            else if (is_localization_function(functionName))
+            else if (is_i18n_function(functionName))
                 {
+                // i18n functions that have multiple params, some of which
+                // can be context strings that should not be translatable
                 if (// Qt
                     (functionName == L"translate" && parameterPosition == 0) ||
                     (functionName == L"tr" && parameterPosition == 1) ||
@@ -885,7 +887,7 @@ namespace i18n_check
                         }
                     }
                 }
-            else if (is_non_localization_function(functionName))
+            else if (is_non_i18n_function(functionName))
                 {
                 m_marked_as_non_localizable_strings.emplace_back(
                     string_info(std::wstring(currentTextPos, quoteEnd - currentTextPos),

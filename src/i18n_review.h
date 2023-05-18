@@ -556,7 +556,7 @@ namespace i18n_check
         [[nodiscard]]
         std::wstring_view extract_base_function(const std::wstring_view str) const
             {
-            if (str.length() == 0 ||
+            if (str.empty() ||
                 !is_valid_name_char(str.back()))
                 { return std::wstring_view{}; }
             for (int64_t i = str.length() - 2; i >= 0; --i)
@@ -569,7 +569,7 @@ namespace i18n_check
         /// @returns @c true if a function name is a translation extraction function.
         /// @param functionName The function name to review.
         [[nodiscard]]
-        bool is_localization_function(const std::wstring_view functionName) const
+        bool is_i18n_function(const std::wstring_view functionName) const
             {
             return m_localization_functions.find(functionName) !=
                 m_localization_functions.cend() ||
@@ -579,7 +579,7 @@ namespace i18n_check
         /// @returns @c true if a function name is a translation noop function.
         /// @param functionName The function name to review.
         [[nodiscard]]
-        bool is_non_localization_function(const std::wstring_view& functionName) const
+        bool is_non_i18n_function(const std::wstring_view& functionName) const
             {
             return m_non_localizable_functions.find(functionName) !=
                 m_non_localizable_functions.cend() ||
