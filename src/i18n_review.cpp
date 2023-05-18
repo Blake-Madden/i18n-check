@@ -154,8 +154,7 @@ namespace i18n_check
             // special case for the word "bitmap" also, wouldn't normally translate that
             std::wregex(LR"(([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,5}[)]))"),
             std::wregex(
-                LR"((([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[)][|]"
-                  "([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[|]{0,2})+)"),
+                LR"((([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[)][|]([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[|]{0,2})+)"),
             // generic measuring string (or regex expression)
             std::wregex(LR"([[:space:]]*(ABCDEFG|abcdefg|AEIOU|aeiou).*)"),
             // debug messages
