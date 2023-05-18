@@ -18,42 +18,42 @@ namespace i18n_check
         m_deprecated_string_macros = {
             {
                 L"wxT",
-                L"Deprecated text macro that can be removed. "
+                L"Deprecated text macro can be removed. "
                  "(Add 'L' in front of string to make it double-byte.)"
             },
             {
                 L"wxT_2",
-                L"Deprecated text macro that can be removed. "
+                L"Deprecated text macro can be removed. "
                  "(Add 'L' in front of string to make it double-byte.)"
             },
             {
                 L"wxS",
-                L"Deprecated text macro that can be removed. "
+                L"Deprecated text macro can be removed. "
                  "(Add 'L' in front of string to make it double-byte.)"
             },
             {
                 L"_T",
-                L"Deprecated text macro that can be removed. "
+                L"Deprecated text macro can be removed. "
                  "(Add 'L' in front of string to make it double-byte.)"
             },
             {
                 L"TEXT",
-                L"Deprecated text macro that can be removed. "
+                L"Deprecated text macro can be removed. "
                  "(Add 'L' in front of string to make it double-byte.)"
             },
             {
                 L"_TEXT",
-                L"Deprecated text macro that can be removed. "
+                L"Deprecated text macro can be removed. "
                  "(Add 'L' in front of string to make it double-byte.)"
             },
             {
                 L"__TEXT",
-                L"Deprecated text macro that can be removed. "
+                L"Deprecated text macro can be removed. "
                  "(Add 'L' in front of string to make it double-byte.)"
             },
             {
                 L"_WIDE",
-                L"Deprecated text macro that can be removed. "
+                L"Deprecated text macro can be removed. "
                  "(Add 'L' in front of string to make it double-byte.)"
             }
         };
