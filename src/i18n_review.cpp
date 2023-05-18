@@ -527,18 +527,18 @@ namespace i18n_check
                             L"wxRegEx", L"wregex", L"std::wregex", L"regex", L"std::regex",
                             L"wxDataObjectSimple" };
 
-        add_variable_name_pattern_to_ignore(std::wregex(L"^debug.*", std::regex_constants::icase));
-        add_variable_name_pattern_to_ignore(std::wregex(L"^stacktrace.*", std::regex_constants::icase));
-        add_variable_name_pattern_to_ignore(std::wregex(L"([[:alnum:]_\\-])*xpm",
+        add_variable_name_pattern_to_ignore(std::wregex(LR"(^debug.*)", std::regex_constants::icase));
+        add_variable_name_pattern_to_ignore(std::wregex(LR"(^stacktrace.*)", std::regex_constants::icase));
+        add_variable_name_pattern_to_ignore(std::wregex(LR"(([[:alnum:]_\-])*xpm)",
                                             std::regex_constants::icase));
-        add_variable_name_pattern_to_ignore(std::wregex(L"xpm([[:alnum:]_\\-])*",
+        add_variable_name_pattern_to_ignore(std::wregex(LR"(xpm([[:alnum:]_\-])*)",
             std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(
-            L"(sql|db|database)(Table|Update|Query|Command|Upgrade)?[[:alnum:]_\\-]*",
+            LR"((sql|db|database)(Table|Update|Query|Command|Upgrade)?[[:alnum:]_\-]*)",
             std::regex_constants::icase));
-        add_variable_name_pattern_to_ignore(std::wregex(L"wxColourDialogNames"));
-        add_variable_name_pattern_to_ignore(std::wregex(L"wxColourTable"));
-        add_variable_name_pattern_to_ignore(std::wregex(L"QT_MESSAGE_PATTERN"));
+        add_variable_name_pattern_to_ignore(std::wregex(LR"(wxColourDialogNames)"));
+        add_variable_name_pattern_to_ignore(std::wregex(LR"(wxColourTable)"));
+        add_variable_name_pattern_to_ignore(std::wregex(LR"(QT_MESSAGE_PATTERN)"));
         }
 
     //--------------------------------------------------
