@@ -296,7 +296,7 @@ namespace i18n_check
 
         // Constructors and macros that should be ignored
         // (when backtracing, these are skipped over, and the parser moves to the
-        //  function/variable assignment to the left of these).
+        //      function/variable assignment to the left of these).
         m_ctors_to_ignore = {
             // Win32 text macros that should be skipped over
             L"_T", L"TEXT", L"_TEXT", L"__TEXT", L"_WIDE",
@@ -1436,7 +1436,7 @@ namespace i18n_check
                     functionName.clear();
                     // now we should be looking for a + operator, comma, or ( or { proceeding this
                     // (unless we are already on it because we stepped back too far
-                    //  due to the string being inside of an empty parenthesis)
+                    //      due to the string being inside of an empty parenthesis)
                     if (*startPos != L',' &&
                         *startPos != L'+'&&
                         *startPos != L'&'&&
@@ -1475,7 +1475,7 @@ namespace i18n_check
                 }
             // deal with variable assignments here
             // (note that comparisons (>=, <=, ==, !=) are handled as though this string
-            //  is a parameter to a function.)
+            //      is a parameter to a function.)
             else if (*startPos == L'=' &&
                      startPos[1] != L'=' &&
                      startPos > startSentinel &&

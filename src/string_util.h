@@ -1591,7 +1591,7 @@ namespace string_util
             { return (m_next_delim != nullptr); }
         /// @returns The next token from the original string as a string object
         /// @note Empty tokens can be returned if there is proceeding or trailing
-        ///  delimiters in the string, or if there are repeated delimiters next to each other.
+        ///     delimiters in the string, or if there are repeated delimiters next to each other.
         [[nodiscard]]
         T get_next_token()
             {
