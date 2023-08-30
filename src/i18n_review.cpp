@@ -431,7 +431,7 @@ namespace i18n_check
             L"qCDebug", L"qCInfo", L"qCWarning", L"qCCritical",
             // GLIB
             L"g_error", L"g_info", L"g_log", L"g_message", L"g_debug", L"g_message",
-            L"g_log_structured",
+            L"g_warning", L"g_log_structured",
             // SDL
             L"SDL_Log", L"SDL_LogCritical", L"SDL_LogDebug", L"SDL_LogError",
             L"SDL_LogInfo", L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose",
