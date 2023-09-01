@@ -7,10 +7,10 @@
 # Licence:     3-Clause BSD licence
 #############################################################################
 
-PROJECT(i18n-check)
-
 CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 SET(CMAKE_CXX_STANDARD 17)
+
+PROJECT(i18n-check)
 
 ADD_COMPILE_OPTIONS("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 ADD_COMPILE_OPTIONS("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
