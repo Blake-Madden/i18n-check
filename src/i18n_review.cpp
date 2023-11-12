@@ -481,7 +481,7 @@ namespace i18n_check
                          L"Luxi Sans", L"Liberation Sans", L"Bitstream Vera Sans", L"DejaVu LGC Sans",
                          L"DejaVu Sans", L"Nimbus Mono L", L"Lucida Sans Typewriter", L"Luxi Mono",
                          L"DejaVu Sans Mono", L"DejaVu LGC Sans Mono", L"Bitstream Vera Sans Mono",
-                         L"Liberation Mono" };
+                         L"Liberation Mono", L"Franklin Gothic", L"Aptos", L"Grandview", L"Bierstadt" };
 
         m_file_extensions = { // documents
                             L"xml", L"html", L"htm", L"xhtml", L"rtf",
