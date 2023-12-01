@@ -167,9 +167,13 @@ namespace i18n_string_util
             }
         // 2-letter extensions
         else if (length >= 3 && text[length-3] == L'.' &&
-            // translation files
+            // translation, source, and doc files
             (string_util::strnicmp(text+(length-2), L"mo", 2) == 0 ||
-             string_util::strnicmp(text+(length-2), L"po", 2) == 0))
+             string_util::strnicmp(text+(length-2), L"po", 2) == 0 ||
+             string_util::strnicmp(text+(length-2), L"cs", 2) == 0 ||
+             string_util::strnicmp(text+(length-2), L"js", 2) == 0 ||
+             string_util::strnicmp(text+(length-2), L"db", 2) == 0 ||
+             string_util::strnicmp(text+(length-2), L"md", 2) == 0))
             { return true; }
         // tarball file name
         else if (length >= 7 && string_util::strnicmp(text+(length-7), L".tar.", 5) == 0)

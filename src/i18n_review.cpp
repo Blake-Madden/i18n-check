@@ -12,6 +12,67 @@ using namespace i18n_string_util;
 
 namespace i18n_check
     {
+    // common font faces that we would usually ignore (client can add to this)
+    std::set<string_util::case_insensitive_wstring>i18n_review::m_font_names = {
+                L"Arial",
+                L"Courier New",
+                L"Garamond",
+                L"Calibri",
+                L"Gabriola",
+                L".Helvetica Neue DeskInterface", L".Lucida Grande UI",
+                L"Times New Roman", L"Georgia", L"Segoe UI", L"Segoe Script",
+                L"Century Gothic", L"Century", L"Cascadia Mono", L"URW Bookman L",
+                L"AR Berkley", L"Brush Script", L"Consolas", L"Century Schoolbook L",
+                L"Lucida Grande", L"Helvetica Neue", L"Liberation Serif", L"Luxi Serif",
+                L"Ms Shell Dlg", L"Ms Shell Dlg 2", L"Bitstream Vera Serif", L"URW Palladio L",
+                L"URW Chancery L", L"Comic Sans MS", L"DejaVu Serif", L"DejaVu LGC Serif",
+                L"Nimbus Sans L", L"URW Gothic L", L"Lucida Sans", L"Andale Mono",
+                L"Luxi Sans", L"Liberation Sans", L"Bitstream Vera Sans", L"DejaVu LGC Sans",
+                L"DejaVu Sans", L"Nimbus Mono L", L"Lucida Sans Typewriter", L"Luxi Mono",
+                L"DejaVu Sans Mono", L"DejaVu LGC Sans Mono", L"Bitstream Vera Sans Mono",
+                L"Liberation Mono", L"Franklin Gothic", L"Aptos", L"Grandview", L"Bierstadt" };
+
+    std::set<string_util::case_insensitive_wstring> i18n_review::m_file_extensions = { // documents
+                L"xml", L"html", L"htm", L"xhtml", L"rtf",
+                L"doc", L"docx", L"dot", L"docm", L"txt", L"ppt", L"pptx",
+                L"pdf", L"ps", L"odt", L"ott", L"odp", L"otp", L"pptm",
+                L"md",
+                // Visual Studio files
+                L"sln", L"csproj", L"json",
+                // macOS
+                L"dmg", L"proj", L"xbuild", L"xmlns",
+                // Database
+                L"mdb", L"db",
+                // Markdown files
+                L"md", L"Rmd", L"qmd",
+                // help files
+                L"hhc", L"hhk", L"hhp",
+                // spreadsheets
+                L"xls", L"xlsx", L"ods", L"csv",
+                // image formats
+                L"gif", L"jpg", L"jpeg", L"jpe", L"bmp", L"tiff", L"tif",
+                L"png", L"tga", L"svg", L"xcf", L"ico", L"psd",
+                L"hdr", L"pcx",
+                // webpages
+                L"asp", L"aspx", L"cfm",
+                L"cfml", L"php", L"php3", L"php4",
+                L"sgml", L"wmf", L"js",
+                // style sheets
+                L"css",
+                // movies
+                L"mov", L"qt", L"rv", L"rm",
+                L"wmv", L"mpg", L"mpeg", L"mpe",
+                L"avi",
+                // music
+                L"mp3", L"wav", L"wma", L"midi",
+                L"ra", L"ram",
+                // programs
+                L"exe", L"swf", L"vbs",
+                // source files
+                L"cpp", L"h", L"c", L"idl", L"cs",
+                // compressed files
+                L"gzip", L"bz2" };
+
     //--------------------------------------------------
     i18n_review::i18n_review()
         {
@@ -467,54 +528,6 @@ namespace i18n_check
         // keywords in the language that can appear in front of a string only
         m_keywords = { L"return", L"else", L"if", L"goto", L"new", L"delete",
                        L"throw" };
-
-        // common font faces that we would usually ignore (client can add to this)
-        m_font_names = { L"Arial", L"Courier New", L"Garamond", L"Calibri", L"Gabriola",
-                         L".Helvetica Neue DeskInterface", L".Lucida Grande UI",
-                         L"Times New Roman", L"Georgia", L"Segoe UI", L"Segoe Script",
-                         L"Century Gothic", L"Century", L"Cascadia Mono", L"URW Bookman L",
-                         L"AR Berkley", L"Brush Script", L"Consolas", L"Century Schoolbook L",
-                         L"Lucida Grande", L"Helvetica Neue", L"Liberation Serif", L"Luxi Serif",
-                         L"Ms Shell Dlg", L"Ms Shell Dlg 2", L"Bitstream Vera Serif", L"URW Palladio L",
-                         L"URW Chancery L", L"Comic Sans MS", L"DejaVu Serif", L"DejaVu LGC Serif",
-                         L"Nimbus Sans L", L"URW Gothic L", L"Lucida Sans", L"Andale Mono",
-                         L"Luxi Sans", L"Liberation Sans", L"Bitstream Vera Sans", L"DejaVu LGC Sans",
-                         L"DejaVu Sans", L"Nimbus Mono L", L"Lucida Sans Typewriter", L"Luxi Mono",
-                         L"DejaVu Sans Mono", L"DejaVu LGC Sans Mono", L"Bitstream Vera Sans Mono",
-                         L"Liberation Mono", L"Franklin Gothic", L"Aptos", L"Grandview", L"Bierstadt" };
-
-        m_file_extensions = { // documents
-                            L"xml", L"html", L"htm", L"xhtml", L"rtf",
-                            L"doc", L"docx", L"dot", L"docm", L"txt", L"ppt", L"pptx",
-                            L"pdf", L"ps", L"odt", L"ott", L"odp", L"otp", L"pptm",
-                            L"md",
-                            // help files
-                            L"hhc", L"hhk", L"hhp",
-                            // spreadsheets
-                            L"xls", L"xlsx", L"ods", L"csv",
-                            // image formats
-                            L"gif", L"jpg", L"jpeg", L"jpe", L"bmp", L"tiff", L"tif",
-                            L"png", L"tga", L"svg", L"xcf", L"ico", L"psd",
-                            L"hdr", L"pcx",
-                            // webpages
-                            L"asp", L"aspx", L"cfm",
-                            L"cfml", L"php", L"php3", L"php4",
-                            L"sgml", L"wmf", L"js",
-                            // style sheets
-                            L"css",
-                            // movies
-                            L"mov", L"qt", L"rv", L"rm",
-                            L"wmv", L"mpg", L"mpeg", L"mpe",
-                            L"avi",
-                            // music
-                            L"mp3", L"wav", L"wma", L"midi",
-                            L"ra", L"ram",
-                            // programs
-                            L"exe", L"swf", L"vbs",
-                            // source files
-                            L"cpp", L"h", L"c", L"idl",
-                            // compressed files
-                            L"gzip", L"bz2" };
 
         // variables whose CTORs take a string that should never be translated
         m_variable_types_to_ignore = { L"wxUxThemeHandle", L"wxRegKey",

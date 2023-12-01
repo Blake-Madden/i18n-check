@@ -488,12 +488,22 @@ namespace i18n_check
             { m_min_words_for_unavailable_string = minVal; }
         /** @brief Adds a font face to be ignored if found as a string.
             @param str The font face name.*/
-        void add_font_name_to_ignore(const string_util::case_insensitive_wstring& str)
+        static void add_font_name_to_ignore(const string_util::case_insensitive_wstring& str)
             { m_font_names.emplace(str); }
         /** @brief Adds a file extension to be ignored if found as a string.
             @param str The font face name.*/
-        void add_file_extension_to_ignore(const string_util::case_insensitive_wstring& str)
+        static void add_file_extension_to_ignore(const string_util::case_insensitive_wstring& str)
             { m_file_extensions.emplace(str); }
+        /// @returns @c true if string is a known font face name.
+        /// @param str The string to review.
+        [[nodiscard]]
+        static bool is_font_name(const string_util::case_insensitive_wstring& str)
+            { return m_font_names.find(str) != m_font_names.cend(); }
+        /// @returns @c true if string is a known file extension.
+        /// @param str The string to review.
+        [[nodiscard]]
+        static bool is_file_extension(const string_util::case_insensitive_wstring& str)
+            { return m_file_extensions.find(str) != m_file_extensions.cend(); }
     protected:
         // traditionally, 80 chars is the recommended line width,
         // but 120 is a bit more reasonable
@@ -593,16 +603,6 @@ namespace i18n_check
         [[nodiscard]]
         bool is_keyword(const std::wstring& str) const
             { return m_keywords.find(str) != m_keywords.cend(); }
-        /// @returns @c true if string is a known font face name.
-        /// @param str The string to review.
-        [[nodiscard]]
-        bool is_font_name(const string_util::case_insensitive_wstring& str) const
-            { return m_font_names.find(str) != m_font_names.cend(); }
-        /// @returns @c true if string is a known file extension.
-        /// @param str The string to review.
-        [[nodiscard]]
-        bool is_file_extension(const string_util::case_insensitive_wstring& str) const
-            { return m_file_extensions.find(str) != m_file_extensions.cend(); }
         /** @brief Logs a debug message.
             @param info Information, such as a string causing a parsing error. 
             @param message An informational message.
@@ -767,8 +767,8 @@ namespace i18n_check
         std::set<std::wstring_view> m_variable_types_to_ignore;
         std::set<string_util::case_insensitive_wstring> m_known_internal_strings;
         std::set<std::wstring_view> m_keywords;
-        std::set<string_util::case_insensitive_wstring> m_font_names;
-        std::set<string_util::case_insensitive_wstring> m_file_extensions;
+        static std::set<string_util::case_insensitive_wstring> m_font_names;
+        static std::set<string_util::case_insensitive_wstring> m_file_extensions;
         std::map<std::wstring_view, std::wstring_view> m_deprecated_string_macros;
         std::map<std::wstring_view, std::wstring_view> m_deprecated_string_functions;
         // results after parsing what the client should maybe review
