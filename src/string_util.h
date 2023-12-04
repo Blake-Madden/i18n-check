@@ -945,6 +945,51 @@ namespace string_util
         return nullptr;
         }
 
+    /** @brief Searches for a matching tag, skipping any extra open/close pairs of symbols in between,
+            but also constrained to the same line of text.
+        @param stringToSearch The string to search in.
+        @param openSymbol The opening symbol.
+        @param closeSymbol The closing symbol.
+        @returns A pointer in the string where the character was found, or nullptr if not found.
+        @todo Needs a unit test.*/
+    template<typename T>
+    [[nodiscard]]
+    const T* find_unescaped_matching_close_tag_same_line(const T* stringToSearch, const T openSymbol,
+                                                         const T closeSymbol) noexcept
+        {
+        assert(openSymbol != closeSymbol);
+        if (!stringToSearch || openSymbol == closeSymbol)
+            { return nullptr; }
+        const T* const originalStart = stringToSearch;
+        long open_stack = 0;
+        while (*stringToSearch)
+            {
+            if (stringToSearch[0] == L'\n' ||
+                stringToSearch[0] == L'\r')
+                {
+                return nullptr;
+                }
+            else if (stringToSearch[0] == openSymbol &&
+                ((stringToSearch == originalStart) ||
+                  stringToSearch[-1] != L'\\'))
+                {
+                ++open_stack;
+                ++stringToSearch;
+                continue;
+                }
+            else if (stringToSearch[0] == closeSymbol &&
+                ((stringToSearch == originalStart) ||
+                  stringToSearch[-1] != L'\\'))
+                {
+                if (open_stack == 0)
+                    { return stringToSearch; }
+                --open_stack;
+                }
+            ++stringToSearch;
+            }
+        return nullptr;
+        }
+
     /** @brief Searches for a single character in a string that does not have a `\\` in front of it.
         @param stringToSearch The string to search in.
         @param ch The character to search for.
