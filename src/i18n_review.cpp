@@ -38,7 +38,8 @@ namespace i18n_check
                 L"pdf", L"ps", L"odt", L"ott", L"odp", L"otp", L"pptm",
                 L"md",
                 // Visual Studio files
-                L"sln", L"csproj", L"json",
+                L"sln", L"csproj", L"json", L"pbxproj", L"apk", L"tlb", L"ocx",
+                L"pdb", L"tlh", L"hlp", L"msi", L"rc", L"vcxproj",
                 // macOS
                 L"dmg", L"proj", L"xbuild", L"xmlns",
                 // Database
