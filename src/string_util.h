@@ -562,7 +562,7 @@ namespace string_util
     /// @brief Search for substring in string (case-insensitive).
     /// @param string The string to search.
     /// @param strSearch The string to search for.
-    /// @returns The pointer to where the substring was found, or null if not found.
+    /// @returns The pointer to where the substring was found, or @c nullptr if not found.
     template<typename T>
     [[nodiscard]]
     const T* stristr(const T* string, const T* strSearch) noexcept
@@ -595,7 +595,7 @@ namespace string_util
         @param string The string to review.
         @param strSearch The string to search for.
         @param charCount The number of characters to search for within @c string.
-        @returns A pointer to the found string, or null otherwise.*/
+        @returns A pointer to the found string, or @c nullptr otherwise.*/
     template<typename T>
     [[nodiscard]]
     const T* strnistr(const T* string, const T* strSearch, const size_t charCount) noexcept
@@ -624,7 +624,7 @@ namespace string_util
         @param string The string to search within.
         @param search The string to search for.
         @param offset How far we are in the source string already and how far to go back.
-        @returns The pointer to where the substring was found, or null if not found.*/
+        @returns The pointer to where the substring was found, or @c nullptr if not found.*/
     template<typename T>
     [[nodiscard]]
     const T* strrstr(const T* string,
@@ -837,7 +837,7 @@ namespace string_util
         @param closeSymbol The closing symbol that we are looking for.
         @param fail_on_overlapping_open_symbol Whether it should immediately return failure if an open
             symbol is found before a matching close symbol.
-        @returns A pointer to where the closing tag is, or null if one can't be found.*/
+        @returns A pointer to where the closing tag is, or @c nullptr if one can't be found.*/
     template<typename T>
     [[nodiscard]]
     const T* find_matching_close_tag(const T* stringToSearch, const T openSymbol, const T closeSymbol,
@@ -869,7 +869,7 @@ namespace string_util
     /// @param stringToSearch The string to search.
     /// @param openSymbol The opening symbol.
     /// @param closeSymbol The closing symbol.
-    /// @returns Pointer to where the closing tag is, or null if not found.
+    /// @returns Pointer to where the closing tag is, or @c nullptr if not found.
     template<typename T>
     [[nodiscard]]
     const T* find_matching_close_tag(const T* stringToSearch, const T* openSymbol,
@@ -910,8 +910,7 @@ namespace string_util
         @param stringToSearch The string to search in.
         @param openSymbol The opening symbol.
         @param closeSymbol The closing symbol.
-        @returns A pointer in the string where the character was found, or nullptr if not found.
-        @todo Needs a unit test.*/
+        @returns A pointer in the string where the character was found, or @c nullptr if not found.*/
     template<typename T>
     [[nodiscard]]
     const T* find_unescaped_matching_close_tag(const T* stringToSearch, const T openSymbol,
@@ -950,8 +949,7 @@ namespace string_util
         @param stringToSearch The string to search in.
         @param openSymbol The opening symbol.
         @param closeSymbol The closing symbol.
-        @returns A pointer in the string where the character was found, or nullptr if not found.
-        @todo Needs a unit test.*/
+        @returns A pointer in the string where the character was found, or @c nullptr if not found.*/
     template<typename T>
     [[nodiscard]]
     const T* find_unescaped_matching_close_tag_same_line(const T* stringToSearch, const T openSymbol,
@@ -990,11 +988,54 @@ namespace string_util
         return nullptr;
         }
 
+    /** @brief Searches for a matching tag, skipping any extra open/close pairs of symbols in between,
+            but also constrained to the same line of text.
+        @param stringToSearch The string to search in.
+        @param openSymbol The opening symbol.
+        @param closeSymbol The closing symbol.
+        @param numberOfCharacters The max number of characters to search through in the string.
+        @returns A pointer in the string where the character was found, or @c nullptr if not found.*/
+    template<typename T>
+    [[nodiscard]]
+    const T* find_unescaped_matching_close_tag_same_line_n(const T* stringToSearch, const T openSymbol,
+                                                           const T closeSymbol, int64_t numberOfCharacters) noexcept
+        {
+        assert(openSymbol != closeSymbol);
+        if (!stringToSearch || openSymbol == closeSymbol)
+            { return nullptr; }
+        const T* const originalStart = stringToSearch;
+        long open_stack = 0;
+        while (*stringToSearch && numberOfCharacters > 0)
+            {
+            if (stringToSearch[0] == L'\n' ||
+                stringToSearch[0] == L'\r')
+                {
+                return nullptr;
+                }
+            else if (stringToSearch[0] == openSymbol &&
+                ((stringToSearch == originalStart) ||
+                  stringToSearch[-1] != L'\\'))
+                {
+                ++open_stack;
+                }
+            else if (stringToSearch[0] == closeSymbol &&
+                ((stringToSearch == originalStart) ||
+                  stringToSearch[-1] != L'\\'))
+                {
+                if (open_stack == 0)
+                    { return stringToSearch; }
+                --open_stack;
+                }
+            ++stringToSearch;
+            --numberOfCharacters;
+            }
+        return nullptr;
+        }
+
     /** @brief Searches for a single character in a string that does not have a `\\` in front of it.
         @param stringToSearch The string to search in.
         @param ch The character to search for.
-        @returns A pointer in the string where the character was found, or nullptr if not found.
-        @todo Needs a unit test.*/
+        @returns A pointer in the string where the character was found, or @c nullptr if not found.*/
     template<typename T>
     [[nodiscard]]
     const T* find_unescaped_char(const T* stringToSearch, const T ch) noexcept
@@ -1016,12 +1057,80 @@ namespace string_util
         return (*stringToSearch == 0) ? nullptr : stringToSearch;
         }
 
+    /** @brief Searches for a single character in a string that does not have a `\\` in front of it.
+        @param stringToSearch The string to search in.
+        @param ch The character to search for.
+        @returns A pointer in the string where the character was found, or @c nullptr if not found.
+        @param numberOfCharacters The max number of characters to search through in the string.*/
+    template<typename T>
+    [[nodiscard]]
+    const T* find_unescaped_char_n(const T* stringToSearch, const T ch, int64_t numberOfCharacters) noexcept
+        {
+        if (!stringToSearch)
+            { return nullptr; }
+        while (*stringToSearch && numberOfCharacters > 0)
+            {
+            // if on an escape character, then step over that
+            if (*stringToSearch == L'\\')
+                {
+                ++stringToSearch;
+                --numberOfCharacters;
+                if (numberOfCharacters == 0)
+                    {
+                    return nullptr;
+                    }
+                }
+            else if (*stringToSearch == ch)
+                { break; }
+            ++stringToSearch;
+            --numberOfCharacters;
+            }
+        return (*stringToSearch == 0 || numberOfCharacters <= 0) ? nullptr : stringToSearch;
+        }
+
+    /** @brief Searches for a single character in a string that does not have a `\\` in front of it,
+            but also constrained to the same line of text.
+        @param stringToSearch The string to search in.
+        @param ch The character to search for.
+        @returns A pointer in the string where the character was found, or @c nullptr if not found.
+        @param numberOfCharacters The max number of characters to search through in the string.*/
+    template<typename T>
+    [[nodiscard]]
+    const T* find_unescaped_char_same_line_n(const T* stringToSearch, const T ch, int64_t numberOfCharacters) noexcept
+        {
+        if (!stringToSearch)
+            { return nullptr; }
+        while (*stringToSearch && numberOfCharacters > 0)
+            {
+            if (stringToSearch[0] == L'\n' ||
+                stringToSearch[0] == L'\r')
+                {
+                return nullptr;
+                }
+            // if on an escape character, then step over that
+            else if (*stringToSearch == L'\\')
+                {
+                ++stringToSearch;
+                --numberOfCharacters;
+                if (numberOfCharacters == 0)
+                    {
+                    return nullptr;
+                    }
+                }
+            else if (*stringToSearch == ch)
+                { break; }
+            ++stringToSearch;
+            --numberOfCharacters;
+            }
+        return (*stringToSearch == 0 || numberOfCharacters <= 0) ? nullptr : stringToSearch;
+        }
+
     /** @brief Searches for a single character in a string for n number of characters.
         @details Size argument should be less than or equal to the length of the string being searched.
         @param stringToSearch The string to search in.
         @param ch The character to search for.
-        @param numberOfCharacters The number of characters to search through in the string.
-        @returns A pointer in the string where the character was found, or nullptr if not found.*/
+        @param numberOfCharacters The max number of characters to search through in the string.
+        @returns A pointer in the string where the character was found, or @c nullptr if not found.*/
     template<typename T>
     [[nodiscard]]
     const T* strnchr(const T* stringToSearch, const T ch, size_t numberOfCharacters) noexcept
@@ -1045,7 +1154,7 @@ namespace string_util
         @param searchSequence The sequence of characters to search for. If any character in this sequence
             is found in @c stringToSearch, then its position will be returned.
         @param searchSeqLength The length of the search sequence.
-        @returns A pointer to where the character was found, or null if not found.*/
+        @returns A pointer to where the character was found, or @c nullptr if not found.*/
     template<typename T>
     [[nodiscard]]
     const T* strcspn_pointer(const T* stringToSearch, const T* searchSequence,

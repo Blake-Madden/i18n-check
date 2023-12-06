@@ -10,6 +10,112 @@
 using namespace string_util;
 using namespace Catch::Matchers;
 
+TEST_CASE("find_unescaped_char", "[stringutil][search]")
+    {
+    std::wstring_view st{ L"Hello there!" };
+    CHECK(nullptr == find_unescaped_char(st.data(), L'#'));
+    st = L"";
+    CHECK(nullptr == find_unescaped_char(st.data(), L'#'));
+    st = LR"(\#)";
+    CHECK(nullptr == find_unescaped_char(st.data(), L'#'));
+    st = LR"(\\#)";
+    CHECK(find_unescaped_char(st.data(), L'#') == st.data() + 2);
+    st = LR"(\\\\\\\\#)";
+    CHECK(find_unescaped_char(st.data(), L'#') == st.data() + 8);
+    st = LR"(\#\#\\#)";
+    CHECK(find_unescaped_char(st.data(), L'#') == st.data() + 6);
+    st = LR"(  abc#)";
+    CHECK(find_unescaped_char(st.data(), L'#') == st.data() + 5);
+    st = LR"(#)";
+    CHECK(find_unescaped_char(st.data(), L'#') == st.data());
+    st = LR"(Hello there#world#)";
+    CHECK(find_unescaped_char(st.data(), L'#') == st.data() + 11);
+    st = L"Hello there\n\n#world#";
+    CHECK(find_unescaped_char(st.data(), L'#') == st.data() + 13);
+    }
+
+TEST_CASE("find_unescaped_char_same_line_n", "[stringutil][search]")
+    {
+    SECTION("Full scan")
+        {
+        std::wstring_view st{ L"Hello there!" };
+        CHECK(nullptr == find_unescaped_char_same_line_n(st.data(), L'#', st.size()));
+        st = L"";
+        CHECK(nullptr == find_unescaped_char_same_line_n(st.data(), L'#', st.size()));
+        st = LR"(\#)";
+        CHECK(nullptr == find_unescaped_char_same_line_n(st.data(), L'#', st.size()));
+        st = LR"(\\#)";
+        CHECK(find_unescaped_char_same_line_n(st.data(), L'#', st.size()) == st.data() + 2);
+        st = LR"(\\\\\\\\#)";
+        CHECK(find_unescaped_char_same_line_n(st.data(), L'#', st.size()) == st.data() + 8);
+        st = LR"(\#\#\\#)";
+        CHECK(find_unescaped_char_same_line_n(st.data(), L'#', st.size()) == st.data() + 6);
+        st = LR"(  abc#)";
+        CHECK(find_unescaped_char_same_line_n(st.data(), L'#', st.size()) == st.data() + 5);
+        st = LR"(#)";
+        CHECK(find_unescaped_char_same_line_n(st.data(), L'#', st.size()) == st.data());
+        st = LR"(Hello there#world#)";
+        CHECK(find_unescaped_char_same_line_n(st.data(), L'#', st.size()) == st.data() + 11);
+        st = L"Hello there\n\n#world#";
+        CHECK(nullptr == find_unescaped_char_same_line_n(st.data(), L'#', st.size()) );
+        }
+    SECTION("Partial scan")
+        {
+        std::wstring_view st = LR"(\\#)";
+        CHECK(nullptr == find_unescaped_char_same_line_n(st.data(), L'#', 1));
+        st = LR"(\\\\\\\\#)";
+        CHECK(nullptr == find_unescaped_char_same_line_n(st.data(), L'#', 7));
+        // too far
+        st = LR"(\\\\\\\\)";
+        CHECK(nullptr == find_unescaped_char_same_line_n(st.data(), L'#', 89));
+        st = LR"(Hello there#world#)";
+        CHECK(find_unescaped_char_same_line_n(st.data(), L'#', 89) == st.data() + 11);
+        }
+    }
+
+TEST_CASE("find_unescaped_char_n", "[stringutil][search]")
+    {
+    SECTION("Full scan")
+        {
+        std::wstring_view st{ L"Hello there!" };
+        CHECK(nullptr == find_unescaped_char_n(st.data(), L'#', st.size()));
+        st = L"";
+        CHECK(nullptr == find_unescaped_char_n(st.data(), L'#', st.size()));
+        st = LR"(\#)";
+        CHECK(nullptr == find_unescaped_char_n(st.data(), L'#', st.size()));
+        st = LR"(\\#)";
+        CHECK(find_unescaped_char_n(st.data(), L'#', st.size()) == st.data() + 2);
+        st = LR"(\\\\\\\\#)";
+        CHECK(find_unescaped_char_n(st.data(), L'#', st.size()) == st.data() + 8);
+        st = LR"(\#\#\\#)";
+        CHECK(find_unescaped_char_n(st.data(), L'#', st.size()) == st.data() + 6);
+        st = LR"(  abc#)";
+        CHECK(find_unescaped_char_n(st.data(), L'#', st.size()) == st.data() + 5);
+        st = LR"(#)";
+        CHECK(find_unescaped_char_n(st.data(), L'#', st.size()) == st.data());
+        st = LR"(Hello there#world#)";
+        CHECK(find_unescaped_char_n(st.data(), L'#', st.size()) == st.data() + 11);
+        st = L"Hello there\n\n#world#";
+        CHECK(find_unescaped_char_n(st.data(), L'#', st.size()) == st.data() + 13);
+        }
+    SECTION("Partial scan")
+        {
+        std::wstring_view st = LR"(\\#)";
+        CHECK(nullptr == find_unescaped_char_n(st.data(), L'#', 1));
+        st = LR"(\\#)";
+        CHECK(nullptr == find_unescaped_char_n(st.data(), L'#', 2));
+        st = LR"(\\#)";
+        CHECK(st.data() + 2 == find_unescaped_char_n(st.data(), L'#', 3));
+        st = LR"(\\\\\\\\#)";
+        CHECK(nullptr == find_unescaped_char_n(st.data(), L'#', 7));
+        // too far
+        st = LR"(\\\\\\\\)";
+        CHECK(nullptr == find_unescaped_char_n(st.data(), L'#', 89));
+        st = LR"(Hello there#world#)";
+        CHECK(find_unescaped_char_n(st.data(), L'#', 89) == st.data() + 11);
+        }
+    }
+
 TEST_CASE("full_width_to_narrow", "[stringutil][fullwidth]")
 	{
 	SECTION("Punctuation")
@@ -898,24 +1004,24 @@ TEST_CASE("FindLastNotOf", "[stringutil][FindLastNotOf]")
         }
     }
 
-TEST_CASE("FindMatchingTag", "[stringutil][FindMatchingTag]")
+TEST_CASE("Find Matching Tag", "[stringutil][find_matching_close_tag]")
     {
-    SECTION("ClosingWithOpenTagsStrings")
+    SECTION("Closing With Open Tags Strings")
         {
         const wchar_t* buffer = L"[[img [[]]]hello]]], world";
         CHECK(string_util::find_matching_close_tag<wchar_t>(buffer+1, L"[[", L"]]]") == buffer+16);
         }
-    SECTION("ClosingWithOpenTagsStrings2")
+    SECTION("Closing With Open Tags Strings2")
         {
         const wchar_t* buffer = L"[[img [[]]]h[[e]]]llo]]], world";
         CHECK(string_util::find_matching_close_tag<wchar_t>(buffer+1, L"[[", L"]]]") == buffer+21);
         }
-    SECTION("ClosingWithOpenTagsStringsStartWithSameChar")
+    SECTION("Closing With Open Tags Strings Start With Same Char")
         {
         const wchar_t* buffer = L"[[img [[[]]hello[]], world";
         CHECK(string_util::find_matching_close_tag<wchar_t>(buffer+1, L"[[", L"[]]") == buffer+16);
         }
-    SECTION("TestNullsStrings")
+    SECTION("Test Nulls Strings")
         {
         CHECK(string_util::find_matching_close_tag<wchar_t>(nullptr, L"[[", L"[]]") == nullptr);
         CHECK(string_util::find_matching_close_tag<wchar_t>(L"text", nullptr, L"[]]") == nullptr);
@@ -923,12 +1029,12 @@ TEST_CASE("FindMatchingTag", "[stringutil][FindMatchingTag]")
         CHECK(string_util::find_matching_close_tag<wchar_t>(L"[[img [[[]]hello[]], world", L"", L"[]]") == nullptr);
         CHECK(string_util::find_matching_close_tag<wchar_t>(L"[[img [[[]]hello[]], world", L"[[", L"") == nullptr);
         }
-    SECTION("NoClosingTagsStrings")
+    SECTION("No Closing Tags Strings")
         {
         const wchar_t* buffer = L"[[img hello, world";
         CHECK(string_util::find_matching_close_tag<wchar_t>(buffer+1, L"[[", L"[]]") == nullptr);
         }
-    SECTION(" Closing With Trailing Open Tag Strings")
+    SECTION("Closing With Trailing Open Tag Strings")
         {
         const wchar_t* buffer = L"[[img [[ihello[]], world";
         CHECK(string_util::find_matching_close_tag<wchar_t>(buffer+1, L"[[", L"[]]") == nullptr);
@@ -938,25 +1044,210 @@ TEST_CASE("FindMatchingTag", "[stringutil][FindMatchingTag]")
         {
         CHECK(string_util::find_matching_close_tag<wchar_t>(nullptr, L'<', L'>') == nullptr);
         }
-    SECTION("NoClosingTags")
+    SECTION("No Closing Tags")
         {
         const wchar_t* buffer = L"<img hello, world";
         CHECK(string_util::find_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == nullptr);
         }
-    SECTION("ClosingTags")
+    SECTION("Closing Tags")
         {
         const wchar_t* buffer = L"<img hello>, world";
         CHECK(string_util::find_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == buffer+10);
         }
-    SECTION("ClosingWithOpenTags")
+    SECTION("Closing With Open Tags")
         {
         const wchar_t* buffer = L"<img <i>hello</i>>, world";
         CHECK(string_util::find_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == buffer+17);
         }
-    SECTION("ClosingWithTrailingOpenTag")
+    SECTION("Closing With Trailing Open Tag")
         {
         const wchar_t* buffer = L"<img <ihello>, world";
         CHECK(string_util::find_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == nullptr);
+        }
+    }
+
+TEST_CASE("Find Matching Tag Unescaped", "[stringutil][find_unescaped_matching_close_tag]")
+    {
+    SECTION("No Closing Tags Strings")
+        {
+        const wchar_t* buffer = L"[img hello, world";
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(buffer+1, L'[', L']') == nullptr);
+        }
+    SECTION("Closing With Trailing Open Tag Strings")
+        {
+        const wchar_t* buffer = L"[img [ihello[], world";
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(buffer+1, L'[', L']') == nullptr);
+        }
+    SECTION("Nulls")
+        {
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(nullptr, L'<', L'>') == nullptr);
+        }
+    SECTION("No Closing Tags")
+        {
+        const wchar_t* buffer = L"<img hello, world";
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == nullptr);
+        }
+    SECTION("No Closing Tags Escaped")
+        {
+        const wchar_t* buffer = LR"(<img hello, world\>)";
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == nullptr);
+        }
+    SECTION("Closing Tags")
+        {
+        const wchar_t* buffer = L"<\n\nimg hello>, world";
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == buffer+12);
+        }
+    SECTION("Closing Tags Escaped")
+        {
+        const wchar_t* buffer = LR"(<img \>hello>, world)";
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == buffer+12);
+        }
+    SECTION("Closing With Open Tags")
+        {
+        const wchar_t* buffer = L"<img \n<i>hello</i>>, world";
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == buffer+18);
+        }
+    SECTION("Closing With Open Tags Escaped")
+        {
+        const wchar_t* buffer = LR"(<img \<<i>hello</i>>, world)";
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == buffer+19);
+        }
+    SECTION("Closing With Trailing Open Tag")
+        {
+        const wchar_t* buffer = L"<img <ihello>, world";
+        CHECK(string_util::find_unescaped_matching_close_tag<wchar_t>(buffer+1, L'<', L'>') == nullptr);
+        }
+    }
+
+TEST_CASE("Find Matching Tag Unescaped", "[stringutil][find_unescaped_matching_close_tag_same_line]")
+    {
+    SECTION("No Closing Tags Strings")
+        {
+        const wchar_t* buffer = L"[img hello, world";
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(buffer+1, L'[', L']') == nullptr);
+        }
+    SECTION("Closing With Trailing Open Tag Strings")
+        {
+        const wchar_t* buffer = L"[img [ihello[], world";
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(buffer+1, L'[', L']') == nullptr);
+        }
+    SECTION("Nulls")
+        {
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(nullptr, L'<', L'>') == nullptr);
+        }
+    SECTION("No Closing Tags")
+        {
+        const wchar_t* buffer = L"<img hello, world";
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(buffer+1, L'<', L'>') == nullptr);
+        }
+    SECTION("No Closing Tags Escaped")
+        {
+        const wchar_t* buffer = LR"(<img hello, world\>)";
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(buffer+1, L'<', L'>') == nullptr);
+        }
+    SECTION("Closing Tags")
+        {
+        const wchar_t* buffer = L"<\n\nimg hello>, world";
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(buffer+1, L'<', L'>') == nullptr);
+        }
+    SECTION("Closing Tags Escaped")
+        {
+        const wchar_t* buffer = LR"(<img \>hello>, world)";
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(buffer+1, L'<', L'>') == buffer+12);
+        }
+    SECTION("Closing With Open Tags")
+        {
+        const wchar_t* buffer = L"<img \n<i>hello</i>>, world";
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(buffer+1, L'<', L'>') == nullptr);
+        }
+    SECTION("Closing With Open Tags Escaped")
+        {
+        const wchar_t* buffer = LR"(<img \<<i>hello</i>>, world)";
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(buffer+1, L'<', L'>') == buffer+19);
+        }
+    SECTION("Closing With Trailing Open Tag")
+        {
+        const wchar_t* buffer = L"<img <ihello>, world";
+        CHECK(string_util::find_unescaped_matching_close_tag_same_line<wchar_t>(buffer+1, L'<', L'>') == nullptr);
+        }
+    }
+
+TEST_CASE("Find Matching Tag Unescaped", "[stringutil][find_unescaped_matching_close_tag_same_line_n]")
+    {
+    SECTION("Full scan")
+        {
+        SECTION("No Closing Tags Strings")
+            {
+            const wchar_t* buffer = L"[img hello, world";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'[', L']', std::wcslen(buffer)) == nullptr);
+            }
+        SECTION("Closing With Trailing Open Tag Strings")
+            {
+            const wchar_t* buffer = L"[img [ihello[], world";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'[', L']', std::wcslen(buffer)) == nullptr);
+            }
+        SECTION("Nulls")
+            {
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(nullptr, L'<', L'>', 0) == nullptr);
+            }
+        SECTION("No Closing Tags")
+            {
+            const wchar_t* buffer = L"<img hello, world";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', std::wcslen(buffer)) == nullptr);
+            }
+        SECTION("No Closing Tags Escaped")
+            {
+            const wchar_t* buffer = LR"(<img hello, world\>)";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', std::wcslen(buffer)) == nullptr);
+            }
+        SECTION("Closing Tags")
+            {
+            const wchar_t* buffer = L"<\n\nimg hello>, world";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', std::wcslen(buffer)) == nullptr);
+            }
+        SECTION("Closing Tags Escaped")
+            {
+            const wchar_t* buffer = LR"(<img \>hello>, world)";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', std::wcslen(buffer)) == buffer+12);
+            }
+        SECTION("Closing With Open Tags")
+            {
+            const wchar_t* buffer = L"<img \n<i>hello</i>>, world";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', std::wcslen(buffer)) == nullptr);
+            }
+        SECTION("Closing With Open Tags Escaped")
+            {
+            const wchar_t* buffer = LR"(<img \<<i>hello</i>>, world)";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', std::wcslen(buffer)) == buffer+19);
+            }
+        SECTION("Closing With Trailing Open Tag")
+            {
+            const wchar_t* buffer = L"<img <ihello>, world";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', std::wcslen(buffer)) == nullptr);
+            }
+        }
+    SECTION("Partial scan")
+        {
+        SECTION("Closing Tags Escaped")
+            {
+            const wchar_t* buffer = LR"(<img \>hello>, world)";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', 4) == nullptr);
+            buffer = LR"(<img \>hello>, world)";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer + 1, L'<', L'>', 0) == nullptr);
+            }
+        SECTION("Closing With Open Tags Escaped")
+            {
+            const wchar_t* buffer = LR"(<img \<<i>hello</i>>, world)";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', 4) == nullptr);
+            }
+        SECTION("Too far")
+            {
+            const wchar_t* buffer = LR"(<img \<<i>hello</i>>, world)";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer+1, L'<', L'>', 89) == buffer + 19);
+
+            buffer = LR"(<img \<<i>hello</i>>, world)";
+            CHECK(string_util::find_unescaped_matching_close_tag_same_line_n<wchar_t>(buffer + 1, L'<', L'>', 89) == buffer + 19);
+            }
         }
     }
 
