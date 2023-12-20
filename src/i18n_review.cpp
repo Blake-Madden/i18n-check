@@ -36,7 +36,7 @@ namespace i18n_check
                 L"xml", L"html", L"htm", L"xhtml", L"rtf",
                 L"doc", L"docx", L"dot", L"docm", L"txt", L"ppt", L"pptx",
                 L"pdf", L"ps", L"odt", L"ott", L"odp", L"otp", L"pptm",
-                L"md",
+                L"md", L"xaml",
                 // Visual Studio files
                 L"sln", L"csproj", L"json", L"pbxproj", L"apk", L"tlb", L"ocx",
                 L"pdb", L"tlh", L"hlp", L"msi", L"rc", L"vcxproj",
@@ -192,6 +192,7 @@ namespace i18n_check
             { L"wxIsNan", L"Use std::isnan() instead." },
             { L"wxOVERRIDE", L"Use override or final instead." },
             { L"wxNOEXCEPT", L"Use noexcept instead (requires C++17)." },
+            { L"WXUNUSED", L"Use [[maybe_unused]] instead (requires C++17)." },
             { L"wxDECLARE_NO_COPY_CLASS", L"Delete the copy CTOR and assignment operator instead." }
         };
 
