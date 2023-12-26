@@ -1626,7 +1626,7 @@ namespace i18n_check
             return std::make_pair(std::wstring::npos, std::wstring::npos);
             }
 
-        auto startSentinel = ((fileStart != nullptr) ? fileStart : m_file_start);
+        const auto* startSentinel = ((fileStart != nullptr) ? fileStart : m_file_start);
         if (!startSentinel)
             {
             return std::make_pair(std::wstring::npos, std::wstring::npos);

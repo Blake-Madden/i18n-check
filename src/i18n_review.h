@@ -793,7 +793,7 @@ namespace i18n_check
         ///     If you need to include namespace accessors and template information,
         ///     then use is_valid_name_char_ex() instead.
         [[nodiscard]]
-        bool is_valid_name_char(const wchar_t wc) const noexcept
+        static bool is_valid_name_char(const wchar_t wc) noexcept
             {
             return (i18n_string_util::is_numeric(wc) || i18n_string_util::is_alpha_7bit(wc) ||
                     wc == L'_');
@@ -805,7 +805,7 @@ namespace i18n_check
         ///     namespace accessor and templates information. For example, this will see
         ///     `std::sort<CString>` as the full name of the function (instead of just sort).
         [[nodiscard]]
-        bool is_valid_name_char_ex(const wchar_t wc) const noexcept
+        static bool is_valid_name_char_ex(const wchar_t wc) noexcept
             {
             return (i18n_string_util::is_numeric(wc) || i18n_string_util::is_alpha_7bit(wc) ||
                     wc == L'_' || wc == L'.' || wc == L':' || wc == L'<' || wc == L'>');
