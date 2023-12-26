@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name:        main.cpp
 // Author:      Blake Madden
-// Copyright:   (c) 2021-2023 Blake Madden
+// Copyright:   (c) 2021-2024 Blake Madden
 // License:     3-Clause BSD license
 // SPDX-License-Identifier: BSD-3-Clause
 ///////////////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
     {
     cxxopts::Options options(
         "i18n-check 0.1",
-        "Internationalization/localization analysis system, (c) 2021-2023 Blake Madden");
+        "Internationalization/localization analysis system, (c) 2021-2024 Blake Madden");
     options.add_options()("input", "The folder (or file) to analyze",
                           cxxopts::value<std::string>())(
         "enable",
@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
         {
         std::wcout << L"\n###################################################\n# "
                    << lazy_string_to_wstring(options.program())
-                   << L":\n# Internationalization/localization analysis system\n# (c) 2021-2023 "
+                   << L":\n# Internationalization/localization analysis system\n# (c) 2021-2024 "
                       L"Blake Madden\n"
                    << L"###################################################\n\n";
         std::wcout << L"Searching for files to analyze in " << inputFolder << L"...\n\n";

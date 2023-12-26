@@ -3,7 +3,7 @@
 # Purpose:     i18n-check
 # Author:      Blake Madden
 # Created:     2023-03-12
-# Copyright:   (c) 2023 Blake Madden
+# Copyright:   (c) 2024 Blake Madden
 # Licence:     3-Clause BSD licence
 #############################################################################
 

@@ -1,6 +1,6 @@
 /** @addtogroup Internationalization
     @brief i18n classes.
-    @date 2021-2023
+    @date 2021-2024
     @copyright Blake Madden
     @author Blake Madden
     @details This program is free software; you can redistribute it and/or modify
