@@ -1,15 +1,17 @@
-﻿#include <iomanip>
-#include <sstream>
+﻿#include "../src/string_util.h"
 #include <algorithm>
-#include <set>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include "../src/string_util.h"
+#include <iomanip>
+#include <set>
+#include <sstream>
 
 using namespace string_util;
 using namespace Catch::Matchers;
 
+// NOLINTBEGIN
+// clang-format off
 TEST_CASE("find_unescaped_char", "[stringutil][search]")
     {
     std::wstring_view st{ L"Hello there!" };
@@ -2123,3 +2125,6 @@ TEST_CASE("Is neither", "[isneither]")
         CHECK(is_neither(std::wstring(L"the"), std::wstring(L"there"), std::wstring(L"The")));
         }
     }
+
+// NOLINTEND
+// clang-format on

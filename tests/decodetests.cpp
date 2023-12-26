@@ -1,10 +1,12 @@
+#include "../src/i18n_string_util.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include "../src/i18n_string_util.h"
 
 using namespace Catch::Matchers;
 using namespace i18n_string_util;
 
+// NOLINTBEGIN
+// clang-format off
 TEST_CASE("Text decode", "[decode]")
     {
     SECTION("Empty")
@@ -58,3 +60,5 @@ TEST_CASE("Text decode", "[decode]")
         CHECK(str == L"F\\u2H6f/G\\u266");
         }
     }
+// NOLINTEND
+// clang-format on

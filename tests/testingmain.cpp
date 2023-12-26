@@ -1,6 +1,6 @@
+#include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
-#include <catch2/catch_session.hpp>
 
 int main(int argc, char** argv)
     {

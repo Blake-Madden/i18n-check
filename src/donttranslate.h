@@ -18,12 +18,11 @@
 /// @private
 template<class T>
 struct is_string_constant
-    : std::bool_constant<std::is_same_v<T, const char*> ||
-                         std::is_same_v<T, const wchar_t*> ||
-                         std::is_same_v<T, const uint8_t*> ||
-                         std::is_same_v<T, const char16_t*> ||
+    : std::bool_constant<std::is_same_v<T, const char*> || std::is_same_v<T, const wchar_t*> ||
+                         std::is_same_v<T, const uint8_t*> || std::is_same_v<T, const char16_t*> ||
                          std::is_same_v<T, const char32_t*>>
-    {};
+    {
+    };
 
 // Helper for is_string_constant.
 /// @private
@@ -90,12 +89,14 @@ enum class DTExplanation
         // a shorthand, _DT(), is also available
         auto command = _DT("open ") + fileName;
     @endcode*/
-template<typename T,
-         std::enable_if_t<is_string_constant_v<T>, bool> = true>
-inline constexpr auto DONTTRANSLATE(T str,
-                  [[maybe_unused]] const DTExplanation explanation = DTExplanation::NoExplanation,
-                  [[maybe_unused]] T explanationMessage = nullptr)
-    { return str; }
+template<typename T, std::enable_if_t<is_string_constant_v<T>, bool> = true>
+inline constexpr auto
+DONTTRANSLATE(T str,
+              [[maybe_unused]] const DTExplanation explanation = DTExplanation::NoExplanation,
+              [[maybe_unused]] T explanationMessage = nullptr)
+    {
+    return str;
+    }
 
 /** @brief A shorthand alias for DONTTRANSLATE().
     @param str The string.
@@ -104,12 +105,13 @@ inline constexpr auto DONTTRANSLATE(T str,
     @param explanationMessage An optional message to add explaining why this
         should not be translated.
     @returns The same string.*/
-template<typename T,
-         std::enable_if_t<is_string_constant_v<T>, bool> = true>
-inline constexpr auto _DT(T str,
-                  [[maybe_unused]] const DTExplanation explanation = DTExplanation::NoExplanation,
-                  [[maybe_unused]] T explanationMessage = nullptr)
-    { return str; }
+template<typename T, std::enable_if_t<is_string_constant_v<T>, bool> = true>
+inline constexpr auto
+_DT(T str, [[maybe_unused]] const DTExplanation explanation = DTExplanation::NoExplanation,
+    [[maybe_unused]] T explanationMessage = nullptr)
+    {
+    return str;
+    }
 
 /** @}*/
 

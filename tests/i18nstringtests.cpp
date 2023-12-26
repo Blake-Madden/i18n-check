@@ -1,15 +1,17 @@
-﻿#include <iomanip>
-#include <sstream>
+﻿#include "../src/i18n_string_util.h"
 #include <algorithm>
-#include <set>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include "../src/i18n_string_util.h"
+#include <iomanip>
+#include <set>
+#include <sstream>
 
 using namespace i18n_string_util;
 using namespace Catch::Matchers;
 
+// NOLINTBEGIN
+// clang-format off
 TEST_CASE("i18n string util", "[i18nstringutil]")
     {
     SECTION("Null")
@@ -185,3 +187,6 @@ TEST_CASE("Hex color remove", "[hexcolor]")
         CHECK(str == L"My color is #ZF01Ab and #ab993.");
         }
     }
+
+// NOLINTEND
+// clang-format on

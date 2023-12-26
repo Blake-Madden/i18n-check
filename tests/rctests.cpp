@@ -1,15 +1,17 @@
-#include <iomanip>
-#include <sstream>
+#include "../src/rc_file_review.h"
 #include <algorithm>
-#include <set>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include "../src/rc_file_review.h"
+#include <iomanip>
+#include <set>
+#include <sstream>
 
 using namespace i18n_check;
 using namespace Catch::Matchers;
 
+// NOLINTBEGIN
+// clang-format off
 TEST_CASE("String tables", "[rc][i18n]")
 	{
 	SECTION("ID assignments")
@@ -70,3 +72,5 @@ BEGIN)";
 		CHECK(rc.get_non_system_dialog_fonts()[0].m_string == LR"(FONT 8, "Comic Sans": font name 'Comic Sans' may not map well on some systems (MS Shell Dlg is recommended).)");
 	}
 }
+// NOLINTEND
+// clang-format on

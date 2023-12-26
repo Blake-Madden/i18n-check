@@ -1,15 +1,17 @@
-#include <iomanip>
-#include <sstream>
+#include "../src/cpp_i18n_review.h"
 #include <algorithm>
-#include <set>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include "../src/cpp_i18n_review.h"
+#include <iomanip>
+#include <set>
+#include <sstream>
 
 using namespace i18n_check;
 using namespace Catch::Matchers;
 
+// NOLINTBEGIN
+// clang-format off
 TEST_CASE("Snake case words", "[cpp][i18n]")
     {
     SECTION("user_level_permission")
@@ -2514,3 +2516,6 @@ if (std::regex_match(str, m_html_regex) ||
         CHECK(cpp.get_wide_lines()[0].m_usage.m_value == L"122");
         }
     }
+
+// NOLINTEND
+// clang-format on
