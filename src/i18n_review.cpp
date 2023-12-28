@@ -8,10 +8,6 @@
 
 #include "i18n_review.h"
 
-#ifdef _MSC_VER
-#   pragma warning(disable : 26478)
-#endif
-
 using namespace i18n_string_util;
 
 namespace i18n_check
@@ -745,8 +741,15 @@ namespace i18n_check
                                     string_info::usage_info{}, fileName,
                                     std::make_pair(std::wstring::npos, std::wstring::npos)));
                     }
+#ifdef _MSC_VER
+#   pragma warning(push)
+#   pragma warning(disable : 26478)
+#endif
                 const auto [pos, inserted] =
                     assignedIds.insert(std::make_pair(idAssignment.second, idAssignment.first));
+#ifdef _MSC_VER
+#   pragma warning(pop)
+#endif
                 if ((m_reviewStyles & check_duplicate_value_assigned_to_ids) && !inserted &&
                     idAssignment.second.length() &&
                     // ignore if same ID is assigned to variables with the same name

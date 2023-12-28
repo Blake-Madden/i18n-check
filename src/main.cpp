@@ -20,6 +20,7 @@
 // "Don't use std::move on constant variables." false positive in MSVC
 // is issued from structured binding assignment.
 #ifdef _MSC_VER
+#   pragma warning(push)
 #   pragma warning(disable : 26478)
 #endif
 
@@ -944,3 +945,7 @@ int main(int argc, char* argv[])
 
     return 0;
     }
+
+#ifdef _MSC_VER
+#   pragma warning(pop)
+#endif
