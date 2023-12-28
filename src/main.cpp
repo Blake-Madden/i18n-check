@@ -18,8 +18,10 @@
 #include <sstream>
 
 // "Don't use std::move on constant variables." false positive in MSVC
-// is issued from strucutured binding assignment.
-#pragma warning(disable : 26478)
+// is issued from structured binding assignment.
+#ifdef _MSC_VER
+#   pragma warning(disable : 26478)
+#endif
 
 namespace fs = std::filesystem;
 using namespace i18n_check;

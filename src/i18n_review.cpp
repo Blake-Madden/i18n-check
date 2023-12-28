@@ -8,7 +8,9 @@
 
 #include "i18n_review.h"
 
-#pragma warning(disable : 26478)
+#ifdef _MSC_VER
+#   pragma warning(disable : 26478)
+#endif
 
 using namespace i18n_string_util;
 
