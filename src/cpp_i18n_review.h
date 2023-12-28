@@ -27,10 +27,9 @@ namespace i18n_check
         {
       public:
         /** @brief Main interface for extracting resource text from C++ source code.
-            @param cpp_text The C++ code text to extract text from.
-            @param file_name The (optional) name of source file being analyzed.*/
-        void operator()(const std::wstring_view cpp_text,
-                        const std::wstring& file_name = L"") final;
+            @param srcText The C++ code text to extract text from.
+            @param fileName The (optional) name of source file being analyzed.*/
+        void operator()(const std::wstring_view srcText, const std::wstring& fileName = L"") final;
 
       private:
 #ifdef __UNITTEST
@@ -45,7 +44,7 @@ namespace i18n_check
         /// @param variableType The parsed variable type to review.
         bool is_variable_type_decorator(const std::wstring_view variableType) const final
             {
-            return variableType.compare(L"const") == 0;
+            return variableType == L"const";
             }
 
         /// @brief Parses and processes a preprocessor directive.
@@ -69,17 +68,16 @@ namespace i18n_check
 
         /// @returns @c true if text is an inline assembly block.
         [[nodiscard]]
-        bool is_assembly_block(const wchar_t* text) const noexcept
+        bool is_assembly_block(std::wstring_view text) const noexcept
             {
-            assert(text);
-            if (!text)
+            assert(!text.empty());
+            if (text.empty())
                 {
                 return false;
                 }
-            return ((std::wcsncmp(text, L"asm", 3) == 0 && std::iswspace(text[3])) ||
-                    (std::wcsncmp(text, L"__asm__", 7) == 0 &&
-                     (std::iswspace(text[7]) || text[7] == L'(')) ||
-                    (std::wcsncmp(text, L"__asm", 5) == 0 && std::iswspace(text[5])));
+            return (text.starts_with(L"asm ") || text.starts_with(L"__asm ") ||
+                    (text.length() >= 7 && text.starts_with(L"__asm__") &&
+                     (std::iswspace(text[7]) || text[7] == L'(')));
             }
         };
     } // namespace i18n_check

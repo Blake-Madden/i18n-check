@@ -747,7 +747,7 @@ namespace string_util
     /// @brief Case-insensitive comparison by character count.
     /// @param first The first string to compare.
     /// @param second The second string to compare.
-    /// @param charCount The max number of characters to within.
+    /// @param charCount The max number of characters to compare.
     /// @returns The comparison result.
     template<typename T>
     [[nodiscard]]
@@ -780,6 +780,18 @@ namespace string_util
             result = static_cast<int>(f - l);
             }
         return result;
+        }
+
+    /// @brief Case-insensitive comparison by character count.
+    /// @param first The first string to compare.
+    /// @param second The second string to compare.
+    /// @note The length of the @c string_view will be the max length to compare.
+    /// @returns The comparison result.
+    template<typename T>
+    [[nodiscard]]
+    int strnicmp(const T* first, const std::basic_string_view<T> second) noexcept
+        {
+        return strnicmp(first, second.data(), second.length());
         }
 
     /// @brief Case-insensitive comparison.
@@ -2385,7 +2397,8 @@ namespace string_util
         else
             {
             const double d1 = std::wcstod(nptr, endptr);
-            const double d2 = std::wcstod(++separator, endptr);
+            std::advance(separator, 1);
+            const double d2 = std::wcstod(separator, endptr);
             return (d1 + d2) / static_cast<double>(2);
             }
         }

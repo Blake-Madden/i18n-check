@@ -13,50 +13,51 @@ namespace i18n_string_util
     //--------------------------------------------------
     bool is_url(const wchar_t* text, size_t length)
         {
-        if (text == nullptr || length < 5)
+        if (text == nullptr || length < 5) // NOLINT
             {
             return false;
             }
         // protocols
-        else if (string_util::strnicmp(text, L"http:", 5) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"http:" }) == 0)
             {
             return true;
             }
-        else if (string_util::strnicmp(text, L"https:", 6) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"https:" }) == 0)
             {
             return true;
             }
-        else if (string_util::strnicmp(text, L"ftp:", 4) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"ftp:" }) == 0)
             {
             return true;
             }
-        else if (string_util::strnicmp(text, L"www.", 4) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"www." }) == 0)
             {
             return true;
             }
-        else if (string_util::strnicmp(text, L"mailto:", 7) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"mailto:" }) == 0)
             {
             return true;
             }
-        else if (string_util::strnicmp(text, L"file:", 5) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"file:" }) == 0)
             {
             return true;
             }
         // relic from the '90s
-        else if (string_util::strnicmp(text, L"gopher:", 7) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"gopher:" }) == 0)
             {
             return true;
             }
 
         // an URL that is missing the "www" prefix (e.g, ibm.com/index.html)
         const wchar_t* firstSlash = string_util::strnchr(text, L'/', length);
-        if (firstSlash)
+        if (firstSlash != nullptr)
             {
             const auto lastDotPos = string_util::find_last_of(text, L'.', firstSlash - text);
             if (lastDotPos != std::wstring::npos &&
-                lastDotPos + 4 == static_cast<size_t>(firstSlash - text) &&
-                std::iswalpha(text[lastDotPos + 1]) && std::iswalpha(text[lastDotPos + 2]) &&
-                std::iswalpha(text[lastDotPos + 3]))
+                (lastDotPos + 4 == static_cast<size_t>(firstSlash - text)) &&
+                static_cast<bool>(std::iswalpha(text[lastDotPos + 1])) &&
+                static_cast<bool>(std::iswalpha(text[lastDotPos + 2])) &&
+                static_cast<bool>(std::iswalpha(text[lastDotPos + 3])))
                 {
                 return true;
                 }
@@ -100,30 +101,30 @@ namespace i18n_string_util
             return true;
             }
         // UNC path
-        else if (length >= 3 && text[0] == L'\\' && text[1] == L'\\')
+        if (length >= 3 && text[0] == L'\\' && text[1] == L'\\')
             {
             return true;
             }
         // Windows file path
-        else if (length >= 3 && std::iswalpha(text[0]) && text[1] == L':' &&
-                 (text[2] == L'\\' || text[2] == L'/'))
+        if (length >= 3 && static_cast<bool>(std::iswalpha(*text)) && text[1] == L':' &&
+            (text[2] == L'\\' || text[2] == L'/'))
             {
             return true;
             }
         // UNIX paths (including where the '/' at the front is missing
-        else if (length >= 3 && text[0] == L'/' && string_util::strnchr(text + 2, L'/', length - 2))
+        if (length >= 3 && text[0] == L'/' && string_util::strnchr(text + 2, L'/', length - 2))
             {
             return true;
             }
-        else if (string_util::strnchr(text, L'/', length) &&
-                 (std::wcsncmp(text, L"usr/", 4) == 0 || std::wcsncmp(text, L"var/", 4) == 0 ||
-                  std::wcsncmp(text, L"tmp/", 4) == 0 || std::wcsncmp(text, L"sys/", 4) == 0 ||
-                  std::wcsncmp(text, L"srv/", 4) == 0 || std::wcsncmp(text, L"mnt/", 4) == 0 ||
-                  std::wcsncmp(text, L"etc/", 4) == 0 || std::wcsncmp(text, L"dev/", 4) == 0 ||
-                  std::wcsncmp(text, L"bin/", 4) == 0 || std::wcsncmp(text, L"usr/", 4) == 0 ||
-                  std::wcsncmp(text, L"sbin/", 5) == 0 || std::wcsncmp(text, L"root/", 5) == 0 ||
-                  std::wcsncmp(text, L"proc/", 5) == 0 || std::wcsncmp(text, L"boot/", 5) == 0 ||
-                  std::wcsncmp(text, L"home/", 5) == 0))
+        if (string_util::strnchr(text, L'/', length) &&
+            (std::wcsncmp(text, L"usr/", 4) == 0 || std::wcsncmp(text, L"var/", 4) == 0 ||
+             std::wcsncmp(text, L"tmp/", 4) == 0 || std::wcsncmp(text, L"sys/", 4) == 0 ||
+             std::wcsncmp(text, L"srv/", 4) == 0 || std::wcsncmp(text, L"mnt/", 4) == 0 ||
+             std::wcsncmp(text, L"etc/", 4) == 0 || std::wcsncmp(text, L"dev/", 4) == 0 ||
+             std::wcsncmp(text, L"bin/", 4) == 0 || std::wcsncmp(text, L"usr/", 4) == 0 ||
+             std::wcsncmp(text, L"sbin/", 5) == 0 || std::wcsncmp(text, L"root/", 5) == 0 ||
+             std::wcsncmp(text, L"proc/", 5) == 0 || std::wcsncmp(text, L"boot/", 5) == 0 ||
+             std::wcsncmp(text, L"home/", 5) == 0))
             {
             return true;
             }
@@ -134,7 +135,7 @@ namespace i18n_string_util
             const wchar_t* spaceInStr = string_util::strnchr(text + 1, L' ', length - 1);
             const wchar_t* atSign = string_util::strnchr(text + 1, L'@', length - 1);
             // no spaces and an '@' symbol
-            if (atSign && !spaceInStr)
+            if ((atSign != nullptr) && (spaceInStr == nullptr))
                 {
                 const wchar_t* dotSign =
                     string_util::strnchr(atSign, L'.', length - (atSign - text));
@@ -163,8 +164,10 @@ namespace i18n_string_util
 
         // look at extensions now
         // 3-letter file name
-        if (length >= 4 && text[length - 4] == L'.' && std::iswalpha(text[length - 3]) &&
-            std::iswalpha(text[length - 2]) && std::iswalpha(text[length - 1]))
+        if (length >= 4 && text[length - 4] == L'.' &&
+            static_cast<bool>(std::iswalpha(text[length - 3])) &&
+            static_cast<bool>(std::iswalpha(text[length - 2])) &&
+            static_cast<bool>(std::iswalpha(text[length - 1])))
             {
             // see if it is really a typo (missing space after a sentence).
             if (std::iswupper(text[length - 3]) && !std::iswupper(text[length - 2]))
@@ -180,8 +183,10 @@ namespace i18n_string_util
             return true;
             }
         // 4-letter (Microsoft XML-based) file name
-        else if (length >= 5 && text[length - 5] == L'.' && std::iswalpha(text[length - 4]) &&
-                 std::iswalpha(text[length - 3]) && std::iswalpha(text[length - 2]) &&
+        else if (length >= 5 && text[length - 5] == L'.' &&
+                 static_cast<bool>(std::iswalpha(text[length - 4])) &&
+                 static_cast<bool>(std::iswalpha(text[length - 3])) &&
+                 static_cast<bool>(std::iswalpha(text[length - 2])) &&
                  string_util::is_either(text[length - 1], L'x', L'X'))
             {
             // see if it is really a typo (missing space after a sentence)
@@ -197,7 +202,7 @@ namespace i18n_string_util
             }
         // 4-letter extensions (HTML)
         else if (length >= 5 && text[length - 5] == L'.' &&
-                 string_util::strnicmp(text + (length - 4), L"html", 4) == 0)
+                 string_util::strnicmp(text + (length - 4), std::wstring_view{ L"html" }) == 0)
             {
             if (length >= 6 && text[length - 6] == L'*')
                 {
@@ -208,17 +213,18 @@ namespace i18n_string_util
         // 2-letter extensions
         else if (length >= 3 && text[length - 3] == L'.' &&
                  // translation, source, and doc files
-                 (string_util::strnicmp(text + (length - 2), L"mo", 2) == 0 ||
-                  string_util::strnicmp(text + (length - 2), L"po", 2) == 0 ||
-                  string_util::strnicmp(text + (length - 2), L"cs", 2) == 0 ||
-                  string_util::strnicmp(text + (length - 2), L"js", 2) == 0 ||
-                  string_util::strnicmp(text + (length - 2), L"db", 2) == 0 ||
-                  string_util::strnicmp(text + (length - 2), L"md", 2) == 0))
+                 (string_util::strnicmp(text + (length - 2), std::wstring_view{ L"mo" }) == 0 ||
+                  string_util::strnicmp(text + (length - 2), std::wstring_view{ L"po" }) == 0 ||
+                  string_util::strnicmp(text + (length - 2), std::wstring_view{ L"cs" }) == 0 ||
+                  string_util::strnicmp(text + (length - 2), std::wstring_view{ L"js" }) == 0 ||
+                  string_util::strnicmp(text + (length - 2), std::wstring_view{ L"db" }) == 0 ||
+                  string_util::strnicmp(text + (length - 2), std::wstring_view{ L"md" }) == 0))
             {
             return true;
             }
         // tarball file name
-        else if (length >= 7 && string_util::strnicmp(text + (length - 7), L".tar.", 5) == 0)
+        else if (length >= 7 &&
+                 string_util::strnicmp(text + (length - 7), std::wstring_view{ L".tar." }) == 0)
             {
             // see if it is really a typo (missing space after a sentence).
             if (std::iswupper(text[length - 4]) && !std::iswupper(text[length - 3]))
