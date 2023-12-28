@@ -17,6 +17,10 @@
 #include <numeric>
 #include <sstream>
 
+// "Don't use std::move on constant variables." false positive in MSVC
+// is issued from strucutured binding assignment.
+#pragma warning(disable : 26478)
+
 namespace fs = std::filesystem;
 using namespace i18n_check;
 using namespace string_util;
@@ -75,7 +79,8 @@ static bool valid_utf8_file(const std::string& file_name, bool& startsWithBom)
     }
 
 //-------------------------------------------------
-static std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name, bool& startsWithBom)
+static std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name,
+                                                    bool& startsWithBom)
     {
     if (!valid_utf8_file(file_name, startsWithBom))
         {

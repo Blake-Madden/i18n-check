@@ -8,6 +8,8 @@
 
 #include "i18n_review.h"
 
+#pragma warning(disable : 26478)
+
 using namespace i18n_string_util;
 
 namespace i18n_check
