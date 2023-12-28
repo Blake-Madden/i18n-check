@@ -700,8 +700,7 @@ namespace i18n_check
                     !(IdVal.value() >= 1 && IdVal.value() <= 0x6FFF) &&
                     (idNameParts[1].compare(L"IDR_") == 0 || idNameParts[1].compare(L"IDD_") == 0 ||
                      idNameParts[1].compare(L"IDM_") == 0 || idNameParts[1].compare(L"IDC_") == 0 ||
-                     idNameParts[1].compare(L"IDI_") == 0 || idNameParts[1].compare(L"IDB_") == 0 ||
-                     idNameParts[1].compare(L"IDB_") == 0))
+                     idNameParts[1].compare(L"IDI_") == 0 || idNameParts[1].compare(L"IDB_") == 0))
                     {
                     m_ids_assigned_number.push_back(string_info(
                         idAssignment.second + L" assigned to " + idAssignment.first +
