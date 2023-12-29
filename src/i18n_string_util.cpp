@@ -52,7 +52,8 @@ namespace i18n_string_util
         const wchar_t* firstSlash = string_util::strnchr(text.data(), L'/', text.length());
         if (firstSlash != nullptr)
             {
-            const auto lastDotPos = string_util::find_last_of(text.data(), L'.', firstSlash - text.data());
+            const auto lastDotPos =
+                string_util::find_last_of(text.data(), L'.', firstSlash - text.data());
             if (lastDotPos != std::wstring::npos &&
                 (lastDotPos + 4 == static_cast<size_t>(firstSlash - text.data())) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 1])) &&
@@ -78,8 +79,8 @@ namespace i18n_string_util
         if (periodPos != std::wstring::npos && periodPos < text.length() - 1)
             {
             ++periodPos;
-            if (knownWebExtensions.find(std::wstring(
-                    text.data() + periodPos, text.length() - periodPos)) !=
+            if (knownWebExtensions.find(
+                    std::wstring(text.data() + periodPos, text.length() - periodPos)) !=
                 knownWebExtensions.cend())
                 {
                 return true;
@@ -114,7 +115,7 @@ namespace i18n_string_util
             }
         // UNIX paths (including where the '/' at the front is missing
         if (text.length() >= 3 && text[0] == L'/' &&
-            string_util::strnchr(text.data() + 2, L'/', text.length() - 2))
+            string_util::strnchr(text.data() + 2, L'/', text.length() - 2) != nullptr)
             {
             return true;
             }
@@ -140,7 +141,8 @@ namespace i18n_string_util
                 {
                 const wchar_t* dotSign =
                     string_util::strnchr(atSign, L'.', text.length() - (atSign - text.data()));
-                if (dotSign && static_cast<size_t>(dotSign - text.data()) < text.length() - 1)
+                if (dotSign != nullptr &&
+                    static_cast<size_t>(dotSign - text.data()) < text.length() - 1)
                     {
                     return true;
                     }
@@ -172,7 +174,8 @@ namespace i18n_string_util
             static_cast<bool>(std::iswalpha(text[text.length() - 1])))
             {
             // see if it is really a typo (missing space after a sentence).
-            if (std::iswupper(text[text.length() - 3]) && !std::iswupper(text[text.length() - 2]))
+            if (static_cast<bool>(std::iswupper(text[text.length() - 3])) &&
+                !static_cast<bool>(std::iswupper(text[text.length() - 2])))
                 {
                 return false;
                 }
@@ -185,11 +188,11 @@ namespace i18n_string_util
             return true;
             }
         // 4-letter (Microsoft XML-based) file name
-        else if (text.length() >= 5 && text[text.length() - 5] == L'.' &&
-                 static_cast<bool>(std::iswalpha(text[text.length() - 4])) &&
-                 static_cast<bool>(std::iswalpha(text[text.length() - 3])) &&
-                 static_cast<bool>(std::iswalpha(text[text.length() - 2])) &&
-                 string_util::is_either(text[text.length() - 1], L'x', L'X'))
+        if (text.length() >= 5 && text[text.length() - 5] == L'.' &&
+            static_cast<bool>(std::iswalpha(text[text.length() - 4])) &&
+            static_cast<bool>(std::iswalpha(text[text.length() - 3])) &&
+            static_cast<bool>(std::iswalpha(text[text.length() - 2])) &&
+            string_util::is_either(text[text.length() - 1], L'x', L'X'))
             {
             // see if it is really a typo (missing space after a sentence)
             if (std::iswupper(text[text.length() - 4]) && !std::iswupper(text[text.length() - 3]))
@@ -203,9 +206,9 @@ namespace i18n_string_util
             return true;
             }
         // 4-letter extensions (HTML)
-        else if (text.length() >= 5 && text[text.length() - 5] == L'.' &&
-                 string_util::strnicmp(text.data() + (text.length() - 4),
-                                       std::wstring_view{ L"html" }) == 0)
+        if (text.length() >= 5 && text[text.length() - 5] == L'.' &&
+            string_util::strnicmp(text.data() + (text.length() - 4),
+                                  std::wstring_view{ L"html" }) == 0)
             {
             if (text.length() >= 6 && text[text.length() - 6] == L'*')
                 {
@@ -214,29 +217,30 @@ namespace i18n_string_util
             return true;
             }
         // 2-letter extensions
-        else if (text.length() >= 3 && text[text.length() - 3] == L'.' &&
-                 // translation, source, and doc files
-                 (string_util::strnicmp(text.data() + (text.length() - 2),
-                                        std::wstring_view{ L"mo" }) == 0 ||
-                  string_util::strnicmp(text.data() + (text.length() - 2),
-                                        std::wstring_view{ L"po" }) == 0 ||
-                  string_util::strnicmp(text.data() + (text.length() - 2),
-                                        std::wstring_view{ L"cs" }) == 0 ||
-                  string_util::strnicmp(text.data() + (text.length() - 2),
-                                        std::wstring_view{ L"js" }) == 0 ||
-                  string_util::strnicmp(text.data() + (text.length() - 2),
-                                        std::wstring_view{ L"db" }) == 0 ||
-                  string_util::strnicmp(text.data() + (text.length() - 2),
-                                        std::wstring_view{ L"md" }) == 0))
+        if (text.length() >= 3 && text[text.length() - 3] == L'.' &&
+            // translation, source, and doc files
+            (string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"mo" }) ==
+                 0 ||
+             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"po" }) ==
+                 0 ||
+             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"cs" }) ==
+                 0 ||
+             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"js" }) ==
+                 0 ||
+             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"db" }) ==
+                 0 ||
+             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"md" }) ==
+                 0))
             {
             return true;
             }
         // tarball file name
-        else if (text.length() >= 7 && string_util::strnicmp(text.data() + (text.length() - 7),
-                                                             std::wstring_view{ L".tar." }) == 0)
+        if (text.length() >= 7 && string_util::strnicmp(text.data() + (text.length() - 7),
+                                                        std::wstring_view{ L".tar." }) == 0)
             {
             // see if it is really a typo (missing space after a sentence).
-            if (std::iswupper(text[text.length() - 4]) && !std::iswupper(text[text.length() - 3]))
+            if (static_cast<bool>(std::iswupper(text[text.length() - 4])) &&
+                !static_cast<bool>(std::iswupper(text[text.length() - 3])))
                 {
                 return false;
                 }
@@ -244,8 +248,8 @@ namespace i18n_string_util
             }
         // C header/source files, which only have a letter in the extension,
         // but are common in documentation
-        else if (text.length() >= 3 && text[text.length() - 2] == L'.' &&
-                 string_util::is_either(text[text.length() - 1], L'h', L'c'))
+        if (text.length() >= 3 && text[text.length() - 2] == L'.' &&
+            string_util::is_either(text[text.length() - 1], L'h', L'c'))
             {
             return true;
             }
@@ -273,13 +277,12 @@ namespace i18n_string_util
                     }
                 // "\U000FF254" format
                 if (i + 8 < str.length() && str[i + 1] == L'U' &&
-                         string_util::is_hex_digit(str[i + 2]) &&
-                         string_util::is_hex_digit(str[i + 3]) &&
-                         string_util::is_hex_digit(str[i + 4]) &&
-                         string_util::is_hex_digit(str[i + 5]) &&
-                         string_util::is_hex_digit(str[i + 6]) &&
-                         string_util::is_hex_digit(str[i + 7]) &&
-                         string_util::is_hex_digit(str[i + 8]))
+                    string_util::is_hex_digit(str[i + 2]) &&
+                    string_util::is_hex_digit(str[i + 3]) &&
+                    string_util::is_hex_digit(str[i + 4]) &&
+                    string_util::is_hex_digit(str[i + 5]) &&
+                    string_util::is_hex_digit(str[i + 6]) &&
+                    string_util::is_hex_digit(str[i + 7]) && string_util::is_hex_digit(str[i + 8]))
                     {
                     str.replace(i, 10, 10, ' ');
                     i += 10;
@@ -287,11 +290,10 @@ namespace i18n_string_util
                     }
                 // "\xFFFF" format (can be variable number of hex digits)
                 if (i + 5 < str.length() && str[i + 1] == L'x' &&
-                         // at least two hex digits needed
-                         string_util::is_hex_digit(str[i + 2]) &&
-                         string_util::is_hex_digit(str[i + 3]) &&
-                         string_util::is_hex_digit(str[i + 4]) &&
-                         string_util::is_hex_digit(str[i + 5]))
+                    // at least two hex digits needed
+                    string_util::is_hex_digit(str[i + 2]) &&
+                    string_util::is_hex_digit(str[i + 3]) &&
+                    string_util::is_hex_digit(str[i + 4]) && string_util::is_hex_digit(str[i + 5]))
                     {
                     str.replace(i, 6, 6, ' ');
                     i += 6;
@@ -299,9 +301,8 @@ namespace i18n_string_util
                     }
                 // "\xFF" format (can be variable number of hex digits)
                 if (i + 3 < str.length() && str[i + 1] == L'x' &&
-                         // at least two hex digits needed
-                         string_util::is_hex_digit(str[i + 2]) &&
-                         string_util::is_hex_digit(str[i + 3]))
+                    // at least two hex digits needed
+                    string_util::is_hex_digit(str[i + 2]) && string_util::is_hex_digit(str[i + 3]))
                     {
                     str.replace(i, 4, 4, ' ');
                     i += 4;

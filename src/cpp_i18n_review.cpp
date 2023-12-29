@@ -577,7 +577,7 @@ namespace i18n_check
             clear_section(originalStart, directiveStart + end + 1);
             return directiveStart + end + 1;
             }
-        else if (std::wstring_view{ directiveStart }.starts_with(L"if") ||
+        if (std::wstring_view{ directiveStart }.starts_with(L"if") ||
                  std::wstring_view{ directiveStart }.starts_with(L"ifdef") ||
                  std::wstring_view{ directiveStart }.starts_with(L"ifndef") ||
                  std::wstring_view{ directiveStart }.starts_with(L"else") ||

@@ -612,7 +612,7 @@ namespace i18n_check
         const std::wregex varNameIDPartsRE{ L"([a-zA-Z0-9_]*)(ID[A-Z]?[_]?)([a-zA-Z0-9_]*)" };
         // no std::from_chars for wchar_t :(
         const std::wregex numRE{ LR"(^[\-0-9']+$)" };
-        if (matches.size())
+        if (!matches.empty())
             {
             std::vector<std::pair<std::wstring, std::wstring>> idAssignments;
             idAssignments.reserve(matches.size());
@@ -651,26 +651,25 @@ namespace i18n_check
                           std::back_inserter(idNameParts));
                 // MFC IDs
                 if ((idNameParts[0].empty() ||
-                     (idNameParts[0].length() && !std::iswupper(idNameParts[0].back()))) &&
-                    (idNameParts[2].starts_with(L"R_") ||
-                     idNameParts[2].starts_with(L"D_") ||
-                     idNameParts[2].starts_with(L"C_") ||
-                     idNameParts[2].starts_with(L"I_") ||
-                     idNameParts[2].starts_with(L"B_") ||
-                     idNameParts[2].starts_with(L"S_") ||
-                     idNameParts[2].starts_with(L"M_") ||
-                     idNameParts[2].starts_with(L"P_")))
+                     (idNameParts[0].length() > 0 &&
+                      !static_cast<bool>(std::iswupper(idNameParts[0].back())))) &&
+                    (idNameParts[2].starts_with(L"R_") || idNameParts[2].starts_with(L"D_") ||
+                     idNameParts[2].starts_with(L"C_") || idNameParts[2].starts_with(L"I_") ||
+                     idNameParts[2].starts_with(L"B_") || idNameParts[2].starts_with(L"S_") ||
+                     idNameParts[2].starts_with(L"M_") || idNameParts[2].starts_with(L"P_")))
                     {
                     idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
                     continue;
                     }
-                if ((idNameParts[0].length() && std::iswupper(idNameParts[0].back())) ||
-                    (idNameParts[2].length() && std::iswupper(idNameParts[2].front())))
+                if ((idNameParts[0].length() &&
+                     static_cast<bool>(std::iswupper(idNameParts[0].back()))) ||
+                    (idNameParts[2].length() &&
+                     static_cast<bool>(std::iswupper(idNameParts[2].front()))))
                     {
                     continue;
                     }
 
-                idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
+                idAssignments.emplace_back(std::make_pair(subMatches[0], subMatches[1]));
                 }
             for (const auto& idAssignment : idAssignments)
                 {
@@ -687,11 +686,11 @@ namespace i18n_check
                 {
                     try
                         {
-                        return std::optional<long>(std::stol(idAssignment.second));
+                        return std::optional<int32_t>(std::stol(idAssignment.second));
                         }
                     catch (...)
                         {
-                        return std::optional<long>{ std::nullopt };
+                        return std::optional<int32_t>{ std::nullopt };
                         }
                 }();
                 if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && IdVal &&
@@ -747,8 +746,8 @@ namespace i18n_check
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-                if (static_cast<bool>(m_reviewStyles & check_duplicate_value_assigned_to_ids) && !inserted &&
-                    idAssignment.second.length() > 0 &&
+                if (static_cast<bool>(m_reviewStyles & check_duplicate_value_assigned_to_ids) &&
+                    !inserted && idAssignment.second.length() > 0 &&
                     // ignore if same ID is assigned to variables with the same name
                     idAssignment.first != pos->second && idAssignment.second != L"wxID_ANY" &&
                     idAssignment.second != L"wxID_NONE" && idAssignment.second != L"-1" &&
@@ -995,7 +994,7 @@ namespace i18n_check
                 m_file_name, get_line_and_column(quotePosition));
             return;
             }
-        if (get_ignored_variable_patterns().size())
+        if (!get_ignored_variable_patterns().empty())
             {
             try
                 {
@@ -1111,11 +1110,11 @@ namespace i18n_check
         i18n_string_util::remove_escaped_unicode_values(str);
         string_util::trim(str);
         // strip control characters (these wreak havoc with the regex parser)
-        for (auto& ch : str)
+        for (auto& chr : str)
             {
-            if (ch == L'\n' || ch == L'\t' || ch == L'\r')
+            if (chr == L'\n' || chr == L'\t' || chr == L'\r')
                 {
-                ch = L' ';
+                chr = L' ';
                 }
             }
         string_util::trim(str);
@@ -1348,11 +1347,11 @@ namespace i18n_check
                     {
                     return;
                     }
-                --functionOrVarNamePos;
+                std::advance(functionOrVarNamePos, -1);
                 while (functionOrVarNamePos > startSentinel &&
                        static_cast<bool>(std::iswspace(*functionOrVarNamePos)))
                     {
-                    --functionOrVarNamePos;
+                    std::advance(functionOrVarNamePos, -1);
                     }
                 const auto* typeEnd = functionOrVarNamePos + 1;
                 // if a template, then step over (going backwards) the template arguments
@@ -1380,11 +1379,11 @@ namespace i18n_check
                     functionOrVarNamePos > startSentinel &&
                     (is_valid_name_char_ex(*functionOrVarNamePos) || *functionOrVarNamePos == L'&'))
                     {
-                    --functionOrVarNamePos;
+                    std::advance(functionOrVarNamePos, -1);
                     }
                 if (!is_valid_name_char_ex(*functionOrVarNamePos))
                     {
-                    ++functionOrVarNamePos;
+                    std::advance(functionOrVarNamePos, 1);
                     }
                 variableType.assign(functionOrVarNamePos, typeEnd - functionOrVarNamePos);
                 // make sure the variable type is a word, not something like "<<"
@@ -1415,17 +1414,17 @@ namespace i18n_check
             if (*startPos == L')')
                 {
                 ++closeParenCount;
-                --startPos;
+                std::advance(startPos, -1);
                 }
             else if (*startPos == L'}')
                 {
                 ++closeBraseCount;
-                --startPos;
+                std::advance(startPos, -1);
                 }
             else if (*startPos == L'(' || *startPos == L'{')
                 {
                 const auto currentOpeningChar{ *startPos };
-                --startPos;
+                std::advance(startPos, -1);
                 // if just closing the terminating parenthesis for a function
                 // call in the list of parameters, then skip it and keep going
                 // to find the outer function call that this string really belongs to.
@@ -1444,20 +1443,20 @@ namespace i18n_check
                 // skip whitespace between open parenthesis and function name
                 while (startPos > startSentinel && static_cast<bool>(std::iswspace(*startPos)))
                     {
-                    --startPos;
+                    std::advance(startPos, -1);
                     }
                 functionOrVarNamePos = startPos;
                 while (functionOrVarNamePos > startSentinel &&
                        is_valid_name_char_ex(*functionOrVarNamePos))
                     {
-                    --functionOrVarNamePos;
+                    std::advance(functionOrVarNamePos, -1);
                     }
                 // If we are on the start of the text, then see if we need to
                 // include that character too. We may have short circuited because
                 // we reached the start of the stream.
                 if (!is_valid_name_char_ex(*functionOrVarNamePos))
                     {
-                    ++functionOrVarNamePos;
+                    std::advance(functionOrVarNamePos, 1);
                     }
                 functionName.assign(functionOrVarNamePos, (startPos + 1) - functionOrVarNamePos);
                 const bool hasExtraneousParens{ functionName.empty() };
@@ -1494,7 +1493,7 @@ namespace i18n_check
                         }
                     if (!hasExtraneousParens)
                         {
-                        --startPos;
+                        std::advance(startPos, -1);
                         }
                     continue;
                     }
@@ -1536,38 +1535,38 @@ namespace i18n_check
                      *(startPos - 1) != L'=' && *(startPos - 1) != L'!' &&
                      *(startPos - 1) != L'>' && *(startPos - 1) != L'<')
                 {
-                --startPos;
+                std::advance(startPos, -1);
                 // skip spaces (and "+=" tokens)
                 while (startPos > startSentinel &&
                        (static_cast<bool>(std::iswspace(*startPos)) || *startPos == L'+'))
                     {
-                    --startPos;
+                    std::advance(startPos, -1);
                     }
                 // skip array info
                 if (startPos > startSentinel && *startPos == L']')
                     {
                     while (startPos > startSentinel && *startPos != L'[')
                         {
-                        --startPos;
+                        std::advance(startPos, -1);
                         }
-                    --startPos;
+                    std::advance(startPos, -1);
                     while (startPos > startSentinel && static_cast<bool>(std::iswspace(*startPos)))
                         {
-                        --startPos;
+                        std::advance(startPos, -1);
                         }
                     }
                 functionOrVarNamePos = startPos;
                 while (functionOrVarNamePos > startSentinel &&
                        is_valid_name_char_ex(*functionOrVarNamePos))
                     {
-                    --functionOrVarNamePos;
+                    std::advance(functionOrVarNamePos, -1);
                     }
                 // If we are on the start of the text, then see if we need to include that
                 // character too. We may have short circuited because we reached the start
                 // of the stream.
                 if (!is_valid_name_char_ex(*functionOrVarNamePos))
                     {
-                    ++functionOrVarNamePos;
+                    std::advance(functionOrVarNamePos, 1);
                     }
                 variableName.assign(functionOrVarNamePos, (startPos + 1) - functionOrVarNamePos);
 
@@ -1580,7 +1579,7 @@ namespace i18n_check
                 }
             else if (static_cast<bool>(std::iswspace(*startPos)))
                 {
-                --startPos;
+                std::advance(startPos, -1);
                 }
             else if (quoteWrappedInCTOR &&
                      (*startPos == L',' || *startPos == L'+' || *startPos == L'&'))
@@ -1598,17 +1597,17 @@ namespace i18n_check
             //     gDebug() << "message"
             else if (*startPos == L'<')
                 {
-                --startPos;
+                std::advance(startPos, -1);
                 if (startPos > startSentinel && *startPos == L'<')
                     {
-                    --startPos;
+                    std::advance(startPos, -1);
                     while (startPos > startSentinel && static_cast<bool>(std::iswspace(*startPos)))
                         {
-                        --startPos;
+                        std::advance(startPos, -1);
                         }
                     if (startPos > startSentinel && *startPos == L')')
                         {
-                        --startPos;
+                        std::advance(startPos, -1);
                         }
                     }
                 }
@@ -1618,7 +1617,7 @@ namespace i18n_check
                     {
                     ++parameterPosition;
                     }
-                --startPos;
+                std::advance(startPos, -1);
                 }
             }
 
