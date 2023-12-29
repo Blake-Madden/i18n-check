@@ -11,9 +11,9 @@
 namespace i18n_string_util
     {
     //--------------------------------------------------
-    bool is_url(const wchar_t* text, size_t length)
+    bool is_url(std::wstring_view text)
         {
-        if (text == nullptr || length < 5) // NOLINT
+        if (text.length() < 5) // NOLINT
             {
             return false;
             }
@@ -49,12 +49,12 @@ namespace i18n_string_util
             }
 
         // an URL that is missing the "www" prefix (e.g, ibm.com/index.html)
-        const wchar_t* firstSlash = string_util::strnchr(text, L'/', length);
+        const wchar_t* firstSlash = string_util::strnchr(text.data(), L'/', text.length());
         if (firstSlash != nullptr)
             {
-            const auto lastDotPos = string_util::find_last_of(text, L'.', firstSlash - text);
+            const auto lastDotPos = string_util::find_last_of(text.data(), L'.', firstSlash - text.data());
             if (lastDotPos != std::wstring::npos &&
-                (lastDotPos + 4 == static_cast<size_t>(firstSlash - text)) &&
+                (lastDotPos + 4 == static_cast<size_t>(firstSlash - text.data())) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 1])) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 2])) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 3])))
@@ -64,21 +64,22 @@ namespace i18n_string_util
             }
 
         // cut off possessive form
-        if (length >= 3 && is_apostrophe(text[length - 2]) &&
-            string_util::is_either(text[length - 1], L's', L'S'))
+        if (text.length() >= 3 && is_apostrophe(text[text.length() - 2]) &&
+            string_util::is_either(text[text.length() - 1], L's', L'S'))
             {
-            length -= 2;
+            text.remove_suffix(2);
             }
 
         static const std::set<std::wstring> knownWebExtensions = { L"au",  L"biz", L"ca",
                                                                    L"com", L"edu", L"gov",
                                                                    L"ly",  L"org", L"uk" };
 
-        auto periodPos = string_util::find_last_of(text, L'.', length - 1);
-        if (periodPos != std::wstring::npos && periodPos < length - 1)
+        auto periodPos = string_util::find_last_of(text.data(), L'.', text.length() - 1);
+        if (periodPos != std::wstring::npos && periodPos < text.length() - 1)
             {
             ++periodPos;
-            if (knownWebExtensions.find(std::wstring(text + periodPos, length - periodPos)) !=
+            if (knownWebExtensions.find(std::wstring(
+                    text.data() + periodPos, text.length() - periodPos)) !=
                 knownWebExtensions.cend())
                 {
                 return true;
@@ -96,7 +97,7 @@ namespace i18n_string_util
             return false;
             }
         // protocols
-        if (is_url(text.data(), text.length()))
+        if (is_url(text))
             {
             return true;
             }

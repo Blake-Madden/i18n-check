@@ -92,15 +92,15 @@ TEST_CASE("i18n string util", "[i18nstringutil]")
 
     SECTION("Is Short Url")
         {
-        CHECK(i18n_string_util::is_url(L"amazon.com", 10));
-        CHECK(i18n_string_util::is_url(L"shop.amazon.com", 15));
-        CHECK(i18n_string_util::is_url(L"amazon.com's", 12));
-        CHECK(i18n_string_util::is_url(L"amazon.com’s", 12));
-        CHECK(!i18n_string_util::is_url(L"amazon.txt’s", 12));
+        CHECK(i18n_string_util::is_url(L"amazon.com"));
+        CHECK(i18n_string_util::is_url(L"shop.amazon.com"));
+        CHECK(i18n_string_util::is_url(L"amazon.com's"));
+        CHECK(i18n_string_util::is_url(L"amazon.com’s"));
+        CHECK(!i18n_string_util::is_url({ L"amazon.txt’s", 12 }));
 
-        CHECK(i18n_string_util::is_url(L"amazon.au", 9));
-        CHECK(!i18n_string_util::is_url(L"amazon.", 7));
-        CHECK(!i18n_string_util::is_url(L"amazon.a", 8));
+        CHECK(i18n_string_util::is_url(L"amazon.au"));
+        CHECK(!i18n_string_util::is_url(L"amazon."));
+        CHECK(!i18n_string_util::is_url(L"amazon.a"));
         }
 
     SECTION("Is Short File")

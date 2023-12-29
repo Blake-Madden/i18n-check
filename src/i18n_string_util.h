@@ -39,12 +39,11 @@ namespace i18n_string_util
 
     /** @brief Determines if a string is an internet address.
         @returns @c true if text block is an Internet address.
-        @param text The text block to analyze.
-        @param length The length of the text block to analyze.\n
+        @param text The text block to analyze.\n
             This will be the start of the text block up to the end of the
             suspected file address.*/
     [[nodiscard]]
-    bool is_url(const wchar_t* text, size_t length);
+    bool is_url(std::wstring_view text);
 
     /** @returns Whether a character is a number (narrow [0-9] characters only).
         @param ch The letter to be reviewed.*/

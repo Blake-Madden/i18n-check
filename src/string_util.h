@@ -794,6 +794,19 @@ namespace string_util
         return strnicmp(first, second.data(), second.length());
         }
 
+    /// @brief Case-insensitive comparison by character count.
+    /// @param first The first string to compare.
+    /// @param second The second string to compare.
+    /// @note The length of the @c string_view will be the max length to compare.
+    /// @returns The comparison result.
+    template<typename T>
+    [[nodiscard]]
+    int strnicmp(const std::basic_string_view<T> first,
+                 const std::basic_string_view<T> second) noexcept
+        {
+        return strnicmp(first.data(), second.data(), second.length());
+        }
+
     /// @brief Case-insensitive comparison.
     /// @param first The first string to compare.
     /// @param second The second string to compare.
