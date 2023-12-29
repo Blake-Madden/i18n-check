@@ -652,14 +652,14 @@ namespace i18n_check
                 // MFC IDs
                 if ((idNameParts[0].empty() ||
                      (idNameParts[0].length() && !std::iswupper(idNameParts[0].back()))) &&
-                    (idNameParts[2].compare(0, 2, L"R_") == 0 ||
-                     idNameParts[2].compare(0, 2, L"D_") == 0 ||
-                     idNameParts[2].compare(0, 2, L"C_") == 0 ||
-                     idNameParts[2].compare(0, 2, L"I_") == 0 ||
-                     idNameParts[2].compare(0, 2, L"B_") == 0 ||
-                     idNameParts[2].compare(0, 2, L"S_") == 0 ||
-                     idNameParts[2].compare(0, 2, L"M_") == 0 ||
-                     idNameParts[2].compare(0, 2, L"P_") == 0))
+                    (idNameParts[2].starts_with(L"R_") ||
+                     idNameParts[2].starts_with(L"D_") ||
+                     idNameParts[2].starts_with(L"C_") ||
+                     idNameParts[2].starts_with(L"I_") ||
+                     idNameParts[2].starts_with(L"B_") ||
+                     idNameParts[2].starts_with(L"S_") ||
+                     idNameParts[2].starts_with(L"M_") ||
+                     idNameParts[2].starts_with(L"P_")))
                     {
                     idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
                     continue;
@@ -696,9 +696,9 @@ namespace i18n_check
                 }();
                 if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && IdVal &&
                     !(IdVal.value() >= 1 && IdVal.value() <= 0x6FFF) &&
-                    (idNameParts[1].compare(L"IDR_") == 0 || idNameParts[1].compare(L"IDD_") == 0 ||
-                     idNameParts[1].compare(L"IDM_") == 0 || idNameParts[1].compare(L"IDC_") == 0 ||
-                     idNameParts[1].compare(L"IDI_") == 0 || idNameParts[1].compare(L"IDB_") == 0))
+                    (idNameParts[1] == L"IDR_" || idNameParts[1] == L"IDD_" ||
+                     idNameParts[1] == L"IDM_" || idNameParts[1] == L"IDC_" ||
+                     idNameParts[1] == L"IDI_" || idNameParts[1] == L"IDB_"))
                     {
                     m_ids_assigned_number.push_back(string_info(
                         idAssignment.second + L" assigned to " + idAssignment.first +
