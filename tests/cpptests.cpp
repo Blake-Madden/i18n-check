@@ -7,10 +7,10 @@
 #include <set>
 #include <sstream>
 
+// NOLINTBEGIN
 using namespace i18n_check;
 using namespace Catch::Matchers;
 
-// NOLINTBEGIN
 // clang-format off
 TEST_CASE("Snake case words", "[cpp][i18n]")
     {
@@ -19,7 +19,7 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "user_level_permission";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_internal_strings().size() == 1);
         }
@@ -28,7 +28,7 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "__HIGH_SCORE__";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_internal_strings().size() == 1);
         }
@@ -37,7 +37,7 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "Config_File_Path";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_internal_strings().size() == 1);
         }
@@ -46,7 +46,7 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "P_rinter";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_internal_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -59,7 +59,7 @@ TEST_CASE("<<", "[cpp][i18n]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(qCDebug(KDE_LOG) << "Rendered image")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_internal_strings().size() == 1);
         }
@@ -68,7 +68,7 @@ TEST_CASE("<<", "[cpp][i18n]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(qDebug() << "################### THERE IS A MESSAGE #################";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_internal_strings().size() == 1);
         }
@@ -80,7 +80,7 @@ TEST_CASE("Place holders", "[cpp][i18n]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(auto var = _(L"XXXXXX XXXXXX");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
         }
@@ -89,7 +89,7 @@ TEST_CASE("Place holders", "[cpp][i18n]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(auto var = _(L"XXXXXX -X.XXXXX, +X.XXXXX");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
         }
@@ -101,7 +101,7 @@ TEST_CASE("Version Info", "[cpp][i18n]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(auto var = _(L"ClientTest v1.2");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
         }
@@ -113,7 +113,7 @@ TEST_CASE("C/C++ code", "[cpp][i18n]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(auto var = _(L"pVal->Dosomething();");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
         }
@@ -131,7 +131,7 @@ uint32_t MENU_ID_PRINT{ 1'002 };
 UINT ID_EXPORT{ 1003 };
 UINT ID_EXPORT_AS{ wxID_HIGHEST };
 UINT ID_PRINT_ALL(wxID_HIGHEST+1);)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_ids_assigned_number().size() == 4);
         CHECK(cpp.get_ids_assigned_number()[0].m_string == L"1000 assigned to MENU_ID_NEW");
@@ -254,7 +254,7 @@ UINT ID_PRINT_ALL(wxID_HIGHEST+1);)";
 #define IDC_TRANSPARENT_COLOR           1134
 #define IDC_BOLDSLIDER                  1135
 #define IDC_STATIC_WEIGHT               1136);)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_ids_assigned_number().size() == 1);
         CHECK(cpp.get_ids_assigned_number()[0].m_string == L"32784 assigned to IDC_EDIT_MODE; value should be between 1 and 0x6FFF if this is an MFC project.");
@@ -270,7 +270,7 @@ uint32_t MENU_ID_PRINT{ 1'002 };
 UINT ID_EXPORT{ wxID_HIGHEST + 1 };
 UINT ID_EXPORT_AS{ wxID_HIGHEST+1 };
 UINT ID_PRINT_ALL(wxID_HIGHEST  +1);)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         // complain about both duplicate assignments
         REQUIRE(cpp.get_duplicates_value_assigned_to_ids().size() == 2);
@@ -285,7 +285,7 @@ UINT ID_PRINT_ALL(wxID_HIGHEST  +1);)";
 static int const MENU_ID_NEW = 1000;
 wxWindowID MENU_ID_NEW = 1000;
 wxWindowID MENU_ID_SAVE = wxID_HIGHEST;)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         // same variable name and value assigned, so ignore that (may be intentional assignments in diffence code sections)
         CHECK(cpp.get_duplicates_value_assigned_to_ids().size() == 0);
@@ -299,7 +299,7 @@ static int const MENU_ID_NEW = (({ 1000}));
 wxWindowID MENU_ID_SAVE =     (((1001)));
 uint32_t MENU_ID_PRINT{ (1'002) };
 UINT ID_EXPORT{ (({1000})) };)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_ids_assigned_number().size() == 4);
         CHECK(cpp.get_ids_assigned_number()[0].m_string == L"1000 assigned to MENU_ID_NEW");
@@ -315,7 +315,7 @@ UINT ID_EXPORT{ (({1000})) };)";
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(const wxWindowID listID = lua_tonumber(L, 2);
 const wxWindowID reportID = lua_tonumber(L, 3);)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_duplicates_value_assigned_to_ids().size() == 0);
         }
@@ -325,7 +325,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(static const int THUMBNAIL_WIDTH = 320;
     static const int THUMBNAIL_HEIGHT = 240;)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_ids_assigned_number().size() == 0);
         }
@@ -335,7 +335,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(int baseYearID = Model_Budgetyear::instance().Get(baseYear);
             int newYearID  = Model_Budgetyear::instance().Get(currYearText);)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_duplicates_value_assigned_to_ids().size() == 0);
         }
@@ -345,7 +345,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(int fromAccountID = from_account->ACCOUNTID;
             int fromAccountID = from_account->USER_ACCOUNTID;)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_duplicates_value_assigned_to_ids().size() == 0);
         }
@@ -355,7 +355,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(static const int THUMBNAIL_WIDTH = 320;
     static const int THUMBNAIL_HEIGHT = 240;)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_ids_assigned_number().size() == 0);
         }
@@ -367,7 +367,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
 static int const MENU_ID_PRINT = -1;
 static int const MENU_ID_PRINT_ALL = -1;
 static int const MENU_ID_EXPORT = wxID_ANY;)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_ids_assigned_number().size() == 0);
         CHECK(cpp.get_duplicates_value_assigned_to_ids().size() == 0);
@@ -396,7 +396,7 @@ MyWindow::MyWindow()
     QLabel *senderLabel = new QLabel(tr("Name:"));
     QLabel *recipientLabel = new QLabel(tr("Name:", "recipient"));
 })";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_localizable_strings().size() == 4);
         CHECK(cpp.get_localizable_strings()[0].m_string == L"Password:");
@@ -422,7 +422,7 @@ MyWindow::MyWindow()
      };
      return tr(greeting_strings[type]);
  })";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_localizable_strings().size() == 2);
         CHECK(cpp.get_localizable_strings()[0].m_string == L"Hello");
@@ -449,7 +449,7 @@ MyWindow::MyWindow()
      return qApp->translate("FriendlyConversation",
                             greeting_strings[type]);
  })";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_localizable_strings().size() == 2);
         CHECK(cpp.get_localizable_strings()[0].m_string == L"Hello");
@@ -473,7 +473,7 @@ auto var = ::wxStrlen(theString);
 wxStrlens(var);
 i = 8;
 wxStrlen)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_deprecated_macros().size() == 1);
         CHECK(cpp.get_deprecated_macros()[0].m_string == L"wxStrlen");
@@ -502,7 +502,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 </style>
 </head>
 <body>")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -530,7 +530,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 <script src = 'memory:jquery.min.js'></script>
 </head>
 <body>")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -542,7 +542,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "<b>Window</b><br />")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -551,7 +551,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         // just one word
         code = LR"(auto var = "<thead><tr bgcolor=red><td><b>Headline</b></td></tr></thead>")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -563,7 +563,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "<< /Registry (Adobe)\n";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -571,7 +571,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
         code = LR"(auto var = "/DescendantFonts [%d 0 R]")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -583,7 +583,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "INSERT INTO BILLSDEPOSITS_V1(ACCOUNTID, TOACCOUNTID";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -591,7 +591,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
         code = LR"(auto var = "CREATE INDEX IF NOT EXISTS IDX_BUDGETYEAR_BUDGETYEARNAME ON BUDGETYEAR";)";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -599,7 +599,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         
         code = LR"(auto var = "CREATE TABLE BUDGETTABLE_V1(BUDGETENTRYID integer primary key, BUDGETYEARID integer, CATEGID integer, PERIOD TEXT NOT NULL /* None, Weekly, Bi-Weekly, Monthly, Monthly, Bi-Monthly, Quarterly, Half-Yearly, Yearly, Daily*/, AMOUNT numeric NOT NULL, NOTES TEXT, ACTIVE integer";)";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -611,7 +611,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "<and or>";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -619,7 +619,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
         code = LR"(auto var = "version=\"1.0\"")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -627,7 +627,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
         code = LR"(auto var = "<a href=\"#scores\">")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -635,7 +635,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         
         code = LR"(auto var = "<a href=\"#")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -643,7 +643,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
         code = LR"(auto var = "xml version=\"1.0\"")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -651,7 +651,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
         code = LR"(auto var = "xml version=\"1.0\">")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -659,7 +659,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
         code = LR"(auto var = "<\?xml version=\"%s\" encoding=\"UTF-8\" standalone=\"%s\" \?>")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -668,7 +668,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         // contains translatable text
         code = LR"(auto var = "xml version=\"1.0\">Hello")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -676,7 +676,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
         code = LR"(auto var = "< and or >";)";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -688,7 +688,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "#ifndef _";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -696,7 +696,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
         code = LR"(auto var = "#endif // _";)";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -704,7 +704,7 @@ TEST_CASE("Code generator strings", "[i18n]")
         
         code = LR"(auto var = "#define _";)";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -718,7 +718,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(s << _("Can't open file") << _("You must specify path to another database file");)";
-        cpp(code);
+        cpp(code, L"");
         CHECK(cpp.get_localizable_strings().size() == 2);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         CHECK(cpp.get_internal_strings().size() == 0);
@@ -769,7 +769,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         #endif
             return wxApp::OnExit();
             })";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
@@ -825,7 +825,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         #endif
             return wxApp::OnExit();
             })";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
@@ -841,7 +841,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(const LOGFONTW font("My Comic Sans");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -852,7 +852,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
         code = LR"(LOGFONTW& font("My Comic Sans");)"; // bad syntax, but check anyway
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -863,7 +863,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
         code = LR"(LOGFONTW const font("My Comic Sans");)";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -874,7 +874,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
         code = LR"(LOGFONTW* font = new LOGFONTW("My Comic Sans");)";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -885,7 +885,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
         code = LR"(auto font = std::make_shared<LOGFONTW>("My Comic Sans");)";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -895,7 +895,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
         code = LR"(auto font = std::shared_ptr<LOGFONTW>("My Comic Sans");)";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -909,7 +909,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "#include <wx/mstream.h>";)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -917,7 +917,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
         code = LR"(auto var = "#include <vector>")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -925,7 +925,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
         code = LR"(auto var = "#include \"my_header.h\"")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -933,7 +933,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
         code = LR"(auto var = "#include \"my_header.h\"\n\n#include <vector>\n#include <wx/mstream.h>\n")";
         cpp.clear_results();
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -946,7 +946,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         const wchar_t* code = LR"(MessageBox("This is a long "
                                              "message across "
                                              "multiple lines");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -959,7 +959,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(MessageBox("The amount is %0" PRId64 "\n");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -974,7 +974,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         // "46" is wrong, so parse this as two strings
         const wchar_t* code = LR"(MessageBox("Invalid Likert response: %\n" PRIu46
                                              "Column: %s\nValues should not exceed 7.");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
@@ -989,7 +989,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(var = "text/html; charset=utf-8")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1002,7 +1002,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"var = \"PNG (*.png)|*.png\"";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1015,7 +1015,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"var = \"Bitmap (*.bmp)|*.bmp\"";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1028,7 +1028,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"var = \"TIFF (*.tif;*.tiff)|*.tif;*.tiff\"";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1042,35 +1042,35 @@ TEST_CASE("CPP Tests", "[cpp]")
         const wchar_t* code = LR"(auto = sprintf("%zu", value))";
             {
             cpp_i18n_review cpp;
-            cpp(code);
+            cpp(code, L"");
             cpp.review_strings();
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%d", value))";
             {
             cpp_i18n_review cpp;
-            cpp(code);
+            cpp(code, L"");
             cpp.review_strings();
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%+d", value))";
             {
             cpp_i18n_review cpp;
-            cpp(code);
+            cpp(code, L"");
             cpp.review_strings();
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%ll", value))";
             {
             cpp_i18n_review cpp;
-            cpp(code);
+            cpp(code, L"");
             cpp.review_strings();
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%s", value))";
             {
             cpp_i18n_review cpp;
-            cpp(code);
+            cpp(code, L"");
             cpp.review_strings();
             CHECK(cpp.get_printf_single_numbers().size() == 0);
             }
@@ -1081,21 +1081,21 @@ TEST_CASE("CPP Tests", "[cpp]")
         const wchar_t* code = LR"(auto = sprintf("%f", value))";
             {
             cpp_i18n_review cpp;
-            cpp(code);
+            cpp(code, L"");
             cpp.review_strings();
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%lf", value))";
             {
             cpp_i18n_review cpp;
-            cpp(code);
+            cpp(code, L"");
             cpp.review_strings();
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%0.4f", value))";
             {
             cpp_i18n_review cpp;
-            cpp(code);
+            cpp(code, L"");
             cpp.review_strings();
             // specific formatting, so std::to_string() can't replace this
             CHECK(cpp.get_printf_single_numbers().size() == 0);
@@ -1106,7 +1106,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(wxString GetName() const wxOVERRIDE { return wxT("Simple DirectMedia Layer"); })";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1120,7 +1120,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(auto var = "Blake Madden <empty.name@company.mail.org>")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1133,7 +1133,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(auto var = _("Blake Madden <empty.name@company.mail.org>"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
         }
@@ -1143,7 +1143,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "emptyname@mail.org")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1157,7 +1157,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = L"auto var = _(\"%s item(s)\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
@@ -1170,7 +1170,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "www.company.com")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1184,7 +1184,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = _("Contact us at www.company.com"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings_with_urls().size() == 1);
         }
@@ -1194,13 +1194,13 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = _("..then by:"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings_with_urls().size() == 0);
 
         cpp.clear_results();
         code = LR"(auto var = _("A raster (i.e., pixel based) image format."))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings_with_urls().size() == 0);
         }
@@ -1243,7 +1243,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(wxMessageBox(_("another.hhp"));)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1256,7 +1256,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(wxMessageBox(_("Enums/Tests.h"));)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1264,14 +1264,14 @@ TEST_CASE("CPP Tests", "[cpp]")
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
         CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"Enums/Tests.h");
 
-        CHECK(i18n_string_util::is_file_address(L"Enums/Tests.h", 13));
+        CHECK(i18n_string_util::is_file_address(L"Enums/Tests.h"));
         }
 
     SECTION("Place holder")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(wxMessageBox(_("  Lorem ipsum dolor sit amet"));)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1284,7 +1284,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(wxMessageBox(_("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisl \nmassa, luctus ut ligula vitae, suscipit tempus velit. Vivamus sodales, quam in \nconvallis posuere, libero nisi ultricies orci, nec lobortis.\n"));)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1298,7 +1298,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         // default is to ignore strings with just one word
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(wxMessageBox("NETHEREALM");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1309,7 +1309,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         // now, complain about one-word strings not exposed for l10n
         cpp.clear_results();
         cpp.set_min_words_for_classifying_unavailable_string(1);
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1323,7 +1323,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         // default is to ignore strings with just one word
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(wxMessageBox("NETHEREALM'S");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1334,7 +1334,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         // now, complain about one-word strings not exposed for l10n
         cpp.clear_results();
         cpp.set_min_words_for_classifying_unavailable_string(1);
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1348,7 +1348,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         // default is to ignore strings with just one word
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(wxMessageBox("part-time");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1359,7 +1359,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         // now, complain about one-word strings not exposed for l10n
         cpp.clear_results();
         cpp.set_min_words_for_classifying_unavailable_string(1);
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1372,7 +1372,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(wxMessageBox("Microsoft Windows 2000 system level function loading error occurred during process initialization - Unable to load a function from the library file riched.dll");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1413,7 +1413,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(#define  DX_MSG   ("Direct2D failed"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1427,7 +1427,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(void DefineProperty(const char *name, plcob pb, std::string description="my description"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1442,7 +1442,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(#define  DX_MSG   "Direct2D failed")";
         cpp.add_variable_name_pattern_to_ignore(std::wregex(L"DX_MSG"));
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1456,7 +1456,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(if (value =="my message"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1470,7 +1470,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(#define  DX_MSG   MessageBox("Direct2D failed"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1527,7 +1527,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = L"description.Replace(wxT(\"\\\\\\\"\"), wxT(\"/\"));";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1536,7 +1536,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_internal_strings()[1].m_string == L"/");
         cpp.clear_results();
         code = L"view = (mCurTrack[0]->GetWaveformSettings().scaleType == 0) ? wxT(\"\\\"Waveform\\\"\") : wxT(\"\\\"Waveform (dB)\\\"\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
@@ -1550,7 +1550,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = L"if (a == '\"')\nAddCheckBox(_(\"&Use legacy (version 3) syntax.\"),\n(mVersion == 3) ? wxT(\"true\") : wxT(\"false\"));";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 1);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
@@ -1578,7 +1578,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"GetMenuBar()->SetLabel(XRCID(\"ID_SAVE_ITEM\"), wxString::Format(_(\"Export %s...\"), GetActiveProjectWindow()->GetName()) );";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1591,7 +1591,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"customTestMenu->Append(XRCID(\"ID_ADD_CUSTOM_NEW_DALE_CHALL_TEST\"), wxString::Format(_(\"Add Custom \\\"%s\\\"...\"), wxT(\"New Dale-Chall\")) );";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1605,7 +1605,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"value = \"XmlHttpRequest\"; value = \"SupportsIpv6OnIos\"; value = \"Xml2HttpRequest\";";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1619,7 +1619,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"value = \"xmlHttpRequest\"; value = \"supportsIpv6OnIos\"; value = \"xml2HttpRequest\";";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1705,7 +1705,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(#define SAVE_MAGIC_V1 "fish")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1718,7 +1718,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"__asm int \"A\"\n  __asm {int \"B\"\nint \"C\"}\n\nif b__asm(\"this is an error\")__asm";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1730,7 +1730,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"asm int \"A\"\n  asm (int \"B\"\nint \"C\")\n\nif basm(\"this is an error\")asm";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1747,7 +1747,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
                     : [pdst_sd_m] "=m" (*pdst_sd_m)       \
                     : [val_m] "r" (val_m)                 \
                 );if basm("this is an error"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1766,7 +1766,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
               "=d" (CPUInfo[3]) :
            "a" (InfoType)
               );if basm("this is an error"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1778,7 +1778,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(#define CATCH_TRAP()  __asm__(".inst 0xde01"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1789,7 +1789,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(#define REV_IDENT CString("No revision identifier was provided"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1804,7 +1804,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = L"# include \"string\"\n#  pragma __asm \"some library\"\n#define color \"Red\"\nif ShowMessage(\"this is an error\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
@@ -1817,7 +1817,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"#ifdef MYDEFINE \"bogus string\" \\ \nANOTHERDEF \"More bogus text\"\nif ShowMessage(\"this is an error\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1829,7 +1829,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"//\"comment\" ASSERT() is a diagnostic function\nif assert  (true && \"this is an error\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1841,7 +1841,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"/*comment here\nand more commenting about assert(true && \"this is an error\")*/\n\nif assert(true && \"this is an error\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1852,7 +1852,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"assert(delta >= 0 && \"delta value should be positive when comparing doubles\");";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1865,12 +1865,12 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         // check skipping over "==" to get to NON_UNIT_TEST_ASSERT
         const wchar_t* code = L"NON_UNIT_TEST_ASSERT((end1-begin1) == (end2-begin2) && \"Arrays passed to phi_coefficient must be the same size!\")";
-        cpp(code);
+        cpp(code, L"");
         code = L"assert(is_within<double>(pc,-1,1) && \"Error in phi coefficient calculation. Value should be -1 >= and <= 1.\")";
-        cpp(code);
+        cpp(code, L"");
         // check skipping over "!=" to get to NON_UNIT_TEST_ASSERT
         code = L"NON_UNIT_TEST_ASSERT((end1-begin1) != (end2-begin2) && \"Arrays passed to phi_coefficient must NOT be the same size!\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1884,9 +1884,9 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"//comment\nif CPPUNIT_ASSERT_EQUAL(true && \"this is an error\")";
-        cpp(code);
+        cpp(code, L"");
         code = L"//comment\nif CPPUNIT_ASSERT_EQUAL(true && \"this is an error also\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1899,7 +1899,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"throw std::range_error(\"Arrays passed to phi_coefficient must be the same size!\");";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1911,7 +1911,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"//comment\nif assert(true && ( (\"this is an error\")))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1923,7 +1923,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"//comment\nif assert(true && _(\"this is an error\"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1936,7 +1936,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         // in call to assert
         const wchar_t* code = L"if assert(ID, wstring(\"Enter your ID.\"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -1949,7 +1949,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         // in call to assert
         const wchar_t* code = L"wstring message( \"Enter your ID.\" );";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1965,7 +1965,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         // in call to assert
         const wchar_t* code = L"wstring message{ \"Enter your ID.\" };";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -1981,7 +1981,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         // in call to assert
         const wchar_t* code = L"if assert(ID, std::wstring(\"Enter your ID.\"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2015,7 +2015,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"assert(mPipeline.get(), (\"OnPadAdded: unable to allocate stream context\"));";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2028,7 +2028,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         // in call to assert
         const wchar_t* code = L"if assert<char>(ID, std::basic_string<char>(\"Enter your ID.\"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2041,7 +2041,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         // in call to assert
         const wchar_t* code = L"if assert<char>(ID, ::basic_string(\"Enter your ID.\"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2050,7 +2050,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp.clear_results();
         // sanity test of empty CTOR
         code = L"if assert<char>(ID, ::(\"Enter your ID.\"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2063,7 +2063,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         // in call to assert
         const wchar_t* code = L"if assert(ID==5, \"Bad ID\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2075,7 +2075,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"std::string userMessage = \"Enter your ID.\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2090,7 +2090,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"std::wstring userMessage += L\"Enter your ID.\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2106,7 +2106,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         cpp.add_variable_name_pattern_to_ignore(std::wregex(L"^test.*"));
         const wchar_t* code = L"std::string testMessage = \"Enter your ID.\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2121,7 +2121,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"char userMessage [3] = \"Enter your ID.\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2136,7 +2136,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"std::basic_string<char> userMessage = \"Enter your ID.\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2152,7 +2152,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"std::string userMessage{ \"Enter your ID.\" }";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2167,7 +2167,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"std::basic_string<char> userMessage{ \"Enter your ID.\" }";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2183,7 +2183,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"std::map<string, int> userMessage{ \"Enter your ID.\", 87 }";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2199,7 +2199,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"wxASSERT_MSG(m_defaultReadabilityTestsTemplate.get_test_count() == 0, __WXFUNCTION__ + wxString(\" called twice?\"));";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2226,7 +2226,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
             default:
                 wxFAIL_MSG(L"unexpected alignment");
         })";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2242,7 +2242,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(handlerInfo = m_frame->GetClassInfo()->
                 FindHandlerInfo(wxT("ButtonClickHandler"));)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2258,7 +2258,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(Add(static_cast<CString*>("My ID"));)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2272,7 +2272,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"if GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2284,7 +2284,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"#include \"string\"\n\nif GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2296,7 +2296,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"#define REV_TIME \"unknown date and time\"\n\nint i = 9";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2316,7 +2316,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
             ">	
     RR",
             ",	RR")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 5);
@@ -2337,7 +2337,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"if GetUserInput(wxT(\"<img src=\\\"images\\\\\"), \"Enter your \\\"ID\\\".\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2350,7 +2350,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(mid = (*env)->GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2363,7 +2363,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(mid = ::GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2376,7 +2376,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(what.Printf("standard exception of type \"%s\" with message \"%s\"");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2389,7 +2389,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(mid = ::GetStaticMethodID<int>(env, mActivityClass, "promptForAlias", "(II)V");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2402,7 +2402,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"//comment\nif GetUserInput(/*assert(*/, \"Enter your ID.\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2414,7 +2414,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"blah('\\\"')\nif GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2440,7 +2440,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = L"if GetUserInput(ID, \"Enter your ID.\")";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
@@ -2452,7 +2452,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(DateFormat(L"%Y%m%dT%H%M%S");)";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2464,7 +2464,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"({ return wxSizerFlags::GetDefaultBorder() * 2;})";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_error_log().size() == 1);
         CHECK(cpp.get_error_log()[0].m_message == L"Space or newline should be inserted between ';' and '}'.");
@@ -2474,7 +2474,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         {
         cpp_i18n_review cpp;
         const wchar_t* code = LR"(MsgBox("\r\nStartHTML:00000000\r\nEndHTML:00000000\r\nStartFragment:00000000\r\nEndFragment:00000000\r\n<html><body>\r\n<!--StartFragment -->\r\n"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2482,7 +2482,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
 
         cpp.clear_results();
         code = LR"(MsgBox("Version:0.9\r\nStartHTML:00000000\r\nEndHTML:00000000\r\nStartFragment:00000000\r\nEndFragment:00000000\r\n<html><body>\r\n<!--StartFragment -->\r\n"))";
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
@@ -2510,7 +2510,7 @@ if (std::regex_match(str, m_html_regex) ||
     str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
     })";
         cpp.set_style(i18n_check::review_style::check_line_width);
-        cpp(code);
+        cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_wide_lines().size() == 1);
         CHECK(cpp.get_wide_lines()[0].m_usage.m_value == L"122");

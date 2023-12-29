@@ -7,10 +7,10 @@
 #include <set>
 #include <sstream>
 
+// NOLINTBEGIN
 using namespace string_util;
 using namespace Catch::Matchers;
 
-// NOLINTBEGIN
 // clang-format off
 TEST_CASE("find_unescaped_char", "[stringutil][search]")
     {

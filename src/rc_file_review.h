@@ -28,9 +28,9 @@ namespace i18n_check
       public:
         /** @brief Main interface for extracting resource text from C++ source code.
             @param rcFileText The RC file's text to analyze.
-            @param file_name The (optional) name of source file being analyzed.*/
+            @param fileName The (optional) name of source file being analyzed.*/
         void operator()(const std::wstring_view rcFileText,
-                        const std::wstring& file_name = L"") final;
+                        const std::wstring& fileName) final;
 
         /// @returns Font sizes used for dialogs that are too large or small.
         [[nodiscard]]

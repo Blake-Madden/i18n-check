@@ -7,10 +7,10 @@
 #include <set>
 #include <sstream>
 
+// NOLINTBEGIN
 using namespace i18n_check;
 using namespace Catch::Matchers;
 
-// NOLINTBEGIN
 // clang-format off
 TEST_CASE("String tables", "[rc][i18n]")
 	{
@@ -33,7 +33,7 @@ IDS_3 "Copyright \xA92001"
 IDS_3a L"Copyright \x00a92001"
 IDS_4 L"%s"
 END)";
-		rc(code);
+		rc(code, L"");
 		REQUIRE(rc.get_localizable_strings().size() == 6);
 		REQUIRE(rc.get_unsafe_localizable_strings().size() == 2);
 		CHECK(rc.get_unsafe_localizable_strings()[0].m_string == L"image.bmp");
@@ -63,7 +63,7 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFR
 CAPTION "Dialog"
 FONT 8, "Comic Sans", 0, 0, 0x0
 BEGIN)";
-		rc(code);
+		rc(code, L"");
 		REQUIRE(rc.get_bad_dialog_font_sizes().size() == 2);
 		CHECK(rc.get_bad_dialog_font_sizes()[0].m_string == LR"(FONT 7, "MS Shell Dlg": font size 7 is non-standard (8 is recommended).)");
 		CHECK(rc.get_bad_dialog_font_sizes()[1].m_string == LR"(FONT 18, "MS Shell Dlg": font size 18 is non-standard (8 is recommended).)");

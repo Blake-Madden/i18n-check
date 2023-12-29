@@ -31,12 +31,11 @@ namespace i18n_string_util
     /** @brief Determines if a string is a local file path,
             file name, email address, or internet address.
         @returns @c true if text block is a local file or Internet address.
-        @param text The text block to analyze.
-        @param length The length of the text block to analyze.\n
+        @param text The text block to analyze.\n
             This will be the start of the text block up to the end of the
             suspected file address.*/
     [[nodiscard]]
-    bool is_file_address(const wchar_t* text, size_t length);
+    bool is_file_address(std::wstring_view text);
 
     /** @brief Determines if a string is an internet address.
         @returns @c true if text block is an Internet address.

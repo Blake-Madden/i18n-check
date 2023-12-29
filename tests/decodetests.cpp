@@ -2,10 +2,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+// NOLINTBEGIN
 using namespace Catch::Matchers;
 using namespace i18n_string_util;
 
-// NOLINTBEGIN
 // clang-format off
 TEST_CASE("Text decode", "[decode]")
     {

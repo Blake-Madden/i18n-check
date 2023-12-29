@@ -7,88 +7,87 @@
 #include <set>
 #include <sstream>
 
+// NOLINTBEGIN
 using namespace i18n_string_util;
 using namespace Catch::Matchers;
 
-// NOLINTBEGIN
 // clang-format off
 TEST_CASE("i18n string util", "[i18nstringutil]")
     {
     SECTION("Null")
         {
-        CHECK_FALSE(is_file_address(nullptr, 1));
-        CHECK_FALSE(is_file_address(L"text", 0));
+        CHECK_FALSE(is_file_address(L""));
         }
     SECTION("Typo Not Really A File Path")
         {
-        CHECK_FALSE(is_file_address(L"file.Rob", 8));
-        CHECK(is_file_address(L"file.TIF", 8));
-        CHECK(is_file_address(L"file.tif", 8));
+        CHECK_FALSE(is_file_address(L"file.Rob"));
+        CHECK(is_file_address(L"file.TIF"));
+        CHECK(is_file_address(L"file.tif"));
         // should be the start of a new sentence with the word "Tiff"
-        CHECK_FALSE(is_file_address(L"file.Tif", 8));
+        CHECK_FALSE(is_file_address(L"file.Tif"));
         }
     SECTION("Non Addresses")
         {
-        CHECK_FALSE(is_file_address(L"text", 4));
-        CHECK_FALSE(is_file_address(L"FTPs", 4));
-        CHECK_FALSE(is_file_address(L"wwwhat!", 7));
+        CHECK_FALSE(is_file_address(L"text"));
+        CHECK_FALSE(is_file_address(L"FTPs"));
+        CHECK_FALSE(is_file_address(L"wwwhat!"));
         }
     SECTION("Domains")
         {
-        CHECK(is_file_address(L"http://www.sales.mycompany.com", 30) );
-        CHECK(is_file_address(L"HTTPS://www.sales.mycompany.com", 31) );
-        CHECK(is_file_address(L"ftp://www.sales.mycompany.com", 29) );
-        CHECK(is_file_address(L"www.sales.mycompany.com", 23) );
+        CHECK(is_file_address(L"http://www.sales.mycompany.com") );
+        CHECK(is_file_address(L"HTTPS://www.sales.mycompany.com") );
+        CHECK(is_file_address(L"ftp://www.sales.mycompany.com") );
+        CHECK(is_file_address(L"www.sales.mycompany.com") );
         }
     SECTION("Domains No Prefix")
         {
-        CHECK(is_file_address(L"ibm.com/", 8) );
-        CHECK(is_file_address(L"ibm.com/software/data/infosphere/identity-insight", 49) );
-        CHECK_FALSE(is_file_address(L"123.578/72", 10));//avoid what is really an equation
-        CHECK(is_file_address(L"go.businessmachines.com", 23));
-        CHECK(is_file_address(L"go.businessmachines.com/", 24));
+        CHECK(is_file_address(L"ibm.com/") );
+        CHECK(is_file_address(L"ibm.com/software/data/infosphere/identity-insight") );
+        CHECK_FALSE(is_file_address(L"123.578/72")); // avoid what is really an equation
+        CHECK(is_file_address(L"go.businessmachines.com"));
+        CHECK(is_file_address(L"go.businessmachines.com/"));
         }
     SECTION("Network Paths")
         {
-        CHECK(is_file_address(L"\\\\server", 8) );
-        CHECK(is_file_address(L"file://blah", 11) );
+        CHECK(is_file_address(L"\\\\server") );
+        CHECK(is_file_address(L"file://blah") );
         }
     SECTION("Windows Paths")
         {
-        CHECK(is_file_address(L"C:\\users", 8) );
-        CHECK(is_file_address(L"C:/users", 8) );//wrong path separator should still work
-        CHECK(is_file_address(L"D:\\users", 8) );
-        CHECK_FALSE(is_file_address(L"7:\\users", 8));//not a real drive letter
-        CHECK_FALSE(is_file_address(L"C:", 2));//not long enough
+        CHECK(is_file_address(L"C:\\users") );
+        CHECK(is_file_address(L"C:/users") ); // wrong path separator should still work
+        CHECK(is_file_address(L"D:\\users") );
+        CHECK_FALSE(is_file_address(L"7:\\users")); // not a real drive letter
+        CHECK_FALSE(is_file_address(L"C:")); // not long enough
         }
     SECTION("UNIX Paths")
         {
-        CHECK(is_file_address(L"/Users/Share", 12) );
-        CHECK_FALSE(is_file_address(L"/Users", 6));//not enough folders to determine if a real path
-        CHECK_FALSE(is_file_address(L"/a", 2));//not long enough
+        CHECK(is_file_address(L"/Users/Share") );
+        CHECK_FALSE(is_file_address(L"/Users")); // not enough folders to determine if a real path
+        CHECK_FALSE(is_file_address(L"/a")); // not long enough
         }
     SECTION("Email Paths")
         {
-        CHECK(is_file_address(L"mailto:me", 9) );
-        CHECK(is_file_address(L"blake@mail.com", 14) );
-        CHECK_FALSE(is_file_address(L"blake@mail.com", 10) );//doesn't read far enough to get to the dot
-        CHECK_FALSE(is_file_address(L"blake@mail.com", 11) );//doesn't read far enough to get to the domain
-        CHECK(is_file_address(L"blake@mail.com", 12));//"c" will be the domain
-        CHECK_FALSE(is_file_address(L"blake@mail", 10));//missing domain
-        CHECK_FALSE(is_file_address(L"bl.ke@mail", 10));//missing domain
+        CHECK(is_file_address(L"mailto:me") );
+        CHECK(is_file_address(L"blake@mail.com") );
+        CHECK_FALSE(is_file_address({ L"blake@mail.com", 10 }) ); // doesn't read far enough to get to the dot
+        CHECK_FALSE(is_file_address({ L"blake@mail.com", 11 }) ); // doesn't read far enough to get to the domain
+        CHECK(is_file_address({ L"blake@mail.com", 12 })); // "c" will be the domain
+        CHECK_FALSE(is_file_address({ L"blake@mail", 10 })); // missing domain
+        CHECK_FALSE(is_file_address({ L"bl.ke@mail", 10 })); // missing domain
         }
     SECTION("File Names")
         {
-        CHECK(is_file_address(L"file.bmp", 8) );
-        CHECK_FALSE(is_file_address(L"file.bm", 7));
-        CHECK_FALSE(is_file_address(L"file.bmps", 9));
-        CHECK_FALSE(is_file_address(L"file.787", 8));
-        CHECK(is_file_address(L"file.h", 6));
-        CHECK(is_file_address(L"file.c", 6));
-        CHECK(is_file_address(L"stdafx.h", 8));
-        CHECK_FALSE(is_file_address(L".h", 2));
-        CHECK(is_file_address(L"a.docx", 6));
-        CHECK(is_file_address(L"libreoffice.tar.xz", 18));
+        CHECK(is_file_address(L"file.bmp") );
+        CHECK_FALSE(is_file_address(L"file.bm"));
+        CHECK_FALSE(is_file_address(L"file.bmps"));
+        CHECK_FALSE(is_file_address(L"file.787"));
+        CHECK(is_file_address(L"file.h"));
+        CHECK(is_file_address(L"file.c"));
+        CHECK(is_file_address(L"stdafx.h"));
+        CHECK_FALSE(is_file_address(L".h"));
+        CHECK(is_file_address(L"a.docx"));
+        CHECK(is_file_address(L"libreoffice.tar.xz"));
         }
 
     SECTION("Is Short Url")
@@ -106,9 +105,9 @@ TEST_CASE("i18n string util", "[i18nstringutil]")
 
     SECTION("Is Short File")
         {
-        CHECK(i18n_string_util::is_file_address(L"stdafx.h", 8));
-        CHECK(i18n_string_util::is_file_address(L"stdafx.h's", 10));
-        CHECK(i18n_string_util::is_file_address(L"stdafx.h’s", 10));
+        CHECK(i18n_string_util::is_file_address(L"stdafx.h"));
+        CHECK(i18n_string_util::is_file_address(L"stdafx.h's"));
+        CHECK(i18n_string_util::is_file_address(L"stdafx.h’s"));
         }
     }
 
