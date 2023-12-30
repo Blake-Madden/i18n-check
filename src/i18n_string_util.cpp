@@ -93,7 +93,9 @@ namespace i18n_string_util
     //--------------------------------------------------
     bool is_file_address(std::wstring_view text)
         {
-        if (text.length() < 5)
+        constexpr size_t fileAddressMinLength{ 5 };
+        constexpr size_t basicFileExtMinLength{ 3 };
+        if (text.length() < fileAddressMinLength)
             {
             return false;
             }
@@ -103,18 +105,18 @@ namespace i18n_string_util
             return true;
             }
         // UNC path
-        if (text.length() >= 3 && text[0] == L'\\' && text[1] == L'\\')
+        if (text.length() >= basicFileExtMinLength && text[0] == L'\\' && text[1] == L'\\')
             {
             return true;
             }
         // Windows file path
-        if (text.length() >= 3 && static_cast<bool>(std::iswalpha(text[0])) && text[1] == L':' &&
-            (text[2] == L'\\' || text[2] == L'/'))
+        if (text.length() >= basicFileExtMinLength && static_cast<bool>(std::iswalpha(text[0])) &&
+            text[1] == L':' && (text[2] == L'\\' || text[2] == L'/'))
             {
             return true;
             }
         // UNIX paths (including where the '/' at the front is missing
-        if (text.length() >= 3 && text[0] == L'/' &&
+        if (text.length() >= basicFileExtMinLength && text[0] == L'/' &&
             string_util::strnchr(text.data() + 2, L'/', text.length() - 2) != nullptr)
             {
             return true;
@@ -131,7 +133,7 @@ namespace i18n_string_util
             }
 
         // email address
-        if (text.length() >= 5)
+        if (text.length() >= fileAddressMinLength)
             {
             const wchar_t* spaceInStr =
                 string_util::strnchr(text.data() + 1, L' ', text.length() - 1);
@@ -160,7 +162,7 @@ namespace i18n_string_util
             }
 
         // cut off possessive form
-        if (text.length() >= 3 && is_apostrophe(text[text.length() - 2]) &&
+        if (text.length() >= basicFileExtMinLength && is_apostrophe(text[text.length() - 2]) &&
             string_util::is_either(text[text.length() - 1], L's', L'S'))
             {
             text.remove_suffix(2);
@@ -181,21 +183,25 @@ namespace i18n_string_util
                 }
             // see if a file filter/wildcard (e.g., "*.txt", "Rich Text Format (*.rtf)|*.rtf")
             // and not a file path
-            if (text.length() >= 5 && text[text.length() - 5] == L'*')
+            if (text.length() >= fileAddressMinLength &&
+                text[text.length() - fileAddressMinLength] == L'*')
                 {
                 return false;
                 }
             return true;
             }
         // 4-letter (Microsoft XML-based) file name
-        if (text.length() >= 5 && text[text.length() - 5] == L'.' &&
-            static_cast<bool>(std::iswalpha(text[text.length() - 4])) &&
-            static_cast<bool>(std::iswalpha(text[text.length() - 3])) &&
-            static_cast<bool>(std::iswalpha(text[text.length() - 2])) &&
+        if (text.length() >= fileAddressMinLength &&
+            text[text.length() - fileAddressMinLength] == L'.' &&
+            static_cast<bool>(std::iswalpha(text[text.length() - (fileAddressMinLength - 1)])) &&
+            static_cast<bool>(std::iswalpha(text[text.length() - (fileAddressMinLength - 2)])) &&
+            static_cast<bool>(std::iswalpha(text[text.length() - (fileAddressMinLength - 3)])) &&
             string_util::is_either(text[text.length() - 1], L'x', L'X'))
             {
             // see if it is really a typo (missing space after a sentence)
-            if (std::iswupper(text[text.length() - 4]) && !std::iswupper(text[text.length() - 3]))
+            if (static_cast<bool>(
+                    std::iswupper(text[text.length() - (fileAddressMinLength - 1)])) &&
+                !static_cast<bool>(std::iswupper(text[text.length() - (fileAddressMinLength - 2)])))
                 {
                 return false;
                 }
@@ -206,8 +212,9 @@ namespace i18n_string_util
             return true;
             }
         // 4-letter extensions (HTML)
-        if (text.length() >= 5 && text[text.length() - 5] == L'.' &&
-            string_util::strnicmp(text.data() + (text.length() - 4),
+        if (text.length() >= fileAddressMinLength &&
+            text[text.length() - fileAddressMinLength] == L'.' &&
+            string_util::strnicmp(text.substr(text.length() - (fileAddressMinLength - 1)),
                                   std::wstring_view{ L"html" }) == 0)
             {
             if (text.length() >= 6 && text[text.length() - 6] == L'*')
@@ -217,25 +224,26 @@ namespace i18n_string_util
             return true;
             }
         // 2-letter extensions
-        if (text.length() >= 3 && text[text.length() - 3] == L'.' &&
+        if (text.length() >= basicFileExtMinLength &&
+            text[text.length() - basicFileExtMinLength] == L'.' &&
             // translation, source, and doc files
-            (string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"mo" }) ==
+            (string_util::strnicmp(text.substr(text.length() - 2), std::wstring_view{ L"mo" }) ==
                  0 ||
-             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"po" }) ==
+             string_util::strnicmp(text.substr(text.length() - 2), std::wstring_view{ L"po" }) ==
                  0 ||
-             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"cs" }) ==
+             string_util::strnicmp(text.substr(text.length() - 2), std::wstring_view{ L"cs" }) ==
                  0 ||
-             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"js" }) ==
+             string_util::strnicmp(text.substr(text.length() - 2), std::wstring_view{ L"js" }) ==
                  0 ||
-             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"db" }) ==
+             string_util::strnicmp(text.substr(text.length() - 2), std::wstring_view{ L"db" }) ==
                  0 ||
-             string_util::strnicmp(text.data() + (text.length() - 2), std::wstring_view{ L"md" }) ==
+             string_util::strnicmp(text.substr(text.length() - 2), std::wstring_view{ L"md" }) ==
                  0))
             {
             return true;
             }
         // tarball file name
-        if (text.length() >= 7 && string_util::strnicmp(text.data() + (text.length() - 7),
+        if (text.length() >= 7 && string_util::strnicmp(text.substr(text.length() - 7),
                                                         std::wstring_view{ L".tar." }) == 0)
             {
             // see if it is really a typo (missing space after a sentence).
@@ -248,7 +256,7 @@ namespace i18n_string_util
             }
         // C header/source files, which only have a letter in the extension,
         // but are common in documentation
-        if (text.length() >= 3 && text[text.length() - 2] == L'.' &&
+        if (text.length() >= basicFileExtMinLength && text[text.length() - 2] == L'.' &&
             string_util::is_either(text[text.length() - 1], L'h', L'c'))
             {
             return true;
@@ -276,13 +284,14 @@ namespace i18n_string_util
                     continue;
                     }
                 // "\U000FF254" format
-                if (i + 8 < str.length() && str[i + 1] == L'U' &&
+                if (i + 9 < str.length() && str[i + 1] == L'U' &&
                     string_util::is_hex_digit(str[i + 2]) &&
                     string_util::is_hex_digit(str[i + 3]) &&
                     string_util::is_hex_digit(str[i + 4]) &&
                     string_util::is_hex_digit(str[i + 5]) &&
                     string_util::is_hex_digit(str[i + 6]) &&
-                    string_util::is_hex_digit(str[i + 7]) && string_util::is_hex_digit(str[i + 8]))
+                    string_util::is_hex_digit(str[i + 7]) &&
+                    string_util::is_hex_digit(str[i + 8]) && string_util::is_hex_digit(str[i + 9]))
                     {
                     str.replace(i, 10, 10, ' ');
                     i += 10;

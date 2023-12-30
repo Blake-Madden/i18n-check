@@ -15,6 +15,7 @@
 #include "i18n_review.h"
 #include <map>
 #include <set>
+#include <span>
 #include <string>
 #include <utility>
 #include <vector>

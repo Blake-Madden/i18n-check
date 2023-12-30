@@ -11,7 +11,7 @@
 namespace i18n_check
     {
     // common font faces that we would usually ignore (client can add to this)
-    std::set<string_util::case_insensitive_wstring> i18n_review::m_font_names = {
+    std::set<string_util::case_insensitive_wstring> i18n_review::m_font_names = { // NOLINT
         L"Arial",
         L"Courier New",
         L"Garamond",
@@ -65,7 +65,8 @@ namespace i18n_check
         L"Bierstadt"
     };
 
-    std::set<string_util::case_insensitive_wstring> i18n_review::m_file_extensions = { // documents
+    // documents
+    std::set<string_util::case_insensitive_wstring> i18n_review::m_file_extensions = {  // NOLINT
         L"xml", L"html", L"htm", L"xhtml", L"rtf", L"doc", L"docx", L"dot", L"docm", L"txt", L"ppt",
         L"pptx", L"pdf", L"ps", L"odt", L"ott", L"odp", L"otp", L"pptm", L"md", L"xaml",
         // Visual Studio files
@@ -661,15 +662,15 @@ namespace i18n_check
                     idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
                     continue;
                     }
-                if ((idNameParts[0].length() &&
+                if ((idNameParts[0].length() > 0 &&
                      static_cast<bool>(std::iswupper(idNameParts[0].back()))) ||
-                    (idNameParts[2].length() &&
+                    (idNameParts[2].length() > 0 &&
                      static_cast<bool>(std::iswupper(idNameParts[2].front()))))
                     {
                     continue;
                     }
 
-                idAssignments.emplace_back(std::make_pair(subMatches[0], subMatches[1]));
+                idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
                 }
             for (const auto& idAssignment : idAssignments)
                 {
@@ -682,7 +683,7 @@ namespace i18n_check
                     std::regex_token_iterator<
                         std::remove_reference_t<decltype(idAssignment.first)>::const_iterator>(),
                     std::back_inserter(idNameParts));
-                const auto IdVal = [&idAssignment]()
+                const auto idVal = [&idAssignment]()
                 {
                     try
                         {
@@ -693,8 +694,13 @@ namespace i18n_check
                         return std::optional<int32_t>{ std::nullopt };
                         }
                 }();
-                if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && IdVal &&
-                    !(IdVal.value() >= 1 && IdVal.value() <= 0x6FFF) &&
+                const int32_t idRangeStart{ 1 };
+                const int32_t menuIdRangeEnd{ 0x6FFF };
+                const int32_t stringIdRangeEnd{ 0x7FFF };
+                const int32_t dialogIdRangeStart{ 8 };
+                const int32_t dialogIdRangeEnd{ 0xDFFF };
+                if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && idVal &&
+                    !(idVal.value() >= idRangeStart && idVal.value() <= menuIdRangeEnd) &&
                     (idNameParts[1] == L"IDR_" || idNameParts[1] == L"IDD_" ||
                      idNameParts[1] == L"IDM_" || idNameParts[1] == L"IDC_" ||
                      idNameParts[1] == L"IDI_" || idNameParts[1] == L"IDB_"))
@@ -705,25 +711,26 @@ namespace i18n_check
                         string_info::usage_info{}, fileName,
                         std::make_pair(std::wstring::npos, std::wstring::npos)));
                     }
-                else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && IdVal &&
-                         !(IdVal.value() >= 1 && IdVal.value() <= 0x7FFF) &&
+                else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && idVal &&
+                         !(idVal.value() >= idRangeStart && idVal.value() <= stringIdRangeEnd) &&
                          (idNameParts[1] == L"IDS_" || idNameParts[1] == L"IDP_"))
                     {
-                    m_ids_assigned_number.push_back(string_info(
+                    m_ids_assigned_number.emplace_back(
                         idAssignment.second + L" assigned to " + idAssignment.first +
                             L"; value should be between 1 and 0x7FFF if this is an MFC project.",
                         string_info::usage_info{}, fileName,
-                        std::make_pair(std::wstring::npos, std::wstring::npos)));
+                        std::make_pair(std::wstring::npos, std::wstring::npos));
                     }
-                else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && IdVal &&
-                         !(IdVal.value() >= 8 && IdVal.value() <= 0xDFFF) &&
+                else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && idVal &&
+                         !(idVal.value() >= dialogIdRangeStart &&
+                           idVal.value() <= dialogIdRangeEnd) &&
                          idNameParts[1] == L"IDC_")
                     {
-                    m_ids_assigned_number.push_back(string_info(
+                    m_ids_assigned_number.emplace_back(
                         idAssignment.second + L" assigned to " + idAssignment.first +
                             L"; value should be between 8 and 0xDFFF if this is an MFC project.",
                         string_info::usage_info{}, fileName,
-                        std::make_pair(std::wstring::npos, std::wstring::npos)));
+                        std::make_pair(std::wstring::npos, std::wstring::npos));
                     }
                 else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) &&
                          idNameParts[1].length() <= 3 && // ignore MFC IDs (handled above)
@@ -732,10 +739,10 @@ namespace i18n_check
                          // values
                          idAssignment.second != L"-1" && idAssignment.second != L"0")
                     {
-                    m_ids_assigned_number.push_back(
-                        string_info(idAssignment.second + L" assigned to " + idAssignment.first,
-                                    string_info::usage_info{}, fileName,
-                                    std::make_pair(std::wstring::npos, std::wstring::npos)));
+                    m_ids_assigned_number.emplace_back(
+                        idAssignment.second + L" assigned to " + idAssignment.first,
+                        string_info::usage_info{}, fileName,
+                        std::make_pair(std::wstring::npos, std::wstring::npos));
                     }
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -835,8 +842,10 @@ namespace i18n_check
                     if (functionVarNamePos != nullptr &&
                         static_cast<bool>(m_reviewStyles & check_suspect_l10n_string_usage))
                         {
-                        std::wstring functionNameOuter, variableNameOuter, variableTypeOuter,
-                            deprecatedMacroOuterEncountered;
+                        std::wstring functionNameOuter;
+                        std::wstring variableNameOuter;
+                        std::wstring variableTypeOuter;
+                        std::wstring deprecatedMacroOuterEncountered;
                         size_t parameterPositionOuter{ 0 };
                         read_var_or_function_name(
                             functionVarNamePos, m_file_start, functionNameOuter, variableNameOuter,
@@ -1172,12 +1181,14 @@ namespace i18n_check
                 {
                 return false;
                 }
+            constexpr size_t maxWordSize{ 20 };
             if (str.length() <= 1 ||
                 // not at least two letters together
                 !std::regex_search(str, m_2letter_regex) ||
                 // single word (no spaces or word separators) and more than 20 characters--
                 // doesn't seem like a real word meant for translation
-                (str.length() > 20 && str.find_first_of(L" \n\t\r/-") == std::wstring::npos &&
+                (str.length() > maxWordSize &&
+                 str.find_first_of(L" \n\t\r/-") == std::wstring::npos &&
                  str.find(L"\\n") == std::wstring::npos && str.find(L"\\r") == std::wstring::npos &&
                  str.find(L"\\t") == std::wstring::npos) ||
                 m_known_internal_strings.find(str.c_str()) != m_known_internal_strings.end())
@@ -1198,10 +1209,11 @@ namespace i18n_check
                 {
                 return true;
                 }
+            constexpr size_t minMessageLength{ 200 };
             // if we know it had at least one word (and spaces) at this point,
             // then it being more than 200 characters means that it probably is
             // a real user-message (not an internal string)
-            if (str.length() > 200 && !std::regex_match(str, loremIpsum) &&
+            if (str.length() > minMessageLength && !std::regex_match(str, loremIpsum) &&
                 !std::regex_match(str, m_sql_code))
                 {
                 return false;
@@ -1639,7 +1651,8 @@ namespace i18n_check
             {
             return std::make_pair(std::wstring::npos, std::wstring::npos);
             }
-        size_t nextLinePosition{ 0 }, lineCount{ 0 };
+        size_t nextLinePosition{ 0 };
+        size_t lineCount{ 0 };
         while ((nextLinePosition = std::wcscspn(startSentinel, L"\r\n")) < position)
             {
             ++lineCount;
