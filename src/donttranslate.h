@@ -13,6 +13,7 @@
 #define __DONTTRANSLATE_H__
 
 #include <type_traits>
+#include <cstdint>
 
 // Determines whether T is string constant type.
 /// @private
