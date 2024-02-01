@@ -121,6 +121,7 @@ namespace i18n_string_util
             {
             return true;
             }
+#if __cplusplus >= 202002L
         if (string_util::strnchr(text.data(), L'/', text.length()) != nullptr &&
             (text.starts_with(L"usr/") || text.starts_with(L"var/") || text.starts_with(L"tmp/") ||
              text.starts_with(L"sys/") || text.starts_with(L"srv/") || text.starts_with(L"mnt/") ||
@@ -131,7 +132,7 @@ namespace i18n_string_util
             {
             return true;
             }
-
+#endif
         // email address
         if (text.length() >= fileAddressMinLength)
             {

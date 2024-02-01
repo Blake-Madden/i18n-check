@@ -651,6 +651,7 @@ namespace i18n_check
                               std::remove_reference_t<decltype(subMatches[0])>::const_iterator>{},
                           std::back_inserter(idNameParts));
                 // MFC IDs
+#if __cplusplus >= 202002L
                 if ((idNameParts[0].empty() ||
                      (idNameParts[0].length() > 0 &&
                       !static_cast<bool>(std::iswupper(idNameParts[0].back())))) &&
@@ -662,6 +663,7 @@ namespace i18n_check
                     idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
                     continue;
                     }
+#endif
                 if ((idNameParts[0].length() > 0 &&
                      static_cast<bool>(std::iswupper(idNameParts[0].back()))) ||
                     (idNameParts[2].length() > 0 &&
