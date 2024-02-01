@@ -185,6 +185,7 @@ namespace i18n_check
             { L"wxMax", L"Use std::max() instead." },
             { L"wxRound", L"Use std::lround() instead." },
             { L"wxIsNan", L"Use std::isnan() instead." },
+            { L"__WXMAC__", L"Use __WXOSX__ instead." },
             { L"wxOVERRIDE", L"Use override or final instead." },
             { L"wxNOEXCEPT", L"Use noexcept instead (requires C++17)." },
             { L"WXUNUSED", L"Use [[maybe_unused]] instead (requires C++17)." },
