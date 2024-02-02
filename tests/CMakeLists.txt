@@ -50,10 +50,10 @@ decodetests.cpp rctests.cpp testingmain.cpp)
 if(MSVC)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC _CRT_SECURE_NO_WARNINGS __UNITTEST _DISABLE_VECTOR_ANNOTATION _DISABLE_STRING_ANNOTATION)
     if(USE_ADDRESS_SANITIZE)
-        target_compile_options(${PROJECT_NAME} PUBLIC /MP /W3 /WX
+        target_compile_options(${PROJECT_NAME} PUBLIC /Zc:__cplusplus /MP /W3 /WX
                                $<$<CONFIG:Debug>:/Od /fsanitize=address> $<$<CONFIG:Release>:/O2>)
     else()
-        target_compile_options(${PROJECT_NAME} PUBLIC /MP /W3 /WX
+        target_compile_options(${PROJECT_NAME} PUBLIC /Zc:__cplusplus /MP /W3 /WX
                                $<$<CONFIG:Debug>:/Od> $<$<CONFIG:Release>:/O2>)
     endif()
 else()
