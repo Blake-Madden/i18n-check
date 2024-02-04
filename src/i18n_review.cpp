@@ -127,7 +127,7 @@ namespace i18n_check
         // as well as hard-coded strings.
         m_deprecated_string_functions = {
             // Win32 TCHAR functions (which mapped between _MBCS and _UNICODE builds).
-            // Nowadays, you should be using _UNICODE (i.e., UTF-16) always.
+            // Nowadays, you should always be using _UNICODE (i.e., UTF-16).
             { L"_tcscat", L"Use std::wcscat() instead." },
             { L"_tcschr", L"Use std::wcschr() instead." },
             { L"_tcscmp", L"Use std::wcscmp() instead." },
@@ -152,9 +152,13 @@ namespace i18n_check
             { L"wxStrstr", L"Use std::wcsstr() instead." },
             { L"wxStrchr", L"Use std::wcschr() instead." },
             { L"wxStrdup", L"Use std::wcsdup() instead." },
-            { L"wxStrcpy", L"Use std::wcscpy() instead." },
-            { L"wxStrncpy", L"Use std::wcsncpy() instead." },
-            { L"wxStrcat ", L"Use std::wcscat() instead." },
+            { L"wxStrcpy",
+              L"Use std::wcscpy() instead. "
+               "(or prefer safer functions that process N number of characters)." },
+            { L"wxStrncpy", L"Use std::wcsncpy() (or wxStrlcpy) instead." },
+            { L"wxStrcat ",
+              L"Use std::wcscat() instead "
+               "(or prefer safer functions that process N number of characters)." },
             { L"wxStrncat", L"Use std::wcsncat() instead." },
             { L"wxStrtok", L"Use std::wcstok() instead." },
             { L"wxStrrchr", L"Use std::wcsrchr() instead." },
@@ -180,12 +184,15 @@ namespace i18n_check
                                      "wxFileName::GetFullPath(wxPATH_DOS) instead." },
             { L"wxSplitPath",
               L"This function is obsolete, please use wxFileName::SplitPath() instead." },
-            // not i18n related, just legacy wx functions that can be modernized after c++11
+            // not i18n related, just legacy wx functions that can be modernized
             { L"wxMin", L"Use std::min() instead." },
             { L"wxMax", L"Use std::max() instead." },
             { L"wxRound", L"Use std::lround() instead." },
             { L"wxIsNan", L"Use std::isnan() instead." },
+            { L"wxDECLARE_EVENT_TABLE",
+              L"Prefer using Bind() within of a class's CTOR instead of message maps." },
             { L"__WXMAC__", L"Use __WXOSX__ instead." },
+            { L"WXSIZEOF", L"Use std::size() instead (requires C++17)." },
             { L"wxOVERRIDE", L"Use override or final instead." },
             { L"wxNOEXCEPT", L"Use noexcept instead (requires C++17)." },
             { L"WXUNUSED", L"Use [[maybe_unused]] instead (requires C++17)." },
