@@ -446,7 +446,7 @@ namespace string_util
             but passing a value to the second parameter overrides this
             and allows you to indicate how much of the string to try to convert.
         @param hexStr The string to convert.
-        @param[out] length How much of the string to analyze.
+        @param[in,out] length How much of the string to analyze.
             The value @c -1 will tell the function to read until there are no more
             valid hexadecimal digits. Will return the length that was read.
         @returns The value of the string as an integer.*/
@@ -465,7 +465,7 @@ namespace string_util
             {
             hexStr += 2;
             // if they specified a length to read then take into account
-            // for the 0x that we just skipped over
+            // the 0x that we just skipped over
             // cppcheck-suppress knownConditionTrueFalse
             if (length != static_cast<size_t>(-1) && length >= 2)
                 {
