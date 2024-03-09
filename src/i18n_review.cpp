@@ -190,7 +190,7 @@ namespace i18n_check
             { L"wxRound", L"Use std::lround() instead." },
             { L"wxIsNan", L"Use std::isnan() instead." },
             { L"wxDECLARE_EVENT_TABLE",
-              L"Prefer using Bind() within of a class's CTOR instead of message maps." },
+              L"Prefer using Bind() within a class's CTOR instead of message maps." },
             { L"__WXMAC__", L"Use __WXOSX__ instead." },
             { L"WXSIZEOF", L"Use std::size() instead (requires C++17)." },
             { L"wxOVERRIDE", L"Use override or final instead." },
