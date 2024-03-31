@@ -174,6 +174,7 @@ namespace i18n_check
             { L"wxChar", L"Use wchar_t instead." },
             { L"wxStrftime", L"Use wxDateTime's formatting functions instead." },
             { L"wxStrtod", L"Use wxString::ToDouble() instead." },
+            { L"wxStrtol", L"Use wxString::ToLong() instead." },
             { L"wxTrace", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
                           L"functions instead." },
             { L"WXTRACE", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
