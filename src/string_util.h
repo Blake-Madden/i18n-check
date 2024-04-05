@@ -826,13 +826,14 @@ namespace string_util
         @param openSymbol The opening symbol.
         @param closeSymbol The closing symbol that we are looking for.
         @param fail_on_overlapping_open_symbol Whether it should immediately return
-            failure if an open symbol is found before a matching close symbol.
+            failure if an open symbol is found before a matching close symbol.\n
+            Recommended to be @c false.
         @returns A pointer to where the closing tag is, or @c nullptr if one can't be found.*/
-    template<typename T>
     [[nodiscard]]
-    const T* find_matching_close_tag(const T* stringToSearch, const T openSymbol,
-                                     const T closeSymbol,
-                                     const bool fail_on_overlapping_open_symbol = false) noexcept
+    inline const wchar_t*
+    find_matching_close_tag(const wchar_t* stringToSearch, const wchar_t openSymbol,
+                            const wchar_t closeSymbol,
+                            const bool fail_on_overlapping_open_symbol) noexcept
         {
         if (!stringToSearch)
             {
@@ -868,44 +869,39 @@ namespace string_util
     /// @param openSymbol The opening symbol.
     /// @param closeSymbol The closing symbol.
     /// @returns Pointer to where the closing tag is, or @c nullptr if not found.
-    template<typename T>
     [[nodiscard]]
-    const T* find_matching_close_tag(const T* stringToSearch, const T* openSymbol,
-                                     const T* closeSymbol) noexcept
+    inline const wchar_t* find_matching_close_tag(std::wstring_view stringToSearch,
+                                                  std::wstring_view openSymbol,
+                                                  std::wstring_view closeSymbol)
         {
-        if (!stringToSearch || !openSymbol || !closeSymbol)
+        if (stringToSearch.empty() || openSymbol.empty() || closeSymbol.empty())
             {
             return nullptr;
             }
-        const size_t openSymbolLength = string_util::strlen(openSymbol);
-        const size_t closeSymbolLength = string_util::strlen(closeSymbol);
-        if (openSymbolLength == 0 || closeSymbolLength == 0)
+        if (openSymbol.length() == 0 || closeSymbol.length() == 0)
             {
             return nullptr;
             }
-        long open_stack = 0;
-        const T openSymbolFirstCharacter = openSymbol[0];
-        const T closeSymbolFirstCharacter = closeSymbol[0];
-        while (*stringToSearch)
+        long openStack{ 0 };
+        while (stringToSearch.length())
             {
-            // to prevent unnecessary calls to strncmp, we check the current character first
-            if (stringToSearch[0] == openSymbolFirstCharacter &&
-                string_util::strncmp(stringToSearch, openSymbol, openSymbolLength) == 0)
+            if (stringToSearch.length() >= openSymbol.length() &&
+                stringToSearch.compare(0, openSymbol.length(), openSymbol) == 0)
                 {
-                ++open_stack;
-                stringToSearch += openSymbolLength;
+                ++openStack;
+                stringToSearch.remove_prefix(openSymbol.length());
                 continue;
                 }
-            else if (stringToSearch[0] == closeSymbolFirstCharacter &&
-                     string_util::strncmp(stringToSearch, closeSymbol, closeSymbolLength) == 0)
+            else if (stringToSearch.length() >= closeSymbol.length() &&
+                     stringToSearch.compare(0, closeSymbol.length(), closeSymbol) == 0)
                 {
-                if (open_stack == 0)
+                if (openStack == 0)
                     {
-                    return stringToSearch;
+                    return stringToSearch.data();
                     }
-                --open_stack;
+                --openStack;
                 }
-            ++stringToSearch;
+            stringToSearch.remove_prefix(1);
             }
         return nullptr;
         }
@@ -1007,18 +1003,17 @@ namespace string_util
         @param numberOfCharacters The max number of characters to search through in the string.
         @returns A pointer in the string where the character was found,
             or @c nullptr if not found.*/
-    template<typename T>
     [[nodiscard]]
-    const T* find_unescaped_matching_close_tag_same_line_n(const T* stringToSearch,
-                                                           const T openSymbol, const T closeSymbol,
-                                                           int64_t numberOfCharacters) noexcept
+    inline const wchar_t* find_unescaped_matching_close_tag_same_line_n(
+        const wchar_t* stringToSearch, const wchar_t openSymbol, const wchar_t closeSymbol,
+        int64_t numberOfCharacters) noexcept
         {
         assert(openSymbol != closeSymbol);
         if (!stringToSearch || openSymbol == closeSymbol)
             {
             return nullptr;
             }
-        const T* const originalStart = stringToSearch;
+        const wchar_t* const originalStart = stringToSearch;
         long open_stack = 0;
         while (*stringToSearch && numberOfCharacters > 0)
             {

@@ -400,7 +400,7 @@ namespace i18n_check
                 }
             if (*asmStart == L'(')
                 {
-                const auto* end = string_util::find_matching_close_tag(asmStart + 1, L'(', L')');
+                const auto* end = string_util::find_matching_close_tag(asmStart + 1, L'(', L')', false);
                 if (end == nullptr)
                     {
                     log_message(L"asm", L"Missing closing ')' in asm block.", (end - m_file_start));
@@ -428,7 +428,7 @@ namespace i18n_check
                 }
             if (*asmStart == L'{')
                 {
-                const auto* end = string_util::find_matching_close_tag(asmStart + 1, L'{', L'}');
+                const auto* end = string_util::find_matching_close_tag(asmStart + 1, L'{', L'}', false);
                 if (end == nullptr)
                     {
                     log_message(L"__asm", L"Missing closing '}' in __asm block.",
