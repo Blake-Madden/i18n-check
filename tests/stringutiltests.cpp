@@ -1442,27 +1442,6 @@ TEST_CASE("Strnlen", "[stringutil][Strnlen]")
         }
     };
 
-TEST_CASE("FindLastOf", "[stringutil][FindLastOf]")
-    {
-    SECTION("Nulls")
-        {
-        CHECK(string_util::find_last_of<wchar_t>(nullptr, L'/', 1) == static_cast<size_t>(-1));
-        CHECK(string_util::find_last_of(L"", L'/') == static_cast<size_t>(-1));
-        }
-    SECTION("Find")
-        {
-        CHECK(string_util::find_last_of(L"fire/dept.", L'/') == 4);
-        CHECK(string_util::find_last_of(L"fire/dept.", L'/', 9) == 4);
-        CHECK(string_util::find_last_of(L"fire/dept.", L'/', 5) == 4);
-        }
-    SECTION("NotFind")
-        {
-        CHECK(string_util::find_last_of(L"fire/dept.", L'/', 3) == static_cast<size_t>(-1));
-        CHECK(string_util::find_last_of(L"fire/dept.", L'z', 4) == static_cast<size_t>(-1));
-        CHECK(string_util::find_last_of(L"fire/dept.", L'z', (size_t)-1) == static_cast<size_t>(-1));
-        }
-    };
-
 TEST_CASE("StrNIStr", "[stringutil][StrNIStr]")
     {
     SECTION("NotSearchFarEnough")

@@ -1314,43 +1314,6 @@ namespace string_util
         return std::basic_string<T>::npos;
         }
 
-    /** @brief Searches for the last instance of a character in a string in reverse.
-        @param string The string to search.
-        @param ch The character to search for.
-        @param offset The offset in the string to begin the search from.
-            The default (@c std::basic_string<T>::npos) will begin the search
-            at the end of the string.
-        @returns The offset of the found character, or @c std::basic_string<T>::npos if not found.*/
-    template<typename T>
-    [[nodiscard]]
-    size_t find_last_of(const T* string, const T ch,
-                        size_t offset = std::basic_string<T>::npos) noexcept
-        {
-        if (!string)
-            {
-            return std::basic_string<T>::npos;
-            }
-        if (offset == std::basic_string<T>::npos)
-            {
-            offset = string_util::strlen(string);
-            if (offset == 0)
-                {
-                return std::basic_string<T>::npos;
-                }
-            --offset;
-            }
-
-        while (offset != std::basic_string<T>::npos)
-            {
-            if (string[offset] == ch)
-                {
-                return offset;
-                }
-            --offset;
-            }
-        return std::basic_string<T>::npos;
-        }
-
     /** @brief Searches for the first occurrence that is not a character from a sequence in
             a string for n number of characters and returns zero-based index if found.
         @param stringToSearch The string to search.
