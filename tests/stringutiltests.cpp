@@ -391,131 +391,6 @@ TEST_CASE("Hex Strings", "[stringutil][hex]")
         CHECK_FALSE(string_util::is_hex_digit<wchar_t>(L'g'));
         CHECK_FALSE(string_util::is_hex_digit<wchar_t>(L'.'));
         }
-    SECTION("Axtoi")
-        {
-        size_t length(static_cast<size_t>(-1));
-        CHECK(string_util::axtoi(static_cast<wchar_t*>(nullptr), length) == 0);
-        CHECK(0 == length);
-        length = 4;
-        CHECK(string_util::axtoi(static_cast<wchar_t*>(nullptr), length) == 0);
-        CHECK(0 == length);
-
-        length = static_cast<size_t>(-1);
-        CHECK(5513 == string_util::axtoi(L"0x1589", length));
-        CHECK(4 == length);
-
-        length = 20;//bogus length
-        CHECK(string_util::axtoi(L"0x1589", length) == 5513);
-        CHECK(4 == length);
-
-        length = 6;
-        CHECK(7894 == string_util::axtoi(L"0x1ed6", length));
-        length = 6;
-        CHECK(7894 == string_util::axtoi(L"0x1ED6", length));
-
-        length = 9;
-        CHECK(32335749 == string_util::axtoi(L"0x1ed6785", length));
-
-        length = 7;
-        CHECK(32335749 == string_util::axtoi(L"1ed6785", length));
-        CHECK(0 == string_util::axtoi(L"Hello", length));
-        CHECK(0 == length);
-
-        length = 5;
-        CHECK(854756 == string_util::axtoi(L"d0Ae4", length));
-        CHECK(5 == length);
-
-        length = static_cast<size_t>(-1);
-        CHECK(854756 == string_util::axtoi(L"d0Ae4", length));
-        CHECK(5 == length);
-
-        length = 10;
-        CHECK(745269863 == string_util::axtoi(L"0x2c6bea67", length));
-        CHECK(8 == length);
-
-        CHECK(string_util::axtoi(L"2c6bea67", length) == 745269863);
-        CHECK(string_util::axtoi(L"2c6bea67", length) == 745269863);
-
-        length = 10;
-        CHECK(string_util::axtoi(L"0x2c6bea67", length) == 745269863);
-
-        length = static_cast<size_t>(-1);
-        CHECK(string_util::axtoi(L"0x2c6bea67", length) == 745269863);
-
-        length = 1;
-        CHECK(string_util::axtoi(L"D", length) == 13);
-        CHECK(string_util::axtoi(L"0", length) == 0);
-        CHECK(string_util::axtoi(L"0", length) == 0);
-
-        length = 2;
-        CHECK(0 == string_util::axtoi(L"0", length));
-        CHECK(1 == length);
-        length = 2;
-        CHECK(0 == string_util::axtoi(L"0x", length));
-        CHECK(0 == length);
-        length = static_cast<size_t>(-1);
-        CHECK(0 == string_util::axtoi(L"0x", length));
-        length = 0;
-        CHECK(0 == string_util::axtoi(L"0x", length));
-        length = 1;
-        CHECK(0 == string_util::axtoi(L"0x", length));
-        length = 2;
-        CHECK(string_util::axtoi(L"0x", length) == 0);
-        length = 3;
-        CHECK(string_util::axtoi(L"0x0", length) == 0);
-        CHECK(1 == length);
-        length = static_cast<size_t>(-1);
-        CHECK(string_util::axtoi(L"0x39", length) == 57);
-        CHECK(2 == length);
-        length = 4;
-        CHECK(57 == string_util::axtoi(L"0x39", length));
-        CHECK(2 == length);
-        length = static_cast<size_t>(-1);
-        CHECK(57 == string_util::axtoi(L"39", length));
-        length = 2;
-        CHECK(57 == string_util::axtoi(L"39", length));
-        length = static_cast<size_t>(-1);
-        CHECK(57 == string_util::axtoi(L"0x0039", length));
-        CHECK(4 == length);
-        length = 6;
-        CHECK(57 == string_util::axtoi(L"0x0039", length));
-        CHECK(4 == length);
-        length = static_cast<size_t>(-1);
-        CHECK(57 == string_util::axtoi(L"0039", length));
-        CHECK(4 == length);
-        length = 4;
-        CHECK(57 == string_util::axtoi(L"0039", length));
-        CHECK(4 == length);
-        length = static_cast<size_t>(-1);
-        CHECK(175 == string_util::axtoi(L"00AF", length));
-        length = 4;
-        CHECK(175 == string_util::axtoi(L"00AF", length));
-        length = 2;
-        CHECK(string_util::axtoi(L"", length) == 0);
-        CHECK(0 == length);
-        length = static_cast<size_t>(-1);
-        CHECK(305419896 == string_util::axtoi(L"0x012345678", length));
-        length = static_cast<size_t>(-1);
-        CHECK(591751049 == string_util::axtoi(L"0x023456789", length));
-        }
-    SECTION("Axtoi Full Range")
-        {
-        for (int i = 0; i < 10000; ++i)
-            {
-            std::wstringstream stream;
-            stream << L"0x" << std::hex << i;
-
-            std::wstring lowerStr = stream.str();
-            std::transform(lowerStr.cbegin(), lowerStr.cend(), lowerStr.begin(), ::tolower);
-            std::wstring upperStr = stream.str();
-            std::transform(upperStr.cbegin(), upperStr.cend(), upperStr.begin(), ::toupper);
-            size_t length = lowerStr.length();
-            CHECK(i == string_util::axtoi(lowerStr.c_str(), length));
-            length = upperStr.length();
-            CHECK(i == string_util::axtoi(upperStr.c_str(), length));
-            length = lowerStr.length();
-            }
-        }
 	}
 
 TEST_CASE("Tokenize", "[stringutil][tokenize]")
@@ -824,19 +699,6 @@ TEST_CASE("Natural Order Cmp", "[stringutil][natural order]")
         CHECK(string_util::strnatordcmp(L"7,200", L"8", true) > 0);
         CHECK(string_util::strnatordcmp(L"8", L"5,000,250", true) < 0);
         CHECK(string_util::strnatordcmp(L"8,780", L"8,001,870", true) < 0);
-        }
-    }
-
-TEST_CASE("atoi", "[stringutil][atoi]")
-    {
-    SECTION("NULLs")
-        {
-        CHECK(string_util::atoi(L"") == 0);
-        wchar_t* val = nullptr;
-        CHECK(string_util::atoi(val) == 0);
-        CHECK(string_util::atoi(L"873") == 873);
-        CHECK(string_util::atoi(L"7") == 7);
-        CHECK(string_util::atoi(L"-10") == -10);
         }
     }
 
@@ -1252,47 +1114,6 @@ TEST_CASE("Find Matching Tag Unescaped", "[stringutil][find_unescaped_matching_c
             }
         }
     }
-
-TEST_CASE("ItoaStr", "[stringutil][ItoaStr]")
-    {
-    SECTION("ItoaiNULL")
-        {
-        wchar_t result[5];
-        CHECK(string_util::itoa(548, (wchar_t*)nullptr, 5) == -1);
-        CHECK(string_util::itoa(548, result, 0) == -1);
-
-        CHECK(string_util::itoa(12345, result, 5) == -1); // no space for nullptr terminator, should fail
-        CHECK(std::wmemcmp(result, L"\0\0\0\0\0", 5) == 0);
-
-        CHECK(string_util::itoa(1234, result, 5) == 0); // just enough space
-        CHECK(std::wcscmp(result, L"1234") == 0);
-        }
-
-    SECTION("Itoai")
-        {
-        wchar_t result[12];
-        CHECK(string_util::itoa(-112993, result, 12) == 0);
-        CHECK(std::wcscmp(result, L"-112993") == 0);
-
-        CHECK(string_util::itoa(-9, result, 12) == 0);
-        CHECK(std::wcscmp(result, L"-9") == 0);
-
-        CHECK(string_util::itoa(9, result, 12) == 0);
-        CHECK(std::wcscmp(result, L"9") == 0);
-
-        CHECK(string_util::itoa(98, result, 12) == 0);
-        CHECK(std::wcscmp(result, L"98") == 0);
-
-        CHECK(string_util::itoa(978, result, 12) == 0);
-        CHECK(std::wcscmp(result, L"978") == 0);
-
-        CHECK(string_util::itoa(0, result, 12) == 0);
-        CHECK(std::wcscmp(result, L"0") == 0);
-
-        CHECK(string_util::itoa(84579541, result, 12) == 0);
-        CHECK(std::wcscmp(result, L"84579541") == 0);
-        }
-    };
 
 TEST_CASE("RemoveSpaces", "[stringutil][RemoveSpaces]")
     {

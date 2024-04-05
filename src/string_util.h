@@ -32,28 +32,6 @@
 namespace string_util
     {
     /// ANSI C decorators
-    /// atoi
-    /// @private
-    inline int atoi(const char* str)
-        {
-        if (str == nullptr)
-            {
-            return 0;
-            }
-        return std::atoi(str);
-        }
-
-    /// @private
-    inline int atoi(const wchar_t* str)
-        {
-        if (str == nullptr)
-            {
-            return 0;
-            }
-        wchar_t* dummy = nullptr;
-        return static_cast<int>(std::wcstol(str, &dummy, 10));
-        }
-
     /// atol
     /// @private
     inline long atol(const char* str)
@@ -384,51 +362,6 @@ namespace string_util
         // clang-format on
         }
 
-    // Functions not available in ANSI C
-    /** @brief Converts an integer value into a string.
-        @param value The integer to convert.
-        @param[out] out The character buffer to write the integer as a string into.
-            This can be either a char* or wchar_t* buffer.
-        @param length The length of the output buffer (in character count).
-        @returns @c 0 on success, @c -1 on failure. Will fail if the buffer is either invalid
-            or not large enough to hold the converted value.*/
-    template<typename charT>
-    [[nodiscard]]
-    int itoa(long value, charT* out, const size_t length)
-        {
-        if (length == 0 || out == nullptr)
-            {
-            return -1;
-            }
-        // space for a negative sign if we need it
-        const size_t signPos = value < 0 ? 1 : 0;
-        size_t i = 0;
-        if (value == 0)
-            {
-            out[i++] = 0x30 /*zero*/;
-            }
-        else if (value < 0)
-            {
-            out[i++] = 0x2D /*minus sign*/;
-            value = -value;
-            }
-        while (value > 0 && i + 1 < length)
-            {
-            out[i++] = 0x30 + value % 10;
-            value /= 10;
-            }
-        /* Not enough space in the buffer or null terminator? Clear out the data that we copied
-           into it and return failure.*/
-        if (i + 1 == length && value > 0)
-            {
-            std::memset(out, 0, length * sizeof(charT));
-            return -1;
-            }
-        out[i] = 0;
-        std::reverse<charT*>(out + signPos, out + i);
-        return 0;
-        }
-
     /** @brief Determines whether a character is a hexadecimal digit (0-9,A-F,a-f).
         @param ch The letter to be analyzed.
         @returns @c true if @c ch is a hex digit.*/
@@ -439,101 +372,6 @@ namespace string_util
         return (is_numeric_8bit(static_cast<wchar_t>(ch)) ||
                 ((ch >= 0x61 /*'a'*/ && ch <= 0x66 /*'f'*/) ||
                  (ch >= 0x41 /*'A'*/ && ch <= 0x46 /*'F'*/)));
-        }
-
-    /** @brief Converts string in hex format to int.
-        @details Default figures out how much of the string is a valid hex string,
-            but passing a value to the second parameter overrides this
-            and allows you to indicate how much of the string to try to convert.
-        @param hexStr The string to convert.
-        @param[in,out] length How much of the string to analyze.
-            The value @c -1 will tell the function to read until there are no more
-            valid hexadecimal digits. Will return the length that was read.
-        @returns The value of the string as an integer.*/
-    template<typename T>
-    [[nodiscard]]
-    int axtoi(const T* hexStr, size_t& length)
-        {
-        if (hexStr == nullptr || *hexStr == 0 || length == 0)
-            {
-            length = 0;
-            return 0;
-            }
-        // skip leading 0x
-        if (hexStr[0] == 0x30 /*0*/ && length != 1 &&
-            is_either<T>(hexStr[1], 0x78 /*x*/, 0x58 /*X*/))
-            {
-            hexStr += 2;
-            // if they specified a length to read then take into account
-            // the 0x that we just skipped over
-            // cppcheck-suppress knownConditionTrueFalse
-            if (length != static_cast<size_t>(-1) && length >= 2)
-                {
-                length -= 2;
-                if (length == 0) // just a 0x string, then we're done
-                    {
-                    return 0;
-                    }
-                }
-            }
-        if (length == static_cast<size_t>(-1))
-            {
-            const T* currentPos = hexStr;
-            do
-                {
-                if (currentPos[0] == 0 || !string_util::is_hex_digit(currentPos[0]))
-                    {
-                    break;
-                    }
-                } while (currentPos++);
-
-            length = currentPos - hexStr;
-            // if no valid hex digits then fail and return zero
-            if (length == 0)
-                {
-                return 0;
-                }
-            }
-        size_t strPos = 0;
-        int intValue = 0;
-        // storage for converted values
-        auto digits = std::make_unique<int[]>(length + 1);
-        while (strPos < length)
-            {
-            if (hexStr[strPos] == 0)
-                {
-                break;
-                }
-            // 0-9
-            if (hexStr[strPos] >= L'0' && hexStr[strPos] <= L'9')
-                {
-                digits[strPos] = (hexStr[strPos] & 0x0F);
-                }
-            // A-F
-            else if ((hexStr[strPos] >= L'a' && hexStr[strPos] <= L'f') ||
-                     (hexStr[strPos] >= L'A' && hexStr[strPos] <= L'F'))
-                {
-                digits[strPos] = (hexStr[strPos] & 0x0F) + 9;
-                }
-            else
-                {
-                break;
-                }
-            ++strPos;
-            }
-        length = strPos; // in case we short circuited
-        const size_t count = strPos;
-        size_t digitPos = strPos - 1;
-        strPos = 0;
-        while (strPos < count)
-            {
-            // shift OR the bits into return value.
-            intValue = intValue | (digits[strPos] << (digitPos << 2));
-            --digitPos;
-            ++strPos;
-            }
-
-        return intValue;
         }
 
     /** @brief Attempts to convert a string @c buffer to a double.
