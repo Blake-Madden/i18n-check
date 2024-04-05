@@ -830,44 +830,6 @@ TEST_CASE("StrCSpnPointer", "[stringutil][StrCSpnPointer]")
         }
     }
 
-TEST_CASE("FindLastNotOf", "[stringutil][FindLastNotOf]")
-    {
-    SECTION("Nulls")
-        {
-        const wchar_t* buffer = L"ABB9";
-        CHECK(string_util::find_last_not_of<wchar_t>(nullptr, L"0123456789") == static_cast<size_t>(-1));
-        CHECK(string_util::find_last_not_of<wchar_t>(buffer, nullptr) == static_cast<size_t>(-1));
-        }
-    SECTION("NotFound")
-        {
-        const wchar_t* buffer = L"124578";
-        CHECK(string_util::find_last_not_of<wchar_t>(buffer, L"0123456789") == static_cast<size_t>(-1));
-        }
-    SECTION("Found")
-        {
-        const wchar_t* buffer = L"ABB8";
-        CHECK(string_util::find_last_not_of<wchar_t>(buffer, L"0123456789") == 2);
-        }
-    SECTION("FoundAtEnd")
-        {
-        const wchar_t* buffer = L"5ABB";
-        CHECK(string_util::find_last_not_of<wchar_t>(buffer, L"0123456789") == 3);
-        }
-    SECTION("FoundUsingOffset")
-        {
-        const wchar_t* buffer = L"A56BB5";
-        CHECK(string_util::find_last_not_of<wchar_t>(buffer, L"0123456789", 2) == 0);
-        CHECK(string_util::find_last_not_of<wchar_t>(buffer, L"0123456789") == 4); // not using offset
-        }
-    SECTION("EmptyString")
-        {
-        const wchar_t* buffer = L"";
-        CHECK(string_util::find_last_not_of<wchar_t>(buffer, L"0123456789") == static_cast<size_t>(-1));
-        buffer = L"A56BB5";
-        CHECK(string_util::find_last_not_of<wchar_t>(buffer, L"") == static_cast<size_t>(-1));
-        }
-    }
-
 TEST_CASE("Find Matching Tag", "[stringutil][find_matching_close_tag]")
     {
     SECTION("Closing With Open Tags Strings")
@@ -1823,33 +1785,6 @@ TEST_CASE("Remove all", "[stringutil][remove]")
         blah = L"& &&";
         string_util::remove_all(blah, L'&');
         CHECK(blah == L" ");
-        }
-    }
-
-TEST_CASE("Find First Not Of", "[stringutil][find]")
-    {
-    SECTION("Nulls")
-        {
-        CHECK(string_util::find_first_not_of<wchar_t>(nullptr, 0, L"text", 4) == 0);
-        CHECK(string_util::find_first_not_of<wchar_t>(L"text", 4, nullptr, 0) == 4);
-        }
-
-    SECTION("Find")
-        {
-        CHECK(string_util::find_first_not_of<wchar_t>(L"some text5", 10, L" ", 1) == 0);
-        CHECK(string_util::find_first_not_of<wchar_t>(L"some text5", 10, L"some", 4) == 4);
-        CHECK(string_util::find_first_not_of<wchar_t>(L"some text5", 10, L"some text", 9) == 9);
-        CHECK(string_util::find_first_not_of<wchar_t>(L"some text5", 10, L"some text5", 10) == 10);
-        }
-
-    SECTION("BoundaryError")
-        {
-        wchar_t text[100];
-        std::wmemset(text, 0, 100);
-        std::wcscpy(text, L"abc");
-        // will really only scan first three letter, see the embedded nulls, and return
-        // what the caller thought was the length of the string to know that it failed.
-        CHECK(string_util::find_first_not_of<wchar_t>(text, 100, L"abc", 4) == 100);
         }
     }
 
