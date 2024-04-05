@@ -253,7 +253,7 @@ namespace i18n_check
                     {
                     assert(cppText >= m_file_start);
                     auto prevLineStart =
-                        string_util::find_last_of(m_file_start, L"\n\r", cppText - m_file_start);
+                        std::wstring_view{ m_file_start }.find_last_of(L"\n\r", cppText - m_file_start);
                     if (prevLineStart == std::wstring::npos)
                         {
                         prevLineStart = 0;
@@ -272,7 +272,7 @@ namespace i18n_check
                     {
                     const auto currentPos{ (cppText - m_file_start) };
                     auto previousNewLine =
-                        string_util::find_last_of(m_file_start, L"\n\r", currentPos - 1);
+                        std::wstring_view{ m_file_start }.find_last_of(L"\n\r", currentPos - 1);
                     if (previousNewLine == std::wstring::npos)
                         {
                         previousNewLine = 0;

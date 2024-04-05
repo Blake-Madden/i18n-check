@@ -1463,29 +1463,6 @@ TEST_CASE("FindLastOf", "[stringutil][FindLastOf]")
         }
     };
 
-TEST_CASE("FindLastOfSequence", "[stringutil][FindLastOfSequence]")
-    {
-    SECTION("Nulls")
-        {
-        CHECK(string_util::find_last_of<wchar_t>(nullptr, L"/", 1) == static_cast<size_t>(-1));
-        CHECK(string_util::find_last_of(L"", L"/") == static_cast<size_t>(-1));
-        }
-    SECTION("Find")
-        {
-        CHECK(string_util::find_last_of(L"fire/*dept.", L"/") == 4);
-        CHECK(string_util::find_last_of(L"fire/*dept.", L"/*") == 5);
-        CHECK(string_util::find_last_of(L"fire/dept.", L"/*", 9) == 4);
-        CHECK(string_util::find_last_of(L"fire/dept.", L"/*", 4) == 4);
-        CHECK(string_util::find_last_of(L"%fire/dept.", L"*%", 10) == 0);
-        }
-    SECTION("NotFind")
-        {
-        CHECK(string_util::find_last_of(L"fire/dept.", L"/*%", 3) == static_cast<size_t>(-1));
-        CHECK(string_util::find_last_of(L"fire/dept.", L"*%", 4) == static_cast<size_t>(-1));
-        CHECK(string_util::find_last_of(L"fire/dept.", L"*%", (size_t)-1) == static_cast<size_t>(-1));
-        }
-    };
-
 TEST_CASE("StrNIStr", "[stringutil][StrNIStr]")
     {
     SECTION("NotSearchFarEnough")

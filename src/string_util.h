@@ -1351,60 +1351,6 @@ namespace string_util
         return std::basic_string<T>::npos;
         }
 
-    /** @brief Searches for a single character from a sequence in a string in reverse.
-        @param string The string to search in.
-        @param search The sequence of characters to skip.
-        @param offset Where to begin the search. If @c std::basic_string<T>::npos,
-            then the reverse search will begin at the end of the string.
-        @returns The position of where the last matching character is at,
-            or @c std::basic_string<T>::npos if it can't be found.*/
-    template<typename T>
-    [[nodiscard]]
-    size_t find_last_of(const T* string, const T* search,
-                        size_t offset = std::basic_string<T>::npos) noexcept
-        {
-        if (!string || !search)
-            {
-            return std::basic_string<T>::npos;
-            }
-        if (offset == std::basic_string<T>::npos)
-            {
-            offset = string_util::strlen(string);
-            if (offset == 0)
-                {
-                return std::basic_string<T>::npos;
-                }
-            --offset;
-            }
-        assert(offset < string_util::strlen(string));
-
-        size_t i{ 0 }; // cppcheck-suppress unreadVariable
-        while (offset != std::basic_string<T>::npos)
-            {
-            for (i = 0; search[i] != 0; ++i)
-                {
-                if (string[offset] == search[i])
-                    {
-                    break;
-                    }
-                }
-            // If the whole search string wasn't scanned, then there was a match. Stop.
-            if (search[i] != 0)
-                {
-                return offset;
-                }
-            else
-                {
-                if (offset == 0)
-                    {
-                    return std::basic_string<T>::npos;
-                    }
-                --offset;
-                }
-            }
-        return std::basic_string<T>::npos;
-        }
-
     /** @brief Searches for the first occurrence that is not a character from a sequence in
             a string for n number of characters and returns zero-based index if found.
         @param stringToSearch The string to search.

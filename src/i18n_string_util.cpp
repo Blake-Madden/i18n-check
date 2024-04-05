@@ -53,7 +53,7 @@ namespace i18n_string_util
         if (firstSlash != nullptr)
             {
             const auto lastDotPos =
-                string_util::find_last_of(text.data(), L'.', firstSlash - text.data());
+                text.find_last_of(L'.', firstSlash - text.data());
             if (lastDotPos != std::wstring::npos &&
                 (lastDotPos + 4 == static_cast<size_t>(firstSlash - text.data())) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 1])) &&
@@ -75,7 +75,7 @@ namespace i18n_string_util
                                                                    L"com", L"edu", L"gov",
                                                                    L"ly",  L"org", L"uk" };
 
-        auto periodPos = string_util::find_last_of(text.data(), L'.', text.length() - 1);
+        auto periodPos = text.find_last_of(L'.', text.length() - 1);
         if (periodPos != std::wstring::npos && periodPos < text.length() - 1)
             {
             ++periodPos;

@@ -1387,8 +1387,8 @@ namespace i18n_check
                         return;
                         }
                     assert(functionOrVarNamePos >= startSentinel);
-                    const auto openingAngle = string_util::find_last_of(
-                        startSentinel, L'<', functionOrVarNamePos - startSentinel);
+                    const auto openingAngle = std::wstring_view{ startSentinel }.find_last_of(
+                        L'<', functionOrVarNamePos - startSentinel);
                     if (openingAngle == std::wstring::npos)
                         {
                         log_message(L"Template parse error",
