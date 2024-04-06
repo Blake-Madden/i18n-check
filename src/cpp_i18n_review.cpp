@@ -457,12 +457,12 @@ namespace i18n_check
         const std::wregex releaseRE{ L"[_]*RELEASE[_]*" };
         const auto findSectionEnd = [](wchar_t* sectionStart) -> wchar_t*
         {
-            const std::wstring elifCommand{ L"#elif" };
-            const std::wstring endifCommand{ L"#endif" };
+            const std::wstring_view elifCommand{ L"#elif" };
+            const std::wstring_view endifCommand{ L"#endif" };
             const auto* closingElIf =
-                string_util::find_matching_close_tag(sectionStart, L"#if", elifCommand.data());
+                string_util::find_matching_close_tag(sectionStart, L"#if", elifCommand);
             const auto* closingEndIf =
-                string_util::find_matching_close_tag(sectionStart, L"#if", endifCommand.data());
+                string_util::find_matching_close_tag(sectionStart, L"#if", endifCommand);
             if (closingElIf != nullptr && closingEndIf != nullptr)
                 {
                 if (closingElIf < closingEndIf)
@@ -482,7 +482,7 @@ namespace i18n_check
             return sectionStart + pDiff + endifCommand.length();
         };
 
-        const std::wstring ifndefCommand{ L"ifndef" };
+        const std::wstring_view ifndefCommand{ L"ifndef" };
         if (std::wstring_view{ directiveStart }.starts_with(ifndefCommand))
             {
             std::advance(directiveStart, ifndefCommand.length());
@@ -503,7 +503,7 @@ namespace i18n_check
                        findSectionEnd(defSymbolEnd) :
                        nullptr;
             }
-        const std::wstring ifdefCommand{ L"ifdef" };
+        const std::wstring_view ifdefCommand{ L"ifdef" };
         if (std::wstring_view{ directiveStart }.starts_with(ifdefCommand))
             {
             std::advance(directiveStart, ifdefCommand.length());
@@ -520,7 +520,7 @@ namespace i18n_check
                                           static_cast<size_t>(defSymbolEnd - directiveStart) };
             return (std::regex_match(defSymbol, debugRE)) ? findSectionEnd(defSymbolEnd) : nullptr;
             }
-        const std::wstring ifdefinedCommand{ L"if defined" };
+        const std::wstring_view ifdefinedCommand{ L"if defined" };
         if (std::wstring_view{ directiveStart }.starts_with(ifdefinedCommand))
             {
             std::advance(directiveStart, ifdefinedCommand.length());
@@ -537,7 +537,7 @@ namespace i18n_check
                                           static_cast<size_t>(defSymbolEnd - directiveStart) };
             return (std::regex_match(defSymbol, debugRE)) ? findSectionEnd(defSymbolEnd) : nullptr;
             }
-        const std::wstring ifCommand{ L"if" };
+        const std::wstring_view ifCommand{ L"if" };
         if (std::wstring_view{ directiveStart }.starts_with(ifCommand))
             {
             std::advance(directiveStart, ifCommand.length());
