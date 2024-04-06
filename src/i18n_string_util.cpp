@@ -49,13 +49,12 @@ namespace i18n_string_util
             }
 
         // an URL that is missing the "www" prefix (e.g, ibm.com/index.html)
-        const wchar_t* firstSlash = string_util::strnchr(text.data(), L'/', text.length());
-        if (firstSlash != nullptr)
+        const size_t firstSlash = text.find(L'/');
+        if (firstSlash != std::wstring_view::npos)
             {
-            const auto lastDotPos =
-                text.find_last_of(L'.', firstSlash - text.data());
-            if (lastDotPos != std::wstring::npos &&
-                (lastDotPos + 4 == static_cast<size_t>(firstSlash - text.data())) &&
+            const size_t lastDotPos =
+                text.find_last_of(L'.', firstSlash);
+            if (lastDotPos != std::wstring_view::npos && (lastDotPos + 4 == firstSlash) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 1])) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 2])) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 3])))
@@ -75,7 +74,7 @@ namespace i18n_string_util
                                                                    L"com", L"edu", L"gov",
                                                                    L"ly",  L"org", L"uk" };
 
-        auto periodPos = text.find_last_of(L'.', text.length() - 1);
+        size_t periodPos = text.find_last_of(L'.', text.length() - 1);
         if (periodPos != std::wstring::npos && periodPos < text.length() - 1)
             {
             ++periodPos;
