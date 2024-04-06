@@ -1459,9 +1459,9 @@ namespace string_util
       public:
         [[nodiscard]]
         bool
-        operator()(const T& a_, const T& b_) const noexcept
+        operator()(const T& a_, const T& b_) const
             {
-            return (string_util::strcmp(a_.c_str(), b_.c_str()) < 0);
+            return (a_.compare(b_) < 0);
             }
         };
 
