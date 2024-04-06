@@ -68,19 +68,6 @@ namespace string_util
     /// @private
     inline size_t strlen(const wchar_t* text) { return std::wcslen(text); }
 
-    /// strcmp
-    /// @private
-    inline int strcmp(const char* string1, const char* string2)
-        {
-        return std::strcmp(string1, string2);
-        }
-
-    /// @private
-    inline int strcmp(const wchar_t* string1, const wchar_t* string2)
-        {
-        return std::wcscmp(string1, string2);
-        }
-
     /// strncmp
     /// @private
     inline int strncmp(const char* string1, const char* string2, size_t count)
@@ -311,8 +298,8 @@ namespace string_util
         @param ch The character to convert.
         @returns The character converted into its superscript equivalent, or
             the original value if it can't be converted.
-        @note This only applies to numbers, simple math characters, and a few letters (e.g., 2 ->
-       ²).*/
+        @note This only applies to numbers, simple math characters,
+            and a few letters (e.g., 2 -> ²).*/
     [[nodiscard]]
     inline constexpr static wchar_t to_superscript(const wchar_t ch) noexcept
         {
@@ -365,9 +352,8 @@ namespace string_util
     /** @brief Determines whether a character is a hexadecimal digit (0-9,A-F,a-f).
         @param ch The letter to be analyzed.
         @returns @c true if @c ch is a hex digit.*/
-    template<typename T>
     [[nodiscard]]
-    constexpr bool is_hex_digit(const T ch) noexcept
+    inline constexpr bool is_hex_digit(const wchar_t ch) noexcept
         {
         return (is_numeric_8bit(static_cast<wchar_t>(ch)) ||
                 ((ch >= 0x61 /*'a'*/ && ch <= 0x66 /*'f'*/) ||
