@@ -1363,7 +1363,7 @@ namespace string_util
       public:
         /// @brief Constructor.
         /// @param key The value to compare against.
-        explicit equal_basic_string_i_compare_map(const TKey& key) noexcept : m_key(key) {}
+        explicit equal_basic_string_i_compare_map(TKey key) noexcept : m_key(std::move(key)) {}
 
         /// @returns @c true if initial value is the same the pair's key.
         /// @param val The pair to compare against.
