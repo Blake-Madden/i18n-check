@@ -1,5 +1,5 @@
 ---
-Checks: '-clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,readability-*,cert-*,bugprone-*,misc-*,openmp-*,performance-*,portability-*,hicpp-*,google-*,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-hicpp-use-emplace,-modernize-use-emplace,-readability-function-cognitive-complexity,-bugprone-branch-clone,-hicpp-signed-bitwise,-misc-use-anonymous-namespace,-misc-no-recursion,-modernize-use-trailing-return-type'
+Checks: '-clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,readability-*,cert-*,bugprone-*,misc-*,openmp-*,performance-*,portability-*,hicpp-*,google-*,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-hicpp-use-emplace,-modernize-use-emplace,-readability-function-cognitive-complexity,-bugprone-branch-clone,-hicpp-signed-bitwise,-misc-use-anonymous-namespace,-misc-no-recursion,-modernize-use-trailing-return-type,-misc-include-cleaner'
 HeaderFilterRegex:   ''
 FormatStyle:         none
 InheritParentConfig: true
