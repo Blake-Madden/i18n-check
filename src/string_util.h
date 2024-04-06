@@ -1204,48 +1204,6 @@ namespace string_util
         return nullptr;
         }
 
-    /** @brief Searches for a single character from a sequence in
-            a string for n number of characters.
-        @param stringToSearch The string to search.
-        @param stringToSearchLength The length of the string being searched.
-        @param searchString The sequence of characters to search for.
-        @param searchStringLength The length of the sequence string.
-        @returns The index into the string that the character was found.
-            Returns the length of the string if not found.*/
-    template<typename T>
-    [[nodiscard]]
-    size_t strncspn(const T* stringToSearch, const size_t stringToSearchLength,
-                    const T* searchString, const size_t searchStringLength) noexcept
-        {
-        if (!stringToSearch || !searchString || stringToSearchLength == 0 ||
-            searchStringLength == 0)
-            {
-            return stringToSearchLength;
-            }
-        assert((string_util::strlen(searchString) == searchStringLength) &&
-               "Invalid length passed to strncspn().");
-        size_t i{ 0 };
-        for (i = 0; i < stringToSearchLength; ++i)
-            {
-            /* If string being searched is shorter than the size argument then fail.
-               Note that we should pass back the length of the string that the caller passed in
-               so that they know that it failed, not the actual position that we stopped on which
-               would be a null terminator.*/
-            if (stringToSearch[i] == 0)
-                {
-                return stringToSearchLength;
-                }
-            for (size_t j = 0; j < searchStringLength; ++j)
-                {
-                if (stringToSearch[i] == searchString[j])
-                    {
-                    return i;
-                    }
-                }
-            }
-        return i;
-        }
-
     /// @brief Searches for a string in a larger string as a whole word.
     /// @param haystack The string to search inside of.
     /// @param needle The string to search for.
