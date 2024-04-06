@@ -341,55 +341,30 @@ TEST_CASE("Hex Strings", "[stringutil][hex]")
 	{
     SECTION("IsHex")
         {
-        CHECK(string_util::is_hex_digit<char>('0'));
-        CHECK(string_util::is_hex_digit<char>('1'));
-        CHECK(string_util::is_hex_digit<char>('2'));
-        CHECK(string_util::is_hex_digit<char>('3'));
-        CHECK(string_util::is_hex_digit<char>('4'));
-        CHECK(string_util::is_hex_digit<char>('5'));
-        CHECK(string_util::is_hex_digit<char>('6'));
-        CHECK(string_util::is_hex_digit<char>('7'));
-        CHECK(string_util::is_hex_digit<char>('8'));
-        CHECK(string_util::is_hex_digit<char>('9'));
-        CHECK(string_util::is_hex_digit<char>('a'));
-        CHECK(string_util::is_hex_digit<char>('b'));
-        CHECK(string_util::is_hex_digit<char>('c'));
-        CHECK(string_util::is_hex_digit<char>('d'));
-        CHECK(string_util::is_hex_digit<char>('e'));
-        CHECK(string_util::is_hex_digit<char>('f'));
-        CHECK(string_util::is_hex_digit<char>('A'));
-        CHECK(string_util::is_hex_digit<char>('B'));
-        CHECK(string_util::is_hex_digit<char>('C'));
-        CHECK(string_util::is_hex_digit<char>('D'));
-        CHECK(string_util::is_hex_digit<char>('E'));
-        CHECK(string_util::is_hex_digit<char>('F'));
-        CHECK_FALSE(string_util::is_hex_digit<char>('g'));
-        CHECK_FALSE(string_util::is_hex_digit<char>('.'));
-
-        CHECK(string_util::is_hex_digit<wchar_t>(L'0'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'1'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'2'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'3'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'4'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'5'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'6'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'7'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'8'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'9'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'a'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'b'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'c'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'd'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'e'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'f'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'A'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'B'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'C'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'D'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'E'));
-        CHECK(string_util::is_hex_digit<wchar_t>(L'F'));
-        CHECK_FALSE(string_util::is_hex_digit<wchar_t>(L'g'));
-        CHECK_FALSE(string_util::is_hex_digit<wchar_t>(L'.'));
+        CHECK(string_util::is_hex_digit(L'0'));
+        CHECK(string_util::is_hex_digit(L'1'));
+        CHECK(string_util::is_hex_digit(L'2'));
+        CHECK(string_util::is_hex_digit(L'3'));
+        CHECK(string_util::is_hex_digit(L'4'));
+        CHECK(string_util::is_hex_digit(L'5'));
+        CHECK(string_util::is_hex_digit(L'6'));
+        CHECK(string_util::is_hex_digit(L'7'));
+        CHECK(string_util::is_hex_digit(L'8'));
+        CHECK(string_util::is_hex_digit(L'9'));
+        CHECK(string_util::is_hex_digit(L'a'));
+        CHECK(string_util::is_hex_digit(L'b'));
+        CHECK(string_util::is_hex_digit(L'c'));
+        CHECK(string_util::is_hex_digit(L'd'));
+        CHECK(string_util::is_hex_digit(L'e'));
+        CHECK(string_util::is_hex_digit(L'f'));
+        CHECK(string_util::is_hex_digit(L'A'));
+        CHECK(string_util::is_hex_digit(L'B'));
+        CHECK(string_util::is_hex_digit(L'C'));
+        CHECK(string_util::is_hex_digit(L'D'));
+        CHECK(string_util::is_hex_digit(L'E'));
+        CHECK(string_util::is_hex_digit(L'F'));
+        CHECK_FALSE(string_util::is_hex_digit(L'g'));
+        CHECK_FALSE(string_util::is_hex_digit(L'.'));
         }
 	}
 
@@ -1721,11 +1696,11 @@ TEST_CASE("Find Whole Word", "[stringutil][whole word]")
         std::wstring needle{L"needle"};
         std::wstring haystack{ L"needle in the haystack. There are needles in the haystack, including knittingneedles."
                                 "knitting-needle? Anyway, just find needle" };
-        CHECK((size_t)0 == string_util::find_whole_word(haystack, needle));
-        CHECK((size_t)94 == string_util::find_whole_word(haystack, needle, 1));
-        CHECK((size_t)94 == string_util::find_whole_word(haystack, needle, 94));
-        CHECK((size_t)120 == string_util::find_whole_word(haystack, needle, 95));
-        CHECK((size_t)-1 == string_util::find_whole_word(haystack, needle, 200));
+        CHECK(0 == string_util::find_whole_word(haystack, needle));
+        CHECK(94 == string_util::find_whole_word(haystack, needle, 1));
+        CHECK(94 == string_util::find_whole_word(haystack, needle, 94));
+        CHECK(120 == string_util::find_whole_word(haystack, needle, 95));
+        CHECK(-1 == string_util::find_whole_word(haystack, needle, 200));
         }
 
     SECTION("No Find")
@@ -1733,10 +1708,10 @@ TEST_CASE("Find Whole Word", "[stringutil][whole word]")
         std::wstring needle{L"pin"};
         std::wstring haystack{ L"needle in the haystack. There are needles in the haystack, including knittingneedles."
                                  "knitting-needle? Anyway, just find needle" };
-        CHECK((size_t)-1 == string_util::find_whole_word(haystack, needle));
-        CHECK((size_t)-1 == string_util::find_whole_word(haystack, needle, 500));
-        CHECK((size_t)-1 == string_util::find_whole_word(haystack, std::wstring(L"")));
-        CHECK((size_t)-1 == string_util::find_whole_word(std::wstring(L""), needle));
+        CHECK(-1 == string_util::find_whole_word(haystack, needle));
+        CHECK(-1 == string_util::find_whole_word(haystack, needle, 500));
+        CHECK(-1 == string_util::find_whole_word(haystack, std::wstring(L"")));
+        CHECK(-1 == string_util::find_whole_word(std::wstring(L""), needle));
         }
     }
 
@@ -1744,10 +1719,39 @@ TEST_CASE("String Equal Functors", "[stringutil][equal]")
     {
     SECTION("NoCaseStringMap")
         {
-        CHECK((equal_basic_string_i_compare_map<std::wstring,size_t>(L"bob").operator()(std::make_pair(L"Fred",2))) == false);
+        CHECK_FALSE((equal_basic_string_i_compare_map<std::wstring,size_t>(L"bob").operator()(std::make_pair(L"Fred",2))));
         CHECK((equal_basic_string_i_compare_map<std::wstring,size_t>(L"fred").operator()(std::make_pair(L"Fred",2))));
         CHECK((equal_basic_string_i_compare_map<std::wstring,size_t>(L"bob").operator()(std::make_pair(L"bob",2))));
-        CHECK((equal_basic_string_i_compare_map<std::wstring,size_t>(L"bob").operator()(std::make_pair(L"bobby",2))) == false);
+        CHECK_FALSE((equal_basic_string_i_compare_map<std::wstring,size_t>(L"bob").operator()(std::make_pair(L"bobby",2))));
+        }
+    SECTION("StringCompare")
+        {
+        CHECK_FALSE((less_basic_string_compare<std::wstring>{}(L"bob", L"Fred")));
+        CHECK((less_basic_string_compare<std::wstring>{}(L"Bob", L"Fred")));
+        CHECK((less_basic_string_compare<std::wstring>{}(L"Fred", L"bob")));
+        CHECK((less_basic_string_compare<std::wstring>{}(L"bob", L"bobby")));
+        CHECK((less_basic_string_compare<std::wstring>{}(L"Bob", L"bobby")));
+        CHECK_FALSE((less_basic_string_compare<std::wstring>{}(L"bob", L"Bobby")));
+        CHECK_FALSE((less_basic_string_compare<std::wstring>{}(L"bobby", L"bob")));
+        CHECK_FALSE((less_basic_string_compare<std::wstring>{}(L"fred", L"Fred")));
+        CHECK((less_basic_string_compare<std::wstring>{}(L"Fred", L"fred")));
+        CHECK_FALSE((less_basic_string_compare<std::wstring>{}(L"Fred", L"Fred")));
+        CHECK_FALSE((less_basic_string_compare<std::wstring>{}(L"bob", L"bob")));
+        }
+    SECTION("StringICompare")
+        {
+        CHECK((less_basic_string_i_compare<std::wstring>{}(L"bob", L"Fred")));
+        CHECK((less_basic_string_i_compare<std::wstring>{}(L"Bob", L"Fred")));
+        CHECK_FALSE((less_basic_string_i_compare<std::wstring>{}(L"Fred", L"bob")));
+        CHECK_FALSE((less_basic_string_i_compare<std::wstring>{}(L"fred", L"Bob")));
+        CHECK((less_basic_string_i_compare<std::wstring>{}(L"bob", L"bobby")));
+        CHECK((less_basic_string_i_compare<std::wstring>{}(L"Bob", L"bobby")));
+        CHECK((less_basic_string_i_compare<std::wstring>{}(L"bob", L"Bobby")));
+        CHECK_FALSE((less_basic_string_i_compare<std::wstring>{}(L"bobby", L"bob")));
+        CHECK_FALSE((less_basic_string_i_compare<std::wstring>{}(L"fred", L"Fred")));
+        CHECK_FALSE((less_basic_string_i_compare<std::wstring>{}(L"Fred", L"fred")));
+        CHECK_FALSE((less_basic_string_i_compare<std::wstring>{}(L"Fred", L"Fred")));
+        CHECK_FALSE((less_basic_string_i_compare<std::wstring>{}(L"bob", L"bob")));
         }
     }
 
