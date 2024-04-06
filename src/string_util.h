@@ -1329,32 +1329,6 @@ namespace string_util
         return T::npos;
         }
 
-    // utility classes
-    // equal functors
-    template<typename T>
-    class equal_string_i_compare
-        {
-      public:
-        [[nodiscard]]
-        bool
-        operator()(const T* a_, const T* b_) const noexcept
-            {
-            return (string_util::stricmp(a_, b_) == 0);
-            }
-        };
-
-    template<typename T>
-    class equal_basic_string_i_compare
-        {
-      public:
-        [[nodiscard]]
-        bool
-        operator()(const T& a_, const T& b_) const noexcept
-            {
-            return (string_util::stricmp(a_.c_str(), b_.c_str()) == 0);
-            }
-        };
-
     /// Case-insensitive predicate for comparing basic_string types against
     /// strings in a @c std::map (usually in conjunction with @c std::find_if()).
     template<typename TKey, typename TVal>
@@ -1376,81 +1350,6 @@ namespace string_util
 
       private:
         TKey m_key;
-        };
-
-    template<typename T>
-    class equal_string_compare
-        {
-      public:
-        [[nodiscard]]
-        bool
-        operator()(const T* a_, const T* b_) const noexcept
-            {
-            return (string_util::strcmp(a_, b_) == 0);
-            }
-        };
-
-    // less functors
-    template<typename T>
-    class less_string_n_compare
-        {
-      public:
-        explicit less_string_n_compare(size_t comparison_size) : m_comparison_size(comparison_size)
-            {
-            }
-
-        [[nodiscard]]
-        bool
-        operator()(const T* a_, const T* b_) const noexcept
-            {
-            return (string_util::strncmp(a_, b_, m_comparison_size) < 0);
-            }
-
-      private:
-        size_t m_comparison_size{ 0 };
-        };
-
-    template<typename T>
-    class less_string_ni_compare
-        {
-      public:
-        explicit less_string_ni_compare(size_t comparison_size) : m_comparison_size(comparison_size)
-            {
-            }
-
-        [[nodiscard]]
-        bool
-        operator()(const T* a_, const T* b_) const noexcept
-            {
-            return (string_util::strnicmp(a_, b_, m_comparison_size) < 0);
-            }
-
-      private:
-        size_t m_comparison_size{ 0 };
-        };
-
-    template<typename T>
-    class less_string_i_compare
-        {
-      public:
-        [[nodiscard]]
-        bool
-        operator()(const T* a_, const T* b_) const noexcept
-            {
-            return (string_util::stricmp(a_, b_) < 0);
-            }
-        };
-
-    template<typename T>
-    class less_string_compare
-        {
-      public:
-        [[nodiscard]]
-        bool
-        operator()(const T* a_, const T* b_) const
-            {
-            return (string_util::strcmp(a_, b_) < 0);
-            }
         };
 
     template<typename T>
