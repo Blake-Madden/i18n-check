@@ -122,10 +122,10 @@ namespace i18n_check
                 constexpr int32_t maxFontSize{ 10 };
                 if (fontSize && (fontSize.value() > maxFontSize || fontSize.value() < minFontSize))
                     {
-                    m_badFontSizes.push_back(string_info{
-                        fontEntry + L": font size " + fontParts[0] +
-                            L" is non-standard (8 is recommended).",
-                        string_info::usage_info{}, fileName, std::make_pair(-1, -1) });
+                    m_badFontSizes.push_back(
+                        string_info{ fontEntry + L": font size " + fontParts[0] +
+                                         L" is non-standard (8 is recommended).",
+                                     string_info::usage_info{}, fileName, std::make_pair(-1, -1) });
                     }
 
                 if (fontParts[1] != L"MS Shell Dlg" && fontParts[1] != L"MS Shell Dlg 2")

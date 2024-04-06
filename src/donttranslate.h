@@ -12,8 +12,8 @@
 #ifndef __DONTTRANSLATE_H__
 #define __DONTTRANSLATE_H__
 
-#include <type_traits>
 #include <cstdint>
+#include <type_traits>
 
 // Determines whether T is string constant type.
 /// @private

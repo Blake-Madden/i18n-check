@@ -252,8 +252,8 @@ namespace i18n_check
                          (cppText[1] == L'\n' || cppText[1] == L'\r'))
                     {
                     assert(cppText >= m_file_start);
-                    auto prevLineStart =
-                        std::wstring_view{ m_file_start }.find_last_of(L"\n\r", cppText - m_file_start);
+                    auto prevLineStart = std::wstring_view{ m_file_start }.find_last_of(
+                        L"\n\r", cppText - m_file_start);
                     if (prevLineStart == std::wstring::npos)
                         {
                         prevLineStart = 0;
@@ -291,14 +291,14 @@ namespace i18n_check
                             {
                             m_wide_lines.emplace_back(
                                 // truncate and add ellipsis
-                                    std::wstring{ currentLine.substr(
-                                                      0, std::min<size_t>(
-                                                             32, currentLine.length())) } // NOLINT
-                                        .append(L"..."),
-                                    string_info::usage_info{
-                                        string_info::usage_info::usage_type::orphan,
-                                        std::to_wstring(currentLineLength), std::wstring{} },
-                                    m_file_name, get_line_and_column(currentPos));
+                                std::wstring{ currentLine.substr(
+                                                  0, std::min<size_t>(32, currentLine.length())) }
+                                    // NOLINT
+                                    .append(L"..."),
+                                string_info::usage_info{
+                                    string_info::usage_info::usage_type::orphan,
+                                    std::to_wstring(currentLineLength), std::wstring{} },
+                                m_file_name, get_line_and_column(currentPos));
                             }
                         }
                     }
@@ -400,7 +400,8 @@ namespace i18n_check
                 }
             if (*asmStart == L'(')
                 {
-                const auto* end = string_util::find_matching_close_tag(asmStart + 1, L'(', L')', false);
+                const auto* end =
+                    string_util::find_matching_close_tag(asmStart + 1, L'(', L')', false);
                 if (end == nullptr)
                     {
                     log_message(L"asm", L"Missing closing ')' in asm block.", (end - m_file_start));
@@ -428,7 +429,8 @@ namespace i18n_check
                 }
             if (*asmStart == L'{')
                 {
-                const auto* end = string_util::find_matching_close_tag(asmStart + 1, L'{', L'}', false);
+                const auto* end =
+                    string_util::find_matching_close_tag(asmStart + 1, L'{', L'}', false);
                 if (end == nullptr)
                     {
                     log_message(L"__asm", L"Missing closing '}' in __asm block.",
