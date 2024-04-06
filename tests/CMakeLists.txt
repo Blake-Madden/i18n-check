@@ -13,14 +13,20 @@ cmake_minimum_required(VERSION 3.12)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Options:
+# - USE_ADDRESS_SANITIZE to use ASAN
+# - USE_CLANG_TIDY to run clang-tidy
+
 find_program(CLANG_TIDY_COMMAND
       NAMES
          clang-tidy
       NO_CACHE)
-# This takes a long time to run, so only run clang-tidy
-# if explicitly requested
-if(CLANG_TIDY_COMMAND AND MSVC AND RUN_CLANG_TIDY)
-    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND} --extra-arg=/EHsc)
+if(CLANG_TIDY_COMMAND AND USE_CLANG_TIDY)
+    if(MSVC)
+        set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND} --extra-arg=/EHsc)
+    else()
+        set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND})
+    endif()
 endif()
 
 # place Catch2 at the same folder level as this repo if it isn't installed
