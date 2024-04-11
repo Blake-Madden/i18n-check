@@ -192,12 +192,16 @@ namespace i18n_check
             { L"wxIsNan", L"Use std::isnan() instead." },
             { L"wxDECLARE_EVENT_TABLE",
               L"Prefer using Bind() within a class's CTOR instead of message maps." },
+            { L"DECLARE_EVENT_TABLE",
+              L"Prefer using Bind() within a class's CTOR instead of message maps." },
             { L"__WXMAC__", L"Use __WXOSX__ instead." },
             { L"WXSIZEOF", L"Use std::size() instead (requires C++17)." },
             { L"wxOVERRIDE", L"Use override or final instead." },
             { L"wxNOEXCEPT", L"Use noexcept instead (requires C++17)." },
             { L"WXUNUSED", L"Use [[maybe_unused]] instead (requires C++17)." },
             { L"wxDECLARE_NO_COPY_CLASS",
+              L"Delete the copy CTOR and assignment operator instead." },
+            { L"DECLARE_NO_COPY_CLASS",
               L"Delete the copy CTOR and assignment operator instead." }
         };
 
