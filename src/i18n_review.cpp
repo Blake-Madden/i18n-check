@@ -190,6 +190,7 @@ namespace i18n_check
             { L"wxMax", L"Use std::max() instead." },
             { L"wxRound", L"Use std::lround() instead." },
             { L"wxIsNan", L"Use std::isnan() instead." },
+            { L"wxUnusedVar", L"Use [[maybe_unused]] attribute instead." },
             { L"wxDECLARE_EVENT_TABLE",
               L"Prefer using Bind() within a class's CTOR instead of message maps." },
             { L"DECLARE_EVENT_TABLE",
