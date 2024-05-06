@@ -661,8 +661,8 @@ namespace i18n_check
                 const std::wstring definedTerm =
                     std::wstring(directiveStart, endOfDefinedTerm - directiveStart);
 
-                directiveStart = endOfDefinedTerm + 1;
-                while (directiveStart != nullptr && *directiveStart != 0 &&
+                directiveStart = std::next(endOfDefinedTerm, 1);
+                while (*directiveStart != 0 &&
                        (*directiveStart == L' ' || *directiveStart == L'\t' ||
                         *directiveStart == L'('))
                     {
@@ -682,7 +682,7 @@ namespace i18n_check
                         std::wstring(directiveStart, endOfPossibleFuncName - directiveStart)) !=
                         m_ctors_to_ignore.cend())
                     {
-                    directiveStart = endOfPossibleFuncName + 1;
+                    directiveStart = std::next(endOfPossibleFuncName, 1);
                     }
                 // #define'd variable followed by a quote? Process as a string variable then.
                 if (*directiveStart != 0 &&
@@ -701,8 +701,7 @@ namespace i18n_check
                 // example: #define VALUE height, #define VALUE 0x5
                 // No open parentheses after the defined value--then not a function.
                 // Just leave the end marker where it is (EOL) and gobble all of this up.
-                else if (directiveStart != nullptr &&
-                         std::wstring_view{ directiveStart,
+                else if (std::wstring_view{ directiveStart,
                                             static_cast<size_t>(end - directiveStart) }
                                  .find(L'(') == std::wstring_view::npos)
                     { /*no-op*/
