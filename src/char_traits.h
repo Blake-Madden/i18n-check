@@ -24,56 +24,12 @@ namespace string_util
     {
     /// @brief Case insensitive comparison for `std::basic_string<wchar_t>` strings.
     /// @private
-    class case_insensitive_character_traits
+    class case_insensitive_character_traits : public std::char_traits<wchar_t>
         {
       public:
-        using char_type = wchar_t;
-        using int_type = wint_t;
-        using off_type = std::streamoff;
-        using pos_type = std::streampos;
-        using state_type = std::mbstate_t;
-
         inline static bool eq_int_type(const int_type& i1, const int_type& i2) noexcept
             {
             return tolower(i1) == tolower(i2);
-            }
-
-        constexpr static int_type eof() noexcept { return static_cast<int_type>(EOF); }
-
-        constexpr static int_type not_eof(const int_type& i) noexcept
-            {
-            // EOF is negative, so 0 != EOF
-            return (i == static_cast<int_type>(EOF)) ? 0 : 1;
-            }
-
-        constexpr static char_type to_char_type(const int_type& i) noexcept
-            {
-            return static_cast<char_type>(i);
-            }
-
-        constexpr static int_type to_int_type(const char_type& c) noexcept
-            {
-            return static_cast<unsigned char>(c);
-            }
-
-        inline static size_t length(const char_type* s) noexcept { return std::wcslen(s); }
-
-        inline static void assign(char_type& dst, const char_type src) noexcept { dst = src; }
-
-        inline static char_type* assign(char_type* dst, size_t n, char_type c) noexcept
-            {
-            return std::wmemset(dst, c, n);
-            }
-
-        inline static char_type* move(char_type* dst, const char_type* src, size_t n) noexcept
-            {
-            return std::wmemmove(dst, src, n);
-            }
-
-        inline static char_type* copy(char_type* strDest, const char_type* strSource,
-                                      size_t count) noexcept
-            {
-            return std::wcsncpy(strDest, strSource, count);
             }
 
         inline static bool eq(const char_type& first, const char_type& second) noexcept
