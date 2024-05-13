@@ -27,23 +27,28 @@ namespace string_util
     class case_insensitive_character_traits : public std::char_traits<wchar_t>
         {
       public:
+        //--------------------------------------------------
         inline static bool eq_int_type(const int_type& i1, const int_type& i2) noexcept
             {
             return tolower(i1) == tolower(i2);
             }
 
+        //--------------------------------------------------
         inline static bool eq(const char_type& first, const char_type& second) noexcept
             {
             return (tolower(first) == tolower(second));
             }
 
+        //--------------------------------------------------
         inline static bool lt(const char_type& first, const char_type& second) noexcept
             {
             return (tolower(first) < tolower(second));
             }
 
+        //--------------------------------------------------
         inline static char_type tolower(const char_type& ch) noexcept { return std::towlower(ch); }
 
+        //--------------------------------------------------
         static int compare(const char_type* s1, const char_type* s2, size_t n) noexcept
             {
             assert(s1);
@@ -66,6 +71,7 @@ namespace string_util
             return 0;
             }
 
+        //--------------------------------------------------
         static const char_type* find(const char_type* s1, size_t n, const char_type ch) noexcept
             {
             assert(s1);
@@ -83,6 +89,7 @@ namespace string_util
             return nullptr;
             }
 
+        //--------------------------------------------------
         static const char_type* find(const char_type* s1, size_t n1, const char_type* s2,
                                      size_t n2) noexcept
             {
