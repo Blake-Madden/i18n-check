@@ -974,7 +974,7 @@ namespace i18n_check
                                                     std::wstring{}, std::wstring{}),
                             m_file_name, get_line_and_column(currentTextPos - m_file_start)));
             }
-        clear_section(currentTextPos, quoteEnd + 1);
+        clear_section(currentTextPos, std::next(quoteEnd));
         }
 
     //--------------------------------------------------
@@ -1250,13 +1250,8 @@ namespace i18n_check
                     return true;
                     }
                 }
-            if (is_font_name(str.c_str()) || is_file_extension(str.c_str()) ||
-                i18n_string_util::is_file_address(str))
-                {
-                return true;
-                }
-            // nothing seems to match, probably a real string
-            return false;
+            return (is_font_name(str.c_str()) || is_file_extension(str.c_str()) ||
+                    i18n_string_util::is_file_address(str));
             }
         catch (const std::exception& exp)
             {
@@ -1385,10 +1380,10 @@ namespace i18n_check
                 const auto* typeEnd = functionOrVarNamePos + 1;
                 // if a template, then step over (going backwards) the template arguments
                 // to get to the root type
-                if (typeEnd - 1 > startSentinel && typeEnd[-1] == L'>')
+                if (std::prev(typeEnd) > startSentinel && *std::prev(typeEnd) == L'>')
                     {
                     // if a pointer accessor (->) then bail as it won't be a variable assignment
-                    if (typeEnd - 2 > startSentinel && typeEnd[-2] == L'-')
+                    if (std::prev(typeEnd, 2) > startSentinel && *std::prev(typeEnd, 2) == L'-')
                         {
                         return;
                         }
@@ -1676,12 +1671,12 @@ namespace i18n_check
             if (nextLinePosition + 1 < position && startSentinel[nextLinePosition] == L'\r' &&
                 startSentinel[nextLinePosition + 1] == L'\n')
                 {
-                startSentinel += nextLinePosition + 2;
+                std::advance(startSentinel, nextLinePosition + 2);
                 position -= nextLinePosition + 2;
                 }
             else
                 {
-                startSentinel += nextLinePosition + 1;
+                std::advance(startSentinel, nextLinePosition + 1);
                 position -= nextLinePosition + 1;
                 }
             }

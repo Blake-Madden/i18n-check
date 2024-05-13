@@ -31,29 +31,6 @@
 /// @brief String helper functions and classes.
 namespace string_util
     {
-    /// ANSI C decorators
-    /// atol
-    /// @private
-    inline long atol(const char* str)
-        {
-        if (str == nullptr)
-            {
-            return 0;
-            }
-        return std::atol(str);
-        }
-
-    /// @private
-    inline long atol(const wchar_t* str)
-        {
-        if (str == nullptr)
-            {
-            return 0;
-            }
-        wchar_t* dummy = nullptr;
-        return std::wcstol(str, &dummy, 10);
-        }
-
     /// tolower
     /// @private
     inline int tolower(char c) { return std::tolower(static_cast<unsigned char>(c)); }
@@ -67,19 +44,6 @@ namespace string_util
 
     /// @private
     inline size_t strlen(const wchar_t* text) { return std::wcslen(text); }
-
-    /// strncmp
-    /// @private
-    inline int strncmp(const char* string1, const char* string2, size_t count)
-        {
-        return std::strncmp(string1, string2, count);
-        }
-
-    /// @private
-    inline int strncmp(const wchar_t* string1, const wchar_t* string2, size_t count)
-        {
-        return std::wcsncmp(string1, string2, count);
-        }
 
     /// @brief Determines if a given value is either of two other given values.
     /// @param value The value to compare with.
