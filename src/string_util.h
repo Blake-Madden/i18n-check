@@ -526,48 +526,6 @@ namespace string_util
         return nullptr;
         }
 
-    /** @brief Search string in reverse for substring.
-        @param string The string to search within.
-        @param search The string to search for.
-        @param offset How far we are in the source string already and how far to go back.
-        @returns The pointer to where the substring was found, or @c nullptr if not found.*/
-    template<typename T>
-    [[nodiscard]]
-    const T* strrstr(const T* string, const T* search, size_t offset) noexcept
-        {
-        if (!string || !search)
-            {
-            return nullptr;
-            }
-        const size_t len = string_util::strlen(search);
-        if (len > offset)
-            {
-            return nullptr;
-            }
-        string -= len;
-        offset -= len;
-        bool fnd = false;
-        while (!fnd && offset > 0)
-            {
-            fnd = true;
-            for (size_t i = 0; i < len; ++i)
-                {
-                if (string[i] != search[i])
-                    {
-                    fnd = false;
-                    break;
-                    }
-                }
-            if (fnd)
-                {
-                return string;
-                }
-            --string;
-            --offset;
-            }
-        return nullptr;
-        }
-
     /// @brief Case-insensitive comparison by character count.
     /// @param first The first string to compare.
     /// @param second The second string to compare.
