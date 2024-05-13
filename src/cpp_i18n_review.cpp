@@ -30,7 +30,7 @@ namespace i18n_check
         m_file_start = cppText;
         const wchar_t* const endSentinel = cppText + srcText.length();
 
-        while (cppText != nullptr && cppText + 1 < endSentinel && *cppText != 0)
+        while (cppText != nullptr && std::next(cppText, 1) < endSentinel && *cppText != 0)
             {
             // if a possible comment, then scan past it
             if (*cppText == L'/')
@@ -42,7 +42,7 @@ namespace i18n_check
                     if (end != nullptr && end < endSentinel)
                         {
                         clear_section(cppText, end + 2);
-                        cppText = end + 2;
+                        cppText = std::next(end, 2);
                         }
                     // can't find ending tag, so just read in the rest of the text
                     else
@@ -53,7 +53,7 @@ namespace i18n_check
                 // or a single line comment
                 else if (cppText[1] == L'/' && cppText + 2 < endSentinel)
                     {
-                    const size_t end = std::wcscspn(cppText, L"\n\r");
+                    const size_t endPos = std::wcscspn(cppText, L"\n\r");
                     if (static_cast<bool>(m_reviewStyles & check_space_after_comment) &&
                         static_cast<bool>(std::iswalnum(cppText[2])) &&
                         // something like "//--------" is OK
@@ -63,8 +63,8 @@ namespace i18n_check
                             string_info(std::wstring{}, string_info::usage_info{}, m_file_name,
                                         get_line_and_column((cppText - m_file_start))));
                         }
-                    clear_section(cppText, cppText + end);
-                    cppText += end;
+                    clear_section(cppText, cppText + endPos);
+                    std::advance(cppText, endPos);
                     }
                 // not a comment
                 else
@@ -105,7 +105,7 @@ namespace i18n_check
                 std::wstring variableType;
                 std::wstring deprecatedMacroEncountered;
                 size_t parameterPosition{ 0 };
-                const wchar_t* startPos = cppText - 1;
+                const wchar_t* startPos = std::prev(cppText, 1);
                 const wchar_t* functionVarNamePos{ nullptr };
                 bool isRawString{ false };
                 // if a raw string, step over 'R'
@@ -442,13 +442,13 @@ namespace i18n_check
                 }
             if (*asmStart != 0)
                 {
-                const size_t end = std::wcscspn(asmStart, L"\n\r");
-                clear_section(originalStart, asmStart + end + 1);
-                return asmStart + end + 1;
+                const size_t endPos = std::wcscspn(asmStart, L"\n\r");
+                clear_section(originalStart, asmStart + endPos + 1);
+                return std::next(asmStart, endPos + 1);
                 }
             return nullptr;
             }
-        return asmStart + 1;
+        return std::next(asmStart, 1);
         }
 
     //--------------------------------------------------
@@ -717,6 +717,6 @@ namespace i18n_check
             return end;
             }
         // unknown preprocessor, just skip the '#'
-        return directiveStart + 1;
+        return std::next(directiveStart, 1);
         }
     } // namespace i18n_check
