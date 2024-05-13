@@ -1192,7 +1192,7 @@ TEST_CASE("StrNChr", "[stringutil][StrNChr]")
         {
         wchar_t text[100];
         std::wmemset(text, 0, 100);
-        std::wcscpy(text, L"abc");
+        wcsncpy_s(text, 100, L"abc", 3);
         // will really only scan first three letter, see the embedded NULLs, and return
         // what the caller thought was the length of the string to know that it failed.
         CHECK(string_util::strnchr<wchar_t>(L"abc", L'x', 100) == nullptr);

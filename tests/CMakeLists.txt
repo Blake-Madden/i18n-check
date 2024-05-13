@@ -54,7 +54,7 @@ add_executable(${CMAKE_PROJECT_NAME} ../src/i18n_string_util.cpp
 i18nstringtests.cpp stringutiltests.cpp cpptests.cpp
 decodetests.cpp rctests.cpp testingmain.cpp)
 if(MSVC)
-    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC _CRT_SECURE_NO_WARNINGS __UNITTEST _DISABLE_VECTOR_ANNOTATION _DISABLE_STRING_ANNOTATION)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC __UNITTEST)
     if(USE_ADDRESS_SANITIZE)
         target_compile_options(${PROJECT_NAME} PUBLIC /Zc:__cplusplus /MP /W3 /WX
                                $<$<CONFIG:Debug>:/Od /fsanitize=address> $<$<CONFIG:Release>:/O2>)
@@ -63,7 +63,7 @@ if(MSVC)
                                $<$<CONFIG:Debug>:/Od> $<$<CONFIG:Release>:/O2>)
     endif()
 else()
-    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC _CRT_SECURE_NO_WARNINGS __UNITTEST)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC __UNITTEST)
 endif()
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Catch2::Catch2)
 
