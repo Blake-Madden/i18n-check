@@ -25,7 +25,6 @@ add_executable(i18n-check ${FILES})
 if(MSVC)
   target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /Zc:__cplusplus /MP /W3 /WX
                          $<$<CONFIG:Debug>:/Od> $<$<CONFIG:Release>:/O2>)
-  target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)
 else()
   target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Werror
                          $<$<CONFIG:Debug>:-Og> $<$<CONFIG:Release>:-O2>)
