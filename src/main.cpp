@@ -128,7 +128,7 @@ static std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name
 int main(int argc, char* argv[])
     {
     cxxopts::Options options(
-        "i18n-check 0.1",
+        "i18n-check 0.2",
         "Internationalization/localization analysis system, (c) 2021-2024 Blake Madden");
     options.add_options()("input", "The folder (or file) to analyze",
                           cxxopts::value<std::string>())(
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
         "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue,"
         "trailingSpaces, tabs, wideLine, commentMissingSpace)",
         cxxopts::value<std::vector<std::string>>())(
-        "disable", "Which checks to not perform (same as the options for enable)",
+        "disable", "Which checks to not perform (same as the options for --enable)",
         cxxopts::value<std::vector<std::string>>())(
         "log-l10n-allowed", "Whether it is acceptable to pass translatable "
                             "strings to logging functions. (Default is true.)")(
