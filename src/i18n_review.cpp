@@ -66,7 +66,7 @@ namespace i18n_check
     };
 
     // documents
-    std::set<string_util::case_insensitive_wstring> i18n_review::m_file_extensions = {  // NOLINT
+    std::set<string_util::case_insensitive_wstring> i18n_review::m_file_extensions = { // NOLINT
         L"xml", L"html", L"htm", L"xhtml", L"rtf", L"doc", L"docx", L"dot", L"docm", L"txt", L"ppt",
         L"pptx", L"pdf", L"ps", L"odt", L"ott", L"odp", L"otp", L"pptm", L"md", L"xaml",
         // Visual Studio files
@@ -152,13 +152,11 @@ namespace i18n_check
             { L"wxStrstr", L"Use std::wcsstr() instead." },
             { L"wxStrchr", L"Use std::wcschr() instead." },
             { L"wxStrdup", L"Use std::wcsdup() instead." },
-            { L"wxStrcpy",
-              L"Use std::wcscpy() instead. "
-               "(or prefer safer functions that process N number of characters)." },
+            { L"wxStrcpy", L"Use std::wcscpy() instead. "
+                           "(or prefer safer functions that process N number of characters)." },
             { L"wxStrncpy", L"Use std::wcsncpy() (or wxStrlcpy) instead." },
-            { L"wxStrcat ",
-              L"Use std::wcscat() instead "
-               "(or prefer safer functions that process N number of characters)." },
+            { L"wxStrcat ", L"Use std::wcscat() instead "
+                            "(or prefer safer functions that process N number of characters)." },
             { L"wxStrncat", L"Use std::wcsncat() instead." },
             { L"wxStrtok", L"Use std::wcstok() instead." },
             { L"wxStrrchr", L"Use std::wcsrchr() instead." },
@@ -1378,7 +1376,7 @@ namespace i18n_check
                     {
                     std::advance(functionOrVarNamePos, -1);
                     }
-                const auto* typeEnd = functionOrVarNamePos + 1;
+                const auto* typeEnd = std::next(functionOrVarNamePos);
                 // if a template, then step over (going backwards) the template arguments
                 // to get to the root type
                 if (std::prev(typeEnd) > startSentinel && *std::prev(typeEnd) == L'>')
@@ -1398,7 +1396,8 @@ namespace i18n_check
                                     functionOrVarNamePos - startSentinel);
                         return;
                         }
-                    functionOrVarNamePos = startSentinel + openingAngle;
+                    functionOrVarNamePos =
+                        std::next(startSentinel, static_cast<ptrdiff_t>(openingAngle));
                     }
                 while (
                     functionOrVarNamePos > startSentinel &&
@@ -1483,7 +1482,8 @@ namespace i18n_check
                     {
                     std::advance(functionOrVarNamePos, 1);
                     }
-                functionName.assign(functionOrVarNamePos, (startPos + 1) - functionOrVarNamePos);
+                functionName.assign(functionOrVarNamePos,
+                                    std::next(startPos) - functionOrVarNamePos);
                 const bool hasExtraneousParens{ functionName.empty() };
                 remove_decorations(functionName);
                 // If wrapped in a string CTOR (e.g., std::wstring), then skip it
@@ -1556,9 +1556,10 @@ namespace i18n_check
             // deal with variable assignments here
             // (note that comparisons (>=, <=, ==, !=) are handled as though this string
             //      is a parameter to a function.)
-            else if (*startPos == L'=' && startPos[1] != L'=' && startPos > startSentinel &&
-                     *(startPos - 1) != L'=' && *(startPos - 1) != L'!' &&
-                     *(startPos - 1) != L'>' && *(startPos - 1) != L'<')
+            else if (*startPos == L'=' && *std::next(startPos) != L'=' &&
+                     startPos > startSentinel && *std::prev(startPos) != L'=' &&
+                     *std::prev(startPos) != L'!' && *std::prev(startPos) != L'>' &&
+                     *std::prev(startPos) != L'<')
                 {
                 std::advance(startPos, -1);
                 // skip spaces (and "+=" tokens)
@@ -1593,7 +1594,8 @@ namespace i18n_check
                     {
                     std::advance(functionOrVarNamePos, 1);
                     }
-                variableName.assign(functionOrVarNamePos, (startPos + 1) - functionOrVarNamePos);
+                variableName.assign(functionOrVarNamePos,
+                                    std::next(startPos) - functionOrVarNamePos);
 
                 readVarType();
 
@@ -1669,8 +1671,9 @@ namespace i18n_check
         while ((nextLinePosition = std::wcscspn(startSentinel, L"\r\n")) < position)
             {
             ++lineCount;
-            if (nextLinePosition + 1 < position && startSentinel[nextLinePosition] == L'\r' &&
-                startSentinel[nextLinePosition + 1] == L'\n')
+            if (nextLinePosition + 1 < position &&
+                *std::next(startSentinel, static_cast<ptrdiff_t>(nextLinePosition)) == L'\r' &&
+                *std::next(startSentinel, static_cast<ptrdiff_t>(nextLinePosition + 1)) == L'\n')
                 {
                 std::advance(startSentinel, nextLinePosition + 2);
                 position -= nextLinePosition + 2;

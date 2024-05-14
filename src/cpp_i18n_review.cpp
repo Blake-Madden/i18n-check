@@ -52,13 +52,13 @@ namespace i18n_check
                         }
                     }
                 // or a single line comment
-                else if (cppText[1] == L'/' && std::next(cppText, 2) < endSentinel)
+                else if (*std::next(cppText) == L'/' && std::next(cppText, 2) < endSentinel)
                     {
                     const size_t endPos = std::wcscspn(cppText, L"\n\r");
                     if (static_cast<bool>(m_reviewStyles & check_space_after_comment) &&
-                        static_cast<bool>(std::iswalnum(cppText[2])) &&
+                        static_cast<bool>(std::iswalnum(*std::next(cppText, 2))) &&
                         // something like "//--------" is OK
-                        cppText[2] != L'-')
+                        *std::next(cppText, 2) != L'-')
                         {
                         m_comments_missing_space.push_back(
                             string_info(std::wstring{}, string_info::usage_info{}, m_file_name,
@@ -73,28 +73,28 @@ namespace i18n_check
                     std::advance(cppText, 1);
                     }
                 }
-            else if (cppText[0] == L'#')
+            else if (*cppText == L'#')
                 {
                 cppText = process_preprocessor_directive(cppText, cppText - m_file_start);
                 }
-            else if (((cppText == m_file_start) || !is_valid_name_char(cppText[-1])) &&
+            else if (((cppText == m_file_start) || !is_valid_name_char(*std::prev(cppText))) &&
                      is_assembly_block(cppText))
                 {
                 cppText = process_assembly_block(cppText);
                 }
             // ...or an actual quote
-            else if (cppText[0] == L'\"')
+            else if (*cppText == L'\"')
                 {
                 // skip escaped quotes
-                if (cppText > m_file_start + 1 && *(cppText - 1) == L'\\' &&
-                    *(cppText - 2) != L'\\')
+                if (cppText > std::next(m_file_start) && *std::prev(cppText) == L'\\' &&
+                    *std::prev(cppText, 2) != L'\\')
                     {
                     std::advance(cppText, 1);
                     continue;
                     }
                 // skip quote symbol that is actually inside of single quote
-                if (cppText > m_file_start + 1 && *(cppText - 1) == L'\'' &&
-                    *(cppText + 1) == L'\'')
+                if (cppText > std::next(m_file_start) && *std::prev(cppText) == L'\'' &&
+                    *std::next(cppText) == L'\'')
                     {
                     std::advance(cppText, 1);
                     continue;
@@ -121,7 +121,8 @@ namespace i18n_check
                     std::advance(startPos, -1);
                     }
                 // step back over UTF-8 'u8' symbol
-                if (startPos > m_file_start + 1 && *startPos == L'8' && *(startPos - 1) != L'u')
+                if (startPos > std::next(m_file_start) && *startPos == L'8' &&
+                    *std::prev(startPos) != L'u')
                     {
                     std::advance(startPos, -2);
                     }
@@ -140,7 +141,7 @@ namespace i18n_check
                         {
                         std::advance(directiveStart, -1);
                         }
-                    variableName.assign(directiveStart + 1, startPos - directiveStart);
+                    variableName.assign(std::next(directiveStart), startPos - directiveStart);
                     }
                 else
                     {
@@ -167,16 +168,16 @@ namespace i18n_check
                             // make sure that they slash in front of the quote (if there is one)
                             // is intended for it.
                             size_t proceedingSlashCount{ 0 };
-                            const wchar_t* proceedingSlashes = end - 1;
+                            const wchar_t* proceedingSlashes = std::prev(end);
                             while (proceedingSlashes >= m_file_start && *proceedingSlashes == L'\\')
                                 {
-                                --proceedingSlashes;
+                                std::advance(proceedingSlashes, -1);
                                 ++proceedingSlashCount;
                                 }
                             // something like "hello\\\" there" should be seen as "hello\" there".
                             if (proceedingSlashCount > 0 && ((proceedingSlashCount % 2) != 0))
                                 {
-                                ++end;
+                                std::advance(end, 1);
                                 continue;
                                 }
 
@@ -187,7 +188,7 @@ namespace i18n_check
                             };
                             constexpr size_t int64PrintfMacroLength{ 6 };
                             // see if there is more to this string on another line
-                            wchar_t* connectedQuote = end + 1;
+                            wchar_t* connectedQuote = std::next(end);
                             while (connectedQuote < endSentinel &&
                                    static_cast<bool>(std::iswspace(*connectedQuote)))
                                 {
@@ -199,14 +200,14 @@ namespace i18n_check
                                 continue;
                                 }
                             // step over PRIu64 macro that appears between printf strings
-                            if (connectedQuote + int64PrintfMacroLength < endSentinel &&
+                            if (std::next(connectedQuote, int64PrintfMacroLength) < endSentinel &&
                                 std::regex_match(
                                     std::wstring{ connectedQuote, int64PrintfMacroLength },
                                     intPrintfMacro))
                                 {
                                 clear_section(connectedQuote,
-                                              connectedQuote + int64PrintfMacroLength);
-                                connectedQuote += int64PrintfMacroLength;
+                                              std::next(connectedQuote, int64PrintfMacroLength));
+                                std::advance(connectedQuote, int64PrintfMacroLength);
                                 while (connectedQuote < endSentinel &&
                                        static_cast<bool>(std::iswspace(*connectedQuote)))
                                     {
@@ -261,8 +262,9 @@ namespace i18n_check
                         }
                     // step forward to original line
                     ++prevLineStart;
-                    std::wstring codeLine(m_file_start + prevLineStart,
-                                          (cppText - (m_file_start + prevLineStart)));
+                    std::wstring codeLine(
+                        std::next(m_file_start, static_cast<ptrdiff_t>(prevLineStart)),
+                        (cppText - std::next(m_file_start, static_cast<ptrdiff_t>(prevLineStart))));
                     string_util::ltrim(codeLine);
                     m_trailing_spaces.push_back(
                         string_info(codeLine, string_info::usage_info{}, m_file_name,
@@ -373,9 +375,9 @@ namespace i18n_check
         if (std::wcsncmp(asmStart, asmCommand1.data(), asmCommand1.length()) == 0 ||
             std::wcsncmp(asmStart, asmCommand2.data(), asmCommand2.length()) == 0)
             {
-            asmStart += (std::wcsncmp(asmStart, asmCommand1.data(), asmCommand1.length()) == 0) ?
+            std::advance(asmStart, (std::wcsncmp(asmStart, asmCommand1.data(), asmCommand1.length()) == 0) ?
                             asmCommand1.length() :
-                            asmCommand2.length();
+                            asmCommand2.length());
             // step over spaces between __asm and its content
             while (*asmStart != 0 && static_cast<bool>(std::iswspace(*asmStart)))
                 {
@@ -410,8 +412,8 @@ namespace i18n_check
                     log_message(L"asm", L"Missing closing ')' in asm block.", (end - m_file_start));
                     return std::next(asmStart, 1);
                     }
-                clear_section(originalStart, const_cast<wchar_t*>(end) + 1);
-                return const_cast<wchar_t*>(end) + 1;
+                clear_section(originalStart, std::next(end));
+                return std::next(const_cast<wchar_t*>(end));
                 }
             if (*asmStart != 0)
                 {
@@ -441,7 +443,7 @@ namespace i18n_check
                     return std::next(asmStart);
                     }
                 clear_section(originalStart, std::next(end));
-                return const_cast<wchar_t*>(end) + 1;
+                return std::next(const_cast<wchar_t*>(end));
                 }
             if (*asmStart != 0)
                 {
