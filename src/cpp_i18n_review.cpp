@@ -31,7 +31,7 @@ namespace i18n_check
         const wchar_t* const endSentinel =
             std::next(cppText, static_cast<ptrdiff_t>(srcText.length()));
 
-        while (cppText != nullptr && std::next(cppText, 1) < endSentinel && *cppText != 0)
+        while (cppText != nullptr && std::next(cppText) < endSentinel && *cppText != 0)
             {
             // if a possible comment, then scan past it
             if (*cppText == L'/')
