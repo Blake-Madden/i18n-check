@@ -1177,25 +1177,27 @@ TEST_CASE("StrNChr", "[stringutil][StrNChr]")
         // should find last item in sequence
         CHECK(string_util::strnchr(buffer, 'd', 12) == buffer+11);
         }
-    SECTION("FindNothing")
+    SECTION("Find nothing")
         {
         char buffer[] = "hello, world";
         // should find nothing and return size argument
         CHECK(string_util::strnchr(buffer, 'z', 12) == nullptr);
         }
-    SECTION("EmptyString")
+    SECTION("Empty string")
         {
         // should find nothing and nullptr
         CHECK(string_util::strnchr("", 'z', 0) == nullptr);
         }
-    SECTION("BoundaryError")
+    SECTION("Boundary error")
         {
-        wchar_t text[100];
-        std::wmemset(text, 0, 100);
-        wcsncpy_s(text, 100, L"abc", 3);
+        wchar_t text[10];
+        std::wmemset(text, 0, 10);
+        text[0] = L'a';
+        text[1] = L'b';
+        text[2] = L'c';
         // will really only scan first three letter, see the embedded NULLs, and return
         // what the caller thought was the length of the string to know that it failed.
-        CHECK(string_util::strnchr<wchar_t>(L"abc", L'x', 100) == nullptr);
+        CHECK(string_util::strnchr<wchar_t>(text, L'x', 100) == nullptr);
         }
     };
 
