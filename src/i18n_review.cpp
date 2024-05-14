@@ -197,6 +197,7 @@ namespace i18n_check
               L"Prefer using Bind() within a class's CTOR instead of message maps." },
             { L"__WXMAC__", L"Use __WXOSX__ instead." },
             { L"wxMEMBER_DELETE", L"Use '= delete' instead." },
+            { L"wxNODISCARD", L"Use [[nodiscard]] instead (requires C++17)." },
             { L"WXSIZEOF", L"Use std::size() instead (requires C++17)." },
             { L"wxOVERRIDE", L"Use override or final instead." },
             { L"wxNOEXCEPT", L"Use noexcept instead (requires C++17)." },
