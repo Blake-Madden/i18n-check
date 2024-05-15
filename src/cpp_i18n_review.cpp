@@ -489,8 +489,13 @@ namespace i18n_check
                 return std::next(sectionStart,
                                  pDiff + static_cast<ptrdiff_t>(elifCommand.length()));
                 }
+            if (closingEndIf != nullptr)
+                {
             auto pDiff{ closingEndIf - sectionStart };
-            return std::next(sectionStart, pDiff + static_cast<ptrdiff_t>(endifCommand.length()));
+                return std::next(sectionStart,
+                                 pDiff + static_cast<ptrdiff_t>(endifCommand.length()));
+                }
+            return nullptr;
         };
 
         const std::wstring_view ifndefCommand{ L"ifndef" };
