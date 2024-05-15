@@ -7,7 +7,7 @@ namespace i18n_check
         {
         m_file_name = fileName;
 
-        if (rcFileText.length() == 0)
+        if (rcFileText.empty())
             {
             return;
             }

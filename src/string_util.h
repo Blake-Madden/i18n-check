@@ -786,7 +786,7 @@ namespace string_util
             {
             return nullptr;
             }
-        if (openSymbol.length() == 0 || closeSymbol.length() == 0)
+        if (openSymbol.empty() || closeSymbol.empty())
             {
             return nullptr;
             }
@@ -1136,7 +1136,7 @@ namespace string_util
     typename T::size_type find_whole_word(const T& haystack, const T& needle,
                                           size_t start_index = 0)
         {
-        if (needle.length() == 0 || haystack.length() == 0)
+        if (needle.empty() || haystack.empty())
             {
             return T::npos;
             }
@@ -1653,7 +1653,7 @@ namespace string_util
     void replace_all_whole_word(T& text, const T& textToReplace, const T& replacementText,
                                 const size_t index = 0)
         {
-        if (textToReplace.length() == 0 || replacementText.length() == 0)
+        if (textToReplace.empty() || replacementText.empty())
             {
             return;
             }
