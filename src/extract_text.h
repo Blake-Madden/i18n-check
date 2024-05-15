@@ -54,6 +54,17 @@ namespace lily_of_the_valley
             return m_log;
             }
 
+        /// @returns The internal buffer that stores the parsed text.
+        /// @warning This grants direct access to the buffer and should generally be used
+        ///     for operating with the results after a parse is complete.\n
+        ///     For example, this can be useful for performing a `std::move` to copy the results
+        ///     to another string efficiently.
+        [[nodiscard]]
+        std::wstring& get_filtered_buffer() noexcept
+            {
+            return m_text_buffer;
+            }
+
         /** @brief Sets the string used to separate the messages in the log report.
             @details By default, messages are separated by newlines, so call this to separate them
                 by something like commas (if you are needing a single-line report).
@@ -68,8 +79,7 @@ namespace lily_of_the_valley
         /** @brief Allocates (or resizes) the buffer to hold the parsed text.
             @details This must be called before using add_character() or add_characters().
                 If the new size is smaller than the current size, then the size remains the same.
-            @param text_length The new size of the buffer.
-            @returns @c false if allocation fails, @c true otherwise.*/
+            @param text_length The new size of the buffer.*/
         void allocate_text_buffer(const size_t text_length)
             {
             m_text_buffer.clear();
@@ -104,7 +114,8 @@ namespace lily_of_the_valley
             m_text_buffer.clear();
             }
 
-        /** @brief Resizes the buffer.*/
+        /** @brief Resizes the buffer.
+            @param newSize The new size of the buffer.*/
         void resize_buffer(const size_t newSize) { m_text_buffer.resize(newSize); }
 
         /// @brief Empties the log of any previous parsing issues.
