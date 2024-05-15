@@ -44,6 +44,10 @@ namespace i18n_check
                         {
                         clear_section(cppText, std::next(end, 2));
                         cppText = std::next(end, 2);
+                        if (cppText >= endSentinel)
+                            {
+                            break;
+                        }
                         }
                     // can't find ending tag, so just read in the rest of the text
                     else
@@ -76,11 +80,19 @@ namespace i18n_check
             else if (*cppText == L'#')
                 {
                 cppText = process_preprocessor_directive(cppText, cppText - m_file_start);
+                if (cppText == nullptr || cppText >= endSentinel)
+                    {
+                    break;
+                }
                 }
             else if (((cppText == m_file_start) || !is_valid_name_char(*std::prev(cppText))) &&
                      is_assembly_block(cppText))
                 {
                 cppText = process_assembly_block(cppText);
+                if (cppText == nullptr || cppText >= endSentinel)
+                    {
+                    break;
+                }
                 }
             // ...or an actual quote
             else if (*cppText == L'\"')
@@ -231,6 +243,10 @@ namespace i18n_check
                     process_quote(cppText, end, functionVarNamePos, variableName, functionName,
                                   variableType, deprecatedMacroEncountered, parameterPosition);
                     cppText = std::next(end, (isRawString ? 2 : 1));
+                    if (cppText >= endSentinel)
+                        {
+                        break;
+                        }
                     }
                 }
             // ";}" should have a space or newline between them
