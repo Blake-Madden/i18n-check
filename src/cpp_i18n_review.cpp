@@ -47,7 +47,7 @@ namespace i18n_check
                         if (cppText >= endSentinel)
                             {
                             break;
-                        }
+                            }
                         }
                     // can't find ending tag, so just read in the rest of the text
                     else
@@ -83,7 +83,7 @@ namespace i18n_check
                 if (cppText == nullptr || cppText >= endSentinel)
                     {
                     break;
-                }
+                    }
                 }
             else if (((cppText == m_file_start) || !is_valid_name_char(*std::prev(cppText))) &&
                      is_assembly_block(cppText))
@@ -92,7 +92,7 @@ namespace i18n_check
                 if (cppText == nullptr || cppText >= endSentinel)
                     {
                     break;
-                }
+                    }
                 }
             // ...or an actual quote
             else if (*cppText == L'\"')
@@ -391,9 +391,10 @@ namespace i18n_check
         if (std::wcsncmp(asmStart, asmCommand1.data(), asmCommand1.length()) == 0 ||
             std::wcsncmp(asmStart, asmCommand2.data(), asmCommand2.length()) == 0)
             {
-            std::advance(asmStart, (std::wcsncmp(asmStart, asmCommand1.data(), asmCommand1.length()) == 0) ?
-                            asmCommand1.length() :
-                            asmCommand2.length());
+            std::advance(asmStart,
+                         (std::wcsncmp(asmStart, asmCommand1.data(), asmCommand1.length()) == 0) ?
+                             asmCommand1.length() :
+                             asmCommand2.length());
             // step over spaces between __asm and its content
             while (*asmStart != 0 && static_cast<bool>(std::iswspace(*asmStart)))
                 {
@@ -507,7 +508,7 @@ namespace i18n_check
                 }
             if (closingEndIf != nullptr)
                 {
-            auto pDiff{ closingEndIf - sectionStart };
+                auto pDiff{ closingEndIf - sectionStart };
                 return std::next(sectionStart,
                                  pDiff + static_cast<ptrdiff_t>(endifCommand.length()));
                 }
