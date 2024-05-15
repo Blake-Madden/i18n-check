@@ -705,7 +705,11 @@ namespace i18n_check
                 {
                 return std::wstring_view{};
                 }
-            for (int64_t i = str.length() - 2; i >= 0; --i)
+            if (str.length() == 1)
+                {
+                return is_valid_name_char(str[0]) ? str : std::wstring_view{};
+                }
+            for (int64_t i = str.length() - 1; i >= 0; --i)
                 {
                 if (!is_valid_name_char(str[static_cast<size_t>(i)]))
                     {

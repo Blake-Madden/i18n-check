@@ -395,7 +395,10 @@ MyWindow::MyWindow()
 {
     QLabel *senderLabel = new QLabel(tr("Name:"));
     QLabel *recipientLabel = new QLabel(tr("Name:", "recipient"));
-})";
+}
+QLabel *label = new QLabel(
+                 s("Password:"), logwid);
+)";
         cpp(code, L"");
         cpp.review_strings();
         REQUIRE(cpp.get_localizable_strings().size() == 4);
@@ -404,10 +407,11 @@ MyWindow::MyWindow()
         CHECK(cpp.get_localizable_strings()[2].m_string == L"Name:");
         CHECK(cpp.get_localizable_strings()[3].m_string == L"Name:");
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 2);
+        REQUIRE(cpp.get_internal_strings().size() == 3);
         // context portion of translate() and tr()
         CHECK(cpp.get_internal_strings()[0].m_string == L"LoginWidget");
         CHECK(cpp.get_internal_strings()[1].m_string == L"recipient");
+        CHECK(cpp.get_internal_strings()[2].m_string == L"Password:");
         CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
         }
 
