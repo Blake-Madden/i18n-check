@@ -733,9 +733,10 @@ namespace i18n_check
                 // example: #define VALUE height, #define VALUE 0x5
                 // No open parentheses after the defined value--then not a function.
                 // Just leave the end marker where it is (EOL) and gobble all of this up.
-                else if (std::wstring_view{ directiveStart,
+                else if ((end > directiveStart) &&
+                         std::wstring_view{ directiveStart,
                                             static_cast<size_t>(end - directiveStart) }
-                             .find(L'(') == std::wstring_view::npos)
+                                 .find(L'(') == std::wstring_view::npos)
                     { /*no-op*/
                     }
                 // ...or more like a #defined function, so let main parser deal with it
