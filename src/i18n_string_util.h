@@ -126,7 +126,7 @@ namespace i18n_string_util
         @returns The string, converted to a wstring.
         @warning This assumes 8-bit ASCII strings and does not perform any sort
             of charset conversion. This should only be used for very simple strings,
-            such as `what()` from a untranslated `std::exception`.*/
+            such as `what()` from an untranslated `std::exception`.*/
     [[nodiscard]]
     inline std::wstring lazy_string_to_wstring(const std::string& str)
         {

@@ -211,7 +211,7 @@ namespace i18n_check
 
         /** @brief Adds a function that loads hard-coded strings as translatable resources.
             @details This is usually functions like those found in the gettext library.
-            @param func The function to consider as an resource-loading function.*/
+            @param func The function to consider as a resource-loading function.*/
         void add_translation_extraction_function(const std::wstring& func)
             {
             m_localization_functions.insert(func);
@@ -647,7 +647,7 @@ namespace i18n_check
         /** @brief Processes a quote after its positions and respective
                 function/variable assignment has been found.
             @param[in,out] currentTextPos The current position into the text buffer.\n
-                This position (up to @c quoteEnd) will be filled with spaces after the
+                This position (up to @c quoteEnd) will be filled with spaces after
                 this section is processed.
             @param quoteEnd The end of the quote.
             @param functionVarNamePos The position in the buffer of the quote's
