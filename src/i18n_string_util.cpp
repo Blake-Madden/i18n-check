@@ -94,15 +94,9 @@ namespace i18n_string_util
         {
         constexpr size_t fileAddressMinLength{ 5 };
         constexpr size_t basicFileExtMinLength{ 3 };
-        if (text.length() < fileAddressMinLength)
-            {
-            return false;
-            }
-        // protocols
-        if (is_url(text))
-            {
-            return true;
-            }
+
+        // Basic network and drive letter checks
+
         // UNC path
         if (text.length() >= basicFileExtMinLength && text[0] == L'\\' && text[1] == L'\\')
             {
@@ -111,6 +105,17 @@ namespace i18n_string_util
         // Windows file path
         if (text.length() >= basicFileExtMinLength && static_cast<bool>(std::iswalpha(text[0])) &&
             text[1] == L':' && (text[2] == L'\\' || text[2] == L'/'))
+            {
+            return true;
+            }
+
+        // start looking at longer paths
+        if (text.length() < fileAddressMinLength)
+            {
+            return false;
+            }
+        // protocols
+        if (is_url(text))
             {
             return true;
             }
