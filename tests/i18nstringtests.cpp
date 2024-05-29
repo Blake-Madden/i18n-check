@@ -55,6 +55,7 @@ TEST_CASE("i18n string util", "[i18nstringutil]")
     SECTION("Windows Paths")
         {
         CHECK(is_file_address(L"C:\\users") );
+        CHECK(is_file_address(L"C:\\") );
         CHECK(is_file_address(L"C:/users") ); // wrong path separator should still work
         CHECK(is_file_address(L"D:\\users") );
         CHECK_FALSE(is_file_address(L"7:\\users")); // not a real drive letter

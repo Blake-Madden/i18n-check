@@ -175,7 +175,7 @@ namespace i18n_check
             { L"wxStrtol", L"Use wxString::ToLong() instead." },
             { L"wxW64", L"This macro is obsolete; remove it." },
             { L"__WXFUNCTION__",
-              L"Use __func__ (or std::source_location::function_name with C++20) instead." },
+              L"Use __func__ or __WXFUNCTION_SIG__ instead." },
             { L"wxTrace", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
                           L"functions instead." },
             { L"WXTRACE", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
