@@ -18,13 +18,6 @@
 #include <numeric>
 #include <sstream>
 
-// "Don't use std::move on constant variables." false positive in MSVC
-// is issued from structured binding assignment.
-#ifdef _MSC_VER
-#   pragma warning(push)
-#   pragma warning(disable : 26478)
-#endif
-
 namespace fs = std::filesystem;
 using namespace i18n_check;
 using namespace string_util;
@@ -135,26 +128,26 @@ int main(int argc, char* argv[])
         ("input", "The folder (or file) to analyze",
          cxxopts::value<std::string>())
         ("enable",
-        "Which checks to perform (any combination of: "
-        "allI18N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
-        "rlInL10NString, notL10NAvailable, printfMismatch,"
-        "deprecatedMacro, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
-        "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue,"
-        "trailingSpaces, tabs, wideLine, commentMissingSpace)",
+         "Which checks to perform (any combination of: "
+         "allI18N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
+         "rlInL10NString, notL10NAvailable, printfMismatch,"
+         "deprecatedMacro, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
+         "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue,"
+         "trailingSpaces, tabs, wideLine, commentMissingSpace)",
          cxxopts::value<std::vector<std::string>>())
         ("disable", "Which checks to not perform (same as the options for --enable)",
          cxxopts::value<std::vector<std::string>>())
         ("log-l10n-allowed", "Whether it is acceptable to pass translatable "
                             "strings to logging functions. (Default is true.)")
         ("punct-l10n-allowed",
-        "Whether it is acceptable for punctuation only "
-        "strings to be translatable. (Default is false.)",
+         "Whether it is acceptable for punctuation only "
+         "strings to be translatable. (Default is false.)",
          cxxopts::value<bool>()->default_value("false"))
         ("exceptions-l10n-required",
          "Whether to verify that exception messages are available for translation.")
         ("min-l10n-wordcount",
-        "The minimum number of words that a string must have to be reviewed for whether it should "
-        "be translatable.",
+         "The minimum number of words that a string must have to be reviewed for whether it should "
+         "be translatable.",
          cxxopts::value<int>())
         ("i,ignore", "Folders and files to ignore (can be used multiple times)",
                                cxxopts::value<std::vector<std::string>>())
@@ -163,7 +156,7 @@ int main(int argc, char* argv[])
         ("q,quiet", "Only print errors and the final output",
          cxxopts::value<bool>()->default_value("false"))
         ("v,verbose", "Display debug information",
-        cxxopts::value<bool>()->default_value("false"))("h,help", "Print usage");
+         cxxopts::value<bool>()->default_value("false"))("h,help", "Print usage");
     // clang-format on
     options.positional_help("inputFolder");
     options.show_positional_help();
@@ -892,7 +885,7 @@ int main(int argc, char* argv[])
                 {
                 report << catEntry.first << L"\t\t\t" << issue.second
                        << L"\tMismatching printf command between source and translation strings."
-                           "\t[printfMismatch]\n";
+                          "\t[printfMismatch]\n";
                 }
             }
         }
@@ -993,7 +986,3 @@ int main(int argc, char* argv[])
 
     return 0;
     }
-
-#ifdef _MSC_VER
-#   pragma warning(pop)
-#endif
