@@ -233,7 +233,7 @@ namespace i18n_check
         /** @brief Main interface for extracting resource text from C++ source code.
             @param file_text The text to review.
             @param file_name The (optional) name of source file being analyzed.*/
-        virtual void operator()(const std::wstring_view file_text,
+        virtual void operator()(std::wstring_view file_text,
                                 const std::wstring& file_name = L"") = 0;
 
         /// @brief Finalizes the review process after all files have been loaded.

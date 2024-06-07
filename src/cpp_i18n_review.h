@@ -30,7 +30,7 @@ namespace i18n_check
         /** @brief Main interface for extracting resource text from C++ source code.
             @param srcText The C++ code text to extract text from.
             @param fileName The (optional) name of source file being analyzed.*/
-        void operator()(const std::wstring_view srcText, const std::wstring& fileName) final;
+        void operator()(std::wstring_view srcText, const std::wstring& fileName) final;
 
       private:
 #ifdef __UNITTEST

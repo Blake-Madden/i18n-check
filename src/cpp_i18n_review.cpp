@@ -11,7 +11,7 @@
 namespace i18n_check
     {
     //--------------------------------------------------
-    void cpp_i18n_review::operator()(const std::wstring_view srcText, const std::wstring& fileName)
+    void cpp_i18n_review::operator()(std::wstring_view srcText, const std::wstring& fileName)
         {
         m_file_name = fileName;
         m_file_start = nullptr;
