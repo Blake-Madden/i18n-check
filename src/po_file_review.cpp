@@ -148,58 +148,66 @@ namespace i18n_check
             {
             if (catEntry.second.m_po_format == po_format_string::ccpp_format)
                 {
-                printfStrings1.clear();
-                printfStrings2.clear();
-                std::copy(
-                    std::regex_token_iterator<decltype(catEntry.second.m_source)::const_iterator>(
-                        catEntry.second.m_source.cbegin(), catEntry.second.m_source.cend(),
-                        m_printfCppRE),
-                    std::regex_token_iterator<decltype(catEntry.second.m_source)::const_iterator>{},
-                    std::back_inserter(printfStrings1));
-                std::copy(std::regex_token_iterator<
-                              decltype(catEntry.second.m_translation)::const_iterator>(
-                              catEntry.second.m_translation.cbegin(),
-                              catEntry.second.m_translation.cend(), m_printfCppRE),
-                          std::regex_token_iterator<
-                              decltype(catEntry.second.m_translation)::const_iterator>{},
-                          std::back_inserter(printfStrings2));
-
-                if (printfStrings1.size() || printfStrings2.size())
+                // only look at strings that have a translation
+                if (!catEntry.second.m_translation.empty())
                     {
-                    if (printfStrings1 != printfStrings2)
+                    printfStrings1.clear();
+                    printfStrings2.clear();
+                    std::copy(std::regex_token_iterator<
+                                  decltype(catEntry.second.m_source)::const_iterator>(
+                                  catEntry.second.m_source.cbegin(),
+                                  catEntry.second.m_source.cend(), m_printfCppRE),
+                              std::regex_token_iterator<
+                                  decltype(catEntry.second.m_source)::const_iterator>{},
+                              std::back_inserter(printfStrings1));
+                    std::copy(std::regex_token_iterator<
+                                  decltype(catEntry.second.m_translation)::const_iterator>(
+                                  catEntry.second.m_translation.cbegin(),
+                                  catEntry.second.m_translation.cend(), m_printfCppRE),
+                              std::regex_token_iterator<
+                                  decltype(catEntry.second.m_translation)::const_iterator>{},
+                              std::back_inserter(printfStrings2));
+
+                    if (printfStrings1.size() || printfStrings2.size())
                         {
-                        catEntry.second.m_issues.emplace_back(
-                            translation_issue::printf_issue,
-                            L"\"" + catEntry.second.m_source + L"\" vs. '" +
-                                catEntry.second.m_translation + L"\"");
+                        if (printfStrings1 != printfStrings2)
+                            {
+                            catEntry.second.m_issues.emplace_back(
+                                translation_issue::printf_issue,
+                                L"\"" + catEntry.second.m_source + L"\" vs. \"" +
+                                    catEntry.second.m_translation + L"\"");
+                            }
                         }
                     }
 
-                printfStrings1.clear();
-                printfStrings2.clear();
-                std::copy(std::regex_token_iterator<
-                              decltype(catEntry.second.m_source_plural)::const_iterator>(
-                              catEntry.second.m_source_plural.cbegin(),
-                              catEntry.second.m_source_plural.cend(), m_printfCppRE),
-                          std::regex_token_iterator<
-                              decltype(catEntry.second.m_source_plural)::const_iterator>{},
-                          std::back_inserter(printfStrings1));
-                std::copy(std::regex_token_iterator<
-                              decltype(catEntry.second.m_translation_plural)::const_iterator>(
-                              catEntry.second.m_translation_plural.cbegin(),
-                              catEntry.second.m_translation_plural.cend(), m_printfCppRE),
-                          std::regex_token_iterator<
-                              decltype(catEntry.second.m_translation_plural)::const_iterator>{},
-                          std::back_inserter(printfStrings2));
-
-                if (printfStrings1.size() || printfStrings2.size())
+                if (!catEntry.second.m_translation_plural.empty())
                     {
-                    if (printfStrings1 != printfStrings2)
+                    printfStrings1.clear();
+                    printfStrings2.clear();
+                    std::copy(std::regex_token_iterator<
+                                  decltype(catEntry.second.m_source_plural)::const_iterator>(
+                                  catEntry.second.m_source_plural.cbegin(),
+                                  catEntry.second.m_source_plural.cend(), m_printfCppRE),
+                              std::regex_token_iterator<
+                                  decltype(catEntry.second.m_source_plural)::const_iterator>{},
+                              std::back_inserter(printfStrings1));
+                    std::copy(std::regex_token_iterator<
+                                  decltype(catEntry.second.m_translation_plural)::const_iterator>(
+                                  catEntry.second.m_translation_plural.cbegin(),
+                                  catEntry.second.m_translation_plural.cend(), m_printfCppRE),
+                              std::regex_token_iterator<
+                                  decltype(catEntry.second.m_translation_plural)::const_iterator>{},
+                              std::back_inserter(printfStrings2));
+
+                    if (printfStrings1.size() || printfStrings2.size())
                         {
-                        catEntry.second.m_issues.emplace_back(
-                            translation_issue::printf_issue,
-                            L"\"" + catEntry.second.m_source_plural + L"\" vs. '" +
-                                catEntry.second.m_translation_plural + L"\"");
+                        if (printfStrings1 != printfStrings2)
+                            {
+                            catEntry.second.m_issues.emplace_back(
+                                translation_issue::printf_issue,
+                                L"\"" + catEntry.second.m_source_plural + L"\" vs. \"" +
+                                    catEntry.second.m_translation_plural + L"\"");
+                            }
                         }
                     }
                 }
