@@ -14,4 +14,4 @@ jobs:
 
       - name: run doxygen
         run: |
-             doxygen Doxyfile
+             doxygen docs/Doxyfile
