@@ -29,6 +29,8 @@ Internationalization & localization analysis system for C++ code.
   It is recommended to save without the file signature for best compiler portability.
 - `printf()`-like functions being used to just format an integer to a string.<br />
   It is recommended to use `std::to_string()` to do this instead.
+- `printf()` command mismatches between source and translation strings.<br />
+  (PO catalogs with C/C++ strings are currently supported.)
 - ID variable² assignment issues:
   - The same value being assigned to different ID variables in the same source file
     (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
@@ -89,13 +91,14 @@ Refer [here](Example.md) for example usage.
   allI18N:             Perform all i18n checks (the default).
                        This does not include code formatting checks.
   suspectL10NString:   Check for translatable strings that shouldn't be
-                       (e.g., numbers, keywords, printf commands).
+                       (e.g., numbers, keywords, printf() commands).
   suspectL10NUsage:    Check for translatable strings being used in internal contexts
                        (e.g., debugging functions).
   urlInL10NString:     Check for translatable strings that contain URLs or email addresses.
                        It is recommended to dynamically format these into the string so that
                        translators don't have to manage them.
   notL10NAvailable:    Check for strings not exposed for translation.
+  printfMismatch:      Check for mismatching printf() commands between source and translation strings.
   deprecatedMacro:     Check for deprecated text macros (e.g., wxT()).
   nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
   UTF8FileWithBOM:     Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.

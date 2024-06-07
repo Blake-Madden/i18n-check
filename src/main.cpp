@@ -9,6 +9,7 @@
 #include "cpp_i18n_review.h"
 #include "cxxopts/include/cxxopts.hpp"
 #include "rc_file_review.h"
+#include "po_file_review.h"
 #include "unicode_extract_text.h"
 #include "utfcpp/source/utf8.h"
 #include <filesystem>
@@ -135,7 +136,7 @@ int main(int argc, char* argv[])
         "enable",
         "Which checks to perform (any combination of: "
         "allI18N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
-        "rlInL10NString, notL10NAvailable, "
+        "rlInL10NString, notL10NAvailable, printfMismatch,"
         "deprecatedMacro, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
         "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue,"
         "trailingSpaces, tabs, wideLine, commentMissingSpace)",
@@ -329,7 +330,7 @@ int main(int argc, char* argv[])
             if (p.exists() && p.is_regular_file() && !inExcludedPath &&
                 (ext.compare(fs::path(L".rc")) == 0 || ext.compare(fs::path(L".c")) == 0 ||
                  ext.compare(fs::path(L".cpp")) == 0 || ext.compare(fs::path(L".h")) == 0 ||
-                 ext.compare(fs::path(L".hpp")) == 0))
+                 ext.compare(fs::path(L".hpp")) == 0 || ext.compare(fs::path(L".po")) == 0))
                 {
                 filesToAnalyze.push_back(p.path().string());
                 }
@@ -346,6 +347,9 @@ int main(int argc, char* argv[])
     i18n_check::rc_file_review rc;
     rc.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
     rc.reserve(filesToAnalyze.size());
+
+    i18n_check::po_file_review po;
+    po.reserve(filesToAnalyze.size());
 
     // see which checks are being performed
     if (result.count("enable"))
@@ -369,6 +373,10 @@ int main(int argc, char* argv[])
             else if (r == "suspectL10NUsage")
                 {
                 rs |= review_style::check_suspect_l10n_string_usage;
+                }
+            else if (r == "printfMismatch")
+                {
+                rs |= review_style::check_mismatching_printf_commands;
                 }
             else if (r == "urlInL10NString")
                 {
@@ -463,6 +471,10 @@ int main(int argc, char* argv[])
                 {
                 rs = rs & ~review_style::check_suspect_l10n_string_usage;
                 }
+            else if (r == "printfMismatch")
+                {
+                rs = rs & ~review_style::check_mismatching_printf_commands;
+                }
             else if (r == "urlInL10NString")
                 {
                 rs = rs & ~review_style::check_l10n_contains_url;
@@ -552,6 +564,10 @@ int main(int argc, char* argv[])
                 {
                 return file_review_type::rc;
                 }
+            else if (ext.compare(fs::path(L".po")) == 0)
+                {
+                return file_review_type::po;
+                }
             else
                 {
                 return file_review_type::cpp;
@@ -572,6 +588,10 @@ int main(int argc, char* argv[])
                     {
                     rc(fileUtf8Text, fs::path(file).wstring());
                     }
+                else if (fileType == file_review_type::po)
+                    {
+                    po(fileUtf8Text, fs::path(file).wstring());
+                    }
                 else
                     {
                     cpp(fileUtf8Text, fs::path(file).wstring());
@@ -587,6 +607,10 @@ int main(int argc, char* argv[])
                 if (fileType == file_review_type::rc)
                     {
                     rc(fileUtf16Text, fs::path(file).wstring());
+                    }
+                else if (fileType == file_review_type::po)
+                    {
+                    po(fileUtf16Text, fs::path(file).wstring());
                     }
                 else
                     {
@@ -605,6 +629,10 @@ int main(int argc, char* argv[])
                 if (fileType == file_review_type::rc)
                     {
                     rc(str, fs::path(file).wstring());
+                    }
+                else if (fileType == file_review_type::po)
+                    {
+                    po(str, fs::path(file).wstring());
                     }
                 else
                     {
@@ -850,6 +878,19 @@ int main(int argc, char* argv[])
                << L"\t[commentMissingSpace]\n";
         }
 
+    for (const auto& catEntry : po.get_catalog_entries())
+        {
+        for (const auto& issue : catEntry.second.m_issues)
+            {
+            if (issue.first == translation_issue::printf_issue)
+                {
+                report << catEntry.first << L"\t\t\t" << issue.second
+                       << L"\tMismatching printf command between source and translation strings."
+                           "\t[printfMismatch]\n";
+                }
+            }
+        }
+
     if (readBoolOption("verbose", false))
         {
         for (const auto& parseErr : cpp.get_error_log())
@@ -917,6 +958,7 @@ int main(int argc, char* argv[])
             << L"Checks Performed" << L"\n###################################################\n"
             << ((cpp.get_style() & check_l10n_strings) ? L"suspectL10NString\n" : L"")
             << ((cpp.get_style() & check_suspect_l10n_string_usage) ? L"suspectL10NUsage\n" : L"")
+            << ((cpp.get_style() & check_mismatching_printf_commands) ? L"printfMismatch\n" : L"")
             << ((cpp.get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
             << ((cpp.get_style() & check_not_available_for_l10n) ? L"notL10NAvailable\n" : L"")
             << ((cpp.get_style() & check_deprecated_macros) ? L"deprecatedMacro\n" : L"")

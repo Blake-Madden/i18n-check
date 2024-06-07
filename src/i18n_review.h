@@ -77,12 +77,16 @@ namespace i18n_check
         /// @brief Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
         ///     or using unusual font sizes).
         check_fonts = (1 << 12),
+        /// @brief Check for mismatching printf commands between source strings and their
+        ///     respective translations.
+        check_mismatching_printf_commands = (1 << 13),
         /// @brief Perform all aforementioned checks.
-        all_i18n_checks = (check_l10n_strings | check_suspect_l10n_string_usage |
-        check_not_available_for_l10n | check_deprecated_macros | check_utf8_encoded |
-        check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
-        check_number_assigned_to_id | check_duplicate_value_assigned_to_ids |
-        check_malformed_strings | check_utf8_with_signature | check_fonts),
+        all_i18n_checks =
+        (check_l10n_strings | check_suspect_l10n_string_usage | check_not_available_for_l10n |
+        check_deprecated_macros | check_utf8_encoded | check_unencoded_ext_ascii |
+        check_printf_single_number | check_l10n_contains_url | check_number_assigned_to_id |
+        check_duplicate_value_assigned_to_ids | check_malformed_strings |
+        check_utf8_with_signature | check_fonts | check_mismatching_printf_commands),
         /// @brief Check for trailing spaces at the end of each line.
         check_trailing_spaces = (1 << 20),
         /// @brief Check for tabs (spaces are recommended).
@@ -96,13 +100,21 @@ namespace i18n_check
         (check_trailing_spaces | check_tabs | check_line_width | check_space_after_comment)
         };
 
+    /// @brief Types of translation (i.e., l10n) issues.
+    enum class translation_issue
+        {
+        printf_issue
+        };
+
     /// @brief File types that can be analyzed.
     enum class file_review_type
         {
         /// @brief C/C++ files.
         cpp,
         /// @brief Microsoft Windows resource files.
-        rc
+        rc,
+        /// @brief GNU gettext catalog files.
+        po
         };
 
     /** @brief Class to extract and review localizable/nonlocalizable
@@ -130,8 +142,7 @@ namespace i18n_check
                 usage_info() = default;
 
                 /// @private
-                usage_info(const usage_type& type, std::wstring val,
-                           std::wstring varType)
+                usage_info(const usage_type& type, std::wstring val, std::wstring varType)
                     : m_type(type), m_value(std::move(val)), m_variableType(std::move(varType))
                     {
                     }
@@ -149,8 +160,8 @@ namespace i18n_check
                 @param usage What the string is being used for.
                 @param fileName The filename.
                 @param lineAndColumn The line and column number.*/
-            string_info(std::wstring str, usage_info usage,
-                        std::wstring fileName, const std::pair<size_t, size_t> lineAndColumn)
+            string_info(std::wstring str, usage_info usage, std::wstring fileName,
+                        const std::pair<size_t, size_t> lineAndColumn)
                 : m_string(std::move(str)), m_usage(std::move(usage)),
                   m_file_name(std::move(fileName)), m_line(lineAndColumn.first),
                   m_column(lineAndColumn.second)
@@ -179,12 +190,11 @@ namespace i18n_check
                 @param positionInFile The line and column position in the file.
                 @param str The string resource.
                 @param message Diagnostic message.*/
-            parse_messages(std::wstring filename,
-                           const std::pair<size_t, size_t> positionInFile, std::wstring str,
-                           std::wstring message)
+            parse_messages(std::wstring filename, const std::pair<size_t, size_t> positionInFile,
+                           std::wstring str, std::wstring message)
                 : m_file_name(std::move(filename)), m_resourceString(std::move(str)),
-                  m_message(std::move(message)),
-                  m_line(positionInFile.first), m_column(positionInFile.second)
+                  m_message(std::move(message)), m_line(positionInFile.first),
+                  m_column(positionInFile.second)
                 {
                 }
 
@@ -976,6 +986,9 @@ namespace i18n_check
         };
         std::wregex m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
         std::wregex m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
+        std::wregex m_printfCppRE{
+            LR"(([%]([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([+]|[-] #)?(l|L)?(f|F)|%s|%p|%%))"
+        };
         std::vector<std::wregex> m_untranslatable_regexes;
 
         // helpers
