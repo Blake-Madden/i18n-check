@@ -31,3 +31,4 @@ AlwaysBreakTemplateDeclarations: Yes
 SpaceAfterTemplateKeyword: false
 AlignAfterOpenBracket: Align
 InsertBraces: true
+IndentPPDirectives: BeforeHash
