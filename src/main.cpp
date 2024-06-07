@@ -981,7 +981,9 @@ int main(int argc, char* argv[])
                    << L"Strings available for translation within C/C++ source files: "
                    << cpp.get_localizable_strings().size() << L"\n"
                    << L"String table entries within Windows resource files: "
-                   << rc.get_localizable_strings().size() << L"\n";
+                   << rc.get_localizable_strings().size() << L"\n"
+                   << L"Entries within PO translation catalog files: "
+                   << po.get_catalog_entries().size() << L"\n";
         }
 
     return 0;
