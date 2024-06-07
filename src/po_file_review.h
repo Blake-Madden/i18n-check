@@ -25,8 +25,11 @@ namespace i18n_check
     /// @details This determines which type of syntax is expected.
     enum class po_format_string
         {
+        /// @brief This string is not meant for `printf()`-like functions.
         no_format,
+        /// @brief C/C++ style `printf()`.
         ccpp_format,
+        /// @brief Objective-C.
         objc_format
         };
 
