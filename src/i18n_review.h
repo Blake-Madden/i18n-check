@@ -130,9 +130,9 @@ namespace i18n_check
                 usage_info() = default;
 
                 /// @private
-                usage_info(const usage_type& type, const std::wstring& val,
-                           const std::wstring& varType)
-                    : m_type(type), m_value(val), m_variableType(varType)
+                usage_info(const usage_type& type, std::wstring val,
+                           std::wstring varType)
+                    : m_type(type), m_value(std::move(val)), m_variableType(std::move(varType))
                     {
                     }
 
@@ -149,9 +149,10 @@ namespace i18n_check
                 @param usage What the string is being used for.
                 @param fileName The filename.
                 @param lineAndColumn The line and column number.*/
-            string_info(const std::wstring& str, const usage_info& usage,
-                        const std::wstring& fileName, const std::pair<size_t, size_t> lineAndColumn)
-                : m_string(str), m_usage(usage), m_file_name(fileName), m_line(lineAndColumn.first),
+            string_info(std::wstring str, usage_info usage,
+                        std::wstring fileName, const std::pair<size_t, size_t> lineAndColumn)
+                : m_string(std::move(str)), m_usage(std::move(usage)),
+                  m_file_name(std::move(fileName)), m_line(lineAndColumn.first),
                   m_column(lineAndColumn.second)
                 {
                 }
@@ -178,10 +179,11 @@ namespace i18n_check
                 @param positionInFile The line and column position in the file.
                 @param str The string resource.
                 @param message Diagnostic message.*/
-            parse_messages(const std::wstring& filename,
-                           const std::pair<size_t, size_t> positionInFile, const std::wstring& str,
-                           const std::wstring& message)
-                : m_file_name(filename), m_resourceString(str), m_message(message),
+            parse_messages(std::wstring filename,
+                           const std::pair<size_t, size_t> positionInFile, std::wstring str,
+                           std::wstring message)
+                : m_file_name(std::move(filename)), m_resourceString(std::move(str)),
+                  m_message(std::move(message)),
                   m_line(positionInFile.first), m_column(positionInFile.second)
                 {
                 }
