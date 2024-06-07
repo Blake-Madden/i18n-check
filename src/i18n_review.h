@@ -991,7 +991,7 @@ namespace i18n_check
         std::wregex m_printf_cpp_regex{
             // first capture group ensures that printf command is not proceeded by a negating '&'
             // second capture group is the acutal printf command
-            LR"((^|[^%])([%]([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([+]|[-] #)?(l|L)?(f|F)|%s|%p))"
+            LR"((^|[^%])([%]([[:digit:]]+$)?([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([[:digit:]]+$)?([+]|[-] #)?(l|L)?(f|F)|%([[:digit:]]+$)?s|%([[:digit:]]+$)?p))"
         };
         std::vector<std::wregex> m_untranslatable_regexes;
 
