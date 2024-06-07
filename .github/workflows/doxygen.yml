@@ -14,5 +14,5 @@ jobs:
 
       - name: run doxygen
         run: |
-             cp i18n.svg docs/i18n.svg
+             cp i18n.svg ../i18n.svg
              doxygen docs/Doxyfile
