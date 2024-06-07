@@ -723,7 +723,7 @@ namespace i18n_check
                 {
                 return is_valid_name_char(str[0]) ? str : std::wstring_view{};
                 }
-            for (int64_t i = str.length() - 1; i >= 0; --i)
+            for (int64_t i = static_cast<int64_t>(str.length() - 1); i >= 0; --i)
                 {
                 if (!is_valid_name_char(str[static_cast<size_t>(i)]))
                     {
