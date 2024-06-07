@@ -333,7 +333,9 @@ namespace i18n_check
 
             if (m_reviewStyles & check_printf_single_number)
                 {
-                std::wregex intPrintf{ LR"([%]([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|l|I|I32|I64))" };
+                std::wregex intPrintf{
+                    LR"([%]([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64))"
+                };
                 std::wregex floatPrintf{ LR"([%]([+]|[-] #)?(l|L)?(f|F))" };
                 const auto& classifyPrintfIntStrings = [&, this](const auto& strings)
                 {
