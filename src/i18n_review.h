@@ -989,7 +989,9 @@ namespace i18n_check
         std::wregex m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
         std::wregex m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
         std::wregex m_printfCppRE{
-            LR"(([%]([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([+]|[-] #)?(l|L)?(f|F)|%s|%p))"
+            // first capture group ensures that printf command is not proceeded by a negating '&'
+            // second capture group is the acutal printf command
+            LR"((^|[^%])([%]([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([+]|[-] #)?(l|L)?(f|F)|%s|%p))"
         };
         std::vector<std::wregex> m_untranslatable_regexes;
 
