@@ -56,7 +56,7 @@ enum class DTExplanation
 
         This is useful for explicitly stating that a string is not meant for localization.
 
-        In essence, this is the opposite of the `_()` macro from the **GETTEXT** library
+        In essence, this is the opposite of the `_()` macro from the GNU *gettext* library
         that marks a string as translatable.
     @param str The string.
     @param explanation An optional type of explanation for why this string should not

@@ -30,7 +30,7 @@ namespace i18n_check
         objc_format
         };
 
-    /// @bried An entry in a PO file, which contains source and translation strings,
+    /// @brief An entry in a PO file, which contains source and translation strings,
     ///     printf syntax that they use, and any encountered issues.
     struct po_catalog_entry
         {
