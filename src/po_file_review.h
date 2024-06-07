@@ -65,6 +65,15 @@ namespace i18n_check
             return m_catalog_entries;
             }
 
+        /// @brief Reviews the loaded PO content for issues.
+        void review_strings() final
+            {
+            if (static_cast<bool>(m_reviewStyles & check_mismatching_printf_commands))
+                {
+                review_prinf_issues();
+                }
+            }
+
       private:
         std::pair<bool, std::wstring_view> read_catalog_entry(std::wstring_view& poFileText);
         std::pair<bool, std::wstring> read_msg(std::wstring_view& poFileText,

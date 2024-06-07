@@ -57,11 +57,6 @@ namespace i18n_check
                                             msgStr.empty() ? std::move(msg0Str) : std::move(msgStr),
                                             std::move(msg1Str), pofs }));
             }
-
-        if (static_cast<bool>(m_reviewStyles & check_mismatching_printf_commands))
-            {
-            review_prinf_issues();
-            }
         }
 
     //------------------------------------------------
@@ -156,14 +151,14 @@ namespace i18n_check
                     std::copy(std::regex_token_iterator<
                                   decltype(catEntry.second.m_source)::const_iterator>(
                                   catEntry.second.m_source.cbegin(),
-                                  catEntry.second.m_source.cend(), m_printfCppRE, 2),
+                                  catEntry.second.m_source.cend(), m_printf_cpp_regex, 2),
                               std::regex_token_iterator<
                                   decltype(catEntry.second.m_source)::const_iterator>{},
                               std::back_inserter(printfStrings1));
                     std::copy(std::regex_token_iterator<
                                   decltype(catEntry.second.m_translation)::const_iterator>(
                                   catEntry.second.m_translation.cbegin(),
-                                  catEntry.second.m_translation.cend(), m_printfCppRE, 2),
+                                  catEntry.second.m_translation.cend(), m_printf_cpp_regex, 2),
                               std::regex_token_iterator<
                                   decltype(catEntry.second.m_translation)::const_iterator>{},
                               std::back_inserter(printfStrings2));
@@ -187,14 +182,15 @@ namespace i18n_check
                     std::copy(std::regex_token_iterator<
                                   decltype(catEntry.second.m_source_plural)::const_iterator>(
                                   catEntry.second.m_source_plural.cbegin(),
-                                  catEntry.second.m_source_plural.cend(), m_printfCppRE, 2),
+                                  catEntry.second.m_source_plural.cend(), m_printf_cpp_regex, 2),
                               std::regex_token_iterator<
                                   decltype(catEntry.second.m_source_plural)::const_iterator>{},
                               std::back_inserter(printfStrings1));
                     std::copy(std::regex_token_iterator<
                                   decltype(catEntry.second.m_translation_plural)::const_iterator>(
                                   catEntry.second.m_translation_plural.cbegin(),
-                                  catEntry.second.m_translation_plural.cend(), m_printfCppRE, 2),
+                                  catEntry.second.m_translation_plural.cend(), m_printf_cpp_regex,
+                                  2),
                               std::regex_token_iterator<
                                   decltype(catEntry.second.m_translation_plural)::const_iterator>{},
                               std::back_inserter(printfStrings2));

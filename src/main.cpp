@@ -446,6 +446,7 @@ int main(int argc, char* argv[])
                 }
             }
         cpp.set_style(static_cast<i18n_check::review_style>(rs));
+        po.set_style(static_cast<i18n_check::review_style>(rs));
         }
     // ...and if any checks are being excluded
     if (result.count("disable"))
@@ -650,6 +651,7 @@ int main(int argc, char* argv[])
         std::wcout << L"Reviewing strings...\n";
         }
     cpp.review_strings();
+    po.review_strings();
 
     /* Note: yes, I am aware of the irony of i18n bad practices here :)
        Normally, you shouldn't piece strings together, should make them available for translation,
@@ -982,7 +984,7 @@ int main(int argc, char* argv[])
                    << cpp.get_localizable_strings().size() << L"\n"
                    << L"String table entries within Windows resource files: "
                    << rc.get_localizable_strings().size() << L"\n"
-                   << L"Entries within PO translation catalog files: "
+                   << L"Translation entries within PO message catalog files: "
                    << po.get_catalog_entries().size() << L"\n";
         }
 
