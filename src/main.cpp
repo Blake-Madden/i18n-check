@@ -8,8 +8,8 @@
 
 #include "cpp_i18n_review.h"
 #include "cxxopts/include/cxxopts.hpp"
-#include "rc_file_review.h"
 #include "po_file_review.h"
+#include "rc_file_review.h"
 #include "unicode_extract_text.h"
 #include "utfcpp/source/utf8.h"
 #include <filesystem>
@@ -128,40 +128,45 @@ static std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name
 //-------------------------------------------------
 int main(int argc, char* argv[])
     {
-    cxxopts::Options options(
-        "i18n-check 0.2",
-        "Internationalization/localization analysis system, (c) 2021-2024 Blake Madden");
-    options.add_options()("input", "The folder (or file) to analyze",
-                          cxxopts::value<std::string>())(
-        "enable",
+    cxxopts::Options options("i18n-check", "i18n-check: Internationalization/localization analysis "
+                                           "system, (c) 2021-2024 Blake Madden");
+    // clang-format off
+    options.add_options()
+        ("input", "The folder (or file) to analyze",
+         cxxopts::value<std::string>())
+        ("enable",
         "Which checks to perform (any combination of: "
         "allI18N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
         "rlInL10NString, notL10NAvailable, printfMismatch,"
         "deprecatedMacro, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
         "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue,"
         "trailingSpaces, tabs, wideLine, commentMissingSpace)",
-        cxxopts::value<std::vector<std::string>>())(
-        "disable", "Which checks to not perform (same as the options for --enable)",
-        cxxopts::value<std::vector<std::string>>())(
-        "log-l10n-allowed", "Whether it is acceptable to pass translatable "
-                            "strings to logging functions. (Default is true.)")(
-        "punct-l10n-allowed",
+         cxxopts::value<std::vector<std::string>>())
+        ("disable", "Which checks to not perform (same as the options for --enable)",
+         cxxopts::value<std::vector<std::string>>())
+        ("log-l10n-allowed", "Whether it is acceptable to pass translatable "
+                            "strings to logging functions. (Default is true.)")
+        ("punct-l10n-allowed",
         "Whether it is acceptable for punctuation only "
         "strings to be translatable. (Default is false.)",
-        cxxopts::value<bool>()->default_value("false"))(
-        "exceptions-l10n-required",
-        "Whether to verify that exception messages are available for translation.")(
-        "min-l10n-wordcount",
+         cxxopts::value<bool>()->default_value("false"))
+        ("exceptions-l10n-required",
+         "Whether to verify that exception messages are available for translation.")
+        ("min-l10n-wordcount",
         "The minimum number of words that a string must have to be reviewed for whether it should "
         "be translatable.",
-        cxxopts::value<int>())("i,ignore",
-                               "Folders and files to ignore (can be used multiple times)",
-                               cxxopts::value<std::vector<std::string>>())(
-        "o,output", "The output report path",
-        cxxopts::value<std::string>())("q,quiet", "Only print errors and the final output",
-                                       cxxopts::value<bool>()->default_value("false"))(
-        "v,verbose", "Display debug information",
+         cxxopts::value<int>())
+        ("i,ignore", "Folders and files to ignore (can be used multiple times)",
+                               cxxopts::value<std::vector<std::string>>())
+        ("o,output", "The output report path (tab-delimited format)",
+         cxxopts::value<std::string>())
+        ("q,quiet", "Only print errors and the final output",
+         cxxopts::value<bool>()->default_value("false"))
+        ("v,verbose", "Display debug information",
         cxxopts::value<bool>()->default_value("false"))("h,help", "Print usage");
+    // clang-format on
+    options.positional_help("inputFolder");
+    options.show_positional_help();
 
     const auto startTime{ std::chrono::high_resolution_clock::now() };
 
@@ -221,7 +226,8 @@ int main(int argc, char* argv[])
         }
     else
         {
-        std::wcout << L"You must pass in at least one folder to analyze.";
+        std::wcout << L"You must pass in at least one folder to analyze.\n\n";
+        std::wcout << lazy_string_to_wstring(options.help()) << L"\n";
         return 0;
         }
 
