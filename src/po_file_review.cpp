@@ -53,7 +53,7 @@ namespace i18n_check
             m_catalog_entries.push_back(std::make_pair(
                 fileName, po_catalog_entry{ std::move(msgId), std::move(msgPluralId),
                                             // when there is a plural, then msgstr 0-1 is where the
-                                            // singular nd plural translations are kept
+                                            // singular and plural translations are kept
                                             msgStr.empty() ? std::move(msg0Str) : std::move(msgStr),
                                             std::move(msg1Str), pofs }));
             }
