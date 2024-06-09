@@ -192,9 +192,9 @@ namespace i18n_check
                     L"(Positional and non-positional commands mixed in the same printf string.)";
                 }
             adjustedCommands.clear();
-            for (const auto& posArg : positionalCommands)
+            for (auto& posArg : positionalCommands)
                 {
-                adjustedCommands.push_back(posArg.second);
+                adjustedCommands.push_back(std::move(posArg.second));
                 }
             }
 
