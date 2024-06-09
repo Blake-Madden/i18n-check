@@ -28,13 +28,20 @@ namespace i18n_check
         /// @brief This string is not meant for `printf()`-like functions.
         no_format,
         /// @brief C/C++ style `printf()`.
-        ccpp_format,
+        cpp_format,
         /// @brief Objective-C.
         objc_format
         };
 
     /// @brief An entry in a PO file, which contains source and translation strings,
     ///     printf syntax that they use, and any encountered issues.
+    /// @details `printf` syntax:
+    ///
+    /// https://en.cppreference.com/w/c/io/fprintf
+    ///
+    /// `printf` positional arguments:
+    ///
+    /// https://learn.microsoft.com/en-us/cpp/c-runtime-library/printf-p-positional-parameters?view=msvc-170
     struct po_catalog_entry
         {
         /// @brief The main source string.
@@ -83,6 +90,11 @@ namespace i18n_check
                                                const std::wstring_view msgTag);
 
         void review_prinf_issues();
+
+        [[nodiscard]]
+        std::vector<std::wstring>
+        convert_positional_cpp_printf(const std::vector<std::wstring>& printfCommands,
+                                      std::wstring& errorInfo);
 
         std::vector<std::pair<std::wstring, po_catalog_entry>> m_catalog_entries;
         };

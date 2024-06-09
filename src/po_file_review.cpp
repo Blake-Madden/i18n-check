@@ -35,7 +35,7 @@ namespace i18n_check
             if (entry.find(CFORMAT) != std::wstring::npos ||
                 entry.find(CPPFORMAT) != std::wstring::npos)
                 {
-                pofs = po_format_string::ccpp_format;
+                pofs = po_format_string::cpp_format;
                 }
 
             // read section from catalog entry
@@ -138,12 +138,77 @@ namespace i18n_check
         }
 
     //------------------------------------------------
+    std::vector<std::wstring>
+    po_file_review::convert_positional_cpp_printf(const std::vector<std::wstring>& printfCommands,
+                                                  std::wstring& errorInfo)
+        {
+        errorInfo.clear();
+
+        const std::wregex positionalRegex{ L"^%([[:digit:]]+)[$](.*)" };
+
+        std::map<long, std::wstring> positionalCommands;
+        std::vector<std::wstring> adjustedCommands{ printfCommands };
+
+        size_t nonPositionalCommands{ 0 };
+        for (const auto& pc : printfCommands)
+            {
+            std::match_results<std::wstring::const_iterator> matches;
+            if (std::regex_search(pc, matches, positionalRegex))
+                {
+                if (matches.size() >= 3)
+                    {
+                    // position will need to be zero-indexed
+                    long position = std::wcstol(matches[1].str().c_str(), nullptr, 10) - 1;
+                    const auto [insertionPos, inserted] = positionalCommands.insert(
+                        std::make_pair(position, L"%" + matches[2].str()));
+                    // if positional argument is used more than once, make sure they are consistent
+                    if (!inserted)
+                        {
+                        if (insertionPos->second != L"%" + matches[2].str())
+                            {
+                            errorInfo = L"('" + matches[0].str() +
+                                        L"': positional argument provided more than once, but with "
+                                        "different data types.)";
+                            return std::vector<std::wstring>{};
+                            }
+                        }
+                    };
+                }
+            else
+                {
+                ++nonPositionalCommands;
+                }
+            }
+
+        // Fill output commands from positional arguments.
+        // Note that you cannot mix positional and non-positional arguments
+        // in the same printf string. If that is happening here, then the
+        // non-positional ones will be thrown out and be recorded as an error later.
+        if (positionalCommands.size())
+            {
+            if (nonPositionalCommands > 0)
+                {
+                errorInfo =
+                    L"(Positional and non-positional commands mixed in the same printf string.)";
+                }
+            adjustedCommands.clear();
+            for (const auto& posArg : positionalCommands)
+                {
+                adjustedCommands.push_back(posArg.second);
+                }
+            }
+
+        return adjustedCommands;
+        }
+
+    //------------------------------------------------
     void po_file_review::review_prinf_issues()
         {
         std::vector<std::wstring> printfStrings1, printfStrings2;
+        std::wstring errorInfo;
         for (auto& catEntry : m_catalog_entries)
             {
-            if (catEntry.second.m_po_format == po_format_string::ccpp_format)
+            if (catEntry.second.m_po_format == po_format_string::cpp_format)
                 {
                 // only look at strings that have a translation
                 if (!catEntry.second.m_translation.empty())
@@ -165,6 +230,9 @@ namespace i18n_check
                                   decltype(catEntry.second.m_translation)::const_iterator>{},
                               std::back_inserter(printfStrings2));
 
+                    printfStrings1 = convert_positional_cpp_printf(printfStrings1, errorInfo);
+                    printfStrings2 = convert_positional_cpp_printf(printfStrings2, errorInfo);
+
                     if (printfStrings1.size() || printfStrings2.size())
                         {
                         if (printfStrings1 != printfStrings2)
@@ -172,7 +240,7 @@ namespace i18n_check
                             catEntry.second.m_issues.emplace_back(
                                 translation_issue::printf_issue,
                                 L"\"" + catEntry.second.m_source + L"\" vs. \"" +
-                                    catEntry.second.m_translation + L"\"");
+                                    catEntry.second.m_translation + L"\"" + errorInfo);
                             }
                         }
                     }
@@ -197,6 +265,9 @@ namespace i18n_check
                                   decltype(catEntry.second.m_translation_plural)::const_iterator>{},
                               std::back_inserter(printfStrings2));
 
+                    printfStrings1 = convert_positional_cpp_printf(printfStrings1, errorInfo);
+                    printfStrings2 = convert_positional_cpp_printf(printfStrings2, errorInfo);
+
                     if (printfStrings1.size() || printfStrings2.size())
                         {
                         if (printfStrings1 != printfStrings2)
@@ -204,7 +275,7 @@ namespace i18n_check
                             catEntry.second.m_issues.emplace_back(
                                 translation_issue::printf_issue,
                                 L"\"" + catEntry.second.m_source_plural + L"\" vs. \"" +
-                                    catEntry.second.m_translation_plural + L"\"");
+                                    catEntry.second.m_translation_plural + L"\"" + errorInfo);
                             }
                         }
                     }

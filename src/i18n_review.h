@@ -333,10 +333,11 @@ namespace i18n_check
 
             if (m_reviewStyles & check_printf_single_number)
                 {
+                // only looking at integral values (i.e., no floating-point precision)
                 std::wregex intPrintf{
-                    LR"([%]([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64))"
+                    LR"([%]([+]|[-] #0)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64))"
                 };
-                std::wregex floatPrintf{ LR"([%]([+]|[-] #)?(l|L)?(f|F))" };
+                std::wregex floatPrintf{ LR"([%]([+]|[-] #0)?(l|L)?(f|F))" };
                 const auto& classifyPrintfIntStrings = [&, this](const auto& strings)
                 {
                     for (const auto& str : strings)
@@ -991,7 +992,11 @@ namespace i18n_check
         std::wregex m_printf_cpp_regex{
             // first capture group ensures that printf command is not proceeded by a negating '&'
             // second capture group is the actual printf command
-            LR"((^|[^%])([%]([[:digit:]]+$)?([+]|[-] #)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([[:digit:]]+$)?([+]|[-] #)?(l|L)?(f|F)|%([[:digit:]]+$)?s|%([[:digit:]]+$)?p))"
+            // Note: a space specifier is OK for numbers, but not strings and pointers:
+            //
+            // "space: if the result of a signed conversion does not start with a sign character,
+            //  or is empty, space is prepended to the result. It is ignored if + flag is present."
+            LR"((^|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?(l|L)?(f|F)|[%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s|[%]([[:digit:]]+[$])?p))"
         };
         std::vector<std::wregex> m_untranslatable_regexes;
 

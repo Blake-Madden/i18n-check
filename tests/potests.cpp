@@ -34,12 +34,12 @@ msgstr "Сервер не поддерживает пассивный %d.")";
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
-#: ../src/common/gifdecod.cpp:826
+#: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%u, %s) for the frame #%u"
 msgstr "Неправильный размер кадра (%u, %d) для frame #%u"
 
-#: ../src/common/gifdecod.cpp:826
+#: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%.5f, %s) for the frame #%u"
 msgstr "Неправильный размер кадра (%d, %s) для frame #%u")";
@@ -56,10 +56,78 @@ msgstr "Неправильный размер кадра (%d, %s) для frame #
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
-#: ../src/common/gifdecod.cpp:826
+#: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%u, %s) for the frame #%u"
 msgstr "Неправильный размер кадра (%u, % s) для frame #%u")";
+		po(code, L"");
+		po.review_strings();
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 1);
+		}
+
+	SECTION("C-format positionals")
+		{
+		po_file_review po;
+		const wchar_t* code = LR"(
+#: ../src/common/decod.cpp:826
+#, c-format
+msgid "Incorrect frame size (%u, %s) for the value %.5f"
+msgstr "Неправильный размер кадра (%2$s, %1$u) для value %3$.5f")";
+		po(code, L"");
+		po.review_strings();
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
+	SECTION("C-format positionals multiple usage")
+		{
+		po_file_review po;
+		const wchar_t* code = LR"(
+#: ../src/common/decod.cpp:826
+#, c-format
+msgid "Incorrect frame size (%u, %s) for the value %.5f"
+msgstr "Неправильный %2$s размер кадра (%2$s, %1$u) для value %3$.5f %1$u")";
+		po(code, L"");
+		po.review_strings();
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
+	SECTION("C-format positionals mismatching multiple usage")
+		{
+		po_file_review po;
+		const wchar_t* code = LR"(
+#: ../src/common/decod.cpp:826
+#, c-format
+msgid "Incorrect frame size (%u, %s) for the value %.5f"
+msgstr "Неправильный %2$s размер кадра (%2$d, %1$u) для value %3$.5f %1$u")";
+		po(code, L"");
+		po.review_strings();
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 1);
+		}
+
+	SECTION("C-format positionals mixed with non-positionals")
+		{
+		po_file_review po;
+		const wchar_t* code = LR"(
+#: ../src/common/decod.cpp:826
+#, c-format
+msgid "Incorrect frame size (%u, %s) value"
+msgstr "Неправильный %u %2$s")";
 		po(code, L"");
 		po.review_strings();
 
