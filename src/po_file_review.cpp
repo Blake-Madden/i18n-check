@@ -72,11 +72,30 @@ namespace i18n_check
             }
         poFileText.remove_prefix(entryPos);
 
-        /// @todo handle \r
-        size_t endOfEntryPos = poFileText.find(L"\n\n");
-        if (endOfEntryPos == std::wstring_view::npos)
+        // find the next blank line, which is the separator between catalog entries
+        size_t endOfEntryPos{ 0 };
+        while (endOfEntryPos != std::wstring_view::npos)
             {
-            return std::make_pair(true, poFileText);
+            endOfEntryPos = poFileText.find(L'\n', endOfEntryPos);
+            // we must be at the last entry
+            if (endOfEntryPos == std::wstring_view::npos ||
+                endOfEntryPos == poFileText.length() - 1)
+                {
+                return std::make_pair(true, poFileText);
+                }
+            ++endOfEntryPos;
+            // eat up whitespace on line
+            while (endOfEntryPos < poFileText.length() - 1 &&
+                   string_util::is_either(poFileText[endOfEntryPos], L'\t', L' '))
+                {
+                ++endOfEntryPos;
+                }
+            // stop if we encountered a blank line (with or without empty whitespace in it)
+            if (endOfEntryPos == poFileText.length() - 1 ||
+                string_util::is_either(poFileText[endOfEntryPos], L'\r', L'\n'))
+                {
+                break;
+                }
             }
         return std::make_pair(true, poFileText.substr(0, endOfEntryPos));
         }

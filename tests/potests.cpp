@@ -20,7 +20,15 @@ msgstr "Сервер не поддерживает команду PORT."
 #: ../src/common/file.cpp:612
 # fuzzy, c-format
 msgid "The server doesn't support %s mode."
-msgstr "Сервер не поддерживает пассивный %d.")";
+msgstr "Сервер не поддерживает пассивный %d.
+
+#: ../src/common/file.cpp:604
+msgid "The server doesn't support the PORT command %s."
+msgstr "Сервер не поддерживает команду PORT."
+
+#: ../src/common/file.cpp:604
+msgid "The server doesn't support the PORT command %s."
+msgstr "Сервер не поддерживает команду PORT."")";
 		po(code, L"");
 		po.review_strings();
 
@@ -38,7 +46,7 @@ msgstr "Сервер не поддерживает пассивный %d.")";
 #, c-format
 msgid "Incorrect frame size (%u, %s) for the frame #%u"
 msgstr "Неправильный размер кадра (%u, %d) для frame #%u"
-
+  
 #: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%.5f, %s) for the frame #%u"
