@@ -1,11 +1,7 @@
 #include "../src/rc_file_review.h"
-#include <algorithm>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include <iomanip>
-#include <set>
-#include <sstream>
 
 // NOLINTBEGIN
 using namespace i18n_check;
