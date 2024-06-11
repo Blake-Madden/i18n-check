@@ -992,11 +992,12 @@ namespace i18n_check
         std::wregex m_printf_cpp_regex{
             // first capture group ensures that printf command is not proceeded by a negating '&'
             // second capture group is the actual printf command
+            //
             // Note: a space specifier is OK for numbers, but not strings and pointers:
             //
             // "space: if the result of a signed conversion does not start with a sign character,
             //  or is empty, space is prepended to the result. It is ignored if + flag is present."
-            LR"((^|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?(l|L)?(f|F)|[%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s|[%]([[:digit:]]+[$])?p))"
+            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l|L)?(f|F)|[%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s|[%]([[:digit:]]+[$])?p))"
         };
         std::vector<std::wregex> m_untranslatable_regexes;
 

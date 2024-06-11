@@ -8,7 +8,7 @@ using namespace i18n_check;
 using namespace Catch::Matchers;
 
 // clang-format off
-TEST_CASE("Printf", "[po][l10n]")
+TEST_CASE("Printf c-format", "[po][l10n]")
 	{
 	SECTION("Ignore fuzzy and non-formats")
 		{
@@ -76,7 +76,44 @@ msgstr "Неправильный размер кадра (%u, % s) для frame 
 			{ return ent.second.m_issues.size() > 0; });
 		CHECK(issues == 1);
 		}
+	}
 
+TEST_CASE("Printf c-format percentage", "[po][l10n]")
+	{
+	po_file_review po;
+		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+#, c-format
+msgid "Volume %ld%%."
+msgstr "Bolumena: %%%ld")";
+
+	po(code, L"");
+	po.review_strings();
+
+	const auto issues = std::count_if(
+		po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+		{ return ent.second.m_issues.size() > 0; });
+	CHECK(issues == 0);
+	}
+
+TEST_CASE("Printf c-format slash", "[po][l10n]")
+	{
+	po_file_review po;
+		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+#, c-format
+msgid "%d/%d blocks at 0x%02x"
+msgstr "%d%d bloques en 0x%02x")";
+
+	po(code, L"");
+	po.review_strings();
+
+	const auto issues = std::count_if(
+		po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+		{ return ent.second.m_issues.size() > 0; });
+	CHECK(issues == 0);
+	}
+
+TEST_CASE("Printf c-format positionals", "[po][l10n]")
+	{
 	SECTION("C-format positionals")
 		{
 		po_file_review po;
