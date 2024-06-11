@@ -601,7 +601,7 @@ namespace i18n_check
             return m_min_words_for_unavailable_string;
             }
 
-        /// @brief Sets The minimum number of words that a string must have to be
+        /// @brief Sets the minimum number of words that a string must have to be
         ///     considered translatable.
         /// @details The default is to require two or more words before a string
         ///     could be considered translatable.
@@ -610,6 +610,11 @@ namespace i18n_check
             {
             m_min_words_for_unavailable_string = minVal;
             }
+
+        /// @brief Sets the C++ standard that should be assumed when issuing
+        ///     deprecated macro warnings.
+        /// @param version The C++ standard that controls deprecation warnings.
+        void set_min_cpp_version(const int version) { m_min_cpp_version = version; }
 
         /** @brief Adds a font face to be ignored if found as a string.
             @param str The font face name.*/
@@ -913,6 +918,8 @@ namespace i18n_check
         bool m_exceptions_should_be_translatable{ true };
         bool m_log_messages_are_translatable{ true };
         size_t m_min_words_for_unavailable_string{ 2 };
+
+        int m_min_cpp_version{ 14 };
 
         review_style m_reviewStyles{ review_style::all_i18n_checks };
 

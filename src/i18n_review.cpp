@@ -175,7 +175,7 @@ namespace i18n_check
             { L"wxStrtol", L"Use wxString::ToLong() instead." },
             { L"wxW64", L"This macro is obsolete; remove it." },
             { L"__WXFUNCTION__",
-              L"Use __func__ or __WXFUNCTION_SIG__ instead." },
+              L"Use __func__ or __WXFUNCTION_SIG__ (requires wxWidgets 3.3) instead." },
             { L"wxTrace", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
                           L"functions instead." },
             { L"WXTRACE", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
@@ -198,16 +198,24 @@ namespace i18n_check
               L"Prefer using Bind() within a class's CTOR instead of message maps." },
             { L"__WXMAC__", L"Use __WXOSX__ instead." },
             { L"wxMEMBER_DELETE", L"Use '= delete' instead." },
-            { L"wxNODISCARD", L"Use [[nodiscard]] instead (requires C++17)." },
-            { L"WXSIZEOF", L"Use std::size() instead (requires C++17)." },
             { L"wxOVERRIDE", L"Use override or final instead." },
-            { L"wxNOEXCEPT", L"Use noexcept instead (requires C++17)." },
-            { L"WXUNUSED", L"Use [[maybe_unused]] instead (requires C++17)." },
             { L"wxDECLARE_NO_COPY_CLASS",
               L"Delete the copy CTOR and assignment operator instead." },
             { L"DECLARE_NO_COPY_CLASS",
               L"Delete the copy CTOR and assignment operator instead." }
         };
+
+        if (m_min_cpp_version >= 17)
+            {
+            m_deprecated_string_functions.insert(
+                { L"wxNODISCARD", L"Use [[nodiscard]] instead (requires C++17)." });
+            m_deprecated_string_functions.insert(
+                { L"WXSIZEOF", L"Use std::size() instead (requires C++17)." });
+            m_deprecated_string_functions.insert(
+                { L"wxNOEXCEPT", L"Use noexcept instead (requires C++17)." });
+            m_deprecated_string_functions.insert(
+                { L"WXUNUSED", L"Use [[maybe_unused]] instead (requires C++17)." });
+            }
 
         m_untranslatable_regexes = {
             // nothing but numbers, punctuation, or control characters?

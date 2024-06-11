@@ -149,6 +149,9 @@ int main(int argc, char* argv[])
          "The minimum number of words that a string must have to be reviewed for whether it should "
          "be translatable.",
          cxxopts::value<int>())
+        ("cpp-version",
+         "The C++ standard that should be assumed when issuing deprecated macro warnings.",
+         cxxopts::value<int>())
         ("i,ignore", "Folders and files to ignore (can be used multiple times)",
                                cxxopts::value<std::vector<std::string>>())
         ("o,output", "The output report path (tab-delimited format)",
@@ -341,6 +344,7 @@ int main(int argc, char* argv[])
     cpp.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
     cpp.exceptions_should_be_translatable(readBoolOption("exceptions-l10n-required", true));
     cpp.set_min_words_for_classifying_unavailable_string(readIntOption("min-l10n-wordcount", 2));
+    cpp.set_min_words_for_classifying_unavailable_string(readIntOption("cpp-version", 14));
     cpp.reserve(filesToAnalyze.size());
 
     i18n_check::rc_file_review rc;

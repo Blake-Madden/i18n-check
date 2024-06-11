@@ -46,7 +46,7 @@ Code formatting issues can also be checked for, such as:
 - Lines longer than 120 characters.
 - Spaces missing between "//" and their comments.
 
-`i18n-check` will work with C, modern C++, and '98/'03 C++ code, and also Windows resource files (*.rc).
+`i18n-check` will work with C, modern C++, and '98/'03 C++ code, GNU *gettext* translation files (\*.po), and Windows resource files (\*.rc).
 In particular, it offers specialized support for the following frameworks:
 
 - wxWidgets
@@ -148,6 +148,9 @@ Refer [here](Example.md) for example usage.
                       considered translatable. Higher values for this will result in less
                       strings being classified as a notL10NAvailable warning.
                       (Default is 2.)
+
+--cpp-version: The C++ standard that should be assumed when issuing deprecated macro warnings.
+               (Default is 14.)
 
 -i,--ignore: Folders and files to ignore (can be used multiple times).
 
