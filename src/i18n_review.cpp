@@ -772,13 +772,13 @@ namespace i18n_check
                         std::make_pair(std::wstring::npos, std::wstring::npos));
                     }
 #ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 26478)
+    #pragma warning(push)
+    #pragma warning(disable : 26478)
 #endif
                 const auto [pos, inserted] =
                     assignedIds.insert(std::make_pair(idAssignment.second, idAssignment.first));
 #ifdef _MSC_VER
-#pragma warning(pop)
+    #pragma warning(pop)
 #endif
                 if (static_cast<bool>(m_reviewStyles & check_duplicate_value_assigned_to_ids) &&
                     !inserted && idAssignment.second.length() > 0 &&
@@ -1082,15 +1082,19 @@ namespace i18n_check
     //--------------------------------------------------
     void i18n_review::reserve(const size_t fileCount)
         {
-        // one message per file is more than reasonable
-        m_error_log.reserve(fileCount);
-        constexpr size_t resourcesPerFile = 100;
-        m_localizable_strings.reserve(resourcesPerFile * fileCount);
-        m_not_available_for_localization_strings.reserve(resourcesPerFile * fileCount);
-        m_marked_as_non_localizable_strings.reserve(resourcesPerFile * fileCount);
-        m_internal_strings.reserve(resourcesPerFile * fileCount);
-        m_unsafe_localizable_strings.reserve(resourcesPerFile * fileCount);
-        m_deprecated_macros.reserve(resourcesPerFile * fileCount);
+        try
+            {
+            m_error_log.reserve(fileCount / 2);
+            m_localizable_strings.reserve(fileCount / 2);
+            m_not_available_for_localization_strings.reserve(fileCount / 2);
+            m_marked_as_non_localizable_strings.reserve(fileCount / 2);
+            m_internal_strings.reserve(fileCount / 2);
+            m_unsafe_localizable_strings.reserve(fileCount / 2);
+            m_deprecated_macros.reserve(fileCount / 2);
+            }
+        catch (const std::bad_alloc&)
+            {
+            }
         }
 
     //--------------------------------------------------
