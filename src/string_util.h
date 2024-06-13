@@ -70,6 +70,19 @@ namespace string_util
         return (value != first && value != second);
         }
 
+    /// @param ch The character to review.
+    /// @returns @c true if @c ch is a trademark, service mark, or registration symbol.
+    [[nodiscard]]
+    inline constexpr static bool is_trademark_or_registration(const wchar_t ch) noexcept
+        {
+        // clang-format off
+        return (ch == 0x2122) || // (TM)
+            (ch == 0x2120) ||    // (SM)
+            (ch == 0x00AE) ||    // (R)
+            (ch == 0x24C2);      // (M)
+        // clang-format on
+        }
+
     /** @returns Whether a character is a number (0-9 characters only, narrow versions).
         @param ch The letter to be reviewed.*/
     [[nodiscard]]
@@ -786,7 +799,7 @@ namespace string_util
             {
             return nullptr;
             }
-        if (openSymbol.empty() || closeSymbol.empty())
+        if (openSymbol.length() == 0 || closeSymbol.length() == 0)
             {
             return nullptr;
             }
@@ -1136,7 +1149,7 @@ namespace string_util
     typename T::size_type find_whole_word(const T& haystack, const T& needle,
                                           size_t start_index = 0)
         {
-        if (needle.empty() || haystack.empty())
+        if (needle.length() == 0 || haystack.length() == 0)
             {
             return T::npos;
             }
@@ -1653,7 +1666,7 @@ namespace string_util
     void replace_all_whole_word(T& text, const T& textToReplace, const T& replacementText,
                                 const size_t index = 0)
         {
-        if (textToReplace.empty() || replacementText.empty())
+        if (textToReplace.length() == 0 || replacementText.length() == 0)
             {
             return;
             }
