@@ -1,0 +1,14 @@
+# Building
+
+`i18n-check` can be configured with Cmake and then built with your compiler of choice.
+
+On Unix:
+
+``` {.bash filename="Terminal"}
+cmake ./
+make -j4
+```
+
+On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
+
+After building, "i18n-check" will then be available in the "bin" folder.

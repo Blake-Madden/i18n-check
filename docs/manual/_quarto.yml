@@ -1,0 +1,34 @@
+project:
+  type: book
+bibliography: cites.bib
+biblio-style: mla
+link-citations: true
+nocite: '@*'
+csl: modern-language-association.csl
+pdf-cover: "images/cover.pdf"
+
+book:
+  title: "i18n-check"
+  author: "Blake Madden"
+  date: today
+  date-format: long
+  language: en
+  search: false
+  cover-image: "images/cover.png"
+  image: "images/cover.png"
+  chapters:
+    - index.qmd
+    - building.qmd
+    - options.qmd
+    - samples.qmd
+    - examples.qmd
+    - github-action.qmd
+    - cites.qmd
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
