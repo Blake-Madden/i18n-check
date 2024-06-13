@@ -193,7 +193,7 @@ namespace i18n_check
             { L"wxMax", L"Use std::max() instead." },
             { L"wxRound", L"Use std::lround() instead." },
             { L"wxIsNan", L"Use std::isnan() instead." },
-            { L"wxUnusedVar", L"Use [[maybe_unused]] attribute instead." },
+            { L"wxNOEXCEPT", L"Use noexcept instead." },
             { L"wxDECLARE_EVENT_TABLE",
               L"Prefer using Bind() within a class's CTOR instead of message maps." },
             { L"DECLARE_EVENT_TABLE",
@@ -214,7 +214,7 @@ namespace i18n_check
             m_deprecated_string_functions.insert(
                 { L"WXSIZEOF", L"Use std::size() instead (requires C++17)." });
             m_deprecated_string_functions.insert(
-                { L"wxNOEXCEPT", L"Use noexcept instead (requires C++17)." });
+                { L"wxUnusedVar", L"Use [[maybe_unused]] instead (requires C++17)." });
             m_deprecated_string_functions.insert(
                 { L"WXUNUSED", L"Use [[maybe_unused]] instead (requires C++17)." });
             }
