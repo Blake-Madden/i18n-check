@@ -147,6 +147,8 @@ namespace i18n_check
             { L"wsprintf", L"Use std::swprintf() instead." },
             { L"_stprintf", L"Use std::swprintf() instead." },
             { L"TCHAR", L"Use wchar_t instead." },
+            { L"LPTSTR", L"Use LPWSTR (or wchar_t*) instead." },
+            { L"LPCTSTR", L"Use LPCWSTR (or const wchar_t*) instead." },
             // wxWidgets
             { L"wxStrlen", L"Use std::wcslen() or (wrap in a std::wstring_view) instead." },
             { L"wxStrstr", L"Use std::wcsstr() instead." },
