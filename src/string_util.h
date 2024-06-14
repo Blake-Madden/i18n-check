@@ -77,6 +77,9 @@ namespace string_util
         {
         // clang-format off
         return (ch == 0x2122) || // (TM)
+            (ch == 0x00A9) ||    // (C)
+            (ch == 0x24B8) ||    // (C)
+            (ch == 0x2117) ||    // (P) (sound recording)
             (ch == 0x2120) ||    // (SM)
             (ch == 0x00AE) ||    // (R)
             (ch == 0x24C2);      // (M)

@@ -1780,5 +1780,24 @@ TEST_CASE("Is neither", "[isneither]")
         }
     }
 
+TEST_CASE("Is trademark", "[trademark]")
+    {
+    SECTION("Is Either")
+        {
+        CHECK(is_trademark_or_registration(L'℗'));
+        CHECK(is_trademark_or_registration(L'Ⓒ'));
+        CHECK(is_trademark_or_registration(L'©'));
+        CHECK(is_trademark_or_registration(L'™'));
+        CHECK(is_trademark_or_registration(L'®'));
+        CHECK(is_trademark_or_registration(L'℠'));
+        CHECK(is_trademark_or_registration(L'Ⓜ'));
+        CHECK_FALSE(is_trademark_or_registration(L'.'));
+        CHECK_FALSE(is_trademark_or_registration(L'!'));
+        CHECK_FALSE(is_trademark_or_registration(L','));
+        CHECK_FALSE(is_trademark_or_registration(L'@'));
+        CHECK_FALSE(is_trademark_or_registration(L' '));
+        }
+    }
+
 // NOLINTEND
 // clang-format on
