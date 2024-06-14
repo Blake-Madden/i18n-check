@@ -88,8 +88,10 @@ Refer [here](Example.md) for example usage.
 [input]: The folder to analyze.
 
 --enable: Which checks to perform. Can be any combination of:
-  allI18N:             Perform all i18n checks (the default).
-                       This does not include code formatting checks.
+  allI18N:             Perform all internationalization checks (the default).
+  allL10N:             Perform all localization checks (the default).
+  allCodeFormatting:    Check all code formatting issues.
+                       These are not enabled by default.
   suspectL10NString:   Check for translatable strings that shouldn't be
                        (e.g., numbers, keywords, printf() commands).
   suspectL10NUsage:    Check for translatable strings being used in internal contexts
@@ -98,7 +100,6 @@ Refer [here](Example.md) for example usage.
                        It is recommended to dynamically format these into the string so that
                        translators don't have to manage them.
   notL10NAvailable:    Check for strings not exposed for translation.
-  printfMismatch:      Check for mismatching printf() commands between source and translation strings.
   deprecatedMacro:     Check for deprecated text macros (e.g., wxT()).
   nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
   UTF8FileWithBOM:     Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
@@ -112,8 +113,6 @@ Refer [here](Example.md) for example usage.
   malformedString:     Check for malformed syntax in strings (e.g., malformed HTML tags).
   fontIssue:           Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
                        or using unusual font sizes).
-  allCodeFormatting:   Check all code formatting issues (see below).
-                       These are not enabled by default.
   trailingSpaces:      Check for trailing spaces at the end of each line.
                        This is a code formatting check and is not enabled by default.
   tabs:                Check for tabs.
@@ -123,6 +122,7 @@ Refer [here](Example.md) for example usage.
                        This is a code formatting check and is not enabled by default.
   commentMissingSpace: Check that there is a space at the start of a comment.
                        This is a code formatting check and is not enabled by default.
+  printfMismatch:      Check for mismatching printf() commands between source and translation strings.
 
 --disable: Which checks to not perform. (Refer to options available above.)
            This will override any options passed to "--enable".

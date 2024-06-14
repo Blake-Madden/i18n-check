@@ -25,20 +25,6 @@ do not have to manage them.
 
 Check for strings not exposed for translation.
 
-- `printfMismatch`
-
-Check for mismatching `printf()` commands between source and translation strings.
-
-This is performed on *gettext* \*.po files and will analyze format strings for the following languages:
-
-- C/C++
-
-::: {.callout-note collapse=false}
-The checks performed here are strict; all `printf()` commands in translations must match
-their source counterpart exactly. For example, `%lu` vs. `%l` will emit a warning.
-Questionable commands such as `% s` (space is only meant for numeric formatting) will also emit a warning.
-:::
-
 - `deprecatedMacro`
 
 Check for deprecated text macros and functions.
@@ -97,6 +83,24 @@ Check for font issues.
 
 This is performed on Windows *.rc files and checks for dialogs not using \'MS Shell Dlg\'
 or unusual font sizes.
+
+- `allL10N`
+
+Perform all localization checks (the default).
+
+- `printfMismatch`
+
+Check for mismatching `printf()` commands between source and translation strings.
+
+This is performed on *gettext* \*.po files and will analyze format strings for the following languages:
+
+- C/C++
+
+::: {.callout-note collapse=false}
+The checks performed here are strict; all `printf()` commands in translations must match
+their source counterpart exactly. For example, `%lu` vs. `%l` will emit a warning.
+Questionable commands such as `% s` (space is only meant for numeric formatting) will also emit a warning.
+:::
 
 - `allCodeFormatting`
 

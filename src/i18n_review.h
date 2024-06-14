@@ -39,7 +39,7 @@ namespace i18n_check
     enum review_style
         {
         /// @brief Do not perform any checks.
-        no_l10n_checks = 0x00,
+        no_checks = 0x00,
         /// @brief Check that strings exposed for localization are safe to translate.\n
         ///     For example, a printf statement with no actual words in it should
         ///     not be translatable.
@@ -77,16 +77,17 @@ namespace i18n_check
         /// @brief Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
         ///     or using unusual font sizes).
         check_fonts = (1 << 12),
+        /// @brief Perform all aforementioned internationalization checks.
+        all_i18n_checks = (check_l10n_strings | check_suspect_l10n_string_usage |
+        check_not_available_for_l10n | check_deprecated_macros | check_utf8_encoded |
+        check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
+        check_number_assigned_to_id | check_duplicate_value_assigned_to_ids |
+        check_malformed_strings | check_utf8_with_signature | check_fonts),
         /// @brief Check for mismatching printf commands between source strings and their
         ///     respective translations.
         check_mismatching_printf_commands = (1 << 13),
-        /// @brief Perform all aforementioned checks.
-        all_i18n_checks =
-        (check_l10n_strings | check_suspect_l10n_string_usage | check_not_available_for_l10n |
-        check_deprecated_macros | check_utf8_encoded | check_unencoded_ext_ascii |
-        check_printf_single_number | check_l10n_contains_url | check_number_assigned_to_id |
-        check_duplicate_value_assigned_to_ids | check_malformed_strings |
-        check_utf8_with_signature | check_fonts | check_mismatching_printf_commands),
+        /// @brief Perform all aforementioned localization checks.
+        all_l10n_checks = (check_mismatching_printf_commands),
         /// @brief Check for trailing spaces at the end of each line.
         check_trailing_spaces = (1 << 20),
         /// @brief Check for tabs (spaces are recommended).
@@ -921,7 +922,8 @@ namespace i18n_check
 
         int m_min_cpp_version{ 14 };
 
-        review_style m_reviewStyles{ review_style::all_i18n_checks };
+        review_style m_reviewStyles{ static_cast<review_style>(review_style::all_i18n_checks |
+                                                               review_style::all_l10n_checks) };
 
         // once these are set (by our CTOR and/or by client), they shouldn't be reset
         std::set<std::wstring_view> m_localization_functions;

@@ -358,12 +358,16 @@ int main(int argc, char* argv[])
     if (result.count("enable"))
         {
         const auto& styles = result["enable"].as<std::vector<std::string>>();
-        int rs{ no_l10n_checks };
+        int rs{ review_style::no_checks };
         for (const auto& r : styles)
             {
             if (r == "allI18N")
                 {
                 rs |= review_style::all_i18n_checks;
+                }
+            else if (r == "allL10N")
+                {
+                rs |= review_style::all_l10n_checks;
                 }
             else if (r == "allCodeFormatting")
                 {
