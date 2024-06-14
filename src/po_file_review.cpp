@@ -18,8 +18,11 @@ namespace i18n_check
         static const std::wstring_view MSGSTR0{ L"msgstr[0] \"" };
         static const std::wstring_view MSGSTR1{ L"msgstr[1] \"" };
         // type of printf formatting the string uses
-        static const std::wstring_view CFORMAT{ L"#, c-format" };
-        static const std::wstring_view CPPFORMAT{ L"#, cpp-format" };
+        static const std::wregex entryLineRegEx{ LR"(^#,([[:alnum:][:space:]\-]+)$)" };
+        static const std::wregex printfResourceRegEx{ LR"(\b[^\-]*[a-zA-Z]+[\-]format\b)" };
+
+        std::vector<std::wstring> entryLines;
+        std::match_results<std::wstring::const_iterator> matches;
 
         while (!poFileText.empty())
             {
@@ -28,14 +31,28 @@ namespace i18n_check
                 {
                 break;
                 }
-            // step over the section
+            // step over the section for the next catalog read later
             poFileText.remove_prefix(entry.length());
 
+            entryLines.clear();
+            std::copy(std::regex_token_iterator<decltype(entry)::const_iterator>(
+                          entry.cbegin(), entry.cend(), entryLineRegEx, 1),
+                      std::regex_token_iterator<decltype(entry)::const_iterator>{},
+                      std::back_inserter(entryLines));
+
             po_format_string pofs{ po_format_string::no_format };
-            if (entry.find(CFORMAT) != std::wstring::npos ||
-                entry.find(CPPFORMAT) != std::wstring::npos)
+            for (const auto& entryLine : entryLines)
                 {
-                pofs = po_format_string::cpp_format;
+                if (std::regex_search(entryLine, matches, printfResourceRegEx))
+                    {
+                    if (matches.size())
+                        {
+                        if (matches[0] == L"c-format" || matches[0] == L"cpp-format")
+                            {
+                            pofs = po_format_string::cpp_format;
+                            }
+                        }
+                    }
                 }
 
             // read section from catalog entry
