@@ -29,7 +29,7 @@ passed to functions such as `wxLogMessage`, `g_message`, or `qCWarning`.
 
 Whether it is acceptable for punctuation only strings to be translatable.
 
-Setting this to `true` will suppress warnings about strings such as \" - \"
+Setting this to `true` will suppress warnings about strings such as “ - ”
 being available for localization.
 
 (Default is `false`.)

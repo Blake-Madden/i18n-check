@@ -3,7 +3,7 @@
 You can also create an `i18n-check` GitHub action to make it part of your CI.
 For example, create a new workflow called "i18n-check.yml" and enter the following:
 
-```
+```bash
 name: i18n-check
 on: [push]
 
