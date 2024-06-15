@@ -124,6 +124,7 @@ TEST_CASE("IDs", "[cpp][i18n]")
     SECTION("ID assignments")
         {
         cpp_i18n_review cpp;
+        cpp.set_style(review_style::all_i18n_checks);
         const wchar_t* code = LR"(int val = 5;
 static int const MENU_ID_NEW = 1000;
 wxWindowID MENU_ID_SAVE = -1001;
@@ -143,6 +144,7 @@ UINT ID_PRINT_ALL(wxID_HIGHEST+1);)";
     SECTION("ID assignment define")
         {
         cpp_i18n_review cpp;
+        cpp.set_style(review_style::all_i18n_checks);
         const wchar_t* code = LR"(#define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             101
 #define IDD_ADDTEXT                     103
@@ -263,6 +265,7 @@ UINT ID_PRINT_ALL(wxID_HIGHEST+1);)";
     SECTION("Duplicate ID value assignments")
         {
         cpp_i18n_review cpp;
+        cpp.set_style(review_style::all_i18n_checks);
         const wchar_t* code = LR"(int val = 5;
 static int const MENU_ID_NEW = 1000;
 wxWindowID MENU_ID_SAVE = wxID_HIGHEST;
@@ -294,6 +297,7 @@ wxWindowID MENU_ID_SAVE = wxID_HIGHEST;)";
     SECTION("ID assignments in parentheses")
         {
         cpp_i18n_review cpp;
+        cpp.set_style(review_style::all_i18n_checks);
         const wchar_t* code = LR"(int val = 5;
 static int const MENU_ID_NEW = (({ 1000}));
 wxWindowID MENU_ID_SAVE =     (((1001)));
