@@ -89,7 +89,7 @@ Check for malformed syntax in strings (e.g., malformed HTML tags).
 
 Check for font issues.
 
-This is performed on Windows *.rc files and checks for dialogs not using \'MS Shell Dlg\'
+This is performed on Windows *.rc files and checks for dialogs not using \'MS Shell Dlg\' [@ms-shell-dlg]
 or unusual font sizes.
 
 - `allL10N`
