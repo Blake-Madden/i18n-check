@@ -162,6 +162,23 @@ msgstr "Bolumena: %%%ld")";
 	CHECK(issues == 0);
 	}
 
+TEST_CASE("Printf c-format percentage has issue", "[po][l10n]")
+	{
+	po_file_review po;
+		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+#, c-format
+msgid "Volume %ld%%."
+msgstr "Bolumena: %%%d")";
+
+	po(code, L"");
+	po.review_strings();
+
+	const auto issues = std::count_if(
+		po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+		{ return ent.second.m_issues.size() > 0; });
+	CHECK(issues == 1);
+	}
+
 TEST_CASE("Printf c-format slash", "[po][l10n]")
 	{
 	po_file_review po;
