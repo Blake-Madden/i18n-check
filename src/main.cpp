@@ -152,6 +152,9 @@ int main(int argc, char* argv[])
         ("cpp-version",
          "The C++ standard that should be assumed when issuing deprecated macro warnings.",
          cxxopts::value<int>())
+        ("fuzzy",
+         "Whether to review fuzzy translations. (Default is false.)",
+         cxxopts::value<bool>()->default_value("false"))
         ("i,ignore", "Folders and files to ignore (can be used multiple times)",
                                cxxopts::value<std::vector<std::string>>())
         ("o,output", "The output report path (tab-delimited format)",
@@ -353,6 +356,7 @@ int main(int argc, char* argv[])
 
     i18n_check::po_file_review po;
     po.reserve(filesToAnalyze.size());
+    po.review_fuzzy_translations(readBoolOption("fuzzy", false));
 
     // see which checks are being performed
     if (result.count("enable"))

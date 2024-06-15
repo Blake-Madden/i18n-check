@@ -18,13 +18,13 @@ namespace i18n_check
         static const std::wstring_view MSGSTR0{ L"msgstr[0] \"" };
         static const std::wstring_view MSGSTR1{ L"msgstr[1] \"" };
         // type of printf formatting the string uses
-        static const std::wregex entryLineRegEx{ LR"(^#,([[:alnum:][:space:]\-]+)$)" };
+        static const std::wregex entryLineRegEx{ LR"(^#([,[:alnum:][:space:]\-]+)+$)" };
         // captures the "no-" prefix (in case it's in there) so that we know
         // to ingore this entry later
-        static const std::wregex printfResourceRegEx{ LR"(\b([a-zA-Z]+[\-])*[a-zA-Z]+[\-]format\b)" };
+        static const std::wregex printfResourceRegEx{ LR"(\b([a-zA-Z\-])+\b)" };
 
         std::vector<std::wstring> entryLines;
-        std::match_results<std::wstring::const_iterator> matches;
+        std::vector<std::wstring> formatFlags;
 
         while (!poFileText.empty())
             {
@@ -43,17 +43,32 @@ namespace i18n_check
                       std::back_inserter(entryLines));
 
             po_format_string pofs{ po_format_string::no_format };
+            bool formatSpecFound{ false };
             for (const auto& entryLine : entryLines)
                 {
-                if (std::regex_search(entryLine, matches, printfResourceRegEx))
+                formatFlags.clear();
+                std::copy(std::regex_token_iterator<std::wstring::const_iterator>(
+                              entryLine.cbegin(), entryLine.cend(), printfResourceRegEx, 0),
+                          std::regex_token_iterator<std::wstring::const_iterator>{},
+                          std::back_inserter(formatFlags));
+                for (const auto& formatFlag : formatFlags)
                     {
-                    if (matches.size())
+                    if (formatFlag == L"c-format" || formatFlag == L"cpp-format")
                         {
-                        if (matches[0] == L"c-format" || matches[0] == L"cpp-format")
-                            {
-                            pofs = po_format_string::cpp_format;
-                            }
+                        pofs = po_format_string::cpp_format;
+                        formatSpecFound = true;
                         }
+                    else if (!is_reviewing_fuzzy_translations() && formatFlag == L"fuzzy")
+                        {
+                        pofs = po_format_string::no_format;
+                        formatSpecFound = true;
+                        break;
+                        }
+                    }
+                // stop looking at the comment lines if we loaded a printf specification already 
+                if (formatSpecFound)
+                    {
+                    break;
                     }
                 }
 

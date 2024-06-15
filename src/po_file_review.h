@@ -84,6 +84,18 @@ namespace i18n_check
                 }
             }
 
+        /// @brief Whether fuzzy translations should be reviewed.
+        /// @param enable @c true to review fuzzy translation entires; @c false to ignore them.
+        void review_fuzzy_translations(const bool enable) noexcept { m_reviewFuzzy = enable; }
+
+        /// @returns @c true if fuzzy translations are being reviewed.\n
+        ///     The default is @c false.
+        [[nodiscard]]
+        bool is_reviewing_fuzzy_translations() const noexcept
+            {
+            return m_reviewFuzzy;
+            }
+
       private:
         std::pair<bool, std::wstring_view> read_catalog_entry(std::wstring_view& poFileText);
         std::pair<bool, std::wstring> read_msg(std::wstring_view& poFileText,
@@ -97,6 +109,8 @@ namespace i18n_check
                                       std::wstring& errorInfo);
 
         std::vector<std::pair<std::wstring, po_catalog_entry>> m_catalog_entries;
+
+        bool m_reviewFuzzy{ false };
         };
     } // namespace i18n_check
 

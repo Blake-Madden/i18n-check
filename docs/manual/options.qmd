@@ -63,6 +63,12 @@ will be ignore since `[[maybe_unused]]` requires C++17.
 
 (Default is `14`.)
 
+## \-\-fuzzy {-}
+
+Whether to review fuzzy translations.
+
+(Default is `false`.)
+
 ## \-i,\-\-ignore {-}
 
 Folders and files to ignore (can be used multiple times).
