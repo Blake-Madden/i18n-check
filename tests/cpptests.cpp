@@ -488,6 +488,44 @@ QString test = QApplication::translate("SomeContext", "more source content");)";
         }
     }
 
+TEST_CASE("Qt no-loc", "[cpp][i18n]")
+    {
+    SECTION("Q_MOC_INCLUDE")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(Q_MOC_INCLUDE("myheader"))"; // don't include extension
+        cpp(code, L"");
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        }
+
+    SECTION("Q_CLASSINFO")
+        {
+        cpp_i18n_review cpp;
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(class MyClass : public QObject
+{
+    Q_OBJECT
+    Q_CLASSINFO("Author", "Joe Smith")
+    Q_CLASSINFO("URL", "http://www.my-organization.qc.ca")
+
+public:)";
+        cpp(code, L"");
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 4);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"Author");
+        CHECK(cpp.get_internal_strings()[1].m_string == L"Joe Smith");
+        CHECK(cpp.get_internal_strings()[2].m_string == L"URL");
+        CHECK(cpp.get_internal_strings()[3].m_string == L"http://www.my-organization.qc.ca");
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        }
+    }
+
 TEST_CASE("Deprecated functions & macros", "[cpp][i18n]")
     {
     SECTION("Functions")
