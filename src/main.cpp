@@ -129,10 +129,10 @@ int main(int argc, char* argv[])
          cxxopts::value<std::string>())
         ("enable",
          "Which checks to perform (any combination of: "
-         "allI18N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
-         "rlInL10NString, notL10NAvailable, printfMismatch,"
-         "deprecatedMacro, nonUTF8File, UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
-         "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue,"
+         "allI18N, allL10N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
+         "rlInL10NString, notL10NAvailable, deprecatedMacro, nonUTF8File, "
+         "UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
+         "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue, printfMismatch, "
          "trailingSpaces, tabs, wideLine, commentMissingSpace)",
          cxxopts::value<std::vector<std::string>>())
         ("disable", "Which checks to not perform (same as the options for --enable)",
@@ -470,6 +470,10 @@ int main(int argc, char* argv[])
             if (r == "allI18N")
                 {
                 rs = rs & ~review_style::all_i18n_checks;
+                }
+            else if (r == "allL10N")
+                {
+                rs = rs & ~review_style::all_l10n_checks;
                 }
             else if (r == "allCodeFormatting")
                 {
