@@ -109,8 +109,6 @@ namespace i18n_check
                       "(Add 'L' in front of string to make it double-byte.)" },
             { L"wxT_2", L"Deprecated text macro can be removed. "
                         "(Add 'L' in front of string to make it double-byte.)" },
-            { L"wxS", L"Deprecated text macro can be removed. "
-                      "(Add 'L' in front of string to make it double-byte.)" },
             { L"_T", L"Deprecated text macro can be removed. "
                      "(Add 'L' in front of string to make it double-byte.)" },
             { L"__T", L"Deprecated text macro can be removed. "
