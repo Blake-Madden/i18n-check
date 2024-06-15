@@ -439,7 +439,7 @@ namespace i18n_check
             // Qt (note that NOOP functions actually do load something for translation, just not
             // in-place)
             L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP", L"QT_TRANSLATE_NOOP",
-            L"QApplication::translate",
+            L"QApplication::translate", L"QApplication::tr", L"QApplication::trUtf8",
             // KDE (ki18n)
             L"i18n", L"i18np", L"i18ncp", L"i18nc", L"xi18n", L"xi18nc"
         };
