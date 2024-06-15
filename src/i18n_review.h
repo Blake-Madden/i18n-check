@@ -1006,7 +1006,11 @@ namespace i18n_check
             //
             // "space: if the result of a signed conversion does not start with a sign character,
             //  or is empty, space is prepended to the result. It is ignored if + flag is present."
-            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64)|[%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l|L)?(f|F)|[%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s|[%]([[:digit:]]+[$])?p))"
+            //
+            // Note: '<PRId64>' type specifiers are written as part of a printf string
+            // (it's a macro outside of the string that the preprocessor convertes to something else),
+            // but PO files will embed these into the translations and source strings.
+            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64|<PRId32>|<PRId64>|<PRIi32>|<PRIi64>|<PRIu32>|<PRIu64>|<PRIx32>|<PRIx64>)|[%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l|L)?(f|F)|[%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s|[%]([[:digit:]]+[$])?p))"
         };
         std::vector<std::wregex> m_untranslatable_regexes;
 
