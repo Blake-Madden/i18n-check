@@ -78,6 +78,29 @@ msgstr "Неправильный размер кадра (%u, % s) для frame 
 		}
 	}
 
+
+TEST_CASE("Printf no format", "[po][l10n]")
+		{
+		po_file_review po;
+		const wchar_t* code = LR"(
+#: ../src/common/decod.cpp:826
+#, c-format, fuzzy
+msgid "Incorrect frame size (%u, %s) for the frame #%u"
+msgstr "Неправильный размер кадра (%u, %d) для frame #%u"
+  
+#: ../src/common/decod.cpp:826
+#, no-c-format
+msgid "Incorrect frame size (%.5f, %s) for the frame #%u"
+msgstr "Неправильный размер кадра (%d, %s) для frame #%u")";
+		po(code, L"");
+		po.review_strings();
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
 TEST_CASE("Printf c-format percentage", "[po][l10n]")
 	{
 	po_file_review po;
