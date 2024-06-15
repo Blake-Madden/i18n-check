@@ -85,7 +85,7 @@ namespace i18n_check
             }
 
         /// @brief Whether fuzzy translations should be reviewed.
-        /// @param enable @c true to review fuzzy translation entires; @c false to ignore them.
+        /// @param enable @c true to review fuzzy translation entries; @c false to ignore them.
         void review_fuzzy_translations(const bool enable) noexcept { m_reviewFuzzy = enable; }
 
         /// @returns @c true if fuzzy translations are being reviewed.\n

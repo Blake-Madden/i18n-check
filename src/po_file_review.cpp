@@ -20,7 +20,7 @@ namespace i18n_check
         // type of printf formatting the string uses
         static const std::wregex entryLineRegEx{ LR"(^#, (.*)+$)" };
         // captures the "no-" prefix (in case it's in there) so that we know
-        // to ingore this entry later
+        // to ignore this entry later
         static const std::wregex printfResourceRegEx{ LR"(\b([a-zA-Z\-])+\b)" };
 
         std::vector<std::wstring> entryLines;
@@ -261,7 +261,7 @@ namespace i18n_check
         std::vector<std::pair<size_t, std::wstring>> results;
 
         // we need to do this multipass because a single regex command for all printf
-        // commands is too complex and will cause the regex libary to randomly throw exceptions
+        // commands is too complex and will cause the regex library to randomly throw exceptions
         std::wstring::const_iterator searchStart(resource.cbegin());
         std::wsmatch res;
         size_t commandPosition{ 0 };
