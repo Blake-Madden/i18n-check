@@ -922,8 +922,12 @@ namespace i18n_check
 
         int m_min_cpp_version{ 14 };
 
-        review_style m_reviewStyles{ static_cast<review_style>(review_style::all_i18n_checks |
-                                                               review_style::all_l10n_checks) };
+        review_style m_reviewStyles{ static_cast<review_style>(
+            review_style::check_l10n_strings | review_style::check_suspect_l10n_string_usage |
+            review_style::check_not_available_for_l10n | review_style::check_deprecated_macros |
+            review_style::check_utf8_encoded | review_style::check_printf_single_number |
+            review_style::check_l10n_contains_url | review_style::check_malformed_strings |
+            review_style::check_fonts | review_style::all_l10n_checks) };
 
         // once these are set (by our CTOR and/or by client), they shouldn't be reset
         std::set<std::wstring_view> m_localization_functions;
@@ -1008,7 +1012,7 @@ namespace i18n_check
             //  or is empty, space is prepended to the result. It is ignored if + flag is present."
             //
             // Note: '<PRId64>' type specifiers are written as part of a printf string
-            // (it's a macro outside of the string that the preprocessor convertes to something else),
+            // (it's a macro outside of the string that the preprocessor maps to something else),
             // but PO files will embed these into the translations and source strings.
             LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64|<PRId32>|<PRId64>|<PRIi32>|<PRIi64>|<PRIu32>|<PRIu64>|<PRIx32>|<PRIx64>)|[%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l|L)?(f|F)|[%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s|[%]([[:digit:]]+[$])?p))"
         };

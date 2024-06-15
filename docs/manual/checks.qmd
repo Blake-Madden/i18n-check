@@ -48,9 +48,13 @@ Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
 
 It is recommended to save without the file signature for best compiler portability.
 
+This is turned off by default.
+
 - `unencodedExtASCII`
 
 Check for strings containing extended ASCII characters that are not encoded.
+
+This is turned off by default.
 
 - `printfSingleNumber`
 
@@ -67,11 +71,15 @@ Check for the same value being assigned to different ID variables.
 This check is performed per file; the same ID being assigned multiple times,
 but within separate files, will be ignored.
 
+This is turned off by default.
+
 - `numberAssignedToId`
 
 Check for ID variables being assigned a hard-coded number.
 
 It may be preferred to assign framework-defined constants (e.g., `wxID_HIGHEST`) to IDs.
+
+This is turned off by default.
 
 - `malformedString`
 
