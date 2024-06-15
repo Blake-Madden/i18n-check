@@ -314,9 +314,9 @@ namespace i18n_check
 
         std::vector<std::wstring> finalStrings;
         finalStrings.reserve(results.size());
-        for (auto& res : results)
+        for (auto& result : results)
             {
-            finalStrings.push_back(std::move(res.second));
+            finalStrings.push_back(std::move(result.second));
             }
 
         return convert_positional_cpp_printf(finalStrings, errorInfo);
