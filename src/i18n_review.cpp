@@ -235,6 +235,8 @@ namespace i18n_check
             { L"wxIspunct", L"Use std::iswpunct() instead." },
             { L"wxIsspace", L"Use std::iswpspace() instead." },
             { L"wxChar", L"Use wchar_t instead." },
+            { L"wxSChar", L"Use wchar_t instead." },
+            { L"wxUChar", L"Use wchar_t instead." },
             { L"wxStrftime", L"Use wxDateTime's formatting functions instead." },
             { L"wxStrtod", L"Use wxString::ToDouble() instead." },
             { L"wxStrtol", L"Use wxString::ToLong() instead." },
