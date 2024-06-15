@@ -114,7 +114,7 @@ namespace i18n_check
             { L"_T", L"Deprecated text macro can be removed. "
                      "(Add 'L' in front of string to make it double-byte.)" },
             { L"__T", L"Deprecated text macro can be removed. "
-                     "(Add 'L' in front of string to make it double-byte.)" },
+                      "(Add 'L' in front of string to make it double-byte.)" },
             { L"TEXT", L"Deprecated text macro can be removed. "
                        "(Add 'L' in front of string to make it double-byte.)" },
             { L"_TEXT", L"Deprecated text macro can be removed. "
@@ -439,6 +439,7 @@ namespace i18n_check
             // Qt (note that NOOP functions actually do load something for translation, just not
             // in-place)
             L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP", L"QT_TRANSLATE_NOOP",
+            L"QApplication::translate",
             // KDE (ki18n)
             L"i18n", L"i18np", L"i18ncp", L"i18nc", L"xi18n", L"xi18nc"
         };
@@ -903,6 +904,7 @@ namespace i18n_check
                 // can be context strings that should not be translatable
                 if ( // Qt
                     (functionName == L"translate" && parameterPosition == 0) ||
+                    (functionName == L"QApplication::translate" && parameterPosition == 0) ||
                     (functionName == L"tr" && parameterPosition == 1) ||
                     (functionName == L"trUtf8" && parameterPosition == 1) ||
                     (functionName == L"QT_TRANSLATE_NOOP" && parameterPosition == 0) ||

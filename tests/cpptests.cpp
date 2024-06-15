@@ -419,6 +419,24 @@ QLabel *label = new QLabel(
         CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
         }
 
+    SECTION("QApplication::translate")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(QString test = qApp->translate("SomeContext", "source content");
+QString test = QApplication::translate("SomeContext", "more source content");)";
+        cpp(code, L"");
+        cpp.review_strings();
+        REQUIRE(cpp.get_localizable_strings().size() == 2);
+        CHECK(cpp.get_localizable_strings()[0].m_string == L"source content");
+        CHECK(cpp.get_localizable_strings()[1].m_string == L"more source content");
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 2);
+        // context portion of translate()
+        CHECK(cpp.get_internal_strings()[0].m_string == L"SomeContext");
+        CHECK(cpp.get_internal_strings()[1].m_string == L"SomeContext");
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        }
+
     SECTION("QT_TR_NOOP")
         {
         cpp_i18n_review cpp;
