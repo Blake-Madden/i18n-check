@@ -1002,19 +1002,29 @@ namespace i18n_check
         };
         std::wregex m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
         std::wregex m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
-        std::wregex m_printf_cpp_regex{
-            // first capture group ensures that printf command is not proceeded by a negating '&'
-            // second capture group is the actual printf command
-            //
-            // Note: a space specifier is OK for numbers, but not strings and pointers:
-            //
-            // "space: if the result of a signed conversion does not start with a sign character,
-            //  or is empty, space is prepended to the result. It is ignored if + flag is present."
-            //
-            // Note: '<PRId64>' type specifiers are written as part of a printf string
-            // (it's a macro outside of the string that the preprocessor maps to something else),
-            // but PO files will embed these into the translations and source strings.
-            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64|<PRI(d|i|u|x)(32|64)>)|[%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l|L)?(f|F)|[%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s|[%]([[:digit:]]+[$])?p))"
+
+        // first capture group ensures that printf command is not proceeded by a negating '%'
+        // second capture group is the actual printf command
+        //
+        // Note: a space specifier is OK for numbers, but not strings and pointers:
+        //
+        // "space: if the result of a signed conversion does not start with a sign character,
+        //  or is empty, space is prepended to the result. It is ignored if + flag is present."
+        //
+        // Note: '<PRId64>' type specifiers are written as part of a printf string
+        // (it's a macro outside of the string that the preprocessor maps to something else),
+        // but PO files will embed these into the translations and source strings.
+        std::wregex m_printf_cpp_int_regex{
+            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64|<PRI(d|i|u|x)(32|64)>)))"
+        };
+        std::wregex m_printf_cpp_float_regex{
+            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l|L)?(f|F)))"
+        };
+        std::wregex m_printf_cpp_string_regex{
+            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s))"
+        };
+        std::wregex m_printf_cpp_pointer_regex{
+            LR"((^|\b|[%]{2}|[^%])[%]([%]([[:digit:]]+[$])?p))"
         };
         std::vector<std::wregex> m_untranslatable_regexes;
 

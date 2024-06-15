@@ -65,7 +65,7 @@ namespace i18n_check
                         break;
                         }
                     }
-                // stop looking at the comment lines if we loaded a printf specification already 
+                // stop looking at the comment lines if we loaded a printf specification already
                 if (formatSpecFound)
                     {
                     break;
@@ -255,6 +255,74 @@ namespace i18n_check
         }
 
     //------------------------------------------------
+    std::vector<std::wstring> po_file_review::load_cpp_printf_commands(const std::wstring& resource,
+                                                                       std::wstring& errorInfo)
+        {
+        std::vector<std::pair<size_t, std::wstring>> results;
+
+        // we need to do this multipass because a single regex command for all printf
+        // commands is too complex and will cause the regex libary to randomly throw exceptions
+        std::wstring::const_iterator searchStart(resource.cbegin());
+        std::wsmatch res;
+        size_t commandPosition{ 0 };
+        size_t previousLength{ 0 };
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_int_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.str(2)));
+            }
+
+        searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_float_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.str(2)));
+            }
+
+        searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_string_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.str(2)));
+            }
+
+        searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_pointer_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.str(2)));
+            }
+
+        // sort by position
+        std::sort(results.begin(), results.end(),
+                  [](const auto& lhv, const auto& rhv) noexcept { return lhv.first < rhv.first; });
+
+        std::vector<std::wstring> finalStrings;
+        finalStrings.reserve(results.size());
+        for (auto& res : results)
+            {
+            finalStrings.push_back(std::move(res.second));
+            }
+
+        return convert_positional_cpp_printf(finalStrings, errorInfo);
+        }
+
+    //------------------------------------------------
     void po_file_review::review_prinf_issues()
         {
         std::vector<std::wstring> printfStrings1, printfStrings2;
@@ -266,25 +334,9 @@ namespace i18n_check
                 // only look at strings that have a translation
                 if (!catEntry.second.m_translation.empty())
                     {
-                    printfStrings1.clear();
-                    printfStrings2.clear();
-                    std::copy(std::regex_token_iterator<
-                                  decltype(catEntry.second.m_source)::const_iterator>(
-                                  catEntry.second.m_source.cbegin(),
-                                  catEntry.second.m_source.cend(), m_printf_cpp_regex, 2),
-                              std::regex_token_iterator<
-                                  decltype(catEntry.second.m_source)::const_iterator>{},
-                              std::back_inserter(printfStrings1));
-                    std::copy(std::regex_token_iterator<
-                                  decltype(catEntry.second.m_translation)::const_iterator>(
-                                  catEntry.second.m_translation.cbegin(),
-                                  catEntry.second.m_translation.cend(), m_printf_cpp_regex, 2),
-                              std::regex_token_iterator<
-                                  decltype(catEntry.second.m_translation)::const_iterator>{},
-                              std::back_inserter(printfStrings2));
-
-                    printfStrings1 = convert_positional_cpp_printf(printfStrings1, errorInfo);
-                    printfStrings2 = convert_positional_cpp_printf(printfStrings2, errorInfo);
+                    printfStrings1 = load_cpp_printf_commands(catEntry.second.m_source, errorInfo);
+                    printfStrings2 =
+                        load_cpp_printf_commands(catEntry.second.m_translation, errorInfo);
 
                     if (printfStrings1.size() || printfStrings2.size())
                         {
@@ -300,26 +352,10 @@ namespace i18n_check
 
                 if (!catEntry.second.m_translation_plural.empty())
                     {
-                    printfStrings1.clear();
-                    printfStrings2.clear();
-                    std::copy(std::regex_token_iterator<
-                                  decltype(catEntry.second.m_source_plural)::const_iterator>(
-                                  catEntry.second.m_source_plural.cbegin(),
-                                  catEntry.second.m_source_plural.cend(), m_printf_cpp_regex, 2),
-                              std::regex_token_iterator<
-                                  decltype(catEntry.second.m_source_plural)::const_iterator>{},
-                              std::back_inserter(printfStrings1));
-                    std::copy(std::regex_token_iterator<
-                                  decltype(catEntry.second.m_translation_plural)::const_iterator>(
-                                  catEntry.second.m_translation_plural.cbegin(),
-                                  catEntry.second.m_translation_plural.cend(), m_printf_cpp_regex,
-                                  2),
-                              std::regex_token_iterator<
-                                  decltype(catEntry.second.m_translation_plural)::const_iterator>{},
-                              std::back_inserter(printfStrings2));
-
-                    printfStrings1 = convert_positional_cpp_printf(printfStrings1, errorInfo);
-                    printfStrings2 = convert_positional_cpp_printf(printfStrings2, errorInfo);
+                    printfStrings1 =
+                        load_cpp_printf_commands(catEntry.second.m_source_plural, errorInfo);
+                    printfStrings2 =
+                        load_cpp_printf_commands(catEntry.second.m_translation_plural, errorInfo);
 
                     if (printfStrings1.size() || printfStrings2.size())
                         {

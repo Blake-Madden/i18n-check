@@ -108,6 +108,10 @@ namespace i18n_check
         convert_positional_cpp_printf(const std::vector<std::wstring>& printfCommands,
                                       std::wstring& errorInfo);
 
+        [[nodiscard]]
+        std::vector<std::wstring> load_cpp_printf_commands(const std::wstring& resource,
+                                                           std::wstring& errorInfo);
+
         std::vector<std::pair<std::wstring, po_catalog_entry>> m_catalog_entries;
 
         bool m_reviewFuzzy{ false };
