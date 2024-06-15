@@ -18,7 +18,7 @@ namespace i18n_check
         static const std::wstring_view MSGSTR0{ L"msgstr[0] \"" };
         static const std::wstring_view MSGSTR1{ L"msgstr[1] \"" };
         // type of printf formatting the string uses
-        static const std::wregex entryLineRegEx{ LR"(^#([,[:alnum:][:space:]\-]+)+$)" };
+        static const std::wregex entryLineRegEx{ LR"(^#, (.*)+$)" };
         // captures the "no-" prefix (in case it's in there) so that we know
         // to ingore this entry later
         static const std::wregex printfResourceRegEx{ LR"(\b([a-zA-Z\-])+\b)" };
