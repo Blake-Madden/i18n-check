@@ -584,6 +584,9 @@ namespace i18n_check
             L"PERR", L"PWARN", L"PINFO", L"ENTER", L"LEAVE"
         };
 
+        m_streamable_functions = { L"qDebug",  L"qInfo",  L"qWarning",  L"qCritical", L"qFatal",
+                                   L"qCDebug", L"qCInfo", L"qCWarning", L"qCCritical" };
+
         m_exceptions = {
             // std exceptions
             L"logic_error", L"std::logic_error", L"domain_error", L"std::domain_error",
@@ -890,7 +893,12 @@ namespace i18n_check
             }
         else if (functionName.length() > 0)
             {
-            if (is_diagnostic_function(functionName))
+            if (m_is_in_stream &&
+                m_streamable_functions.find(functionName) == m_streamable_functions.cend())
+                {
+                return;
+                }
+            else if (is_diagnostic_function(functionName))
                 {
                 m_internal_strings.emplace_back(
                     std::wstring(currentTextPos, quoteEnd - currentTextPos),
@@ -1434,6 +1442,7 @@ namespace i18n_check
         variableType.clear();
         parameterPosition = 0;
         deprecatedMacroEncountered.clear();
+        m_is_in_stream = false;
         int32_t closeParenCount{ 0 };
         int32_t closeBraseCount{ 0 };
         bool quoteWrappedInCTOR{ false };
@@ -1697,8 +1706,8 @@ namespace i18n_check
                 {
                 break;
                 }
-            // << stream operator in some languages,
-            // skip over it and skip over ')' in front of it if there is one
+            // << stream operator in some languages.
+            // Skip over it and skip over ')' in front of it if there is one
             // to allow things like:
             //     gDebug() << "message"
             else if (*startPos == L'<')
@@ -1715,6 +1724,7 @@ namespace i18n_check
                         {
                         std::advance(startPos, -1);
                         }
+                    m_is_in_stream = true;
                     }
                 }
             else

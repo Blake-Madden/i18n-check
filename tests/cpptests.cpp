@@ -72,6 +72,16 @@ TEST_CASE("<<", "[cpp][i18n]")
         cpp.review_strings();
         REQUIRE(cpp.get_internal_strings().size() == 1);
         }
+
+    SECTION("Doesn't support <<")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(wxGetTranslation("Hello there") << "################### THERE IS A MESSAGE #################";)";
+        cpp(code, L"");
+        cpp.review_strings();
+        REQUIRE(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_localizable_strings()[0].m_string == L"Hello there");
+        }
     }
 
 TEST_CASE("Place holders", "[cpp][i18n]")

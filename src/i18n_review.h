@@ -934,6 +934,7 @@ namespace i18n_check
         std::set<std::wstring_view> m_non_localizable_functions;
         std::set<std::wstring_view> m_internal_functions;
         std::set<std::wstring_view> m_log_functions;
+        std::set<std::wstring_view> m_streamable_functions;
         std::set<std::wstring_view> m_exceptions;
         std::set<std::wstring_view> m_ctors_to_ignore;
         std::vector<std::wregex> m_variable_name_patterns_to_ignore;
@@ -1030,6 +1031,8 @@ namespace i18n_check
 
         // helpers
         mutable std::vector<parse_messages> m_error_log;
+
+        bool m_is_in_stream{ false };
 
         // bookkeeping diagnostics
 #ifndef NDEBUG
