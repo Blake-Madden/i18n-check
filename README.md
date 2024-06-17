@@ -149,6 +149,9 @@ Refer [here](Example.md) for example usage.
                       strings being classified as a notL10NAvailable warning.
                       (Default is 2.)
 
+--fuzzy:              Whether to review fuzzy translations.
+                      (Default is false.)
+
 --cpp-version: The C++ standard that should be assumed when issuing deprecated macro warnings.
                (Default is 14.)
 
