@@ -129,6 +129,85 @@ TEST_CASE("C/C++ code", "[cpp][i18n]")
         }
     }
 
+TEST_CASE("QLabel", "[cpp][i18n][qt]")
+    {
+    cpp_i18n_review cpp;
+    const wchar_t* code = LR"(void TestCLass::TestCase(const QString &text1, const QString &text2)
+{
+    QLabel *test1 = new QLabel("label example 1");
+    test1->setText("label example 2");
+	
+    QLabel test2;
+    test2.setText("text example 1");
+	
+    QLabel test3;
+    test3.setText(tr("text example 2"));
+	
+    QLabel *test4 = new QLabel(text1);
+    test4->setText(text2);
+	
+    QColor col1("red");
+    col1.setNamedColor("yellow");
+    
+    QColor col2("#2F2F20");
+    col2.setNamedColor("black");
+	
+    QColor col3(_DT("blue"));
+    
+    QColor col4(_DT("#2F2F2F"));
+	
+    QString test1 = qApp->translate("SomeContex", "source");
+    QString test2 = QApplication::translate("SomeContex", "source");
+    QString test3 = QApplication::tr("SomeContex", "source");
+    QString test3 = QApplication::trUtf8("SomeContex", "some source");
+}
+
+void TestCLass::TestCase2()
+{
+     TestCase("Test text", "Another test text");
+})";
+    cpp(code, L"");
+    cpp.set_min_words_for_classifying_unavailable_string(1);
+    cpp.review_strings();
+    REQUIRE(cpp.get_not_available_for_localization_strings().size() == 5);
+    CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"label example 1" });
+    CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == std::wstring{ L"label example 2" });
+    CHECK(cpp.get_not_available_for_localization_strings()[2].m_string == std::wstring{ L"text example 1" });
+    CHECK(cpp.get_not_available_for_localization_strings()[3].m_string == std::wstring{ L"Test text" });
+    CHECK(cpp.get_not_available_for_localization_strings()[4].m_string == std::wstring{ L"Another test text" });
+
+    REQUIRE(cpp.get_localizable_strings().size() == 5);
+    CHECK(cpp.get_localizable_strings()[0].m_string == std::wstring{ L"text example 2" });
+    CHECK(cpp.get_localizable_strings()[1].m_string == std::wstring{ L"source" });
+    CHECK(cpp.get_localizable_strings()[2].m_string == std::wstring{ L"source" });
+    CHECK(cpp.get_localizable_strings()[3].m_string == std::wstring{ L"source" });
+    CHECK(cpp.get_localizable_strings()[4].m_string == std::wstring{ L"some source" });
+
+    REQUIRE(cpp.get_marked_as_non_localizable_strings().size() == 2);
+    CHECK(cpp.get_marked_as_non_localizable_strings()[0].m_string == std::wstring{ L"blue" });
+    CHECK(cpp.get_marked_as_non_localizable_strings()[1].m_string == std::wstring{ L"#2F2F2F" });
+
+    REQUIRE(cpp.get_unsafe_localizable_strings().size() == 0);
+
+    REQUIRE(cpp.get_internal_strings().size() == 8);
+    CHECK(cpp.get_internal_strings()[0].m_string ==std::wstring{ L"red" });
+    CHECK(cpp.get_internal_strings()[0].m_usage.m_value == std::wstring{ L"col1" });
+    CHECK(cpp.get_internal_strings()[1].m_string == std::wstring{ L"yellow" });
+    CHECK(cpp.get_internal_strings()[1].m_usage.m_value == std::wstring{ L"setNamedColor" });
+    CHECK(cpp.get_internal_strings()[2].m_string == std::wstring{ L"" }); // #2F2F20 is stripped down to nothing
+    CHECK(cpp.get_internal_strings()[2].m_usage.m_value == std::wstring{ L"col2" });
+    CHECK(cpp.get_internal_strings()[3].m_string == std::wstring{ L"black" });
+    CHECK(cpp.get_internal_strings()[3].m_usage.m_value == std::wstring{ L"setNamedColor" });
+    CHECK(cpp.get_internal_strings()[4].m_string == std::wstring{ L"SomeContex" });
+    CHECK(cpp.get_internal_strings()[4].m_usage.m_value == std::wstring{ L"translate" });
+    CHECK(cpp.get_internal_strings()[5].m_string == std::wstring{ L"SomeContex" });
+    CHECK(cpp.get_internal_strings()[5].m_usage.m_value == std::wstring{ L"QApplication::translate" });
+    CHECK(cpp.get_internal_strings()[6].m_string == std::wstring{ L"SomeContex" });
+    CHECK(cpp.get_internal_strings()[6].m_usage.m_value == std::wstring{ L"QApplication::tr" });
+    CHECK(cpp.get_internal_strings()[7].m_string == std::wstring{ L"SomeContex" });
+    CHECK(cpp.get_internal_strings()[7].m_usage.m_value == std::wstring{ L"QApplication::trUtf8" });
+    }
+
 TEST_CASE("IDs", "[cpp][i18n]")
     {
     SECTION("ID assignments")
