@@ -913,6 +913,8 @@ namespace i18n_check
                 if ( // Qt
                     (functionName == L"translate" && parameterPosition == 0) ||
                     (functionName == L"QApplication::translate" && parameterPosition == 0) ||
+                    (functionName == L"QApplication::tr" && parameterPosition == 0) ||
+                    (functionName == L"QApplication::trUtf8" && parameterPosition == 0) ||
                     (functionName == L"tr" && parameterPosition == 1) ||
                     (functionName == L"trUtf8" && parameterPosition == 1) ||
                     (functionName == L"QT_TRANSLATE_NOOP" && parameterPosition == 0) ||

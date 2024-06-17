@@ -432,18 +432,24 @@ QLabel *label = new QLabel(
     SECTION("QApplication::translate")
         {
         cpp_i18n_review cpp;
-        const wchar_t* code = LR"(QString test = qApp->translate("SomeContext", "source content");
-QString test = QApplication::translate("SomeContext", "more source content");)";
+        const wchar_t* code = LR"(QString test = qApp->translate("SomeContext1", "source content");
+QString test = QApplication::translate("SomeContext2", "more source content");
+QString test2 = QApplication::tr("SomeContext3", "even more source content");
+QString test3 = QApplication::trUtf8("SomeContext4", "even even more source content");)";
         cpp(code, L"");
         cpp.review_strings();
-        REQUIRE(cpp.get_localizable_strings().size() == 2);
+        REQUIRE(cpp.get_localizable_strings().size() == 4);
         CHECK(cpp.get_localizable_strings()[0].m_string == L"source content");
         CHECK(cpp.get_localizable_strings()[1].m_string == L"more source content");
+        CHECK(cpp.get_localizable_strings()[2].m_string == L"even more source content");
+        CHECK(cpp.get_localizable_strings()[3].m_string == L"even even more source content");
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 2);
+        REQUIRE(cpp.get_internal_strings().size() == 4);
         // context portion of translate()
-        CHECK(cpp.get_internal_strings()[0].m_string == L"SomeContext");
-        CHECK(cpp.get_internal_strings()[1].m_string == L"SomeContext");
+        CHECK(cpp.get_internal_strings()[0].m_string == L"SomeContext1");
+        CHECK(cpp.get_internal_strings()[1].m_string == L"SomeContext2");
+        CHECK(cpp.get_internal_strings()[2].m_string == L"SomeContext3");
+        CHECK(cpp.get_internal_strings()[3].m_string == L"SomeContext4");
         CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
         }
 
