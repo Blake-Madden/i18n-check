@@ -1,4 +1,4 @@
-<img src="i18n.svg" width="150" />
+<img src="app-logo.svg" width="150" />
 
 i18n-check
 =============================
