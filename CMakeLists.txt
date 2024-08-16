@@ -23,7 +23,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-set(FILES src/main.cpp src/i18n_string_util.cpp src/i18n_review.cpp
+set(FILES src/analyze.cpp src/main.cpp src/i18n_string_util.cpp src/i18n_review.cpp src/input.cpp
           src/cpp_i18n_review.cpp src/po_file_review.cpp src/rc_file_review.cpp)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 

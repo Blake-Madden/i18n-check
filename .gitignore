@@ -1,9 +1,12 @@
 /.vs/
 /bin/
+/out/
 /tests/.vs/
 /tests/bin/
 /tests/out/
-/out/
+/gui/.vs/
+/guis/bin/
+/gui/out/
 /html/
 /CMakeSettings.json
 /doxyerrors.txt
