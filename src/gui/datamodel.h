@@ -33,13 +33,13 @@ class I18NResultsTreeModelNode
     I18NResultsTreeModelNode(I18NResultsTreeModelNode* parent, const wxString& warningId,
                              const wxString& issue, const wxString& explanation, const int line,
                              const int column)
-        : m_parent(parent), m_warningId(warningId), m_issue(issue), m_explaination(explanation),
-          m_line(line), m_column(column), m_container(false)
+        : m_warningId(warningId), m_issue(issue), m_explaination(explanation), m_line(line),
+          m_column(column), m_container(false), m_parent(parent)
         {
         }
 
     I18NResultsTreeModelNode(I18NResultsTreeModelNode* parent, const wxString& warningId)
-        : m_parent(parent), m_warningId(warningId), m_container(true)
+        : m_warningId(warningId), m_container(true), m_parent(parent)
         {
         }
 
