@@ -18,7 +18,6 @@ namespace i18n_check
 
         for (const auto& excItem : excluded)
             {
-            std::error_code ec;
             if (std::filesystem::exists(excItem))
                 {
                 if (std::filesystem::is_directory(excItem))
