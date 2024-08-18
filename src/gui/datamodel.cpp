@@ -46,7 +46,7 @@ void I18NResultsTreeModel::AddRow(const wxString& fileName, const wxString& warn
 //------------------------------------------------------
 void I18NResultsTreeModel::Delete(const wxDataViewItem& item)
     {
-    I18NResultsTreeModelNode* node = (I18NResultsTreeModelNode*)item.GetID();
+    I18NResultsTreeModelNode* node = reinterpret_cast<I18NResultsTreeModelNode*>(item.GetID());
     if (node == nullptr) // happens if item.IsOk()==false
         {
         return;
@@ -155,7 +155,7 @@ bool I18NResultsTreeModel::SetValue(const wxVariant& variant, const wxDataViewIt
     {
     wxASSERT(item.IsOk());
 
-    I18NResultsTreeModelNode* node = (I18NResultsTreeModelNode*)item.GetID();
+    I18NResultsTreeModelNode* node = reinterpret_cast<I18NResultsTreeModelNode*>(item.GetID());
     switch (col)
         {
     case 0:
@@ -188,7 +188,7 @@ wxDataViewItem I18NResultsTreeModel::GetParent(const wxDataViewItem& item) const
         return wxDataViewItem(nullptr);
         }
 
-    I18NResultsTreeModelNode* node = (I18NResultsTreeModelNode*)item.GetID();
+    I18NResultsTreeModelNode* node = reinterpret_cast<I18NResultsTreeModelNode*>(item.GetID());
 
     // "I18NResults" also has no parent
     if (node == m_root)
