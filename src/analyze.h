@@ -20,11 +20,15 @@
 #include "utfcpp/source/utf8.h"
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <string>
 #include <vector>
 
 namespace i18n_check
     {
+    /// @brief Progress callback for analyze().
+    using analyze_callback = std::function<void(const size_t, const size_t, const std::string&)>;
+
     /// @private
     std::pair<bool, std::wstring> read_utf16_file(const std::string& file_name);
     /// @private
@@ -40,12 +44,12 @@ namespace i18n_check
         @param[out] filesThatShouldBeConvertedToUTF8 Files that should be converted to UTF-8.
         @param[out] filesThatContainUTF8Signature UTF-8 files that contain a
             Windows UTF-8 file signature.
-        @param quietMode @c true not show warnings to the console.*/
+        @param callback Callback function to display the progress.
+            Takes the current file index, overall file count, and the name of the current file.*/
     void analyze(const std::vector<std::string>& filesToAnalyze, i18n_check::cpp_i18n_review& cpp,
                  i18n_check::rc_file_review& rc, i18n_check::po_file_review& po,
                  std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,
-                 std::vector<std::wstring>& filesThatContainUTF8Signature,
-                 const bool quietMode = false);
+                 std::vector<std::wstring>& filesThatContainUTF8Signature, analyze_callback callback);
 
     /** @returns A formatted summary of the results.
         @param[in,out] cpp The C++ analyzer that was used.

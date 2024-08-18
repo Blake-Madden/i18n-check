@@ -141,8 +141,8 @@ int main(int argc, char* argv[])
         }
 
     // paths being ignored
-    const auto excludedInfo =
-        get_paths_files_to_exclude(inputFolder, result["ignore"].count() > 0 ?
+    const auto excludedInfo = get_paths_files_to_exclude(
+        inputFolder, result["ignore"].count() > 0 ?
                          result["ignore"].as<std::vector<std::string>>() :
                          std::vector<std::string>{});
 
@@ -370,8 +370,16 @@ int main(int argc, char* argv[])
     std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
     std::vector<std::wstring> filesThatContainUTF8Signature;
 
-    analyze(filesToAnalyze, cpp, rc, po, filesThatShouldBeConvertedToUTF8,
-            filesThatContainUTF8Signature, readBoolOption("quiet", false));
+    analyze(
+        filesToAnalyze, cpp, rc, po, filesThatShouldBeConvertedToUTF8,
+        filesThatContainUTF8Signature,
+        readBoolOption("quiet", false) ?
+            [](const size_t, const size_t, const std::string&) {} :
+            [](const size_t currentFileIndex, const size_t fileCount, const std::string& file)
+            {
+                std::wcout << L"Examining " << currentFileIndex << L" of " << fileCount
+                           << L" files (" << std::filesystem::path(file).filename() << L")\n";
+            });
 
     const std::wstringstream report =
         format_results(cpp, rc, po, filesThatShouldBeConvertedToUTF8, filesThatContainUTF8Signature,

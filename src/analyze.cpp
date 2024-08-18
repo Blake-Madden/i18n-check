@@ -110,7 +110,7 @@ namespace i18n_check
                  i18n_check::rc_file_review& rc, i18n_check::po_file_review& po,
                  std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,
                  std::vector<std::wstring>& filesThatContainUTF8Signature,
-                 const bool quietMode /*= false*/)
+                 analyze_callback callback)
         {
         filesThatShouldBeConvertedToUTF8.clear();
         filesThatContainUTF8Signature.clear();
@@ -126,12 +126,7 @@ namespace i18n_check
         // load file content into analyzers
         for (const auto& file : filesToAnalyze)
             {
-            if (!quietMode)
-                {
-                std::wcout << L"Examining " << ++currentFileIndex << L" of "
-                           << filesToAnalyze.size() << L" files ("
-                           << std::filesystem::path(file).filename() << L")\n";
-                }
+            callback(++currentFileIndex, filesToAnalyze.size(), file);
 
             const file_review_type fileType = [&file]()
             {
@@ -204,7 +199,7 @@ namespace i18n_check
                             i18n_string_util::lazy_string_to_wstring(file));
                         }
                     std::wifstream ifs(file);
-                    std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
+                    const std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                      std::istreambuf_iterator<wchar_t>());
                     if (fileType == file_review_type::rc)
                         {
@@ -227,10 +222,6 @@ namespace i18n_check
             }
 
         // analyze the content
-        if (!quietMode)
-            {
-            std::wcout << L"Reviewing strings...\n";
-            }
         cpp.review_strings();
         po.review_strings();
         }
