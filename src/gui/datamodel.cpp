@@ -26,8 +26,8 @@ void I18NResultsTreeModel::AddRow(const wxString& fileName, const wxString& warn
 
         // notify control
         {
-        wxDataViewItem child((void*)newFile);
-        wxDataViewItem parent((void*)m_root);
+        wxDataViewItem child(reinterpret_cast<void*>(newFile));
+        wxDataViewItem parent(reinterpret_cast<void*>(m_root));
         ItemAdded(parent, child);
         }
 
@@ -37,8 +37,8 @@ void I18NResultsTreeModel::AddRow(const wxString& fileName, const wxString& warn
 
         // notify control
         {
-        wxDataViewItem child((void*)child_node);
-        wxDataViewItem parent((void*)newFile);
+        wxDataViewItem child(reinterpret_cast<void*>(child_node));
+        wxDataViewItem parent(reinterpret_cast<void*>(newFile));
         ItemAdded(parent, child);
         }
     }
@@ -98,17 +98,15 @@ int I18NResultsTreeModel::Compare(const wxDataViewItem& item1, const wxDataViewI
         GetValue(value1, item1, 0);
         GetValue(value2, item2, 0);
 
-        wxString str1 = value1.GetString();
-        wxString str2 = value2.GetString();
-        int res = str1.Cmp(str2);
-        if (res)
+        int res = value1.GetString().Cmp(value2.GetString());
+        if (res != 0)
             {
             return res;
             }
 
         // items must be different
-        wxUIntPtr litem1 = (wxUIntPtr)item1.GetID();
-        wxUIntPtr litem2 = (wxUIntPtr)item2.GetID();
+        wxUIntPtr litem1 = reinterpret_cast<wxUIntPtr>(item1.GetID());
+        wxUIntPtr litem2 = reinterpret_cast<wxUIntPtr>(item2.GetID());
 
         return litem1 - litem2;
         }
@@ -122,7 +120,7 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
     {
     wxASSERT(item.IsOk());
 
-    I18NResultsTreeModelNode* node = (I18NResultsTreeModelNode*)item.GetID();
+    I18NResultsTreeModelNode* node = reinterpret_cast<I18NResultsTreeModelNode*>(item.GetID());
     switch (col)
         {
     case 0:
@@ -134,13 +132,13 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
     case 2:
         if (node->m_line != -1)
             {
-            variant = (long)node->m_line;
+            variant = static_cast<long>(node->m_line);
             }
         break;
     case 3:
         if (node->m_column != -1)
             {
-            variant = (long)node->m_column;
+            variant = static_cast<long>(node->m_column);
             }
         break;
     case 4:
@@ -211,7 +209,7 @@ bool I18NResultsTreeModel::IsContainer(const wxDataViewItem& item) const
         return true;
         }
 
-    I18NResultsTreeModelNode* node = (I18NResultsTreeModelNode*)item.GetID();
+    I18NResultsTreeModelNode* node = reinterpret_cast<I18NResultsTreeModelNode*>(item.GetID());
     return node->IsContainer();
     }
 
@@ -219,7 +217,7 @@ bool I18NResultsTreeModel::IsContainer(const wxDataViewItem& item) const
 unsigned int I18NResultsTreeModel::GetChildren(const wxDataViewItem& parent,
                                                wxDataViewItemArray& array) const
     {
-    I18NResultsTreeModelNode* node = (I18NResultsTreeModelNode*)parent.GetID();
+    I18NResultsTreeModelNode* node = reinterpret_cast<I18NResultsTreeModelNode*>(parent.GetID());
     if (!node)
         {
         return GetChildren(wxDataViewItem(m_root), array);
