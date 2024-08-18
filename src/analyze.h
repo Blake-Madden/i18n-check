@@ -27,7 +27,7 @@
 namespace i18n_check
     {
     /// @brief Progress callback for analyze().
-    using analyze_callback = std::function<void(const size_t, const size_t, const std::wstring&)>;
+    using analyze_callback = std::function<bool(const size_t, const size_t, const std::wstring&)>;
 
     /// @private
     std::pair<bool, std::wstring> read_utf16_file(const std::wstring& file_name);
@@ -45,7 +45,8 @@ namespace i18n_check
         @param[out] filesThatContainUTF8Signature UTF-8 files that contain a
             Windows UTF-8 file signature.
         @param callback Callback function to display the progress.
-            Takes the current file index, overall file count, and the name of the current file.*/
+            Takes the current file index, overall file count, and the name of the current file.
+            Returning @c indicates that the user cancelled the analysis.*/
     void analyze(const std::vector<std::wstring>& filesToAnalyze, i18n_check::cpp_i18n_review& cpp,
                  i18n_check::rc_file_review& rc, i18n_check::po_file_review& po,
                  std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,

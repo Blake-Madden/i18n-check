@@ -126,7 +126,10 @@ namespace i18n_check
         // load file content into analyzers
         for (const auto& file : filesToAnalyze)
             {
-            callback(++currentFileIndex, filesToAnalyze.size(), file);
+            if (!callback(++currentFileIndex, filesToAnalyze.size(), file))
+                {
+                return;
+                }
 
             const file_review_type fileType = [&file]()
             {

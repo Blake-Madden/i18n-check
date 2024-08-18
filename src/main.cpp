@@ -379,11 +379,12 @@ int main(int argc, char* argv[])
         filesToAnalyze, cpp, rc, po, filesThatShouldBeConvertedToUTF8,
         filesThatContainUTF8Signature,
         readBoolOption("quiet", false) ?
-            [](const size_t, const size_t, const std::wstring&) {} :
+            [](const size_t, const size_t, const std::wstring&) { return true; } :
             [](const size_t currentFileIndex, const size_t fileCount, const std::wstring& file)
             {
                 std::wcout << L"Examining " << currentFileIndex << L" of " << fileCount
                            << L" files (" << std::filesystem::path(file).filename() << L")\n";
+                return true;
             });
 
     const std::wstringstream report =
