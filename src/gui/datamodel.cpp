@@ -16,7 +16,7 @@ I18NResultsTreeModel::I18NResultsTreeModel()
 
 //------------------------------------------------------
 void I18NResultsTreeModel::AddRow(const wxString& fileName, const wxString& warningId,
-                                  const wxString& issue, const wxString& explaination,
+                                  const wxString& issue, const wxString& explanation,
                                   const int line, const int column)
     {
     wxASSERT(m_root);
@@ -32,7 +32,7 @@ void I18NResultsTreeModel::AddRow(const wxString& fileName, const wxString& warn
         }
 
     I18NResultsTreeModelNode* child_node =
-        new I18NResultsTreeModelNode(newFile, warningId, issue, explaination, line, column);
+        new I18NResultsTreeModelNode(newFile, warningId, issue, explanation, line, column);
     newFile->Append(child_node);
 
         // notify control

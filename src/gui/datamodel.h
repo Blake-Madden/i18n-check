@@ -31,9 +31,9 @@ class I18NResultsTreeModelNode
     {
   public:
     I18NResultsTreeModelNode(I18NResultsTreeModelNode* parent, const wxString& warningId,
-                             const wxString& issue, const wxString& explaination, const int line,
+                             const wxString& issue, const wxString& explanation, const int line,
                              const int column)
-        : m_parent(parent), m_warningId(warningId), m_issue(issue), m_explaination(explaination),
+        : m_parent(parent), m_warningId(warningId), m_issue(issue), m_explaination(explanation),
           m_line(line), m_column(column), m_container(false)
         {
         }
@@ -93,7 +93,7 @@ class I18NResultsTreeModel : public wxDataViewModel
     void Clear();
 
     void AddRow(const wxString& fileName, const wxString& warningId, const wxString& issue,
-                const wxString& explaination, const int line, const int column);
+                const wxString& explanation, const int line, const int column);
 
     // override sorting to always sort branches ascendingly
     int Compare(const wxDataViewItem& item1, const wxDataViewItem& item2, unsigned int column,
