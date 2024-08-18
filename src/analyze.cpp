@@ -200,7 +200,7 @@ namespace i18n_check
                         }
                     std::wifstream ifs(file);
                     const std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
-                                     std::istreambuf_iterator<wchar_t>());
+                                           std::istreambuf_iterator<wchar_t>());
                     if (fileType == file_review_type::rc)
                         {
                         rc(str, std::filesystem::path(file).wstring());
@@ -275,6 +275,15 @@ namespace i18n_check
                                       std::vector<std::wstring>& filesThatContainUTF8Signature,
                                       const bool verbose /*= false*/)
         {
+        const auto replaceSpecialSpaces = [](const std::wstring& str)
+        {
+            auto newStr{ str };
+            string_util::replace_all(newStr, L'\t', L' ');
+            string_util::replace_all(newStr, L'\n', L' ');
+            string_util::replace_all(newStr, L'\r', L' ');
+            return newStr;
+        };
+
         /* Note: yes, I am aware of the irony of i18n bad practices here :)
            Normally, you shouldn't piece strings together, should make them available for
            translation, etc. However, I am just keeping this tool simple.*/
@@ -284,28 +293,30 @@ namespace i18n_check
         // Windows resource file warnings
         for (const auto& val : rc.get_unsafe_localizable_strings())
             {
-            report << val.m_file_name << L"\t\t\t" << L"\"" << val.m_string << L"\"\t"
-                   << L"String available for translation that probably should not be"
+            report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
+                   << L"\"\t" << L"String available for translation that probably should not be"
                    << L"\t[suspectL10NString]\n";
             }
 
         for (const auto& val : rc.get_bad_dialog_font_sizes())
             {
-            report << val.m_file_name << L"\t\t\t" << L"\"" << val.m_string << L"\"\t"
-                   << L"Font issue in resource file dialog definition." << L"\t[fontIssue]\n";
+            report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
+                   << L"\"\t" << L"Font issue in resource file dialog definition."
+                   << L"\t[fontIssue]\n";
             }
 
         for (const auto& val : rc.get_non_system_dialog_fonts())
             {
-            report << val.m_file_name << L"\t\t\t" << L"\"" << val.m_string << L"\"\t"
-                   << L"Font issue in resource file dialog definition." << L"\t[fontIssue]\n";
+            report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
+                   << L"\"\t" << L"Font issue in resource file dialog definition."
+                   << L"\t[fontIssue]\n";
             }
 
         // C/C++ warnings
         for (const auto& val : cpp.get_unsafe_localizable_strings())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << L"\"" << val.m_string << L"\"\t";
+                   << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
             if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
                 {
                 report << L"String available for translation that probably "
@@ -331,7 +342,7 @@ namespace i18n_check
         for (const auto& val : cpp.get_localizable_strings_with_urls())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << L"\"" << val.m_string << L"\"\t";
+                   << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
             if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
                 {
                 report << L"String available for translation that contains an "
@@ -357,7 +368,7 @@ namespace i18n_check
         for (const auto& val : cpp.get_localizable_strings_in_internal_call())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << L"\"" << val.m_string << L"\"\t";
+                   << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
             if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
                 {
                 report << L"Localizable string being used within non-user facing function call: "
@@ -379,7 +390,7 @@ namespace i18n_check
         for (const auto& val : cpp.get_not_available_for_localization_strings())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << L"\"" << val.m_string << L"\"\t";
+                   << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
             if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
                 {
                 report << L"String not available for translation in function call: "
@@ -402,13 +413,14 @@ namespace i18n_check
         for (const auto& val : cpp.get_deprecated_macros())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << val.m_string << L"\t" << val.m_usage.m_value << L"\t[deprecatedMacro]\n";
+                   << replaceSpecialSpaces(val.m_string) << L"\t" << val.m_usage.m_value
+                   << L"\t[deprecatedMacro]\n";
             }
 
         for (const auto& val : cpp.get_printf_single_numbers())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << val.m_string << L"\"\t"
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
                    << L"Prefer using std::to_[w]string() instead of printf() formatting a single "
                       L"number."
                    << L"\t[printfSingleNumber]\n";
@@ -416,7 +428,7 @@ namespace i18n_check
 
         for (const auto& val : cpp.get_duplicates_value_assigned_to_ids())
             {
-            report << val.m_file_name << L"\t\t\t" << val.m_string << L"\t"
+            report << val.m_file_name << L"\t\t\t" << replaceSpecialSpaces(val.m_string) << L"\t"
                    << L"Verify that duplicate assignment was intended. "
                       "If correct, consider assigning the first ID variable by name "
                       "to the second one to make this intention clear."
@@ -425,7 +437,7 @@ namespace i18n_check
 
         for (const auto& val : cpp.get_ids_assigned_number())
             {
-            report << val.m_file_name << L"\t\t\t" << val.m_string << L"\t"
+            report << val.m_file_name << L"\t\t\t" << replaceSpecialSpaces(val.m_string) << L"\t"
                    << L"Prefer using ID constants provided by your framework when "
                       "assigning values to an ID variable."
                    << L"\t[numberAssignedToId]\n";
@@ -434,8 +446,8 @@ namespace i18n_check
         for (const auto& val : cpp.get_malformed_strings())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << val.m_string << L"\"\t" << L"Malformed syntax in string."
-                   << L"\t[malformedString]\n";
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                   << L"Malformed syntax in string." << L"\t[malformedString]\n";
             }
 
         for (const auto& file : filesThatShouldBeConvertedToUTF8)
@@ -456,7 +468,8 @@ namespace i18n_check
         for (const auto& val : cpp.get_unencoded_ext_ascii_strings())
             {
             std::wstringstream encodingRecommendations;
-            for (const auto& ch : val.m_string)
+            auto untabbedStr{ replaceSpecialSpaces(val.m_string) };
+            for (const auto& ch : untabbedStr)
                 {
                 if (ch > 127)
                     {
@@ -471,7 +484,7 @@ namespace i18n_check
 
             report
                 << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" << L"\""
-                << val.m_string << L"\"\t"
+                << replaceSpecialSpaces(val.m_string) << L"\"\t"
                 << L"String contains extended ASCII characters that should be encoded. Recommended "
                    L"change: '"
                 << encodingRecommendations.str() << L"'\t[unencodedExtASCII]\n";
@@ -480,28 +493,28 @@ namespace i18n_check
         for (const auto& val : cpp.get_trailing_spaces())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << val.m_string << L"\"\t" << L"Trailing space(s) detected at end of line."
-                   << L"\t[trailingSpaces]\n";
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                   << L"Trailing space(s) detected at end of line." << L"\t[trailingSpaces]\n";
             }
 
         for (const auto& val : cpp.get_tabs())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << val.m_string << L"\"\t" << L"Tab detected in file; prefer using spaces."
-                   << L"\t[tabs]\n";
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                   << L"Tab detected in file; prefer using spaces." << L"\t[tabs]\n";
             }
 
         for (const auto& val : cpp.get_wide_lines())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << val.m_string << L"\"\t" << L"Line is " << val.m_usage.m_value
-                   << L" characters long." << L"\t[wideLine]\n";
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t" << L"Line is "
+                   << val.m_usage.m_value << L" characters long." << L"\t[wideLine]\n";
             }
 
         for (const auto& val : cpp.get_comments_missing_space())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << val.m_string << L"\"\t"
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
                    << L"Space should be inserted between comment tag and comment."
                    << L"\t[commentMissingSpace]\n";
             }
