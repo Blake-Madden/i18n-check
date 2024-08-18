@@ -8,6 +8,7 @@
 
 #include "analyze.h"
 #include <iostream>
+#include <sstream>
 
 namespace i18n_check
     {
@@ -15,7 +16,7 @@ namespace i18n_check
     bool valid_utf8_file(const std::wstring& file_name, bool& startsWithBom)
         {
         startsWithBom = false;
-        std::wifstream ifs(file_name);
+        std::wifstream ifs(file_name.c_str());
         if (!ifs)
             {
             return false;
