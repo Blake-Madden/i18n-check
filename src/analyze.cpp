@@ -16,14 +16,14 @@ namespace i18n_check
     bool valid_utf8_file(const std::wstring& file_name, bool& startsWithBom)
         {
         startsWithBom = false;
-        std::wifstream ifs(file_name.c_str());
+        std::ifstream ifs(file_name);
         if (!ifs)
             {
             return false;
             }
 
-        std::istreambuf_iterator<wchar_t> it(ifs.rdbuf());
-        std::istreambuf_iterator<wchar_t> eos;
+        std::istreambuf_iterator<char> it(ifs.rdbuf());
+        std::istreambuf_iterator<char> eos;
 
         if (utf8::starts_with_bom(it, eos))
             {
