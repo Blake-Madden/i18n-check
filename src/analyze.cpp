@@ -199,7 +199,7 @@ namespace i18n_check
                         {
                         filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
-                    std::wifstream ifs(file);
+                    std::wifstream ifs(i18n_string_util::lazy_wstring_to_string(file));
                     const std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                            std::istreambuf_iterator<wchar_t>());
                     if (fileType == file_review_type::rc)
