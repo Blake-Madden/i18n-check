@@ -118,7 +118,7 @@ void I18NFrame::InitControls()
 //------------------------------------------------------
 void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent& event)
     {
-    std::wstring inputFolder = L"C:\\Users\\madin\\source\\wxWidgets\\samples";
+    std::wstring inputFolder;
     // paths being ignored
     const auto excludedInfo =
         i18n_check::get_paths_files_to_exclude(inputFolder, std::vector<std::wstring>{});
@@ -155,11 +155,12 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent& event)
                 wxNumberFormatter::ToString(fileCount, 0,
                                             wxNumberFormatter::Style::Style_NoTrailingZeroes |
                                                 wxNumberFormatter::Style::Style_WithThousandsSep)));
-            if (!progressDlg.Update(currentFileIndex,
-                                    wxString::Format(_(L"Reviewing %s"), file.c_str())))
+            if (!progressDlg.Update(currentFileIndex, wxString::Format(_(L"Reviewing %s..."),
+                                                                       wxFileName{ file }.GetFullName())))
                 {
-                return;
+                return false;
                 }
+            return true;
         });
 
     const std::wstringstream report = format_results(cpp, rc, po, filesThatShouldBeConvertedToUTF8,
