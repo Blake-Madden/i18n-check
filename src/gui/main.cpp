@@ -6,9 +6,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "../analyze.h"
+#include "../input.h"
 #include "datamodel.h"
 #include <wx/artprov.h>
 #include <wx/dataview.h>
+#include <wx/filename.h>
+#include <wx/numformatter.h>
+#include <wx/progdlg.h>
 #include <wx/ribbon/bar.h>
 #include <wx/ribbon/buttonbar.h>
 #include <wx/ribbon/gallery.h>
@@ -22,6 +27,8 @@ class I18NFrame : public wxFrame
     I18NFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {}
 
     void InitControls();
+
+    void OnNew([[maybe_unused]] wxCommandEvent& event);
 
   private:
     wxObjectDataPtr<I18NResultsTreeModel> m_resultsModel;
@@ -42,9 +49,9 @@ void I18NFrame::InitControls()
             new wxRibbonPanel(homePage, wxID_ANY, _(L"Project"), wxNullBitmap, wxDefaultPosition,
                               wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
 
-        wxRibbonToolBar* toolbar = new wxRibbonToolBar(projectPanel);
-        toolbar->AddTool(wxID_NEW,
-                         wxArtProvider::GetBitmap(wxART_NEW, wxART_OTHER, wxSize{ 32, 32 }));
+        wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(projectPanel);
+        toolbar->AddButton(wxID_NEW, _(L"New Project"),
+                           wxArtProvider::GetBitmap(wxART_NEW, wxART_OTHER, wxSize{ 32, 32 }));
         }
 
     m_ribbon->Realize();
@@ -96,6 +103,67 @@ void I18NFrame::InitControls()
     mainSizer->Add(m_resultsDataView, wxSizerFlags(1).Expand());
 
     SetSizer(mainSizer);
+
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnNew, this, wxID_NEW);
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
+            wxRibbonButtonBarEvent event;
+            OnNew(event);
+        },
+        wxID_NEW);
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent& event)
+    {
+    std::wstring inputFolder = L"C:\\Users\\madin\\source\\wxWidgets\\samples";
+    // paths being ignored
+    const auto excludedInfo =
+        i18n_check::get_paths_files_to_exclude(inputFolder, std::vector<std::wstring>{});
+
+    // input folder
+    const auto filesToAnalyze = i18n_check::get_files_to_analyze(
+        inputFolder, excludedInfo.excludedPaths, excludedInfo.excludedFiles);
+
+    i18n_check::cpp_i18n_review cpp;
+    i18n_check::rc_file_review rc;
+    i18n_check::po_file_review po;
+
+    std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
+    std::vector<std::wstring> filesThatContainUTF8Signature;
+
+    wxProgressDialog progressDlg(
+        _(L"Analyzing Files"), _(L"Reviewing files for l10n/i18n issues..."), filesToAnalyze.size(),
+        this,
+        wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
+            wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
+    progressDlg.Centre();
+
+    analyze(
+        filesToAnalyze, cpp, rc, po, filesThatShouldBeConvertedToUTF8,
+        filesThatContainUTF8Signature,
+        [&progressDlg](const size_t currentFileIndex, const size_t fileCount,
+                       const std::wstring& file)
+        {
+            progressDlg.SetTitle(wxString::Format(
+                _(L"Processing %s of %s files..."),
+                wxNumberFormatter::ToString(currentFileIndex, 0,
+                                            wxNumberFormatter::Style::Style_NoTrailingZeroes |
+                                                wxNumberFormatter::Style::Style_WithThousandsSep),
+                wxNumberFormatter::ToString(fileCount, 0,
+                                            wxNumberFormatter::Style::Style_NoTrailingZeroes |
+                                                wxNumberFormatter::Style::Style_WithThousandsSep)));
+            if (!progressDlg.Update(currentFileIndex,
+                                    wxString::Format(_(L"Reviewing %s"), file.c_str())))
+                {
+                return;
+                }
+        });
+
+    const std::wstringstream report = format_results(cpp, rc, po, filesThatShouldBeConvertedToUTF8,
+                                                     filesThatContainUTF8Signature, false);
     }
 
 // Application

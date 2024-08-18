@@ -12,7 +12,7 @@ namespace i18n_check
     {
     //------------------------------------------------------
     excluded_results get_paths_files_to_exclude(const std::filesystem::path& inputFolder,
-                                                const std::vector<std::string>& excluded)
+                                                const std::vector<std::wstring>& excluded)
         {
         excluded_results excResults;
 
@@ -31,7 +31,7 @@ namespace i18n_check
                         {
                         if (std::filesystem::exists(p) && p.is_directory())
                             {
-                            excResults.excludedPaths.push_back(p.path().string());
+                            excResults.excludedPaths.push_back(p.path().wstring());
                             }
                         }
                     }
@@ -46,7 +46,7 @@ namespace i18n_check
                 {
                 if (std::filesystem::is_directory(relPath))
                     {
-                    excResults.excludedPaths.push_back(relPath.string());
+                    excResults.excludedPaths.push_back(relPath.wstring());
                     const auto folderToRecurse{ excResults.excludedPaths.back() };
                     // add subdirectories
                     for (const auto& p :
@@ -54,13 +54,13 @@ namespace i18n_check
                         {
                         if (std::filesystem::exists(p) && p.is_directory())
                             {
-                            excResults.excludedPaths.push_back(p.path().string());
+                            excResults.excludedPaths.push_back(p.path().wstring());
                             }
                         }
                     }
                 else
                     {
-                    excResults.excludedFiles.push_back(relPath.string());
+                    excResults.excludedFiles.push_back(relPath.wstring());
                     }
                 }
             else
@@ -73,15 +73,15 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    std::vector<std::string> get_files_to_analyze(const std::filesystem::path& inputFolder,
-                                                  const std::vector<std::string>& excludedPaths,
-                                                  const std::vector<std::string>& excludedFiles)
+    std::vector<std::wstring> get_files_to_analyze(const std::filesystem::path& inputFolder,
+                                                  const std::vector<std::wstring>& excludedPaths,
+                                                  const std::vector<std::wstring>& excludedFiles)
         {
-        std::vector<std::string> filesToAnalyze;
+        std::vector<std::wstring> filesToAnalyze;
 
         if (std::filesystem::is_regular_file(inputFolder) && std::filesystem::exists(inputFolder))
             {
-            filesToAnalyze.push_back(inputFolder.string());
+            filesToAnalyze.push_back(inputFolder.wstring());
             }
         else if (std::filesystem::is_directory(inputFolder) && std::filesystem::exists(inputFolder))
             {
@@ -121,7 +121,7 @@ namespace i18n_check
                      ext.compare(std::filesystem::path(L".hpp")) == 0 ||
                      ext.compare(std::filesystem::path(L".po")) == 0))
                     {
-                    filesToAnalyze.push_back(p.path().string());
+                    filesToAnalyze.push_back(p.path().wstring());
                     }
                 }
             }

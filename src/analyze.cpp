@@ -12,17 +12,17 @@
 namespace i18n_check
     {
     //------------------------------------------------------
-    bool valid_utf8_file(const std::string& file_name, bool& startsWithBom)
+    bool valid_utf8_file(const std::wstring& file_name, bool& startsWithBom)
         {
         startsWithBom = false;
-        std::ifstream ifs(file_name);
+        std::wifstream ifs(file_name);
         if (!ifs)
             {
             return false;
             }
 
-        std::istreambuf_iterator<char> it(ifs.rdbuf());
-        std::istreambuf_iterator<char> eos;
+        std::istreambuf_iterator<wchar_t> it(ifs.rdbuf());
+        std::istreambuf_iterator<wchar_t> eos;
 
         if (utf8::starts_with_bom(it, eos))
             {
@@ -34,12 +34,12 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    std::pair<bool, std::wstring> read_utf16_file(const std::string& file_name)
+    std::pair<bool, std::wstring> read_utf16_file(const std::wstring& file_name)
         {
         std::ifstream fs8(file_name);
         if (!fs8.is_open())
             {
-            std::cout << "Could not open " << file_name << "\n";
+            std::wcout << L"Could not open " << file_name << L"\n";
             return std::make_pair(false, std::wstring{});
             }
 
@@ -64,7 +64,7 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    std::pair<bool, std::wstring> read_utf8_file(const std::string& file_name, bool& startsWithBom)
+    std::pair<bool, std::wstring> read_utf8_file(const std::wstring& file_name, bool& startsWithBom)
         {
         if (!valid_utf8_file(file_name, startsWithBom))
             {
@@ -74,7 +74,7 @@ namespace i18n_check
         std::ifstream fs8(file_name);
         if (!fs8.is_open())
             {
-            std::cout << "Could not open " << file_name << "\n";
+            std::wcout << L"Could not open " << file_name << L"\n";
             return std::make_pair(false, std::wstring{});
             }
 
@@ -106,7 +106,7 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    void analyze(const std::vector<std::string>& filesToAnalyze, i18n_check::cpp_i18n_review& cpp,
+    void analyze(const std::vector<std::wstring>& filesToAnalyze, i18n_check::cpp_i18n_review& cpp,
                  i18n_check::rc_file_review& rc, i18n_check::po_file_review& po,
                  std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,
                  std::vector<std::wstring>& filesThatContainUTF8Signature,
@@ -153,8 +153,7 @@ namespace i18n_check
                     {
                     if (startsWithBom && cpp.get_style() & check_utf8_with_signature)
                         {
-                        filesThatContainUTF8Signature.push_back(
-                            i18n_string_util::lazy_string_to_wstring(file));
+                        filesThatContainUTF8Signature.push_back(file);
                         }
                     if (fileType == file_review_type::rc)
                         {
@@ -175,8 +174,7 @@ namespace i18n_check
                     // UTF-16 may not be supported consistently on all platforms and compilers
                     if (cpp.get_style() & check_utf8_encoded)
                         {
-                        filesThatShouldBeConvertedToUTF8.push_back(
-                            i18n_string_util::lazy_string_to_wstring(file));
+                        filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
                     if (fileType == file_review_type::rc)
                         {
@@ -195,8 +193,7 @@ namespace i18n_check
                     {
                     if (cpp.get_style() & check_utf8_encoded)
                         {
-                        filesThatShouldBeConvertedToUTF8.push_back(
-                            i18n_string_util::lazy_string_to_wstring(file));
+                        filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
                     std::wifstream ifs(file);
                     const std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),

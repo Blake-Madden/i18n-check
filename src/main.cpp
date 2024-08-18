@@ -14,9 +14,6 @@
 #include <sstream>
 
 namespace fs = std::filesystem;
-using namespace i18n_check;
-using namespace string_util;
-using namespace i18n_string_util;
 
 //-------------------------------------------------
 int main(int argc, char* argv[])
@@ -78,13 +75,13 @@ int main(int argc, char* argv[])
 
         if (result.count("help"))
             {
-            std::wcout << lazy_string_to_wstring(options.help()) << L"\n";
+            std::wcout << i18n_string_util::lazy_string_to_wstring(options.help()) << L"\n";
             return 0;
             }
         }
     catch (const cxxopts::exceptions::exception& exp)
         {
-        std::wcout << lazy_string_to_wstring(exp.what());
+        std::wcout << i18n_string_util::lazy_string_to_wstring(exp.what());
         return 0;
         }
 
@@ -126,29 +123,37 @@ int main(int argc, char* argv[])
     else
         {
         std::wcout << L"You must pass in at least one folder to analyze.\n\n";
-        std::wcout << lazy_string_to_wstring(options.help()) << L"\n";
+        std::wcout << i18n_string_util::lazy_string_to_wstring(options.help()) << L"\n";
         return 0;
         }
 
     if (!readBoolOption("quiet", false))
         {
         std::wcout << L"\n###################################################\n# "
-                   << lazy_string_to_wstring(options.program())
+                   << i18n_string_util::lazy_string_to_wstring(options.program())
                    << L":\n# Internationalization/localization analysis system\n# (c) 2021-2024 "
                       L"Blake Madden\n"
                    << L"###################################################\n\n";
         std::wcout << L"Searching for files to analyze in " << inputFolder << L"...\n\n";
         }
 
+    std::vector<std::string> providedIgnoredPaths{
+        (result["ignore"].count() > 0) ? result["ignore"].as<std::vector<std::string>>() :
+                                         std::vector<std::string>{}
+    };
+
+    std::vector<std::wstring> providedIgnoredPathsWidened;
+    for (const auto& iPath : providedIgnoredPaths)
+        {
+        providedIgnoredPathsWidened.push_back(i18n_string_util::lazy_string_to_wstring(iPath));
+        }
     // paths being ignored
-    const auto excludedInfo = get_paths_files_to_exclude(
-        inputFolder, result["ignore"].count() > 0 ?
-                         result["ignore"].as<std::vector<std::string>>() :
-                         std::vector<std::string>{});
+    const auto excludedInfo =
+        i18n_check::get_paths_files_to_exclude(inputFolder, providedIgnoredPathsWidened);
 
     // input folder
-    const auto filesToAnalyze =
-        get_files_to_analyze(inputFolder, excludedInfo.excludedPaths, excludedInfo.excludedFiles);
+    const auto filesToAnalyze = i18n_check::get_files_to_analyze(
+        inputFolder, excludedInfo.excludedPaths, excludedInfo.excludedFiles);
 
     i18n_check::cpp_i18n_review cpp;
     cpp.log_messages_can_be_translatable(readBoolOption("log-l10n-allowed", true));
@@ -167,98 +172,98 @@ int main(int argc, char* argv[])
     if (result.count("enable"))
         {
         const auto& styles = result["enable"].as<std::vector<std::string>>();
-        int rs{ review_style::no_checks };
+        int rs{ i18n_check::review_style::no_checks };
         for (const auto& r : styles)
             {
             if (r == "allI18N")
                 {
-                rs |= review_style::all_i18n_checks;
+                rs |= i18n_check::review_style::all_i18n_checks;
                 }
             else if (r == "allL10N")
                 {
-                rs |= review_style::all_l10n_checks;
+                rs |= i18n_check::review_style::all_l10n_checks;
                 }
             else if (r == "allCodeFormatting")
                 {
-                rs |= review_style::all_code_formatting_checks;
+                rs |= i18n_check::review_style::all_code_formatting_checks;
                 }
             else if (r == "suspectL10NString")
                 {
-                rs |= review_style::check_l10n_strings;
+                rs |= i18n_check::review_style::check_l10n_strings;
                 }
             else if (r == "suspectL10NUsage")
                 {
-                rs |= review_style::check_suspect_l10n_string_usage;
+                rs |= i18n_check::review_style::check_suspect_l10n_string_usage;
                 }
             else if (r == "printfMismatch")
                 {
-                rs |= review_style::check_mismatching_printf_commands;
+                rs |= i18n_check::review_style::check_mismatching_printf_commands;
                 }
             else if (r == "urlInL10NString")
                 {
-                rs |= review_style::check_l10n_contains_url;
+                rs |= i18n_check::review_style::check_l10n_contains_url;
                 }
             else if (r == "notL10NAvailable")
                 {
-                rs |= review_style::check_not_available_for_l10n;
+                rs |= i18n_check::review_style::check_not_available_for_l10n;
                 }
             else if (r == "deprecatedMacro")
                 {
-                rs |= review_style::check_deprecated_macros;
+                rs |= i18n_check::review_style::check_deprecated_macros;
                 }
             else if (r == "nonUTF8File")
                 {
-                rs |= review_style::check_utf8_encoded;
+                rs |= i18n_check::review_style::check_utf8_encoded;
                 }
             else if (r == "UTF8FileWithBOM")
                 {
-                rs |= review_style::check_utf8_with_signature;
+                rs |= i18n_check::review_style::check_utf8_with_signature;
                 }
             else if (r == "unencodedExtASCII")
                 {
-                rs |= review_style::check_unencoded_ext_ascii;
+                rs |= i18n_check::review_style::check_unencoded_ext_ascii;
                 }
             else if (r == "printfSingleNumber")
                 {
-                rs |= review_style::check_printf_single_number;
+                rs |= i18n_check::review_style::check_printf_single_number;
                 }
             else if (r == "numberAssignedToId")
                 {
-                rs |= review_style::check_number_assigned_to_id;
+                rs |= i18n_check::review_style::check_number_assigned_to_id;
                 }
             else if (r == "dupValAssignedToIds")
                 {
-                rs |= review_style::check_duplicate_value_assigned_to_ids;
+                rs |= i18n_check::review_style::check_duplicate_value_assigned_to_ids;
                 }
             else if (r == "malformedString")
                 {
-                rs |= review_style::check_malformed_strings;
+                rs |= i18n_check::review_style::check_malformed_strings;
                 }
             else if (r == "fontIssue")
                 {
-                rs |= review_style::check_fonts;
+                rs |= i18n_check::review_style::check_fonts;
                 }
             else if (r == "trailingSpaces")
                 {
-                rs |= review_style::check_trailing_spaces;
+                rs |= i18n_check::review_style::check_trailing_spaces;
                 }
             else if (r == "tabs")
                 {
-                rs |= review_style::check_tabs;
+                rs |= i18n_check::review_style::check_tabs;
                 }
             else if (r == "wideLine")
                 {
-                rs |= review_style::check_line_width;
+                rs |= i18n_check::review_style::check_line_width;
                 }
             else if (r == "commentMissingSpace")
                 {
-                rs |= review_style::check_space_after_comment;
+                rs |= i18n_check::review_style::check_space_after_comment;
                 }
             else
                 {
-                std::wcout << L"Unknown option passed to --enable: " << lazy_string_to_wstring(r)
-                           << L"\n\n"
-                           << lazy_string_to_wstring(options.help()) << L"\n";
+                std::wcout << L"Unknown option passed to --enable: "
+                           << i18n_string_util::lazy_string_to_wstring(r) << L"\n\n"
+                           << i18n_string_util::lazy_string_to_wstring(options.help()) << L"\n";
                 return 1;
                 }
             }
@@ -274,93 +279,93 @@ int main(int argc, char* argv[])
             {
             if (r == "allI18N")
                 {
-                rs = rs & ~review_style::all_i18n_checks;
+                rs = rs & ~i18n_check::review_style::all_i18n_checks;
                 }
             else if (r == "allL10N")
                 {
-                rs = rs & ~review_style::all_l10n_checks;
+                rs = rs & ~i18n_check::review_style::all_l10n_checks;
                 }
             else if (r == "allCodeFormatting")
                 {
-                rs = rs & ~review_style::all_code_formatting_checks;
+                rs = rs & ~i18n_check::review_style::all_code_formatting_checks;
                 }
             else if (r == "suspectL10NString")
                 {
-                rs = rs & ~review_style::check_l10n_strings;
+                rs = rs & ~i18n_check::review_style::check_l10n_strings;
                 }
             else if (r == "suspectL10NUsage")
                 {
-                rs = rs & ~review_style::check_suspect_l10n_string_usage;
+                rs = rs & ~i18n_check::review_style::check_suspect_l10n_string_usage;
                 }
             else if (r == "printfMismatch")
                 {
-                rs = rs & ~review_style::check_mismatching_printf_commands;
+                rs = rs & ~i18n_check::review_style::check_mismatching_printf_commands;
                 }
             else if (r == "urlInL10NString")
                 {
-                rs = rs & ~review_style::check_l10n_contains_url;
+                rs = rs & ~i18n_check::review_style::check_l10n_contains_url;
                 }
             else if (r == "notL10NAvailable")
                 {
-                rs = rs & ~review_style::check_not_available_for_l10n;
+                rs = rs & ~i18n_check::review_style::check_not_available_for_l10n;
                 }
             else if (r == "deprecatedMacro")
                 {
-                rs = rs & ~review_style::check_deprecated_macros;
+                rs = rs & ~i18n_check::review_style::check_deprecated_macros;
                 }
             else if (r == "nonUTF8File")
                 {
-                rs = rs & ~review_style::check_utf8_encoded;
+                rs = rs & ~i18n_check::review_style::check_utf8_encoded;
                 }
             else if (r == "UTF8FileWithBOM")
                 {
-                rs = rs & ~review_style::check_utf8_with_signature;
+                rs = rs & ~i18n_check::review_style::check_utf8_with_signature;
                 }
             else if (r == "unencodedExtASCII")
                 {
-                rs = rs & ~review_style::check_unencoded_ext_ascii;
+                rs = rs & ~i18n_check::review_style::check_unencoded_ext_ascii;
                 }
             else if (r == "printfSingleNumber")
                 {
-                rs = rs & ~review_style::check_printf_single_number;
+                rs = rs & ~i18n_check::review_style::check_printf_single_number;
                 }
             else if (r == "numberAssignedToId")
                 {
-                rs = rs & ~review_style::check_number_assigned_to_id;
+                rs = rs & ~i18n_check::review_style::check_number_assigned_to_id;
                 }
             else if (r == "dupValAssignedToIds")
                 {
-                rs = rs & ~review_style::check_duplicate_value_assigned_to_ids;
+                rs = rs & ~i18n_check::review_style::check_duplicate_value_assigned_to_ids;
                 }
             else if (r == "malformedString")
                 {
-                rs = rs & ~review_style::check_malformed_strings;
+                rs = rs & ~i18n_check::review_style::check_malformed_strings;
                 }
             else if (r == "fontIssue")
                 {
-                rs = rs & ~review_style::check_fonts;
+                rs = rs & ~i18n_check::review_style::check_fonts;
                 }
             else if (r == "trailingSpaces")
                 {
-                rs = rs & ~review_style::check_trailing_spaces;
+                rs = rs & ~i18n_check::review_style::check_trailing_spaces;
                 }
             else if (r == "tabs")
                 {
-                rs = rs & ~review_style::check_tabs;
+                rs = rs & ~i18n_check::review_style::check_tabs;
                 }
             else if (r == "wideLine")
                 {
-                rs = rs & ~review_style::check_line_width;
+                rs = rs & ~i18n_check::review_style::check_line_width;
                 }
             else if (r == "commentMissingSpace")
                 {
-                rs = rs & ~review_style::check_space_after_comment;
+                rs = rs & ~i18n_check::review_style::check_space_after_comment;
                 }
             else
                 {
-                std::wcout << L"Unknown option passed to --disable: " << lazy_string_to_wstring(r)
-                           << L"\n\n"
-                           << lazy_string_to_wstring(options.help()) << L"\n";
+                std::wcout << L"Unknown option passed to --disable: "
+                           << i18n_string_util::lazy_string_to_wstring(r) << L"\n\n"
+                           << i18n_string_util::lazy_string_to_wstring(options.help()) << L"\n";
                 return 1;
                 }
             }
@@ -370,12 +375,12 @@ int main(int argc, char* argv[])
     std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
     std::vector<std::wstring> filesThatContainUTF8Signature;
 
-    analyze(
+    i18n_check::analyze(
         filesToAnalyze, cpp, rc, po, filesThatShouldBeConvertedToUTF8,
         filesThatContainUTF8Signature,
         readBoolOption("quiet", false) ?
-            [](const size_t, const size_t, const std::string&) {} :
-            [](const size_t currentFileIndex, const size_t fileCount, const std::string& file)
+            [](const size_t, const size_t, const std::wstring&) {} :
+            [](const size_t currentFileIndex, const size_t fileCount, const std::wstring& file)
             {
                 std::wcout << L"Examining " << currentFileIndex << L" of " << fileCount
                            << L" files (" << std::filesystem::path(file).filename() << L")\n";
