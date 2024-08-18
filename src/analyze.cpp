@@ -16,7 +16,7 @@ namespace i18n_check
     bool valid_utf8_file(const std::wstring& file_name, bool& startsWithBom)
         {
         startsWithBom = false;
-        std::ifstream ifs(file_name);
+        std::ifstream ifs(i18n_string_util::lazy_wstring_to_string(file_name));
         if (!ifs)
             {
             return false;
@@ -37,7 +37,7 @@ namespace i18n_check
     //------------------------------------------------------
     std::pair<bool, std::wstring> read_utf16_file(const std::wstring& file_name)
         {
-        std::ifstream fs8(file_name);
+        std::ifstream fs8(i18n_string_util::lazy_wstring_to_string(file_name));
         if (!fs8.is_open())
             {
             std::wcout << L"Could not open " << file_name << L"\n";
@@ -72,7 +72,7 @@ namespace i18n_check
             return std::make_pair(false, std::wstring{});
             }
 
-        std::ifstream fs8(file_name);
+        std::ifstream fs8(i18n_string_util::lazy_wstring_to_string(file_name));
         if (!fs8.is_open())
             {
             std::wcout << L"Could not open " << file_name << L"\n";
