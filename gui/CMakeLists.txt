@@ -3,7 +3,7 @@
 # Purpose:     Build script for i18n-check GUI
 # Author:      Blake Madden
 # Created:     2024-08-17
-# Copyright:   (c) 2005-2024 Blake Madden
+# Copyright:   (c) 2021-2024 Blake Madden
 # License:     3-Clause BSD license
 #############################################################################
 
