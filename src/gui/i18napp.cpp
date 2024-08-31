@@ -196,6 +196,7 @@ void I18NFrame::OnEdit([[maybe_unused]] wxCommandEvent&)
     NewProjectDialog projDlg(this);
     projDlg.SetOptions(static_cast<i18n_check::review_style>(m_options));
     projDlg.SetPath(m_filePath);
+    projDlg.SetExcludedPath(m_excludedPaths);
     projDlg.UseFuzzyTranslations(m_fuzzyTranslations);
     projDlg.LogMessagesCanBeTranslated(m_logMessagesCanBeTranslated);
     projDlg.AllowTranslatingPunctuationOnlyStrings(m_allowTranslatingPunctuationOnlyStrings);
@@ -207,6 +208,7 @@ void I18NFrame::OnEdit([[maybe_unused]] wxCommandEvent&)
         {
         m_options = projDlg.GetOptions();
         m_filePath = projDlg.GetPath();
+        m_excludedPaths = projDlg.GetExcludedPath();
         m_fuzzyTranslations = projDlg.UseFuzzyTranslations();
         m_logMessagesCanBeTranslated = projDlg.LogMessagesCanBeTranslated();
         m_allowTranslatingPunctuationOnlyStrings = projDlg.AllowTranslatingPunctuationOnlyStrings();
@@ -225,6 +227,7 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     NewProjectDialog projDlg(this);
     projDlg.SetOptions(static_cast<i18n_check::review_style>(m_options));
     projDlg.SetPath(m_filePath);
+    projDlg.SetExcludedPath(m_excludedPaths);
     projDlg.UseFuzzyTranslations(m_fuzzyTranslations);
     projDlg.LogMessagesCanBeTranslated(m_logMessagesCanBeTranslated);
     projDlg.AllowTranslatingPunctuationOnlyStrings(m_allowTranslatingPunctuationOnlyStrings);
@@ -239,6 +242,7 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
 
     m_options = projDlg.GetOptions();
     m_filePath = projDlg.GetPath();
+    m_excludedPaths = projDlg.GetExcludedPath();
     m_fuzzyTranslations = projDlg.UseFuzzyTranslations();
     m_logMessagesCanBeTranslated = projDlg.LogMessagesCanBeTranslated();
     m_allowTranslatingPunctuationOnlyStrings = projDlg.AllowTranslatingPunctuationOnlyStrings();
@@ -255,9 +259,19 @@ void I18NFrame::Process()
     m_messageWindow->SetPage(wxString{});
 
     std::wstring inputFolder{ m_filePath.c_str() };
+
+    std::vector<std::wstring> excludedPaths;
+    wxStringTokenizer tokenizer(
+        m_excludedPaths, L";",
+        wxStringTokenizerMode(wxTOKEN_STRTOK | wxTOKEN_RET_EMPTY | wxTOKEN_RET_EMPTY_ALL));
+    while (tokenizer.HasMoreTokens())
+        {
+        std::wstring currentFolder{ tokenizer.GetNextToken().wc_string() };
+        string_util::trim(currentFolder);
+        excludedPaths.push_back(std::move(currentFolder));
+        }
     // paths being ignored
-    const auto excludedInfo =
-        i18n_check::get_paths_files_to_exclude(inputFolder, std::vector<std::wstring>{});
+    const auto excludedInfo = i18n_check::get_paths_files_to_exclude(inputFolder, excludedPaths);
 
     // input folder
     const auto filesToAnalyze = i18n_check::get_files_to_analyze(

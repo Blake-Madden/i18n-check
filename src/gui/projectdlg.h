@@ -60,6 +60,18 @@ class NewProjectDialog final : public wxDialog
         m_filePath = path;
         TransferDataToWindow();
         }
+    
+    [[nodiscard]]
+    const wxString& GetExcludedPath() const noexcept
+        {
+        return m_excludedPaths;
+        }
+
+    void SetExcludedPath(const wxString& path)
+        {
+        m_excludedPaths = path;
+        TransferDataToWindow();
+        }
 
     [[nodiscard]]
     i18n_check::review_style GetOptions() const
@@ -163,10 +175,13 @@ class NewProjectDialog final : public wxDialog
   private:
     void CreateControls();
     void OnFolderButtonClick([[maybe_unused]] wxCommandEvent&);
+    void OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEvent&);
     void OnOK([[maybe_unused]] wxCommandEvent&);
 
     constexpr static int ID_FOLDER_BROWSE_BUTTON = wxID_HIGHEST;
+    constexpr static int ID_EXCLUDED_FOLDERS_BROWSE_BUTTON = ID_FOLDER_BROWSE_BUTTON + 1;
     wxString m_filePath;
+    wxString m_excludedPaths;
     // options for all file types
     bool m_notL10NAvailable{ true };
     bool m_suspectL10NString{ true };

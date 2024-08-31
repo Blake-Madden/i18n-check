@@ -10,10 +10,9 @@
 
 //-------------------------------------------------------------
 NewProjectDialog::NewProjectDialog(
-    wxWindow* parent, wxWindowID id /*= wxID_ANY*/,
-    const wxString& caption /*= _(L"Select Directory")*/,
+    wxWindow* parent, wxWindowID id /*= wxID_ANY*/, const wxString& caption /*= _(L"New Project")*/,
     const wxPoint& pos /*= wxDefaultPosition*/, const wxSize& size /*= wxDefaultSize*/,
-    long style /*= wxDEFAULT_DIALOG_STYLE|wxCLIP_CHILDREN|wxRESIZE_BORDER*/)
+    long style /*= wxDEFAULT_DIALOG_STYLE | wxCLIP_CHILDREN | wxRESIZE_BORDER*/)
     {
     SetExtraStyle(GetExtraStyle() | wxWS_EX_BLOCK_EVENTS | wxWS_EX_CONTEXTHELP);
     wxDialog::Create(parent, id, caption, pos, size, style);
@@ -24,6 +23,8 @@ NewProjectDialog::NewProjectDialog(
     // bind events
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnFolderButtonClick, this,
          NewProjectDialog::ID_FOLDER_BROWSE_BUTTON);
+    Bind(wxEVT_BUTTON, &NewProjectDialog::OnExcludedFolderButtonClick, this,
+         NewProjectDialog::ID_EXCLUDED_FOLDERS_BROWSE_BUTTON);
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnOK, this, wxID_OK);
     }
 
@@ -187,6 +188,27 @@ void NewProjectDialog::OnFolderButtonClick([[maybe_unused]] wxCommandEvent&)
     }
 
 //-------------------------------------------------------------
+void NewProjectDialog::OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEvent&)
+    {
+    TransferDataFromWindow();
+    wxDirDialog dirDlg(this);
+    if (dirDlg.ShowModal() != wxID_OK)
+        {
+        return;
+        }
+    if (m_excludedPaths.empty())
+        {
+        m_excludedPaths = dirDlg.GetPath();
+        }
+    else
+        {
+        m_excludedPaths += L"; " + dirDlg.GetPath();
+        }
+    TransferDataToWindow();
+    SetFocus();
+    }
+
+//-------------------------------------------------------------
 void NewProjectDialog::CreateControls()
     {
     wxTreebook* treeBook = new wxTreebook(this, wxID_ANY);
@@ -199,20 +221,46 @@ void NewProjectDialog::CreateControls()
 
         wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-        wxBoxSizer* fileBrowseBoxSizer = new wxBoxSizer(wxHORIZONTAL);
-        mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags().Expand().Border());
+            {
+            wxStaticBoxSizer* fileBrowseBoxSizer =
+                new wxStaticBoxSizer(wxHORIZONTAL, generalSettingsPage, _(L"Folder to analyze"));
 
-        wxTextCtrl* filePathEdit =
-            new wxTextCtrl(generalSettingsPage, wxID_ANY, wxString{}, wxDefaultPosition,
-                           wxSize(FromDIP(wxSize{ 500, 100 }).GetWidth(), -1),
-                           wxTE_RICH2 | wxBORDER_THEME, wxGenericValidator(&m_filePath));
-        filePathEdit->AutoCompleteFileNames();
-        fileBrowseBoxSizer->Add(filePathEdit, 1, wxEXPAND);
+            mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags().Expand().Border());
 
-        wxBitmapButton* fileBrowseButton =
-            new wxBitmapButton(generalSettingsPage, ID_FOLDER_BROWSE_BUTTON,
-                               wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
-        fileBrowseBoxSizer->Add(fileBrowseButton, 0, wxALIGN_CENTER_VERTICAL);
+            wxTextCtrl* filePathEdit = new wxTextCtrl(
+                fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{}, wxDefaultPosition,
+                wxSize(FromDIP(500), -1), wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
+                wxGenericValidator(&m_filePath));
+            filePathEdit->AutoCompleteFileNames();
+            fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
+
+            wxBitmapButton* fileBrowseButton =
+                new wxBitmapButton(fileBrowseBoxSizer->GetStaticBox(), ID_FOLDER_BROWSE_BUTTON,
+                                   wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
+            fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
+
+            filePathEdit->SetFocus();
+            }
+
+            {
+            wxStaticBoxSizer* fileBrowseBoxSizer =
+                new wxStaticBoxSizer(wxHORIZONTAL, generalSettingsPage, _(L"Subfolders to ignore"));
+
+            mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags{ 1 }.Expand().Border());
+
+            wxTextCtrl* filePathEdit =
+                new wxTextCtrl(fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{},
+                               wxDefaultPosition, wxSize(FromDIP(500), FromDIP(40)),
+                               wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP,
+                               wxGenericValidator(&m_excludedPaths));
+            filePathEdit->AutoCompleteFileNames();
+            fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
+
+            wxBitmapButton* fileBrowseButton = new wxBitmapButton(
+                fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
+                wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
+            fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
+            }
 
         mainSizer->Add(
             new wxCheckBox(generalSettingsPage, wxID_ANY,
@@ -226,57 +274,50 @@ void NewProjectDialog::CreateControls()
                 _(L"Check for translatable strings that shouldn't be [suspectL10NString]"),
                 wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_suspectL10NString)),
             wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(
-            new wxCheckBox(generalSettingsPage, wxID_ANY,
-                           _(L"Check for translatable strings being used in internal "
-                             L"contexts [suspectL10NUsage]"),
-                           wxDefaultPosition, wxDefaultSize, 0,
-                           wxGenericValidator(&m_suspectL10NUsage)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(
-            new wxCheckBox(generalSettingsPage, wxID_ANY,
-                           _(L"Check for translatable strings that contain URLs or "
-                             L"email addresses [urlInL10NString]"),
-                           wxDefaultPosition, wxDefaultSize, 0,
-                           wxGenericValidator(&m_urlInL10NString)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(
-            new wxCheckBox(generalSettingsPage, wxID_ANY,
-                           _(L"Check for deprecated text macros [deprecatedMacro]"),
-                           wxDefaultPosition, wxDefaultSize, 0,
-                           wxGenericValidator(&m_deprecatedMacro)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(
-            new wxCheckBox(generalSettingsPage, wxID_ANY,
-                           _(L"Check for printf()-like functions being used to just "
-                             L"format a number [printfSingleNumber]"),
-                           wxDefaultPosition, wxDefaultSize, 0,
-                           wxGenericValidator(&m_printfSingleNumber)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(
-            new wxCheckBox(generalSettingsPage, wxID_ANY,
-                           _(L"Check for malformed syntax in strings [malformedString]"),
-                           wxDefaultPosition, wxDefaultSize, 0,
-                           wxGenericValidator(&m_malformedString)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(
-            new wxCheckBox(generalSettingsPage, wxID_ANY,
-                           _(L"Strings passed to logging functions can be translatable"),
-                           wxDefaultPosition, wxDefaultSize, 0,
-                           wxGenericValidator(&m_logMessagesCanBeTranslated)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
+                                      _(L"Check for translatable strings being used in internal "
+                                        L"contexts [suspectL10NUsage]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_suspectL10NUsage)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
+                                      _(L"Check for translatable strings that contain URLs or "
+                                        L"email addresses [urlInL10NString]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_urlInL10NString)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
+                                      _(L"Check for deprecated text macros [deprecatedMacro]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_deprecatedMacro)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
+                                      _(L"Check for printf()-like functions being used to just "
+                                        L"format a number [printfSingleNumber]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_printfSingleNumber)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
+                                      _(L"Check for malformed syntax in strings [malformedString]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_malformedString)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
+                                      _(L"Strings passed to logging functions can be translatable"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_logMessagesCanBeTranslated)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
         mainSizer->Add(
             new wxCheckBox(generalSettingsPage, wxID_ANY,
                            _(L"Punctuation only strings can be translatable"), wxDefaultPosition,
                            wxDefaultSize, 0,
                            wxGenericValidator(&m_allowTranslatingPunctuationOnlyStrings)),
             wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(
-            new wxCheckBox(generalSettingsPage, wxID_ANY,
-                           _(L"Exception messages should be available for translation"),
-                           wxDefaultPosition, wxDefaultSize, 0,
-                           wxGenericValidator(&m_exceptionsShouldBeTranslatable)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
+                                      _(L"Exception messages should be available for translation"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_exceptionsShouldBeTranslatable)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
 
         wxBoxSizer* minWordSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -295,8 +336,6 @@ void NewProjectDialog::CreateControls()
 
         mainSizer->Add(minWordSizer, wxSizerFlags().Expand().Border());
 
-        filePathEdit->SetFocus();
-
         generalSettingsPage->SetSizer(mainSizer);
         treeBook->AddPage(generalSettingsPage, _(L"General"), true);
         }
@@ -308,38 +347,36 @@ void NewProjectDialog::CreateControls()
 
         wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-        mainSizer->Add(
-            new wxCheckBox(cppPage, wxID_ANY,
-                           _(L"Check that files containing extended ASCII characters "
-                             L"are UTF-8 encoded [nonUTF8File]"),
-                           wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_nonUTF8File)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
         mainSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
-                                            _(L"Check for UTF-8 encoded files which start with a "
-                                              L"BOM/UTF-8 signature [UTF8FileWithBOM]"),
-                                            wxDefaultPosition, wxDefaultSize, 0,
-                                            wxGenericValidator(&m_UTF8FileWithBOM)),
-                             wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(
-            new wxCheckBox(cppPage, wxID_ANY,
-                           _(L"Check for strings containing extended ASCII characters "
-                             L"that are not encoded [unencodedExtASCII]"),
-                           wxDefaultPosition, wxDefaultSize, 0,
-                           wxGenericValidator(&m_unencodedExtASCII)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
+                                      _(L"Check that files containing extended ASCII characters "
+                                        L"are UTF-8 encoded [nonUTF8File]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_nonUTF8File)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
         mainSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
-                                            _(L"Check for ID variables being assigned a hard-coded "
-                                              L"number [numberAssignedToId]"),
-                                            wxDefaultPosition, wxDefaultSize, 0,
-                                            wxGenericValidator(&m_numberAssignedToId)),
-                             wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(
-            new wxCheckBox(cppPage, wxID_ANY,
-                           _(L"Check for the same value being assigned to different "
-                             L"ID variables [dupValAssignedToIds]"),
-                           wxDefaultPosition, wxDefaultSize, 0,
-                           wxGenericValidator(&m_dupValAssignedToIds)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
+                                      _(L"Check for UTF-8 encoded files which start with a "
+                                        L"BOM/UTF-8 signature [UTF8FileWithBOM]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_UTF8FileWithBOM)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
+                                      _(L"Check for strings containing extended ASCII characters "
+                                        L"that are not encoded [unencodedExtASCII]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_unencodedExtASCII)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
+                                      _(L"Check for ID variables being assigned a hard-coded "
+                                        L"number [numberAssignedToId]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_numberAssignedToId)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
+                                      _(L"Check for the same value being assigned to different "
+                                        L"ID variables [dupValAssignedToIds]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_dupValAssignedToIds)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
 
         wxBoxSizer* cppVersionSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -357,8 +394,8 @@ void NewProjectDialog::CreateControls()
         cppVersions.Add(_(L"20"));
         cppVersions.Add(_(L"23"));
         wxChoice* cppVersionRadioBox =
-            new wxChoice(cppPage, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-                         cppVersions, 0, wxGenericValidator(&m_minCppVersion));
+            new wxChoice(cppPage, wxID_ANY, wxDefaultPosition, wxDefaultSize, cppVersions, 0,
+                         wxGenericValidator(&m_minCppVersion));
         cppVersionSizer->Add(cppVersionRadioBox, wxSizerFlags().Border(wxLEFT).Align(wxALIGN_LEFT));
 
         mainSizer->Add(cppVersionSizer, wxSizerFlags().Expand().Border());
@@ -407,10 +444,11 @@ void NewProjectDialog::CreateControls()
         wxStaticBoxSizer* rcOptionsSizer =
             new wxStaticBoxSizer(wxVERTICAL, resourceFilesPage, _(L"Windows RC Files"));
 
-        rcOptionsSizer->Add(
-            new wxCheckBox(rcOptionsSizer->GetStaticBox(), wxID_ANY, _(L"Check for font issues [fontIssue]"),
-                           wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_fontIssue)),
-            wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        rcOptionsSizer->Add(new wxCheckBox(rcOptionsSizer->GetStaticBox(), wxID_ANY,
+                                           _(L"Check for font issues [fontIssue]"),
+                                           wxDefaultPosition, wxDefaultSize, 0,
+                                           wxGenericValidator(&m_fontIssue)),
+                            wxSizerFlags().Border().Align(wxALIGN_LEFT));
 
         mainSizer->Add(rcOptionsSizer, wxSizerFlags().Expand().Border());
 
@@ -431,15 +469,15 @@ void NewProjectDialog::CreateControls()
                            wxDefaultPosition, wxDefaultSize, 0,
                            wxGenericValidator(&m_trailingSpaces)),
             wxSizerFlags().Border().Align(wxALIGN_LEFT));
+        mainSizer->Add(new wxCheckBox(codeFormattingPage, wxID_ANY, _(L"Check for tabs [tabs]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_tabs)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
         mainSizer->Add(new wxCheckBox(codeFormattingPage, wxID_ANY,
-                                                   _(L"Check for tabs [tabs]"), wxDefaultPosition,
-                                                   wxDefaultSize, 0, wxGenericValidator(&m_tabs)),
-                                    wxSizerFlags().Border().Align(wxALIGN_LEFT));
-        mainSizer->Add(new wxCheckBox(codeFormattingPage, wxID_ANY,
-                                                   _(L"Check for overly long lines [wideLine]"),
-                                                   wxDefaultPosition, wxDefaultSize, 0,
-                                                   wxGenericValidator(&m_wideLine)),
-                                    wxSizerFlags().Border().Align(wxALIGN_LEFT));
+                                      _(L"Check for overly long lines [wideLine]"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_wideLine)),
+                       wxSizerFlags().Border().Align(wxALIGN_LEFT));
         mainSizer->Add(
             new wxCheckBox(
                 codeFormattingPage, wxID_ANY,

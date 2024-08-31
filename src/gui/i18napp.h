@@ -75,6 +75,7 @@ class I18NFrame : public wxFrame
 
     // active project options
     wxString m_filePath;
+    wxString m_excludedPaths;
     int m_options{ static_cast<int>(i18n_check::review_style::check_l10n_strings |
                                     i18n_check::review_style::check_suspect_l10n_string_usage |
                                     i18n_check::review_style::check_not_available_for_l10n |
