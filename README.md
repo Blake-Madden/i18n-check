@@ -90,7 +90,7 @@ Refer [here](Example.md) for example usage.
 --enable: Which checks to perform. Can be any combination of:
   allI18N:             Perform all internationalization checks (the default).
   allL10N:             Perform all localization checks (the default).
-  allCodeFormatting:    Check all code formatting issues.
+  allCodeFormatting:   Check all code formatting issues.
                        These are not enabled by default.
   suspectL10NString:   Check for translatable strings that shouldn't be
                        (e.g., numbers, keywords, printf() commands).

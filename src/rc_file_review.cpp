@@ -19,7 +19,7 @@ namespace i18n_check
                STRINGTABLE[[:space:]]*(BEGIN|\{)[\n\r]*([[:space:]]*[A-Za-z0-9_]+[,]?[[:space:]]*[L]?"[^\n\r]*[\n\r]*)+(END|\}))
 
                can find a full string table, but causes an error_stack exception with std::regex
-               with some files, so need to more crudely parse string table by looking for the start
+               with some files, so need to more crudely parse string tables by looking for the start
                and end tags.*/
             std::vector<std::wstring> stringTables;
             const std::wregex stringTableRegEx{

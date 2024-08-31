@@ -73,8 +73,8 @@ namespace i18n_check
 
     //------------------------------------------------------
     std::vector<std::wstring> get_files_to_analyze(const std::filesystem::path& inputFolder,
-                                                  const std::vector<std::wstring>& excludedPaths,
-                                                  const std::vector<std::wstring>& excludedFiles)
+                                                   const std::vector<std::wstring>& excludedPaths,
+                                                   const std::vector<std::wstring>& excludedFiles)
         {
         std::vector<std::wstring> filesToAnalyze;
 
