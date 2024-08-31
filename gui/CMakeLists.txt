@@ -122,7 +122,7 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 # Build the app
 ########################
-set(FILES ../src/analyze.cpp ../src/gui/main.cpp ../src/gui/projectdlg.cpp ../src/i18n_string_util.cpp
+set(FILES ../src/analyze.cpp ../src/gui/i18napp.cpp ../src/gui/projectdlg.cpp ../src/i18n_string_util.cpp
           ../src/i18n_review.cpp ../src/input.cpp ../src/gui/datamodel.cpp
           ../src/cpp_i18n_review.cpp ../src/po_file_review.cpp
           ../src/rc_file_review.cpp)

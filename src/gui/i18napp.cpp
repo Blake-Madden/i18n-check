@@ -6,84 +6,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "../analyze.h"
-#include "../input.h"
-#include "datamodel.h"
-#include "projectdlg.h"
-#include <wx/artprov.h>
-#include <wx/dataview.h>
-#include <wx/filename.h>
-#include <wx/html/htmlwin.h>
-#include <wx/itemattr.h>
-#include <wx/numformatter.h>
-#include <wx/progdlg.h>
-#include <wx/ribbon/bar.h>
-#include <wx/ribbon/buttonbar.h>
-#include <wx/ribbon/gallery.h>
-#include <wx/ribbon/toolbar.h>
-#include <wx/splitter.h>
-#include <wx/tokenzr.h>
-#include <wx/wx.h>
-#include <wx/xml/xml.h>
-#include <wx/xrc/xmlres.h>
+#include "i18napp.h"
 
-using namespace i18n_check;
-
-//------------------------------------------------------
-class I18NFrame : public wxFrame
-    {
-  public:
-    I18NFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {}
-
-    void InitControls();
-
-    void OnNew([[maybe_unused]] wxCommandEvent&);
-    void OnEdit([[maybe_unused]] wxCommandEvent&);
-    void OnExpandAll([[maybe_unused]] wxCommandEvent&);
-    void OnCollapseAll([[maybe_unused]] wxCommandEvent&);
-
-  private:
-    void Process();
-
-    void Collapse()
-        {
-        wxDataViewItemArray array;
-        m_resultsModel->GetChildren(m_resultsModel->GetRoot(), array);
-        for (const auto& item : array)
-            {
-            m_resultsDataView->Collapse(item);
-            }
-        }
-
-    void ExpandAll()
-        {
-        wxDataViewItemArray array;
-        m_resultsModel->GetChildren(m_resultsModel->GetRoot(), array);
-        for (const auto& item : array)
-            {
-            m_resultsDataView->ExpandChildren(item);
-            }
-        }
-
-    wxObjectDataPtr<I18NResultsTreeModel> m_resultsModel;
-    wxDataViewCtrl* m_resultsDataView{ nullptr };
-    wxHtmlWindow* m_messageWindow{ nullptr };
-
-    // active project options
-    wxString m_filePath;
-    int m_options{ static_cast<int>(
-        review_style::check_l10n_strings | review_style::check_suspect_l10n_string_usage |
-        review_style::check_not_available_for_l10n | review_style::check_deprecated_macros |
-        review_style::check_utf8_encoded | review_style::check_printf_single_number |
-        review_style::check_l10n_contains_url | review_style::check_malformed_strings |
-        review_style::check_fonts | review_style::all_l10n_checks) };
-    bool m_fuzzyTranslations{ false };
-    bool m_logMessagesCanBeTranslated{ true };
-    bool m_allowTranslatingPunctuationOnlyStrings{ false };
-    bool m_exceptionsShouldBeTranslatable{ true };
-    int m_minWordsForClassifyingUnavailableString{ 2 };
-    int m_minCppVersion{ 14 };
-    };
+wxIMPLEMENT_APP(I18NApp);
 
 //------------------------------------------------------
 void I18NFrame::InitControls()
@@ -408,12 +333,12 @@ void I18NFrame::Process()
             wxStringTokenizerMode(wxTOKEN_STRTOK | wxTOKEN_RET_EMPTY | wxTOKEN_RET_EMPTY_ALL));
         while (tokenizer.HasMoreTokens())
             {
-            wxString fileName = tokenizer.GetNextToken();
-            wxString lineNo = tokenizer.GetNextToken();
-            wxString columnNo = tokenizer.GetNextToken();
-            wxString warningValue = tokenizer.GetNextToken();
-            wxString explanation = tokenizer.GetNextToken();
-            wxString warningId = tokenizer.GetNextToken();
+            const wxString fileName = tokenizer.GetNextToken();
+            const wxString lineNo = tokenizer.GetNextToken();
+            const wxString columnNo = tokenizer.GetNextToken();
+            const wxString warningValue = tokenizer.GetNextToken();
+            const wxString explanation = tokenizer.GetNextToken();
+            const wxString warningId = tokenizer.GetNextToken();
 
             int lnVal{ -1 }, cmVal{ -1 };
             lineNo.ToInt(&lnVal);
@@ -428,15 +353,6 @@ void I18NFrame::Process()
 
     ExpandAll();
     }
-
-// Application
-class I18NApp : public wxApp
-    {
-  public:
-    bool OnInit() final;
-    };
-
-wxIMPLEMENT_APP(I18NApp);
 
 //------------------------------------------------------
 bool I18NApp::OnInit()
