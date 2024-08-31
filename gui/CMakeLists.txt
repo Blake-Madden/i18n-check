@@ -113,7 +113,7 @@ if(NOT EXISTS "${wxWidgets_DIR}/wxWidgetsConfig.cmake" AND NOT EXISTS "${wxWidge
     message(WARNING "Cannot find wxWidgets CMake configuration. (Looked in ${wxWidgets_DIR}.)")
 endif()
 set(wxWidgets_USE_STATIC 1)
-find_package(wxWidgets 3.3 COMPONENTS core base xrc propgrid xml ribbon qa net richtext REQUIRED CONFIG)
+find_package(wxWidgets 3.3 COMPONENTS core base xrc propgrid xml ribbon qa net stc richtext REQUIRED CONFIG)
 message(STATUS "Adding wxWidgets libraries: ${wxWidgets_LIBRARIES}")
 message(STATUS "Adding wxWidgets: ${wxPLATFORM_LIB_DIR}")
 

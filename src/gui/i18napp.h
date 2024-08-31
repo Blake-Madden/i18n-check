@@ -19,7 +19,6 @@
 #include <wx/artprov.h>
 #include <wx/dataview.h>
 #include <wx/filename.h>
-#include <wx/html/htmlwin.h>
 #include <wx/itemattr.h>
 #include <wx/numformatter.h>
 #include <wx/progdlg.h>
@@ -28,6 +27,7 @@
 #include <wx/ribbon/gallery.h>
 #include <wx/ribbon/toolbar.h>
 #include <wx/splitter.h>
+#include <wx/stc/stc.h>
 #include <wx/tokenzr.h>
 #include <wx/wx.h>
 #include <wx/xml/xml.h>
@@ -71,7 +71,9 @@ class I18NFrame : public wxFrame
 
     wxObjectDataPtr<I18NResultsTreeModel> m_resultsModel;
     wxDataViewCtrl* m_resultsDataView{ nullptr };
-    wxHtmlWindow* m_messageWindow{ nullptr };
+    wxStyledTextCtrl* m_editor{ nullptr };
+
+    constexpr static int ERROR_ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
     // active project options
     wxString m_filePath;

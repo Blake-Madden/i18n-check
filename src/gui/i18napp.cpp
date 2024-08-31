@@ -84,10 +84,101 @@ void I18NFrame::InitControls()
         new wxDataViewColumn(_(L"Summary"), tr, 4, FromDIP(200), wxALIGN_LEFT,
                              wxDATAVIEW_COL_SORTABLE | wxDATAVIEW_COL_RESIZABLE));
 
-    m_messageWindow = new wxHtmlWindow(splitter, wxID_ANY, wxDefaultPosition,
-                                       FromDIP(wxSize{ 100, 150 }), wxHW_SCROLLBAR_AUTO);
+    m_editor = new wxStyledTextCtrl(splitter);
+    m_editor->StyleClearAll();
+    const wxFont font{ wxFontInfo().Family(wxFONTFAMILY_MODERN) };
+    for (auto i = 0; i < wxSTC_STYLE_LASTPREDEFINED; ++i)
+        {
+        m_editor->StyleSetFont(i, font.Larger());
+        }
 
-    splitter->SplitHorizontally(m_resultsDataView, m_messageWindow, FromDIP(-150));
+    // code-folding options
+    m_editor->SetProperty(L"fold", L"1");
+    m_editor->SetProperty(L"fold.comment", L"1");
+    m_editor->SetProperty(L"fold.compact", L"1");
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_DOTDOTDOT, *wxBLACK, *wxBLACK);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN, *wxBLACK, *wxBLACK);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY, *wxBLACK, *wxBLACK);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_DOTDOTDOT, *wxBLACK, *wxWHITE);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN, *wxBLACK, *wxWHITE);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY, *wxBLACK, *wxBLACK);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY, *wxBLACK, *wxBLACK);
+    // margin settings
+    m_editor->SetMarginType(0, wxSTC_MARGIN_NUMBER);
+    m_editor->SetMarginType(1, wxSTC_MARGIN_SYMBOL);
+    m_editor->SetMarginMask(1, wxSTC_MASK_FOLDERS);
+    m_editor->SetMarginWidth(0, FromDIP(50));
+    m_editor->SetMarginWidth(1, FromDIP(16));
+    m_editor->SetMarginSensitive(1, true);
+    m_editor->SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED |
+                           wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
+    // turn off tabs
+    m_editor->SetUseTabs(false);
+    m_editor->SetTabWidth(4);
+    // enable auto-completion
+    m_editor->AutoCompSetIgnoreCase(true);
+    m_editor->AutoCompSetAutoHide(true);
+    // annotations styles
+    m_editor->StyleSetBackground(
+        ERROR_ANNOTATION_STYLE,
+        wxSystemSettings::SelectLightDark(wxColour(244, 220, 220), wxColour(100, 100, 100)));
+    m_editor->StyleSetSizeFractional(
+        ERROR_ANNOTATION_STYLE, (m_editor->StyleGetSizeFractional(wxSTC_STYLE_DEFAULT) * 4) / 5);
+    // turn on annotations
+    m_editor->AnnotationSetVisible(wxSTC_ANNOTATION_BOXED);
+
+    const wxColor grey(100, 100, 100);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_ARROW);
+    m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDER, grey);
+    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDER, grey);
+
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN);
+    m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN, grey);
+    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN, grey);
+
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY);
+    m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB, grey);
+    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB, grey);
+
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_ARROW);
+    m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND, grey);
+    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND, L"WHITE");
+
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN);
+    m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, grey);
+    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID, "WHITE");
+
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY);
+    m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL, grey);
+    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL, grey);
+
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY);
+    m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL, grey);
+    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL, grey);
+
+    m_editor->SetWrapMode(wxSTC_WRAP_NONE);
+
+    m_editor->StyleSetForeground(wxSTC_C_STRING, wxColour(150, 0, 0));
+    m_editor->StyleSetForeground(wxSTC_C_PREPROCESSOR, wxColour(165, 105, 0));
+    m_editor->StyleSetForeground(wxSTC_C_IDENTIFIER, wxColour(40, 0, 60));
+    m_editor->StyleSetForeground(wxSTC_C_NUMBER, wxColour(0, 150, 0));
+    m_editor->StyleSetForeground(wxSTC_C_CHARACTER, wxColour(150, 0, 0));
+    m_editor->StyleSetForeground(wxSTC_C_WORD, wxColour(0, 0, 150));
+    m_editor->StyleSetForeground(wxSTC_C_WORD2, wxColour(0, 150, 0));
+    m_editor->StyleSetForeground(wxSTC_C_COMMENT, wxColour(150, 150, 150));
+    m_editor->StyleSetForeground(wxSTC_C_COMMENTLINE, wxColour(150, 150, 150));
+    m_editor->StyleSetForeground(wxSTC_C_COMMENTDOC, wxColour(150, 150, 150));
+    m_editor->StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORD, wxColour(0, 0, 200));
+    m_editor->StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORDERROR, wxColour(0, 0, 200));
+    m_editor->StyleSetBold(wxSTC_C_WORD, true);
+    m_editor->StyleSetBold(wxSTC_C_WORD2, true);
+    m_editor->StyleSetBold(wxSTC_C_COMMENTDOCKEYWORD, true);
+
+    m_editor->CallTipUseStyle(40);
+
+    m_editor->SetEditable(false);
+
+    splitter->SplitHorizontally(m_resultsDataView, m_editor, FromDIP(-150));
     mainSizer->Add(splitter, wxSizerFlags(1).Expand());
 
     SetSizer(mainSizer);
@@ -141,45 +232,75 @@ void I18NFrame::InitControls()
     Bind(wxEVT_DATAVIEW_SELECTION_CHANGED,
          [this](wxDataViewEvent& event)
          {
+             m_editor->SetText(wxString{});
              I18NResultsTreeModelNode* node =
                  reinterpret_cast<I18NResultsTreeModelNode*>(event.GetItem().GetID());
              if (node != nullptr)
                  {
                  if (node->m_fileName == node->m_warningId)
                      {
-                     m_messageWindow->SetPage(wxString{});
                      return;
                      }
+                 
+                 const wxString fileExt = wxFileName{ node->m_fileName }.GetExt();
 
-                 wxString currentMessage = node->m_fileName + L"<br />";
-                 if (node->m_line != -1 && node->m_column != -1)
+                 if (fileExt.CmpNoCase(L"cpp") == 0 || fileExt.CmpNoCase(L"c") == 0 ||
+                     fileExt.CmpNoCase(L"h") == 0 || fileExt.CmpNoCase(L"hpp") == 0)
                      {
-                     currentMessage += wxString::Format(
-                         _(L"Line: %s, Column: %s<br />"),
-                         wxNumberFormatter::ToString(
-                             node->m_line, 0,
-                             wxNumberFormatter::Style::Style_NoTrailingZeroes |
-                                 wxNumberFormatter::Style::Style_WithThousandsSep),
-                         wxNumberFormatter::ToString(
-                             node->m_column, 0,
-                             wxNumberFormatter::Style::Style_NoTrailingZeroes |
-                                 wxNumberFormatter::Style::Style_WithThousandsSep));
+                     m_editor->SetLexer(wxSTC_LEX_CPP);
+                     m_editor->SetKeyWords(
+                         0, (L"alignas alignof and_eq asm atomic_cancel atomic_commit "
+                             L"atomic_noexcept auto "
+                             "bitand bitor bool break case catch char char8_t char16_t char32_t "
+                             "class compl "
+                             "concept const consteval constexpr constinit const_cast continue "
+                             "co_await "
+                             "co_return co_yield decltype default delete do double dynamic_cast "
+                             "else enum "
+                             "explicit export extern false float for friend goto if inline int "
+                             "long mutable "
+                             "namespace new noexcept not not_eq nullptr operator or or_eq private "
+                             "protected "
+                             "public reflexpr register reinterpret_cast requires return short "
+                             "signed "
+                             "sizeof static static_assert static_cast struct switch synchronized "
+                             "template "
+                             "this thread_local throw true try typedef typeid typename "
+                             "union unsigned using virtual void volatile wchar_t while xor xor_eq "
+                             "final override import module"));
+                     }
+                 else
+                     {
+                     m_editor->SetLexer(wxSTC_LEX_NULL);
+                     m_editor->SetKeyWords(0, wxString{});
                      }
 
-                 currentMessage += L"<br /><span style='font-weight: bold'>" + node->m_warningId +
-                                   L"</span>: " + node->m_explaination;
-
-                 if (!node->m_issue.empty() && node->m_warningId != L"[deprecatedMacro]" &&
-                     node->m_warningId != L"[trailingSpaces]" &&
-                     node->m_warningId != L"[unencodedExtASCII]" &&
-                     node->m_warningId != L"[UTF8FileWithBOM]" &&
-                     node->m_warningId != L"[nonUTF8File]")
+                 m_editor->LoadFile(node->m_fileName);
+                 if (node->m_line != -1)
                      {
-                     currentMessage +=
-                         L"<br /><br />Value:<br />&nbsp;&nbsp;&nbsp;&nbsp;" + node->m_issue;
-                     }
+                     m_editor->GotoLine(node->m_line + 1);
+                     m_editor->AnnotationSetText(node->m_line - 1, node->m_explaination);
+                     m_editor->AnnotationSetStyle(node->m_line - 1, ERROR_ANNOTATION_STYLE);
 
-                 m_messageWindow->SetPage(currentMessage);
+                     // Scintilla doesn't update the scroll width for annotations, even with
+                     // scroll width tracking on, so do it manually.
+                     const int width = m_editor->GetScrollWidth();
+
+                     // Take into account the fact that the annotation is shown indented, with
+                     // the same indent as the line it's attached to.
+                     // Also, add 3; this is just a hack to account for the width of the box, there
+                     // doesn't seem to be any way to get it directly from Scintilla.
+                     const int indent = m_editor->GetLineIndentation(node->m_line - 1) + FromDIP(3);
+
+                     const int widthAnn = m_editor->TextWidth(
+                         ERROR_ANNOTATION_STYLE, node->m_explaination + wxString(indent, L' '));
+
+                     if (widthAnn > width)
+                         {
+                         m_editor->SetScrollWidth(widthAnn);
+                         }
+                     m_editor->SetFocus();
+                     }
                  }
          });
     }
@@ -256,7 +377,7 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
 //------------------------------------------------------
 void I18NFrame::Process()
     {
-    m_messageWindow->SetPage(wxString{});
+    m_editor->SetText(wxString{});
 
     std::wstring inputFolder{ m_filePath.c_str() };
 

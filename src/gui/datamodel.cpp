@@ -4,14 +4,14 @@
 // Copyright:   (c) 2021-2024 Blake Madden
 // License:     3-Clause BSD license
 // SPDX-License-Identifier: BSD-3-Clause
-///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 #include "datamodel.h"
 
 //------------------------------------------------------
 I18NResultsTreeModel::I18NResultsTreeModel()
+    : m_root(new I18NResultsTreeModelNode(nullptr, wxString{}))
     {
-    m_root = new I18NResultsTreeModelNode(nullptr, wxString{});
     }
 
 //------------------------------------------------------
