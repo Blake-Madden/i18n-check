@@ -21,6 +21,7 @@
 #include <wx/statline.h>
 #include <wx/string.h>
 #include <wx/tokenzr.h>
+#include <wx/treebook.h>
 #include <wx/valgen.h>
 #include <wx/valtext.h>
 #include <wx/wx.h>

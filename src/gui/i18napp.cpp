@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////
-// Name:        main.cpp
+// Name:        i18napp.cpp
 // Author:      Blake Madden
 // Copyright:   (c) 2021-2024 Blake Madden
 // License:     3-Clause BSD license
@@ -84,9 +84,8 @@ void I18NFrame::InitControls()
         new wxDataViewColumn(_(L"Summary"), tr, 4, FromDIP(200), wxALIGN_LEFT,
                              wxDATAVIEW_COL_SORTABLE | wxDATAVIEW_COL_RESIZABLE));
 
-    m_messageWindow =
-        new wxHtmlWindow(splitter, wxID_ANY, wxDefaultPosition, FromDIP(wxSize{ 100, 150 }),
-                         wxHW_SCROLLBAR_AUTO | wxHW_NO_SELECTION);
+    m_messageWindow = new wxHtmlWindow(splitter, wxID_ANY, wxDefaultPosition,
+                                       FromDIP(wxSize{ 100, 150 }), wxHW_SCROLLBAR_AUTO);
 
     splitter->SplitHorizontally(m_resultsDataView, m_messageWindow, FromDIP(-150));
     mainSizer->Add(splitter, wxSizerFlags(1).Expand());
