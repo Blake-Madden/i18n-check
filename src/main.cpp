@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
     cpp.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
     cpp.exceptions_should_be_translatable(readBoolOption("exceptions-l10n-required", true));
     cpp.set_min_words_for_classifying_unavailable_string(readIntOption("min-l10n-wordcount", 2));
-    cpp.set_min_words_for_classifying_unavailable_string(readIntOption("cpp-version", 14));
+    cpp.set_min_cpp_version(readIntOption("cpp-version", 14));
 
     i18n_check::rc_file_review rc;
     rc.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
@@ -269,6 +269,7 @@ int main(int argc, char* argv[])
             }
         cpp.set_style(static_cast<i18n_check::review_style>(rs));
         po.set_style(static_cast<i18n_check::review_style>(rs));
+        rc.set_style(static_cast<i18n_check::review_style>(rs));
         }
     // ...and if any checks are being excluded
     if (result.count("disable"))
@@ -370,6 +371,8 @@ int main(int argc, char* argv[])
                 }
             }
         cpp.set_style(static_cast<i18n_check::review_style>(rs));
+        po.set_style(static_cast<i18n_check::review_style>(rs));
+        rc.set_style(static_cast<i18n_check::review_style>(rs));
         }
 
     std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
