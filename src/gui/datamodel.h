@@ -17,6 +17,7 @@
 #include <vector>
 #include <wx/artprov.h>
 #include <wx/dataview.h>
+#include <wx/filename.h>
 #include <wx/wx.h>
 
 // ----------------------------------------------------------------------------
@@ -30,16 +31,19 @@ using I18NResultsTreeModelNodePtrArray = std::vector<I18NResultsTreeModelNodePtr
 class I18NResultsTreeModelNode
     {
   public:
-    I18NResultsTreeModelNode(I18NResultsTreeModelNode* parent, const wxString& warningId,
-                             const wxString& issue, const wxString& explanation, const int line,
-                             const int column)
-        : m_warningId(warningId), m_issue(issue), m_explaination(explanation), m_line(line),
+    I18NResultsTreeModelNode(I18NResultsTreeModelNode* parent, wxString fileName,
+                             wxString warningId, wxString issue, wxString explanation,
+                             const int line, const int column)
+        : m_fileName(std::move(fileName)), m_warningId(std::move(warningId)),
+          m_issue(std::move(issue)), m_explaination(std::move(explanation)), m_line(line),
           m_column(column), m_container(false), m_parent(parent)
         {
         }
 
-    I18NResultsTreeModelNode(I18NResultsTreeModelNode* parent, const wxString& warningId)
-        : m_warningId(warningId), m_container(true), m_parent(parent)
+    // Root node for file.
+    // Filename is copied into warning ID so that it gets rendered at the root level.
+    I18NResultsTreeModelNode(I18NResultsTreeModelNode* parent, const wxString& fileName)
+        : m_fileName(fileName), m_warningId(fileName), m_container(true), m_parent(parent)
         {
         }
 
@@ -65,7 +69,15 @@ class I18NResultsTreeModelNode
 
     size_t GetChildCount() const { return m_children.size(); }
 
+    [[nodiscard]]
+    bool
+    operator==(const wxString& fileName) const
+        {
+        return m_fileName.CmpNoCase(fileName) == 0;
+        }
+
   public:
+    wxString m_fileName;
     wxString m_warningId;
     wxString m_issue;
     wxString m_explaination;
@@ -89,11 +101,13 @@ class I18NResultsTreeModel : public wxDataViewModel
 
     // helper methods to change the model
 
+    wxDataViewItem GetRoot() { return wxDataViewItem(m_root); }
+
     void Delete(const wxDataViewItem& item);
     void Clear();
 
-    void AddRow(const wxString& fileName, const wxString& warningId, const wxString& issue,
-                const wxString& explanation, const int line, const int column);
+    void AddRow(wxString fileName, wxString warningId, wxString issue, wxString explanation,
+                const int line, const int column);
 
     // override sorting to always sort branches ascendingly
     int Compare(const wxDataViewItem& item1, const wxDataViewItem& item2, unsigned int column,
