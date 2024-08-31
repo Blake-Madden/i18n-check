@@ -30,11 +30,11 @@ namespace i18n_check
     using analyze_callback = std::function<bool(const size_t, const size_t, const std::wstring&)>;
 
     /// @private
-    std::pair<bool, std::wstring> read_utf16_file(const std::wstring& file_name);
+    std::pair<bool, std::wstring> read_utf16_file(const std::filesystem::path& filePath);
     /// @private
-    bool valid_utf8_file(const std::wstring& file_name, bool& startsWithBom);
+    bool valid_utf8_file(const std::filesystem::path& filePath, bool& startsWithBom);
     /// @private
-    std::pair<bool, std::wstring> read_utf8_file(const std::wstring& file_name, bool& startsWithBom);
+    std::pair<bool, std::wstring> read_utf8_file(const std::filesystem::path& filePath, bool& startsWithBom);
 
     /** @brief Runs all analyzers on a set of files.
         @param filesToAnalyze The files to analyze.

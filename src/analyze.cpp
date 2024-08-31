@@ -13,10 +13,10 @@
 namespace i18n_check
     {
     //------------------------------------------------------
-    bool valid_utf8_file(const std::wstring& file_name, bool& startsWithBom)
+    bool valid_utf8_file(const std::filesystem::path& filePath, bool& startsWithBom)
         {
         startsWithBom = false;
-        std::ifstream ifs(i18n_string_util::lazy_wstring_to_string(file_name));
+        std::ifstream ifs(filePath);
         if (!ifs)
             {
             return false;
@@ -35,18 +35,18 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    std::pair<bool, std::wstring> read_utf16_file(const std::wstring& file_name)
+    std::pair<bool, std::wstring> read_utf16_file(const std::filesystem::path& filePath)
         {
-        std::ifstream fs8(i18n_string_util::lazy_wstring_to_string(file_name));
+        std::ifstream fs8(filePath);
         if (!fs8.is_open())
             {
-            std::wcout << L"Could not open " << file_name << L"\n";
+            std::wcout << L"Could not open " << filePath << L"\n";
             return std::make_pair(false, std::wstring{});
             }
 
         std::string line;
         std::string buffer;
-        buffer.reserve(static_cast<size_t>(std::filesystem::file_size(file_name)));
+        buffer.reserve(static_cast<size_t>(std::filesystem::file_size(filePath)));
 
         fs8.seekg(0, std::ios_base::end);
         const auto fileLength = fs8.tellg();
@@ -65,24 +65,24 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    std::pair<bool, std::wstring> read_utf8_file(const std::wstring& file_name, bool& startsWithBom)
+    std::pair<bool, std::wstring> read_utf8_file(const std::filesystem::path& filePath, bool& startsWithBom)
         {
-        if (!valid_utf8_file(file_name, startsWithBom))
+        if (!valid_utf8_file(filePath, startsWithBom))
             {
             return std::make_pair(false, std::wstring{});
             }
 
-        std::ifstream fs8(i18n_string_util::lazy_wstring_to_string(file_name));
+        std::ifstream fs8(filePath);
         if (!fs8.is_open())
             {
-            std::wcout << L"Could not open " << file_name << L"\n";
+            std::wcout << L"Could not open " << filePath << L"\n";
             return std::make_pair(false, std::wstring{});
             }
 
         unsigned line_count = 1;
         std::string line;
         std::wstring buffer;
-        buffer.reserve(static_cast<size_t>(std::filesystem::file_size(file_name)));
+        buffer.reserve(static_cast<size_t>(std::filesystem::file_size(filePath)));
 
         while (std::getline(fs8, line))
             {
@@ -199,7 +199,7 @@ namespace i18n_check
                         {
                         filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
-                    std::wifstream ifs(i18n_string_util::lazy_wstring_to_string(file));
+                    std::wifstream ifs(file);
                     const std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                            std::istreambuf_iterator<wchar_t>());
                     if (fileType == file_review_type::rc)

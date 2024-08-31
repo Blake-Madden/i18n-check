@@ -139,24 +139,6 @@ namespace i18n_string_util
         return retVal;
         }
 
-    /** @brief Converts a wstring to string (assuming that the string is simple 8-bit ASCII).
-        @param str The string to convert.
-        @returns The string, converted to a wstring.
-        @warning This assumes 8-bit ASCII strings and does not perform any sort
-            of charset conversion. This should only be used for very simple strings,
-            such as `what()` from an untranslated `std::exception`.*/
-    [[nodiscard]]
-    inline std::string lazy_wstring_to_string(const std::wstring& str)
-        {
-        std::string retVal;
-        retVal.reserve(str.length());
-        for (const auto& ch : str)
-            {
-            retVal += static_cast<char>(ch);
-            }
-        return retVal;
-        }
-
     /// @brief Converts escaped control characters (e.g., "\n")
     ///     inside of a string into spaces.
     /// @param[out] str The string being escaped.
