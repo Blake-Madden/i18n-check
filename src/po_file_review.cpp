@@ -170,11 +170,19 @@ namespace i18n_check
             else
                 {
                 size_t lookAheadIndex{ idEndPos + 1 };
+                // jump to next line
                 while (lookAheadIndex < poFileText.length() &&
                        string_util::is_either(poFileText[lookAheadIndex], L'\r', L'\n'))
                     {
                     ++lookAheadIndex;
                     }
+                // eat up leading spaces
+                while (lookAheadIndex < poFileText.length() &&
+                       string_util::is_either(poFileText[lookAheadIndex], L'\t', L' '))
+                    {
+                    ++lookAheadIndex;
+                    }
+                // if a quote, then this is still be part of the same string
                 if (lookAheadIndex < poFileText.length() && poFileText[lookAheadIndex] == L'"')
                     {
                     idEndPos = lookAheadIndex + 1;
