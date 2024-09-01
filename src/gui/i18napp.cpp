@@ -10,6 +10,48 @@
 
 wxIMPLEMENT_APP(I18NApp);
 
+I18NArtProvider::I18NArtProvider()
+    {
+    // cppcheck-suppress useInitializationList
+    m_idFileMap = { { wxART_FILE_OPEN, L"images/file-open.svg" },
+                    { wxART_FILE_SAVE, L"images/file-save.svg" },
+                    { wxART_NEW, L"images/document.svg" },
+                    { wxART_EDIT, L"images/reload.svg" },
+                    { L"ID_ABOUT", L"images/app-logo.svg" } };
+    }
+
+//-------------------------------------------
+wxBitmapBundle I18NArtProvider::CreateBitmapBundle(const wxArtID& id, const wxArtClient& client,
+                                                   const wxSize& size)
+    {
+    const auto filePath = m_idFileMap.find(id);
+
+    return (filePath != m_idFileMap.cend()) ? GetSVG(filePath->second) :
+                                              wxArtProvider::CreateBitmapBundle(id, client, size);
+    }
+
+//-------------------------------------------------------
+wxBitmapBundle I18NArtProvider::GetSVG(const wxString& path) const
+    {
+    // load bitmap from disk if a local file
+    if (wxFile::Exists(path))
+        {
+        assert(wxBitmapBundle::FromSVGFile(path, wxSize(16, 16)).IsOk() &&
+               L"Failed to load SVG icon!");
+
+        wxVector<wxBitmap> bmps;
+        bmps.push_back(wxBitmapBundle::FromSVGFile(path, wxSize(16, 16)).GetBitmap(wxSize(16, 16)));
+        bmps.push_back(wxBitmapBundle::FromSVGFile(path, wxSize(32, 32)).GetBitmap(wxSize(32, 32)));
+        bmps.push_back(wxBitmapBundle::FromSVGFile(path, wxSize(64, 64)).GetBitmap(wxSize(64, 64)));
+        bmps.push_back(
+            wxBitmapBundle::FromSVGFile(path, wxSize(128, 128)).GetBitmap(wxSize(128, 128)));
+
+        return wxBitmapBundle::FromBitmaps(bmps);
+        }
+
+    return wxBitmapBundle{};
+    }
+
 //------------------------------------------------------
 void I18NFrame::InitControls()
     {
@@ -20,20 +62,33 @@ void I18NFrame::InitControls()
                             wxRIBBON_BAR_SHOW_HELP_BUTTON);
         {
         wxRibbonPage* homePage = new wxRibbonPage(m_ribbon, wxID_ANY, _(L"Home"));
+
         wxRibbonPanel* projectPanel =
             new wxRibbonPanel(homePage, wxID_ANY, _(L"Project"), wxNullBitmap, wxDefaultPosition,
                               wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
+        m_projectBar = new wxRibbonButtonBar(projectPanel);
+        m_projectBar->AddButton(wxID_NEW, _(L"New"),
+                                wxArtProvider::GetBitmap(wxART_NEW, wxART_OTHER, wxSize{ 32, 32 }));
+        m_projectBar->AddButton(
+            wxID_EDIT, _(L"Refresh"),
+            wxArtProvider::GetBitmap(wxART_EDIT, wxART_OTHER, wxSize{ 32, 32 }));
+        m_projectBar->EnableButton(wxID_EDIT, false);
 
-        wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(projectPanel);
-        toolbar->AddButton(wxID_NEW, _(L"New"),
-                           wxArtProvider::GetBitmap(wxART_NEW, wxART_OTHER, wxSize{ 32, 32 }));
-        toolbar->AddButton(wxID_EDIT, _(L"Edit"),
-                           wxArtProvider::GetBitmap(wxART_EDIT, wxART_OTHER, wxSize{ 32, 32 }));
-
+        wxRibbonPanel* viewPanel =
+            new wxRibbonPanel(homePage, wxID_ANY, _(L"View"), wxNullBitmap, wxDefaultPosition,
+                              wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
+        wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(viewPanel);
         toolbar->AddButton(XRCID("ID_EXPAND_ALL"), _(L"Expand All"),
                            wxArtProvider::GetBitmap(wxART_MINUS, wxART_OTHER, wxSize{ 32, 32 }));
         toolbar->AddButton(XRCID("ID_COLLAPSE_ALL"), _(L"Collapse All"),
                            wxArtProvider::GetBitmap(wxART_PLUS, wxART_OTHER, wxSize{ 32, 32 }));
+
+        wxRibbonPanel* helpPanel =
+            new wxRibbonPanel(homePage, wxID_ANY, _(L"Help"), wxNullBitmap, wxDefaultPosition,
+                              wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
+        toolbar = new wxRibbonButtonBar(helpPanel);
+        toolbar->AddButton(wxID_ABOUT, _(L"About"),
+                           wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
         }
 
     m_ribbon->Realize();
@@ -176,7 +231,7 @@ void I18NFrame::InitControls()
 
     m_editor->CallTipUseStyle(40);
 
-    splitter->SplitHorizontally(m_resultsDataView, m_editor, FromDIP(-150));
+    splitter->SplitHorizontally(m_resultsDataView, m_editor, FromDIP(-300));
     mainSizer->Add(splitter, wxSizerFlags(1).Expand());
 
     SetSizer(mainSizer);
@@ -191,6 +246,15 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEdit, this, wxID_EDIT);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnExpandAll, this, XRCID("ID_EXPAND_ALL"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnCollapseAll, this, XRCID("ID_COLLAPSE_ALL"));
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
+            wxRibbonButtonBarEvent event;
+            OnAbout(event);
+        },
+        wxID_ABOUT);
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -320,6 +384,14 @@ void I18NFrame::OnExpandAll([[maybe_unused]] wxCommandEvent&) { ExpandAll(); }
 void I18NFrame::OnCollapseAll([[maybe_unused]] wxCommandEvent&) { Collapse(); }
 
 //------------------------------------------------------
+void I18NFrame::OnAbout([[maybe_unused]] wxCommandEvent&)
+    {
+    wxAboutDialogInfo aboutInfo;
+    aboutInfo.AddDeveloper(L"Blake Madden");
+    wxAboutBox(aboutInfo, this);
+    }
+
+//------------------------------------------------------
 void I18NFrame::OnEdit([[maybe_unused]] wxCommandEvent&)
     {
     NewProjectDialog projDlg(this);
@@ -355,8 +427,6 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     {
     NewProjectDialog projDlg(this);
     projDlg.SetOptions(static_cast<i18n_check::review_style>(m_options));
-    projDlg.SetPath(m_filePath);
-    projDlg.SetExcludedPath(m_excludedPaths);
     projDlg.UseFuzzyTranslations(m_fuzzyTranslations);
     projDlg.LogMessagesCanBeTranslated(m_logMessagesCanBeTranslated);
     projDlg.AllowTranslatingPunctuationOnlyStrings(m_allowTranslatingPunctuationOnlyStrings);
@@ -380,6 +450,11 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     m_minCppVersion = projDlg.MinCppVersion();
 
     Process();
+
+    if (m_projectBar != nullptr)
+        {
+        m_projectBar->EnableButton(wxID_EDIT, true);
+        }
     }
 
 //------------------------------------------------------
@@ -541,12 +616,18 @@ bool I18NApp::OnInit()
 
     SetAppName(L"i18n-check");
 
+    wxArtProvider::Push(new I18NArtProvider);
+
     // create the main application window
     I18NFrame* frame = new I18NFrame(GetAppName());
     frame->InitControls();
-    frame->SetSize(frame->FromDIP(wxSize(1200, 900)));
+    frame->SetSize(frame->FromDIP(wxSize{ 1200, 1200 }));
     frame->CenterOnScreen();
     frame->Show(true);
+
+    wxIcon appIcon;
+    appIcon.CopyFromBitmap(wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
+    frame->SetIcon(appIcon);
 
     return true;
     }

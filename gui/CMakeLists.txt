@@ -187,3 +187,13 @@ if(APPLE)
         RESOURCE app-logo.icns
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in)
 endif()
+
+add_custom_command(TARGET ${PROJECT_NAME}
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_CURRENT_SOURCE_DIR}/images $<TARGET_FILE_DIR:${PROJECT_NAME}>${RESOURCE_FOLDER}/images)
+
+add_custom_command(TARGET ${PROJECT_NAME}
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_CURRENT_SOURCE_DIR}/../app-logo.svg $<TARGET_FILE_DIR:${PROJECT_NAME}>${RESOURCE_FOLDER}/images)

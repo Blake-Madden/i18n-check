@@ -16,6 +16,7 @@
 #include "../input.h"
 #include "datamodel.h"
 #include "projectdlg.h"
+#include <wx/aboutdlg.h>
 #include <wx/artprov.h>
 #include <wx/dataview.h>
 #include <wx/filename.h>
@@ -35,6 +36,24 @@
 #include <wx/xrc/xmlres.h>
 
 //------------------------------------------------------
+class I18NArtProvider final : public wxArtProvider
+    {
+  public:
+    I18NArtProvider();
+
+  protected:
+    [[nodiscard]]
+    wxBitmapBundle CreateBitmapBundle(const wxArtID& id, const wxArtClient& client,
+                                      const wxSize& size) final;
+
+    [[nodiscard]]
+    wxBitmapBundle GetSVG(const wxString& path) const;
+
+  private:
+    std::map<wxArtID, wxString> m_idFileMap;
+    };
+
+//------------------------------------------------------
 class I18NFrame : public wxFrame
     {
   public:
@@ -46,6 +65,7 @@ class I18NFrame : public wxFrame
     void OnEdit([[maybe_unused]] wxCommandEvent&);
     void OnExpandAll([[maybe_unused]] wxCommandEvent&);
     void OnCollapseAll([[maybe_unused]] wxCommandEvent&);
+    void OnAbout([[maybe_unused]] wxCommandEvent&);
 
   private:
     void Process();
@@ -74,6 +94,7 @@ class I18NFrame : public wxFrame
 
     wxObjectDataPtr<I18NResultsTreeModel> m_resultsModel;
     wxDataViewCtrl* m_resultsDataView{ nullptr };
+    wxRibbonButtonBar* m_projectBar{ nullptr };
     wxStyledTextCtrl* m_editor{ nullptr };
     wxString m_activeFile;
     bool m_promptForFileSave{ true };
