@@ -176,13 +176,17 @@ void I18NFrame::InitControls()
 
     m_editor->CallTipUseStyle(40);
 
-    m_editor->SetEditable(false);
-
     splitter->SplitHorizontally(m_resultsDataView, m_editor, FromDIP(-150));
     mainSizer->Add(splitter, wxSizerFlags(1).Expand());
 
     SetSizer(mainSizer);
 
+    Bind(wxEVT_CLOSE_WINDOW,
+         [this](wxCloseEvent& event)
+         {
+             SaveSourceFileIfNeeded();
+             event.Skip();
+         });
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnNew, this, wxID_NEW);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEdit, this, wxID_EDIT);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnExpandAll, this, XRCID("ID_EXPAND_ALL"));
@@ -232,6 +236,9 @@ void I18NFrame::InitControls()
     Bind(wxEVT_DATAVIEW_SELECTION_CHANGED,
          [this](wxDataViewEvent& event)
          {
+             SaveSourceFileIfNeeded();
+
+             m_activeFile.clear();
              m_editor->SetText(wxString{});
              I18NResultsTreeModelNode* node =
                  reinterpret_cast<I18NResultsTreeModelNode*>(event.GetItem().GetID());
@@ -241,7 +248,7 @@ void I18NFrame::InitControls()
                      {
                      return;
                      }
-                 
+
                  const wxString fileExt = wxFileName{ node->m_fileName }.GetExt();
 
                  if (fileExt.CmpNoCase(L"cpp") == 0 || fileExt.CmpNoCase(L"c") == 0 ||
@@ -275,6 +282,7 @@ void I18NFrame::InitControls()
                      m_editor->SetKeyWords(0, wxString{});
                      }
 
+                 m_activeFile = node->m_fileName;
                  m_editor->LoadFile(node->m_fileName);
                  if (node->m_line != -1)
                      {
@@ -375,8 +383,43 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     }
 
 //------------------------------------------------------
+void I18NFrame::SaveSourceFileIfNeeded()
+    {
+    if (!m_activeFile.empty() && m_editor->IsModified())
+        {
+        if (m_promptForFileSave)
+            {
+            wxRichMessageDialog msg(this,
+                                    wxString::Format(_(L"Do you wish to save changes to '%s'?"),
+                                                     wxFileName{ m_activeFile }.GetFullName()),
+                                    _(L"Remove Test"), wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION);
+            msg.SetEscapeId(wxID_NO);
+            msg.ShowCheckBox(_(L"Always save without prompting"));
+            const int dlgResponse = msg.ShowModal();
+            // save the checkbox status
+            if (msg.IsCheckBoxChecked() && (dlgResponse == wxID_YES))
+                {
+                m_promptForFileSave = false;
+                }
+            // now see if they said "Yes" or "No"
+            if (dlgResponse == wxID_YES)
+                {
+                m_editor->SaveFile(m_activeFile);
+                }
+            }
+        else
+            {
+            m_editor->SaveFile(m_activeFile);
+            }
+        }
+    }
+
+//------------------------------------------------------
 void I18NFrame::Process()
     {
+    SaveSourceFileIfNeeded();
+
+    m_activeFile.clear();
     m_editor->SetText(wxString{});
 
     std::wstring inputFolder{ m_filePath.c_str() };

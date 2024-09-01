@@ -26,6 +26,7 @@
 #include <wx/ribbon/buttonbar.h>
 #include <wx/ribbon/gallery.h>
 #include <wx/ribbon/toolbar.h>
+#include <wx/richmsgdlg.h>
 #include <wx/splitter.h>
 #include <wx/stc/stc.h>
 #include <wx/tokenzr.h>
@@ -69,9 +70,13 @@ class I18NFrame : public wxFrame
             }
         }
 
+    void SaveSourceFileIfNeeded();
+
     wxObjectDataPtr<I18NResultsTreeModel> m_resultsModel;
     wxDataViewCtrl* m_resultsDataView{ nullptr };
     wxStyledTextCtrl* m_editor{ nullptr };
+    wxString m_activeFile;
+    bool m_promptForFileSave{ true };
 
     constexpr static int ERROR_ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
