@@ -7,11 +7,11 @@
 /gui/resource.h
 /gui/Info.plist
 /gui/.vs/
-/guis/bin/
+/gui/bin/
 /gui/out/
 /html/
 /CMakeSettings.json
 /doxyerrors.txt
 /docs/html
 /docs/manual/.quarto
-/gui/resource.h
+/docs/manual/book/site_libs
