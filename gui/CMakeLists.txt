@@ -47,7 +47,7 @@ if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     endif()
 endif()
 
-project(i18ngui VERSION 2024.0.0.0 DESCRIPTION "i18n-check GUI")
+project(i18n-gui VERSION 2024.0.0.0 DESCRIPTION "i18n-check GUI")
 set(PROGRAM_NUMBERED_VERSION 1.0)
 set(PROGRAM_AUTHOR "Blake Madden")
 set(PROGRAM_COMMENTS "Internationalization/localization analysis")
@@ -55,31 +55,33 @@ set(PROGRAM_RDNS_IDENTIFIER "org.i18n-check.i18n-check-gui")
 set(PROGRAM_LICENSE "BSD-3-Clause")
 
 # Build a displayable version string that only includes the necessary parts
-set(FULL_DISPLAY_VERSION ${i18ngui_VERSION_MAJOR})
-if(NOT ${i18ngui_VERSION_MINOR} EQUAL 0)
-    string(APPEND FULL_DISPLAY_VERSION ".${i18ngui_VERSION_MINOR}")
+set(FULL_DISPLAY_VERSION ${i18n-gui_VERSION_MAJOR})
+if(NOT ${i18n-gui_VERSION_MINOR} EQUAL 0)
+    string(APPEND FULL_DISPLAY_VERSION ".${i18n-gui_VERSION_MINOR}")
 endif()
-if(NOT ${i18ngui_VERSION_PATCH} EQUAL 0)
-    string(APPEND FULL_DISPLAY_VERSION ".${i18ngui_VERSION_PATCH}")
+if(NOT ${i18n-gui_VERSION_PATCH} EQUAL 0)
+    string(APPEND FULL_DISPLAY_VERSION ".${i18n-gui_VERSION_PATCH}")
 endif()
-if(NOT ${i18ngui_VERSION_TWEAK} EQUAL 0)
-    string(APPEND FULL_DISPLAY_VERSION ".${i18ngui_VERSION_TWEAK}")
+if(NOT ${i18n-gui_VERSION_TWEAK} EQUAL 0)
+    string(APPEND FULL_DISPLAY_VERSION ".${i18n-gui_VERSION_TWEAK}")
 endif()
 string(TIMESTAMP BUILD_YEAR "%Y")
 
-message(STATUS "${i18ngui_DESCRIPTION}")
+message(STATUS "${i18n-gui_DESCRIPTION}")
 message(STATUS "${PROGRAM_COMMENTS}")
-message(STATUS "Full version: ${i18ngui_VERSION_MAJOR}.${i18ngui_VERSION_MINOR}.${i18ngui_VERSION_PATCH}.${i18ngui_VERSION_TWEAK}")
+message(STATUS "Full version: ${i18n-gui_VERSION_MAJOR}.${i18n-gui_VERSION_MINOR}.${i18n-gui_VERSION_PATCH}.${i18n-gui_VERSION_TWEAK}")
 message(STATUS "Display version: ${FULL_DISPLAY_VERSION}")
 message(STATUS "Numbered Version: ${PROGRAM_NUMBERED_VERSION}")
 message(STATUS "Built in: ${BUILD_YEAR}")
 message(STATUS "Authored by: ${PROGRAM_AUTHOR}")
 message(STATUS "Published by: ${PUBLISHER}")
-message(STATUS "Homepage: ${i18ngui_HOMEPAGE_URL}")
+message(STATUS "Homepage: ${i18n-gui_HOMEPAGE_URL}")
 message(STATUS "Output program file: ${CMAKE_PROJECT_NAME}")
 message(STATUS "Writing program info to build peripheral files")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/resource.h.in"
                "${CMAKE_CURRENT_SOURCE_DIR}/resource.h")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
+               "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
 
 # Build the documentation
 ########################
@@ -126,6 +128,7 @@ set(FILES ../src/analyze.cpp ../src/gui/i18napp.cpp ../src/gui/projectdlg.cpp ..
           ../src/i18n_review.cpp ../src/input.cpp ../src/gui/datamodel.cpp
           ../src/cpp_i18n_review.cpp ../src/po_file_review.cpp
           ../src/rc_file_review.cpp)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 if(WIN32)
     # Include an RC file and HiDPI manifest for Windows (provided by wxWidgets)

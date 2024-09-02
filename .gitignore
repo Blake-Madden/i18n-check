@@ -4,6 +4,8 @@
 /tests/.vs/
 /tests/bin/
 /tests/out/
+/gui/resource.h
+/gui/Info.plist
 /gui/.vs/
 /guis/bin/
 /gui/out/
@@ -12,3 +14,4 @@
 /doxyerrors.txt
 /docs/html
 /docs/manual/.quarto
+/gui/resource.h
