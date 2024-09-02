@@ -60,7 +60,7 @@ class NewProjectDialog final : public wxDialog
         m_filePath = path;
         TransferDataToWindow();
         }
-    
+
     [[nodiscard]]
     const wxString& GetExcludedPath() const noexcept
         {

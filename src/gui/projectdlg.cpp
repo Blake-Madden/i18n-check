@@ -388,11 +388,11 @@ void NewProjectDialog::CreateControls()
             0, wxALIGN_CENTER_VERTICAL);
 
         wxArrayString cppVersions;
-        cppVersions.Add(_(L"11"));
-        cppVersions.Add(_(L"14"));
-        cppVersions.Add(_(L"17"));
-        cppVersions.Add(_(L"20"));
-        cppVersions.Add(_(L"23"));
+        cppVersions.Add(L"11");
+        cppVersions.Add(L"14");
+        cppVersions.Add(L"17");
+        cppVersions.Add(L"20");
+        cppVersions.Add(L"23");
         wxChoice* cppVersionRadioBox =
             new wxChoice(cppPage, wxID_ANY, wxDefaultPosition, wxDefaultSize, cppVersions, 0,
                          wxGenericValidator(&m_minCppVersion));
@@ -401,7 +401,7 @@ void NewProjectDialog::CreateControls()
         mainSizer->Add(cppVersionSizer, wxSizerFlags().Expand().Border());
 
         cppPage->SetSizer(mainSizer);
-        treeBook->AddPage(cppPage, _(L"C++"), false);
+        treeBook->AddPage(cppPage, L"C++", false);
         }
 
         // translation catalogs
