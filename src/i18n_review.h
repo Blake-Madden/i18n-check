@@ -77,6 +77,20 @@ namespace i18n_check
         /// @brief Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
         ///     or using unusual font sizes).
         check_fonts = (1 << 12),
+        /// @private
+        i18n_reserved1 = (1 << 13),
+        /// @private
+        i18n_reserved2 = (1 << 14),
+        /// @private
+        i18n_reserved3 = (1 << 15),
+        /// @private
+        i18n_reserved4 = (1 << 16),
+        /// @private
+        i18n_reserved5 = (1 << 17),
+        /// @private
+        i18n_reserved6 = (1 << 18),
+        /// @private
+        i18n_reserved7 = (1 << 19),
         /// @brief Perform all aforementioned internationalization checks.
         all_i18n_checks = (check_l10n_strings | check_suspect_l10n_string_usage |
         check_not_available_for_l10n | check_deprecated_macros | check_utf8_encoded |
@@ -85,17 +99,25 @@ namespace i18n_check
         check_malformed_strings | check_utf8_with_signature | check_fonts),
         /// @brief Check for mismatching printf commands between source strings and their
         ///     respective translations.
-        check_mismatching_printf_commands = (1 << 13),
+        check_mismatching_printf_commands = (1 << 20),
+        /// @private
+        l10n_reserved1 = (1 << 21),
+        /// @private
+        l10n_reserved2 = (1 << 22),
+        /// @private
+        l10n_reserved3 = (1 << 23),
+        /// @private
+        l10n_reserved4 = (1 << 24),
         /// @brief Perform all aforementioned localization checks.
         all_l10n_checks = (check_mismatching_printf_commands),
         /// @brief Check for trailing spaces at the end of each line.
-        check_trailing_spaces = (1 << 20),
+        check_trailing_spaces = (1 << 25),
         /// @brief Check for tabs (spaces are recommended).
-        check_tabs = (1 << 21),
+        check_tabs = (1 << 26),
         /// @brief Check for overly long lines.
-        check_line_width = (1 << 22),
+        check_line_width = (1 << 27),
         /// @brief Check that there is a space at the start of a comment.
-        check_space_after_comment = (1 << 23),
+        check_space_after_comment = (1 << 28),
         /// @brief Check all aforementioned code formatting issues.
         all_code_formatting_checks =
         (check_trailing_spaces | check_tabs | check_line_width | check_space_after_comment)
