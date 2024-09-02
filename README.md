@@ -79,7 +79,7 @@ Refer [here](Example.md) for example usage.
 
 [![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
 [![Check Spelling](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml)
-[!i18n-check](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/i18n-check.yml)
+[![i18n-check](https://github.com/Blake-Madden/i18n-check/actions/workflows/i18n-check/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/i18n-check.yml)
 
 # Usage
 
