@@ -36,8 +36,8 @@ wxBitmapBundle I18NArtProvider::GetSVG(const wxString& path) const
     // load bitmap from disk if a local file
     if (wxFile::Exists(path))
         {
-        assert(wxBitmapBundle::FromSVGFile(path, wxSize(16, 16)).IsOk() &&
-               L"Failed to load SVG icon!");
+        wxASSERT_MSG(wxBitmapBundle::FromSVGFile(path, wxSize(16, 16)).IsOk(),
+                     L"Failed to load SVG icon!");
 
         wxVector<wxBitmap> bmps;
         bmps.push_back(wxBitmapBundle::FromSVGFile(path, wxSize(16, 16)).GetBitmap(wxSize(16, 16)));
@@ -70,23 +70,32 @@ void I18NFrame::InitControls()
         m_projectBar->AddButton(wxID_NEW, _(L"New"),
                                 wxArtProvider::GetBitmap(wxART_NEW, wxART_OTHER, wxSize{ 32, 32 }));
         m_projectBar->AddButton(
+            wxID_OPEN, _(L"Open"),
+            wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_OTHER, wxSize{ 32, 32 }));
+        m_projectBar->AddButton(
+            wxID_SAVE, _(L"Save"),
+            wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_OTHER, wxSize{ 32, 32 }));
+        m_projectBar->AddButton(
             wxID_EDIT, _(L"Refresh"),
             wxArtProvider::GetBitmap(wxART_EDIT, wxART_OTHER, wxSize{ 32, 32 }));
+        m_projectBar->EnableButton(wxID_SAVE, false);
         m_projectBar->EnableButton(wxID_EDIT, false);
 
         wxRibbonPanel* viewPanel =
             new wxRibbonPanel(homePage, wxID_ANY, _(L"View"), wxNullBitmap, wxDefaultPosition,
                               wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
-        wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(viewPanel);
-        toolbar->AddButton(XRCID("ID_EXPAND_ALL"), _(L"Expand All"),
-                           wxArtProvider::GetBitmap(wxART_MINUS, wxART_OTHER, wxSize{ 32, 32 }));
-        toolbar->AddButton(XRCID("ID_COLLAPSE_ALL"), _(L"Collapse All"),
-                           wxArtProvider::GetBitmap(wxART_PLUS, wxART_OTHER, wxSize{ 32, 32 }));
+        m_editBar = new wxRibbonButtonBar(viewPanel);
+        m_editBar->AddButton(XRCID("ID_EXPAND_ALL"), _(L"Expand All"),
+                             wxArtProvider::GetBitmap(wxART_MINUS, wxART_OTHER, wxSize{ 32, 32 }));
+        m_editBar->AddButton(XRCID("ID_COLLAPSE_ALL"), _(L"Collapse All"),
+                             wxArtProvider::GetBitmap(wxART_PLUS, wxART_OTHER, wxSize{ 32, 32 }));
+        m_editBar->EnableButton(XRCID("ID_EXPAND_ALL"), false);
+        m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), false);
 
         wxRibbonPanel* helpPanel =
             new wxRibbonPanel(homePage, wxID_ANY, _(L"Help"), wxNullBitmap, wxDefaultPosition,
                               wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
-        toolbar = new wxRibbonButtonBar(helpPanel);
+        wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(helpPanel);
         toolbar->AddButton(wxID_ABOUT, _(L"About"),
                            wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
         }
@@ -240,9 +249,12 @@ void I18NFrame::InitControls()
          [this](wxCloseEvent& event)
          {
              SaveSourceFileIfNeeded();
+             SaveProjectIfNeeded();
              event.Skip();
          });
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnNew, this, wxID_NEW);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnOpen, this, wxID_OPEN);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSave, this, wxID_SAVE);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEdit, this, wxID_EDIT);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnExpandAll, this, XRCID("ID_EXPAND_ALL"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnCollapseAll, this, XRCID("ID_COLLAPSE_ALL"));
@@ -279,6 +291,22 @@ void I18NFrame::InitControls()
             OnNew(event);
         },
         wxID_NEW);
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
+            wxRibbonButtonBarEvent event;
+            OnOpen(event);
+        },
+        wxID_OPEN);
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
+            wxRibbonButtonBarEvent event;
+            OnSave(event);
+        },
+        wxID_SAVE);
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -388,6 +416,9 @@ void I18NFrame::OnAbout([[maybe_unused]] wxCommandEvent&)
     {
     wxAboutDialogInfo aboutInfo;
     aboutInfo.AddDeveloper(L"Blake Madden");
+    wxIcon appIcon;
+    appIcon.CopyFromBitmap(wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
+    aboutInfo.SetIcon(appIcon);
     wxAboutBox(aboutInfo, this);
     }
 
@@ -419,12 +450,16 @@ void I18NFrame::OnEdit([[maybe_unused]] wxCommandEvent&)
         m_minCppVersion = projDlg.MinCppVersion();
 
         Process();
+
+        m_projectDirty = true;
         }
     }
 
 //------------------------------------------------------
 void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     {
+    SaveProjectIfNeeded();
+
     NewProjectDialog projDlg(this);
     projDlg.SetOptions(static_cast<i18n_check::review_style>(m_options));
     projDlg.UseFuzzyTranslations(m_fuzzyTranslations);
@@ -450,10 +485,154 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     m_minCppVersion = projDlg.MinCppVersion();
 
     Process();
+    }
 
-    if (m_projectBar != nullptr)
+//------------------------------------------------------
+void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
+    {
+    SaveProjectIfNeeded();
+
+    wxFileDialog dialog(this, _(L"Select Project to Open"), wxString{}, wxString{},
+                        _(L"i18n Project Files (*.xml)|*.xml"),
+                        wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_PREVIEW);
+    if (dialog.ShowModal() != wxID_OK)
         {
-        m_projectBar->EnableButton(wxID_EDIT, true);
+        return;
+        }
+
+    wxXmlDocument xmlDoc;
+    if (!xmlDoc.Load(dialog.GetPath()))
+        {
+        wxMessageBox(_(L"Error loading project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
+        return;
+        }
+
+    if (xmlDoc.GetRoot()->GetName() != "i18n-check-settings")
+        {
+        wxMessageBox(_(L"Invalid project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
+        return;
+        }
+
+    wxXmlNode* child = xmlDoc.GetRoot()->GetChildren();
+    while (child != nullptr)
+        {
+        if (child->GetName() == L"path")
+            {
+            m_filePath = child->GetNodeContent();
+            }
+        else if (child->GetName() == L"excluded-paths")
+            {
+            m_excludedPaths = child->GetNodeContent();
+            }
+        else if (child->GetName() == L"checks")
+            {
+            const wxString intVal = child->GetNodeContent();
+            intVal.ToInt(&m_options);
+            }
+        else if (child->GetName() == L"fuzzy-translations")
+            {
+            m_fuzzyTranslations = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"log-messages-can-be-translated")
+            {
+            m_logMessagesCanBeTranslated = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"allow-translating-punctuation-only-strings")
+            {
+            m_allowTranslatingPunctuationOnlyStrings = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"exceptions-should-be-translatable")
+            {
+            m_exceptionsShouldBeTranslatable = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"min-words-for-classifying-unavailable-string")
+            {
+            const wxString intVal = child->GetNodeContent();
+            intVal.ToInt(&m_minWordsForClassifyingUnavailableString);
+            }
+        else if (child->GetName() == L"min-cpp-version")
+            {
+            const wxString intVal = child->GetNodeContent();
+            intVal.ToInt(&m_minCppVersion);
+            }
+
+        child = child->GetNext();
+        }
+
+    Process();
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
+    {
+    const wxFileName projectName{ m_filePath };
+    const wxString lastFolder = projectName.GetDirs().empty() ?
+                                    wxString{ L"project" } :
+                                    projectName.GetDirs()[projectName.GetDirs().size() - 1];
+    wxFileDialog dialog(nullptr, _(L"Save Project"), wxString{}, lastFolder + L".xml",
+                        _(L"i18n Project Files (*.xml)|*.xml"), wxFD_SAVE | wxFD_PREVIEW);
+    if (dialog.ShowModal() != wxID_OK)
+        {
+        return;
+        }
+
+    wxXmlDocument xmlDoc;
+
+    wxXmlNode* root = new wxXmlNode(nullptr, wxXML_ELEMENT_NODE, L"i18n-check-settings");
+    xmlDoc.SetRoot(root);
+
+    wxXmlNode* node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"path");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_filePath));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"excluded-paths");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_excludedPaths));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"checks");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_options)));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"fuzzy-translations");
+    node->AddChild(
+        new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_fuzzyTranslations ? L"true" : L"false"));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"log-messages-can-be-translated");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
+                                 m_logMessagesCanBeTranslated ? L"true" : L"false"));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"allow-translating-punctuation-only-strings");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
+                                 m_allowTranslatingPunctuationOnlyStrings ? L"true" : L"false"));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"exceptions-should-be-translatable");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
+                                 m_exceptionsShouldBeTranslatable ? L"true" : L"false"));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"min-words-for-classifying-unavailable-string");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
+                                 std::to_wstring(m_minWordsForClassifyingUnavailableString)));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"min-cpp-version");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_minCppVersion)));
+
+    if (!xmlDoc.Save(dialog.GetPath()))
+        {
+        wxMessageBox(_(L"Error saving project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
+        }
+
+    m_projectDirty = false;
+    }
+
+//------------------------------------------------------
+void I18NFrame::SaveProjectIfNeeded()
+    {
+    if (m_projectDirty)
+        {
+        if (wxMessageBox(_(L"Do you wish to save changes?"), _(L"Save Project"),
+                         wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION) == wxID_YES)
+            {
+            wxRibbonButtonBarEvent event;
+            OnSave(event);
+            m_projectDirty = false;
+            }
         }
     }
 
@@ -604,6 +783,11 @@ void I18NFrame::Process()
     m_resultsModel->Cleared();
 
     ExpandAll();
+
+    m_projectBar->EnableButton(wxID_SAVE, true);
+    m_projectBar->EnableButton(wxID_EDIT, true);
+    m_editBar->EnableButton(XRCID("ID_EXPAND_ALL"), false);
+    m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), false);
     }
 
 //------------------------------------------------------

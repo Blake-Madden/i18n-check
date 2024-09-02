@@ -62,6 +62,8 @@ class I18NFrame : public wxFrame
     void InitControls();
 
     void OnNew([[maybe_unused]] wxCommandEvent&);
+    void OnOpen([[maybe_unused]] wxCommandEvent&);
+    void OnSave([[maybe_unused]] wxCommandEvent&);
     void OnEdit([[maybe_unused]] wxCommandEvent&);
     void OnExpandAll([[maybe_unused]] wxCommandEvent&);
     void OnCollapseAll([[maybe_unused]] wxCommandEvent&);
@@ -91,13 +93,17 @@ class I18NFrame : public wxFrame
         }
 
     void SaveSourceFileIfNeeded();
+    void SaveProjectIfNeeded();
 
     wxObjectDataPtr<I18NResultsTreeModel> m_resultsModel;
     wxDataViewCtrl* m_resultsDataView{ nullptr };
     wxRibbonButtonBar* m_projectBar{ nullptr };
+    wxRibbonButtonBar* m_editBar{ nullptr };
     wxStyledTextCtrl* m_editor{ nullptr };
     wxString m_activeFile;
     bool m_promptForFileSave{ true };
+
+    bool m_projectDirty{ false };
 
     constexpr static int ERROR_ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
