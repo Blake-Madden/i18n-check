@@ -1,0 +1,15 @@
+name: Linux Build
+on: [push]
+
+jobs:
+  build:
+    name: build
+    runs-on: unbuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+      - name: build
+        run: |
+             cmake ./
+             make -j4
