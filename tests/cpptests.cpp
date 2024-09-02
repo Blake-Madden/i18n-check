@@ -638,7 +638,7 @@ wxStrlen)";
         CHECK(cpp.get_deprecated_macros()[0].m_string == L"wxStrlen");
         CHECK(cpp.get_deprecated_macros()[0].m_column == 14);
         CHECK(cpp.get_deprecated_macros()[0].m_line == 2);
-        CHECK(cpp.get_deprecated_macros()[0].m_usage.m_value == L"Use std::wcslen() or (wrap in a std::wstring_view) instead.");
+        CHECK(cpp.get_deprecated_macros()[0].m_usage.m_value == L"Use std::wcslen() or (wrap in a std::wstring_view) instead of wxStrlen.");
         }
     }
 

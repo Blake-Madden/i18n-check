@@ -161,15 +161,15 @@ namespace i18n_check
                         }
                     if (fileType == file_review_type::rc)
                         {
-                        rc(fileUtf8Text, std::filesystem::path(file).wstring());
+                        rc(fileUtf8Text, file);
                         }
                     else if (fileType == file_review_type::po)
                         {
-                        po(fileUtf8Text, std::filesystem::path(file).wstring());
+                        po(fileUtf8Text, file);
                         }
                     else
                         {
-                        cpp(fileUtf8Text, std::filesystem::path(file).wstring());
+                        cpp(fileUtf8Text, file);
                         }
                     }
                 else if (const auto [readUtf16Ok, fileUtf16Text] = read_utf16_file(file);
@@ -182,15 +182,15 @@ namespace i18n_check
                         }
                     if (fileType == file_review_type::rc)
                         {
-                        rc(fileUtf16Text, std::filesystem::path(file).wstring());
+                        rc(fileUtf16Text, file);
                         }
                     else if (fileType == file_review_type::po)
                         {
-                        po(fileUtf16Text, std::filesystem::path(file).wstring());
+                        po(fileUtf16Text, file);
                         }
                     else
                         {
-                        cpp(fileUtf16Text, std::filesystem::path(file).wstring());
+                        cpp(fileUtf16Text, file);
                         }
                     }
                 else
@@ -199,20 +199,20 @@ namespace i18n_check
                         {
                         filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
-                    std::wifstream ifs(file);
+                    std::wifstream ifs(std::filesystem::path(file).string());
                     const std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                            std::istreambuf_iterator<wchar_t>());
                     if (fileType == file_review_type::rc)
                         {
-                        rc(str, std::filesystem::path(file).wstring());
+                        rc(str, file);
                         }
                     else if (fileType == file_review_type::po)
                         {
-                        po(str, std::filesystem::path(file).wstring());
+                        po(str, file);
                         }
                     else
                         {
-                        cpp(str, std::filesystem::path(file).wstring());
+                        cpp(str, file);
                         }
                     }
                 }
