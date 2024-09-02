@@ -65,7 +65,7 @@ This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translat
 
 Refer [here](Example.md) for example usage.
 
-[![unix build](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml)
+[![Linux build](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/linux-build.yml)
 [![macOS build](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml)
 [![Windows build](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-build.yml)
 
@@ -79,6 +79,7 @@ Refer [here](Example.md) for example usage.
 
 [![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
 [![Check Spelling](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml)
+[!i18n-check](https://github.com/Blake-Madden/i18n-check/actions/workflows/unix%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/i18n-check.yml)
 
 # Usage
 
