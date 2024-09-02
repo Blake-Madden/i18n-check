@@ -191,20 +191,46 @@ i18n-check C:\src\Wisteria-dataviz\src --ignore=import,i18n-check,wxsimplejson,w
 
 Refer [here](Example.md) for more examples.
 
-# Building
+# Building (command line tool)
 
-`i18n-check` can be configured with Cmake and then built with your compiler of choice.
+`i18n-check` can be configured and built with *Cmake*.
 
 On Unix:
 
 ```shellscript
-cmake ./
-make -j4
+cmake .
+cmake --build . --target all -j $(nproc)
 ```
 
 On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
 
 After building, "i18n-check" will then be available in the "bin" folder.
+
+# Building (GUI)
+
+[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.3 or higher is required for building the graphical user interface version for `i18n-check`.
+
+Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as `i18n-check`:
+
+```
+git clone https://github.com/wxWidgets/wxWidgets.git --recurse-submodules
+```
+
+Refer [here](https://github.com/wxWidgets/wxWidgets/blob/master/README-GIT.md) for how to build wxWidgets.
+
+After building wxWidgets, `ii18n-gui` can be configured and built with *Cmake*.
+
+On Unix:
+
+```shellscript
+cd gui
+cmake .
+cmake --build . --target all -j $(nproc)
+```
+
+On Windows, "gui/CMakeLists.txt" can be opened and built directly in Visual Studio.
+
+After building, "ii18n-gui" will then be available in the "bin" folder.
 
 # GitHub Action
 
