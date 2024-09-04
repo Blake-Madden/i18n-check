@@ -475,9 +475,6 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     {
     SaveProjectIfNeeded();
 
-    m_activeProjectFilePath.clear();
-    m_projectDirty = true;
-
     NewProjectDialog projDlg(this);
     projDlg.SetOptions(static_cast<i18n_check::review_style>(m_options));
     projDlg.UseFuzzyTranslations(m_fuzzyTranslations);
@@ -491,6 +488,9 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
         {
         return;
         }
+
+    m_activeProjectFilePath.clear();
+    m_projectDirty = true;
 
     m_options = projDlg.GetOptions();
     m_filePath = projDlg.GetPath();
