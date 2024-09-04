@@ -64,6 +64,7 @@ This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translat
 ² Variables are determined to be ID variables if they are integral types with the whole word "ID" in their name.
 
 Refer [here](Example.md) for example usage.
+
 [![Linux Build](https://github.com/Blake-Madden/i18n-check/actions/workflows/linux-build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/linux-build.yml)
 [![macOS build](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml)
 [![Windows build](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-build.yml)
