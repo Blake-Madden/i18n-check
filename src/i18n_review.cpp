@@ -269,7 +269,9 @@ namespace i18n_check
             { L"DECLARE_NO_COPY_CLASS",
               L"Delete the copy CTOR and assignment operator instead of DECLARE_NO_COPY_CLASS." },
             { L"wxGROW", L"Call wxSizer::Add() with a wxSizerFlags object using Expand() instead "
-                         "of wxGROW." }
+                         "of wxGROW." },
+            { L"wxEXPAND", L"Call wxSizer::Add() with a wxSizerFlags object using Expand() instead "
+                           "of wxEXPAND." }
         };
 
         if (m_min_cpp_version >= 17)
