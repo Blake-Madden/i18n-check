@@ -100,7 +100,7 @@ class I18NFrame : public wxFrame
     wxRibbonButtonBar* m_projectBar{ nullptr };
     wxRibbonButtonBar* m_editBar{ nullptr };
     wxStyledTextCtrl* m_editor{ nullptr };
-    wxString m_activeFile;
+    wxString m_activeSourceFile;
     bool m_promptForFileSave{ true };
 
     bool m_projectDirty{ false };

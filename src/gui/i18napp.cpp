@@ -337,13 +337,13 @@ void I18NFrame::InitControls()
                  if (node->m_fileName == node->m_warningId)
                      {
                      SaveSourceFileIfNeeded();
-                     m_activeFile.clear();
+                     m_activeSourceFile.clear();
                      m_editor->SetText(wxString{});
                      return;
                      }
 
                  // only prompt about saving if file is different
-                 if (m_activeFile != node->m_fileName)
+                 if (m_activeSourceFile != node->m_fileName)
                      {
                      SaveSourceFileIfNeeded();
 
@@ -381,7 +381,7 @@ void I18NFrame::InitControls()
                          m_editor->SetKeyWords(0, wxString{});
                          }
 
-                     m_activeFile = node->m_fileName;
+                     m_activeSourceFile = node->m_fileName;
                      m_editor->LoadFile(node->m_fileName);
                      }
 
@@ -414,7 +414,7 @@ void I18NFrame::InitControls()
              else
                  {
                  SaveSourceFileIfNeeded();
-                 m_activeFile.clear();
+                 m_activeSourceFile.clear();
                  m_editor->SetText(wxString{});
                  }
          });
@@ -585,7 +585,8 @@ void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
                                     wxString{ L"project" } :
                                     projectName.GetDirs()[projectName.GetDirs().size() - 1];
     wxFileDialog dialog(nullptr, _(L"Save Project"), wxString{}, lastFolder + L".xml",
-                        _(L"i18n Project Files (*.xml)|*.xml"), wxFD_SAVE | wxFD_PREVIEW);
+                        _(L"i18n Project Files (*.xml)|*.xml"),
+                        wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
     if (dialog.ShowModal() != wxID_OK)
         {
         return;
@@ -654,13 +655,13 @@ void I18NFrame::SaveProjectIfNeeded()
 //------------------------------------------------------
 void I18NFrame::SaveSourceFileIfNeeded()
     {
-    if (!m_activeFile.empty() && m_editor->IsModified())
+    if (!m_activeSourceFile.empty() && m_editor->IsModified())
         {
         if (m_promptForFileSave)
             {
             wxRichMessageDialog msg(this,
                                     wxString::Format(_(L"Do you wish to save changes to '%s'?"),
-                                                     wxFileName{ m_activeFile }.GetFullName()),
+                                                     wxFileName{ m_activeSourceFile }.GetFullName()),
                                     _(L"Remove Test"), wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION);
             msg.SetEscapeId(wxID_NO);
             msg.ShowCheckBox(_(L"Always save without prompting"));
@@ -673,12 +674,12 @@ void I18NFrame::SaveSourceFileIfNeeded()
             // now see if they said "Yes" or "No"
             if (dlgResponse == wxID_YES)
                 {
-                m_editor->SaveFile(m_activeFile);
+                m_editor->SaveFile(m_activeSourceFile);
                 }
             }
         else
             {
-            m_editor->SaveFile(m_activeFile);
+            m_editor->SaveFile(m_activeSourceFile);
             }
         }
     }
@@ -688,7 +689,7 @@ void I18NFrame::Process()
     {
     SaveSourceFileIfNeeded();
 
-    m_activeFile.clear();
+    m_activeSourceFile.clear();
     m_editor->SetText(wxString{});
 
     std::wstring inputFolder{ m_filePath.c_str() };
