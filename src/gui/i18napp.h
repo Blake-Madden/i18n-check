@@ -68,6 +68,7 @@ class I18NFrame : public wxFrame
     void OnRefresh([[maybe_unused]] wxCommandEvent&);
     void OnExpandAll([[maybe_unused]] wxCommandEvent&);
     void OnCollapseAll([[maybe_unused]] wxCommandEvent&);
+    void OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&);
     void OnAbout([[maybe_unused]] wxCommandEvent&);
 
   private:

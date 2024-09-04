@@ -17,6 +17,7 @@ I18NArtProvider::I18NArtProvider()
                     { wxART_FILE_SAVE, L"images/file-save.svg" },
                     { wxART_NEW, L"images/document.svg" },
                     { wxART_REFRESH, L"images/reload.svg" },
+                    { wxART_DELETE, L"images/delete.svg" },
                     { L"ID_SETTINGS", L"images/project-settings.svg" },
                     { L"ID_ABOUT", L"images/app-logo.svg" } };
     }
@@ -79,8 +80,12 @@ void I18NFrame::InitControls()
         m_projectBar->AddButton(
             wxID_REFRESH, _(L"Refresh"),
             wxArtProvider::GetBitmap(wxART_REFRESH, wxART_OTHER, wxSize{ 32, 32 }));
+        m_projectBar->AddButton(
+            XRCID("ID_IGNORE_SELECTED"), _(L"Ignore Selected"),
+            wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 32, 32 }));
         m_projectBar->EnableButton(wxID_SAVE, false);
         m_projectBar->EnableButton(wxID_REFRESH, false);
+        m_projectBar->EnableButton(XRCID("ID_IGNORE_SELECTED"), false);
 
         wxRibbonPanel* viewPanel =
             new wxRibbonPanel(homePage, wxID_ANY, _(L"View"), wxNullBitmap, wxDefaultPosition,
@@ -259,6 +264,8 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnRefresh, this, wxID_REFRESH);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnExpandAll, this, XRCID("ID_EXPAND_ALL"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnCollapseAll, this, XRCID("ID_COLLAPSE_ALL"));
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnIgnoreSelectedFile, this,
+         XRCID("ID_IGNORE_SELECTED"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
     Bind(
         wxEVT_MENU,
@@ -268,6 +275,14 @@ void I18NFrame::InitControls()
             OnAbout(event);
         },
         wxID_ABOUT);
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
+            wxRibbonButtonBarEvent event;
+            OnIgnoreSelectedFile(event);
+        },
+        XRCID("ID_IGNORE_SELECTED"));
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -426,6 +441,48 @@ void I18NFrame::OnExpandAll([[maybe_unused]] wxCommandEvent&) { ExpandAll(); }
 
 //------------------------------------------------------
 void I18NFrame::OnCollapseAll([[maybe_unused]] wxCommandEvent&) { Collapse(); }
+
+//------------------------------------------------------
+void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
+    {
+    wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
+
+    if (selectedItem.IsOk())
+        {
+        I18NResultsTreeModelNode* node =
+            reinterpret_cast<I18NResultsTreeModelNode*>(selectedItem.GetID());
+
+        if (node != nullptr)
+            {
+            SaveSourceFileIfNeeded();
+            m_activeSourceFile.clear();
+            m_editor->SetText(wxString{});
+
+            // child node of file parent node
+            if (node->m_fileName != node->m_warningId)
+                {
+                selectedItem = m_resultsModel->GetParent(selectedItem);
+                if (!selectedItem.IsOk())
+                    {
+                    return;
+                    }
+                node = reinterpret_cast<I18NResultsTreeModelNode*>(selectedItem.GetID());
+                if (node == nullptr)
+                    {
+                    return;
+                    }
+                }
+
+            m_excludedPaths +=
+                m_excludedPaths.empty() ? node->m_fileName : L"; " + node->m_fileName;
+
+            m_resultsModel->Delete(selectedItem);
+            m_resultsModel->Cleared();
+
+            m_projectDirty = true;
+            }
+        }
+    }
 
 //------------------------------------------------------
 void I18NFrame::OnAbout([[maybe_unused]] wxCommandEvent&)
@@ -820,8 +877,9 @@ void I18NFrame::Process()
 
     m_projectBar->EnableButton(wxID_SAVE, true);
     m_projectBar->EnableButton(wxID_REFRESH, true);
-    m_editBar->EnableButton(XRCID("ID_EXPAND_ALL"), false);
-    m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), false);
+    m_projectBar->EnableButton(XRCID("ID_IGNORE_SELECTED"), true);
+    m_editBar->EnableButton(XRCID("ID_EXPAND_ALL"), true);
+    m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), true);
     }
 
 //------------------------------------------------------
