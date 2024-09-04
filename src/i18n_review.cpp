@@ -352,18 +352,18 @@ namespace i18n_check
             std::wregex(LR"([a-zA-Z\-]+ v(ersion)?[ ]?[0-9\.]+)"),
             // bash command (e.g., "lpstat -p") and system variables
             std::wregex(LR"([[:alpha:]]{3,} [\-][[:alpha:]]+)"), std::wregex(LR"(sys[$].*)"),
-            // Pascal-case words (e.g., "GetValueFromUser"); surrounding punctuation is stripped
-            // first.
+            // Pascal-case words (e.g., "GetValueFromUser");
+            // surrounding punctuation is stripped first.
             std::wregex(LR"([[:punct:]]*[A-Z]+[a-z0-9]+([A-Z]+[a-z0-9]+)+[[:punct:]]*)"),
-            // camel-case words (e.g., "getValueFromUser"); surrounding punctuation is stripped
-            // first.
+            // camel-case words (e.g., "getValueFromUser");
+            // surrounding punctuation is stripped first.
             std::wregex(LR"([[:punct:]]*[a-z]+[[:digit:]]*([A-Z]+[a-z0-9]+)+[[:punct:]]*)"),
             // formulas (e.g., ABS(-2.7), POW(-4, 2), =SUM(1; 2) )
             std::wregex(LR"((=)?[A-Za-z0-9_]{3,}[(]([RC0-9\-\.,;:\[\] ])*[)])"),
             // formulas (e.g., ComputeNumbers() )
             std::wregex(LR"([A-Za-z0-9_]{3,}[(][)])"),
-            // equal sign followed by a single word is probably some sort of config file tag or
-            // formula.
+            // equal sign followed by a single word is probably some sort of
+            // config file tag or formula.
             std::wregex(LR"(=[A-Za-z0-9_]+)"),
             // character encodings
             std::wregex(
@@ -438,8 +438,8 @@ namespace i18n_check
             // wxWidgets gettext wrapper functions
             L"wxPLURAL", L"wxGETTEXT_IN_CONTEXT", L"wxGETTEXT_IN_CONTEXT_PLURAL", L"wxTRANSLATE",
             L"wxTRANSLATE_IN_CONTEXT", L"wxGetTranslation",
-            // Qt (note that NOOP functions actually do load something for translation, just not
-            // in-place)
+            // Qt (note that NOOP functions actually do load something for translation,
+            // just not in-place)
             L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP", L"QT_TRANSLATE_NOOP",
             L"QApplication::translate", L"QApplication::tr", L"QApplication::trUtf8",
             // KDE (ki18n)
@@ -456,7 +456,7 @@ namespace i18n_check
 
         // Constructors and macros that should be ignored
         // (when backtracing, these are skipped over, and the parser moves to the
-        //      function/variable assignment to the left of these).
+        //  function/variable assignment to the left of these).
         m_ctors_to_ignore = {
             // Win32 text macros that should be skipped over
             L"_T", L"TEXT", L"_TEXT", L"__TEXT", L"_WIDE",
@@ -1162,13 +1162,13 @@ namespace i18n_check
         {
         try
             {
-            m_error_log.reserve(fileCount / 2);
-            m_localizable_strings.reserve(fileCount / 2);
-            m_not_available_for_localization_strings.reserve(fileCount / 2);
-            m_marked_as_non_localizable_strings.reserve(fileCount / 2);
-            m_internal_strings.reserve(fileCount / 2);
-            m_unsafe_localizable_strings.reserve(fileCount / 2);
-            m_deprecated_macros.reserve(fileCount / 2);
+            m_error_log.reserve(std::min<size_t>(fileCount, 100));
+            m_localizable_strings.reserve(std::min<size_t>(fileCount, 100));
+            m_not_available_for_localization_strings.reserve(std::min<size_t>(fileCount, 100));
+            m_marked_as_non_localizable_strings.reserve(std::min<size_t>(fileCount, 100));
+            m_internal_strings.reserve(std::min<size_t>(fileCount, 100));
+            m_unsafe_localizable_strings.reserve(std::min<size_t>(fileCount, 100));
+            m_deprecated_macros.reserve(std::min<size_t>(fileCount, 100));
             }
         catch (const std::bad_alloc&)
             {
