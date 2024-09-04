@@ -213,51 +213,53 @@ namespace i18n_check
             { L"LPTSTR", L"Use LPWSTR (or wchar_t*) instead of LPTSTR." },
             { L"LPCTSTR", L"Use LPCWSTR (or const wchar_t*) instead of LPCTSTR." },
             // wxWidgets
-            { L"wxStrlen", L"Use std::wcslen() or (wrap in a std::wstring_view) instead of wxStrlen." },
-            { L"wxStrstr", L"Use std::wcsstr() instead of wxStrstr." },
-            { L"wxStrchr", L"Use std::wcschr() instead of wxStrchr." },
-            { L"wxStrdup", L"Use std::wcsdup() instead of wxStrdup." },
-            { L"wxStrcpy", L"Use std::wcscpy() instead of wxStrcpy "
+            { L"wxStrlen",
+              L"Use std::wcslen() or (wrap in a std::wstring_view) instead of wxStrlen()." },
+            { L"wxStrstr", L"Use std::wcsstr() instead of wxStrstr()." },
+            { L"wxStrchr", L"Use std::wcschr() instead of wxStrchr()." },
+            { L"wxStrdup", L"Use std::wcsdup() instead of wxStrdup()." },
+            { L"wxStrcpy", L"Use std::wcscpy() instead of wxStrcpy() "
                            "(or prefer safer functions that process N number of characters)." },
-            { L"wxStrncpy", L"Use std::wcsncpy() (or wxStrlcpy) instead of wxStrncpy." },
-            { L"wxStrcat ", L"Use std::wcscat() instead of wxStrcat "
+            { L"wxStrncpy", L"Use std::wcsncpy() (or wxStrlcpy) instead of wxStrncpy()." },
+            { L"wxStrcat ", L"Use std::wcscat() instead of wxStrcat() "
                             "(or prefer safer functions that process N number of characters)." },
-            { L"wxStrncat", L"Use std::wcsncat() instead of wxStrncat." },
-            { L"wxStrtok", L"Use std::wcstok() instead of wxStrtok." },
-            { L"wxStrrchr", L"Use std::wcsrchr() instead of wxStrrchr." },
-            { L"wxStrpbrk", L"Use std::wcspbrk() instead of wxStrpbrk." },
+            { L"wxStrncat", L"Use std::wcsncat() instead of wxStrncat()." },
+            { L"wxStrtok", L"Use std::wcstok() instead of wxStrtok()." },
+            { L"wxStrrchr", L"Use std::wcsrchr() instead of wxStrrchr()." },
+            { L"wxStrpbrk", L"Use std::wcspbrk() instead of wxStrpbrk()." },
             { L"wxStrxfrm", L"Use std::wcsxfrm() instead of wxStrxfrm." },
-            { L"wxIsEmpty", L"Use wxString's empty() member instead of wxIsEmpty." },
-            { L"wxIsdigit", L"Use std::iswdigit() instead of wxIsdigit." },
-            { L"wxIsalnum", L"Use std::iswalnum() instead of wxIsalnum." },
-            { L"wxIsalpha", L"Use std::iswalpha() instead of wxIsalpha." },
-            { L"wxIsctrl", L"Use std::iswctrl() instead of wxIsctrl." },
-            { L"wxIspunct", L"Use std::iswpunct() instead of wxIspunct." },
-            { L"wxIsspace", L"Use std::iswpspace() instead of wxIsspace." },
+            { L"wxIsEmpty", L"Use wxString's empty() member instead of wxIsEmpty()." },
+            { L"wxIsdigit", L"Use std::iswdigit() instead of wxIsdigit()." },
+            { L"wxIsalnum", L"Use std::iswalnum() instead of wxIsalnum()." },
+            { L"wxIsalpha", L"Use std::iswalpha() instead of wxIsalpha()." },
+            { L"wxIsctrl", L"Use std::iswctrl() instead of wxIsctrl()." },
+            { L"wxIspunct", L"Use std::iswpunct() instead of wxIspunct()." },
+            { L"wxIsspace", L"Use std::iswpspace() instead of wxIsspace()." },
             { L"wxChar", L"Use wchar_t instead of wxChar." },
             { L"wxSChar", L"Use wchar_t instead of wxSChar." },
             { L"wxUChar", L"Use wchar_t instead of wxUChar." },
-            { L"wxStrftime", L"Use wxDateTime's formatting functions instead of wxStrftime." },
+            { L"wxStrftime", L"Use wxDateTime's formatting functions instead of wxStrftime()." },
             { L"wxStrtod", L"Use wxString::ToDouble() instead of wxStrtod." },
             { L"wxStrtol", L"Use wxString::ToLong() instead of wxStrtol." },
             { L"wxW64", L"wxW64 is obsolete; remove it." },
-            { L"__WXFUNCTION__",
-              L"Use __func__ or __WXFUNCTION_SIG__ (requires wxWidgets 3.3) instead of __WXFUNCTION__." },
+            { L"__WXFUNCTION__", L"Use __func__ or __WXFUNCTION_SIG__ (requires wxWidgets 3.3) "
+                                 "instead of __WXFUNCTION__." },
             { L"wxTrace", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
                           L"functions instead of wxTrace." },
             { L"WXTRACE", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
                           L"functions instead of WXTRACE." },
             { L"wxTraceLevel", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
                                L"functions instead of wxTraceLevel." },
-            { L"wxUnix2DosFilename", L"Construct a wxFileName with wxPATH_UNIX and then use "
-                                     "wxFileName::GetFullPath(wxPATH_DOS) instead of using wxUnix2DosFilename." },
+            { L"wxUnix2DosFilename",
+              L"Construct a wxFileName with wxPATH_UNIX and then use "
+              "wxFileName::GetFullPath(wxPATH_DOS) instead of using wxUnix2DosFilename." },
             { L"wxSplitPath",
               L"wxSplitPath is obsolete, please use wxFileName::SplitPath() instead." },
             // not i18n related, just legacy wx functions that can be modernized
-            { L"wxMin", L"Use std::min() instead of wxMin." },
-            { L"wxMax", L"Use std::max() instead of wxMax." },
-            { L"wxRound", L"Use std::lround() instead of wxRound." },
-            { L"wxIsNan", L"Use std::isnan() instead of wxIsNan." },
+            { L"wxMin", L"Use std::min() instead of wxMin()." },
+            { L"wxMax", L"Use std::max() instead of wxMax()." },
+            { L"wxRound", L"Use std::lround() instead of wxRound()." },
+            { L"wxIsNan", L"Use std::isnan() instead of wxIsNan()." },
             { L"wxNOEXCEPT", L"Use noexcept instead of wxNOEXCEPT." },
             { L"__WXMAC__", L"Use __WXOSX__ instead of __WXMAC__." },
             { L"wxMEMBER_DELETE", L"Use '= delete' instead of wxMEMBER_DELETE." },
@@ -265,19 +267,21 @@ namespace i18n_check
             { L"wxDECLARE_NO_COPY_CLASS",
               L"Delete the copy CTOR and assignment operator instead of wxDECLARE_NO_COPY_CLASS." },
             { L"DECLARE_NO_COPY_CLASS",
-              L"Delete the copy CTOR and assignment operator instead of DECLARE_NO_COPY_CLASS." }
+              L"Delete the copy CTOR and assignment operator instead of DECLARE_NO_COPY_CLASS." },
+            { L"wxGROW", L"Call wxSizer::Add() with a wxSizerFlags object using Expand() instead "
+                         "of wxGROW." }
         };
 
         if (m_min_cpp_version >= 17)
             {
             m_deprecated_string_functions.insert(
-                { L"wxNODISCARD", L"Use [[nodiscard]] instead of wxNODISCARD (requires C++17)." });
+                { L"wxNODISCARD", L"Use [[nodiscard]] instead of wxNODISCARD." });
             m_deprecated_string_functions.insert(
-                { L"WXSIZEOF", L"Use std::size() instead of WXSIZEOF() (requires C++17)." });
+                { L"WXSIZEOF", L"Use std::size() instead of WXSIZEOF()." });
             m_deprecated_string_functions.insert(
-                { L"wxUnusedVar", L"Use [[maybe_unused]] instead of wxUnusedVar (requires C++17)." });
+                { L"wxUnusedVar", L"Use [[maybe_unused]] instead of wxUnusedVar." });
             m_deprecated_string_functions.insert(
-                { L"WXUNUSED", L"Use [[maybe_unused]] instead of WXUNUSED (requires C++17)." });
+                { L"WXUNUSED", L"Use [[maybe_unused]] instead of WXUNUSED()." });
             }
 
         m_untranslatable_regexes = {
@@ -577,7 +581,9 @@ namespace i18n_check
             L"SDL_Log", L"SDL_LogCritical", L"SDL_LogDebug", L"SDL_LogError", L"SDL_LogInfo",
             L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose", L"SDL_LogWarn",
             // GnuCash
-            L"PERR", L"PWARN", L"PINFO", L"ENTER", L"LEAVE"
+            L"PERR", L"PWARN", L"PINFO", L"ENTER", L"LEAVE",
+            // this program
+            L"log_message"
         };
 
         m_streamable_functions = { L"qDebug",  L"qInfo",  L"qWarning",  L"qCritical", L"qFatal",
