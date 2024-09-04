@@ -22,6 +22,7 @@ void I18NResultsTreeModel::AddRow(wxString fileName, wxString warningId, wxStrin
 
     const auto unquote = [](wxString& strVal)
     {
+        strVal.Trim(false);
         if (!strVal.empty() && strVal[0] == L'\"')
             {
             strVal.erase(0, 1);
@@ -50,8 +51,9 @@ void I18NResultsTreeModel::AddRow(wxString fileName, wxString warningId, wxStrin
     auto newFile = new I18NResultsTreeModelNode(m_root, fileName);
     m_root->Append(newFile);
 
-    I18NResultsTreeModelNode* childNode = new I18NResultsTreeModelNode(
-        newFile, fileName, warningId, issue, explanation, line, column);
+    I18NResultsTreeModelNode* childNode =
+        new I18NResultsTreeModelNode(newFile, unquote(fileName), unquote(warningId), unquote(issue),
+                                     unquote(explanation), line, column);
     newFile->Append(childNode);
     }
 
