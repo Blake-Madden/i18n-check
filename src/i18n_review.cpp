@@ -306,9 +306,13 @@ namespace i18n_check
             // PNG (*.png)|*.png
             // TIFF (*.tif;*.tiff)|*.tif;*.tiff
             // special case for the word "bitmap" also, wouldn't normally translate that
-            std::wregex(LR"(([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,5}[)]))"),
+            std::wregex(LR"(([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,7}[)]))"),
             std::wregex(
-                LR"((([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[)][|]([*][.][A-Za-z0-9]{1,5})(;[*][.][A-Za-z0-9]{1,5})*[|]{0,2})+)"),
+                LR"((([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,7})(;[*][.][A-Za-z0-9]{1,7})*[)][|]([*][.][A-Za-z0-9]{1,7})(;[*][.][A-Za-z0-9]{1,7})*[|]{0,2})+)"),
+            // multiple file filters next to each other
+            std::wregex(LR"(([*][.][A-Za-z0-9]{1,7}[[:space:]]*)+)"),
+            // clang-tidy commands
+            std::wregex(LR"(\-checks=.*)"),
             // generic measuring string (or regex expression)
             std::wregex(LR"([[:space:]]*(ABCDEFG|abcdefg|AEIOU|aeiou).*)"),
             // debug messages
@@ -422,7 +426,11 @@ namespace i18n_check
             // Windows OS names
             std::wregex(
                 LR"((Microsoft )?Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2})"),
-            // products
+            // products and standards
+            std::wregex(LR"((Misra|MISRA) C( [0-9]+)?)"),
+            std::wregex(LR"(Borland C\+\+ Builder( [0-9]+)?)"),
+            std::wregex(LR"(Qt Creator)"),
+            std::wregex(LR"((Microsoft )VS Code)"),
             std::wregex(LR"((Microsoft )?Visual Studio)"),
             std::wregex(LR"((Microsoft )?Visual C\+\+)"),
             std::wregex(LR"((Microsoft )?Visual Basic)")
@@ -466,9 +474,9 @@ namespace i18n_check
             L"T",
             // wxWidgets
             L"wxT", L"wxT_2", L"wxS", L"wxString", L"wxBasicString", L"wxCFStringRef",
-            L"wxASCII_STR",
+            L"wxASCII_STR", L"wxFile",
             // Qt
-            L"QString", L"QLatin1String", L"QStringLiteral", L"setStyleSheet",
+            L"QString", L"QLatin1String", L"QStringLiteral", L"setStyleSheet", L"QFile",
             // standard string objects
             L"basic_string", L"string", L"wstring", L"u8string", L"u16string", L"u32string",
             L"std::basic_string", L"std::string", L"std::wstring", L"std::u8string",
@@ -505,6 +513,7 @@ namespace i18n_check
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern", L"qmlRegisterUncreatableMetaObject",
             L"addShaderFromSourceCode", L"QStandardPaths::findExecutable", L"QDateTime::fromString",
+            L"QFileInfo",
             L"qCDebug", L"qDebug", L"Q_MOC_INCLUDE", L"Q_CLASSINFO",
             // Catch2
             L"TEST_CASE", L"BENCHMARK", L"TEMPLATE_TEST_CASE", L"SECTION", L"DYNAMIC_SECTION",
@@ -563,7 +572,8 @@ namespace i18n_check
             // Lua
             L"luaL_error", L"lua_pushstring", L"lua_setglobal",
             // more functions from various apps
-            L"trace", L"ActionFormat", L"ErrorFormat", L"addPositionalArgument", L"DEBUG"
+            L"trace", L"ActionFormat", L"ErrorFormat", L"addPositionalArgument", L"DEBUG",
+            L"setParameters"
         };
 
         m_log_functions = {
@@ -644,6 +654,7 @@ namespace i18n_check
                                        L"std::wregex",
                                        L"regex",
                                        L"std::regex",
+                                       L"QRegularExpression",
                                        L"wxDataObjectSimple" };
 
         add_variable_name_pattern_to_ignore(
@@ -919,6 +930,9 @@ namespace i18n_check
                     (functionName == L"QApplication::translate" && parameterPosition == 0) ||
                     (functionName == L"QApplication::tr" && parameterPosition == 0) ||
                     (functionName == L"QApplication::trUtf8" && parameterPosition == 0) ||
+                    (functionName == L"QCoreApplication::translate" && parameterPosition == 0) ||
+                    (functionName == L"QCoreApplication::tr" && parameterPosition == 0) ||
+                    (functionName == L"QCoreApplication::trUtf8" && parameterPosition == 0) ||
                     (functionName == L"tr" && parameterPosition == 1) ||
                     (functionName == L"trUtf8" && parameterPosition == 1) ||
                     (functionName == L"QT_TRANSLATE_NOOP" && parameterPosition == 0) ||
