@@ -475,6 +475,9 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     {
     SaveProjectIfNeeded();
 
+    m_activeProjectFilePath.clear();
+    m_projectDirty = false;
+
     NewProjectDialog projDlg(this);
     projDlg.SetOptions(static_cast<i18n_check::review_style>(m_options));
     projDlg.UseFuzzyTranslations(m_fuzzyTranslations);
@@ -515,8 +518,11 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
         return;
         }
 
+    m_activeProjectFilePath = dialog.GetPath();
+    m_projectDirty = false;
+
     wxXmlDocument xmlDoc;
-    if (!xmlDoc.Load(dialog.GetPath()))
+    if (!xmlDoc.Load(m_activeProjectFilePath))
         {
         wxMessageBox(_(L"Error loading project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
         return;
@@ -580,16 +586,21 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
 //------------------------------------------------------
 void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
     {
-    const wxFileName projectName{ m_filePath };
-    const wxString lastFolder = projectName.GetDirs().empty() ?
-                                    wxString{ L"project" } :
-                                    projectName.GetDirs()[projectName.GetDirs().size() - 1];
-    wxFileDialog dialog(nullptr, _(L"Save Project"), wxString{}, lastFolder + L".xml",
-                        _(L"i18n Project Files (*.xml)|*.xml"),
-                        wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
-    if (dialog.ShowModal() != wxID_OK)
+    if (m_activeProjectFilePath.empty())
         {
-        return;
+        const wxFileName projectName{ m_filePath };
+        const wxString lastFolder = projectName.GetDirs().empty() ?
+                                        wxString{ L"project" } :
+                                        projectName.GetDirs()[projectName.GetDirs().size() - 1];
+        wxFileDialog dialog(nullptr, _(L"Save Project"), wxString{}, lastFolder + L".xml",
+                            _(L"i18n Project Files (*.xml)|*.xml"),
+                            wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
+        if (dialog.ShowModal() != wxID_OK)
+            {
+            return;
+            }
+
+        m_activeProjectFilePath = dialog.GetPath();
         }
 
     wxXmlDocument xmlDoc;
@@ -629,7 +640,7 @@ void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"min-cpp-version");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_minCppVersion)));
 
-    if (!xmlDoc.Save(dialog.GetPath()))
+    if (!xmlDoc.Save(m_activeProjectFilePath))
         {
         wxMessageBox(_(L"Error saving project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
         }

@@ -104,6 +104,7 @@ class I18NFrame : public wxFrame
     bool m_promptForFileSave{ true };
 
     bool m_projectDirty{ false };
+    wxString m_activeProjectFilePath;
 
     constexpr static int ERROR_ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
