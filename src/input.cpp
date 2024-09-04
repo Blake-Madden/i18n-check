@@ -118,7 +118,10 @@ namespace i18n_check
                      ext.compare(std::filesystem::path(L".cpp")) == 0 ||
                      ext.compare(std::filesystem::path(L".h")) == 0 ||
                      ext.compare(std::filesystem::path(L".hpp")) == 0 ||
-                     ext.compare(std::filesystem::path(L".po")) == 0))
+                     ext.compare(std::filesystem::path(L".po")) == 0) &&
+                    // ignore CMake build files
+                    p.path().filename().compare(L"CMakeCXXCompilerId.cpp") != 0 &&
+                    p.path().filename().compare(L"CMakeCCompilerId.c") != 0)
                     {
                     filesToAnalyze.push_back(p.path().wstring());
                     }
