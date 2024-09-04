@@ -16,7 +16,8 @@ I18NArtProvider::I18NArtProvider()
     m_idFileMap = { { wxART_FILE_OPEN, L"images/file-open.svg" },
                     { wxART_FILE_SAVE, L"images/file-save.svg" },
                     { wxART_NEW, L"images/document.svg" },
-                    { wxART_EDIT, L"images/reload.svg" },
+                    { wxART_REFRESH, L"images/reload.svg" },
+                    { L"ID_SETTINGS", L"images/project-settings.svg" },
                     { L"ID_ABOUT", L"images/app-logo.svg" } };
     }
 
@@ -76,10 +77,10 @@ void I18NFrame::InitControls()
             wxID_SAVE, _(L"Save"),
             wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_OTHER, wxSize{ 32, 32 }));
         m_projectBar->AddButton(
-            wxID_EDIT, _(L"Refresh"),
-            wxArtProvider::GetBitmap(wxART_EDIT, wxART_OTHER, wxSize{ 32, 32 }));
+            wxID_REFRESH, _(L"Refresh"),
+            wxArtProvider::GetBitmap(wxART_REFRESH, wxART_OTHER, wxSize{ 32, 32 }));
         m_projectBar->EnableButton(wxID_SAVE, false);
-        m_projectBar->EnableButton(wxID_EDIT, false);
+        m_projectBar->EnableButton(wxID_REFRESH, false);
 
         wxRibbonPanel* viewPanel =
             new wxRibbonPanel(homePage, wxID_ANY, _(L"View"), wxNullBitmap, wxDefaultPosition,
@@ -255,7 +256,7 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnNew, this, wxID_NEW);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnOpen, this, wxID_OPEN);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSave, this, wxID_SAVE);
-    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEdit, this, wxID_EDIT);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnRefresh, this, wxID_REFRESH);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnExpandAll, this, XRCID("ID_EXPAND_ALL"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnCollapseAll, this, XRCID("ID_COLLAPSE_ALL"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
@@ -312,9 +313,9 @@ void I18NFrame::InitControls()
         [this]([[maybe_unused]] wxCommandEvent&)
         {
             wxRibbonButtonBarEvent event;
-            OnEdit(event);
+            OnRefresh(event);
         },
-        wxID_EDIT);
+        wxID_REFRESH);
     Bind(wxEVT_DATAVIEW_ITEM_ACTIVATED,
          [this](wxDataViewEvent& event)
          {
@@ -438,7 +439,7 @@ void I18NFrame::OnAbout([[maybe_unused]] wxCommandEvent&)
     }
 
 //------------------------------------------------------
-void I18NFrame::OnEdit([[maybe_unused]] wxCommandEvent&)
+void I18NFrame::OnRefresh([[maybe_unused]] wxCommandEvent&)
     {
     NewProjectDialog projDlg(this);
     projDlg.SetOptions(static_cast<i18n_check::review_style>(m_options));
@@ -818,7 +819,7 @@ void I18NFrame::Process()
     ExpandAll();
 
     m_projectBar->EnableButton(wxID_SAVE, true);
-    m_projectBar->EnableButton(wxID_EDIT, true);
+    m_projectBar->EnableButton(wxID_REFRESH, true);
     m_editBar->EnableButton(XRCID("ID_EXPAND_ALL"), false);
     m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), false);
     }
