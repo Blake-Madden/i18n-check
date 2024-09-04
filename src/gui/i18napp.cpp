@@ -330,7 +330,7 @@ void I18NFrame::InitControls()
          {
              I18NResultsTreeModelNode* node =
                  reinterpret_cast<I18NResultsTreeModelNode*>(event.GetItem().GetID());
- 
+
              if (node != nullptr)
                  {
                  // selecting file name root node
@@ -670,10 +670,11 @@ void I18NFrame::SaveSourceFileIfNeeded()
         {
         if (m_promptForFileSave)
             {
-            wxRichMessageDialog msg(this,
-                                    wxString::Format(_(L"Do you wish to save changes to '%s'?"),
-                                                     wxFileName{ m_activeSourceFile }.GetFullName()),
-                                    _(L"Remove Test"), wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION);
+            wxRichMessageDialog msg(
+                this,
+                wxString::Format(_(L"Do you wish to save changes to '%s'?"),
+                                 wxFileName{ m_activeSourceFile }.GetFullName()),
+                _(L"Remove Test"), wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION);
             msg.SetEscapeId(wxID_NO);
             msg.ShowCheckBox(_(L"Always save without prompting"));
             const int dlgResponse = msg.ShowModal();
@@ -715,12 +716,17 @@ void I18NFrame::Process()
         string_util::trim(currentFolder);
         excludedPaths.push_back(std::move(currentFolder));
         }
-    // paths being ignored
-    const auto excludedInfo = i18n_check::get_paths_files_to_exclude(inputFolder, excludedPaths);
 
     // input folder
-    const auto filesToAnalyze = i18n_check::get_files_to_analyze(
-        inputFolder, excludedInfo.excludedPaths, excludedInfo.excludedFiles);
+    const std::vector<std::wstring> filesToAnalyze = [&excludedPaths, &inputFolder]()
+    {
+        wxBusyInfo bi{ wxBusyInfoFlags{}.Text(_(L"Gathering files...")) };
+        // paths being ignored
+        const i18n_check::excluded_results excludedInfo =
+            i18n_check::get_paths_files_to_exclude(inputFolder, excludedPaths);
+        return i18n_check::get_files_to_analyze(inputFolder, excludedInfo.excludedPaths,
+                                                excludedInfo.excludedFiles);
+    }();
 
     i18n_check::cpp_i18n_review cpp;
     cpp.set_style(static_cast<i18n_check::review_style>(m_options));

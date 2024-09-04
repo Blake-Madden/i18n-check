@@ -18,6 +18,7 @@
 #include "projectdlg.h"
 #include <wx/aboutdlg.h>
 #include <wx/artprov.h>
+#include <wx/busyinfo.h>
 #include <wx/dataview.h>
 #include <wx/filename.h>
 #include <wx/itemattr.h>
