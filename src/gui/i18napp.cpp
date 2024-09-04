@@ -328,54 +328,63 @@ void I18NFrame::InitControls()
     Bind(wxEVT_DATAVIEW_SELECTION_CHANGED,
          [this](wxDataViewEvent& event)
          {
-             SaveSourceFileIfNeeded();
-
-             m_activeFile.clear();
-             m_editor->SetText(wxString{});
              I18NResultsTreeModelNode* node =
                  reinterpret_cast<I18NResultsTreeModelNode*>(event.GetItem().GetID());
+ 
              if (node != nullptr)
                  {
+                 // selecting file name root node
                  if (node->m_fileName == node->m_warningId)
                      {
+                     SaveSourceFileIfNeeded();
+                     m_activeFile.clear();
+                     m_editor->SetText(wxString{});
                      return;
                      }
 
-                 const wxString fileExt = wxFileName{ node->m_fileName }.GetExt();
-
-                 if (fileExt.CmpNoCase(L"cpp") == 0 || fileExt.CmpNoCase(L"c") == 0 ||
-                     fileExt.CmpNoCase(L"h") == 0 || fileExt.CmpNoCase(L"hpp") == 0)
+                 // only prompt about saving if file is different
+                 if (m_activeFile != node->m_fileName)
                      {
-                     m_editor->SetLexer(wxSTC_LEX_CPP);
-                     m_editor->SetKeyWords(
-                         0, (L"alignas alignof and_eq asm atomic_cancel atomic_commit "
-                             L"atomic_noexcept auto "
-                             "bitand bitor bool break case catch char char8_t char16_t char32_t "
-                             "class compl "
-                             "concept const consteval constexpr constinit const_cast continue "
-                             "co_await "
-                             "co_return co_yield decltype default delete do double dynamic_cast "
-                             "else enum "
-                             "explicit export extern false float for friend goto if inline int "
-                             "long mutable "
-                             "namespace new noexcept not not_eq nullptr operator or or_eq private "
-                             "protected "
-                             "public reflexpr register reinterpret_cast requires return short "
-                             "signed "
-                             "sizeof static static_assert static_cast struct switch synchronized "
-                             "template "
-                             "this thread_local throw true try typedef typeid typename "
-                             "union unsigned using virtual void volatile wchar_t while xor xor_eq "
-                             "final override import module"));
-                     }
-                 else
-                     {
-                     m_editor->SetLexer(wxSTC_LEX_NULL);
-                     m_editor->SetKeyWords(0, wxString{});
+                     SaveSourceFileIfNeeded();
+
+                     const wxString fileExt = wxFileName{ node->m_fileName }.GetExt();
+
+                     if (fileExt.CmpNoCase(L"cpp") == 0 || fileExt.CmpNoCase(L"c") == 0 ||
+                         fileExt.CmpNoCase(L"h") == 0 || fileExt.CmpNoCase(L"hpp") == 0)
+                         {
+                         m_editor->SetLexer(wxSTC_LEX_CPP);
+                         m_editor->SetKeyWords(
+                             0,
+                             (L"alignas alignof and_eq asm atomic_cancel atomic_commit "
+                              L"atomic_noexcept auto "
+                              "bitand bitor bool break case catch char char8_t char16_t char32_t "
+                              "class compl "
+                              "concept const consteval constexpr constinit const_cast continue "
+                              "co_await "
+                              "co_return co_yield decltype default delete do double dynamic_cast "
+                              "else enum "
+                              "explicit export extern false float for friend goto if inline int "
+                              "long mutable "
+                              "namespace new noexcept not not_eq nullptr operator or or_eq private "
+                              "protected "
+                              "public reflexpr register reinterpret_cast requires return short "
+                              "signed "
+                              "sizeof static static_assert static_cast struct switch synchronized "
+                              "template "
+                              "this thread_local throw true try typedef typeid typename "
+                              "union unsigned using virtual void volatile wchar_t while xor xor_eq "
+                              "final override import module"));
+                         }
+                     else
+                         {
+                         m_editor->SetLexer(wxSTC_LEX_NULL);
+                         m_editor->SetKeyWords(0, wxString{});
+                         }
+
+                     m_activeFile = node->m_fileName;
+                     m_editor->LoadFile(node->m_fileName);
                      }
 
-                 m_activeFile = node->m_fileName;
-                 m_editor->LoadFile(node->m_fileName);
                  if (node->m_line != -1)
                      {
                      m_editor->GotoLine(node->m_line + 1);
@@ -401,6 +410,12 @@ void I18NFrame::InitControls()
                          }
                      m_editor->SetFocus();
                      }
+                 }
+             else
+                 {
+                 SaveSourceFileIfNeeded();
+                 m_activeFile.clear();
+                 m_editor->SetText(wxString{});
                  }
          });
     }

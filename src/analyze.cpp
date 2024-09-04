@@ -65,7 +65,8 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    std::pair<bool, std::wstring> read_utf8_file(const std::filesystem::path& filePath, bool& startsWithBom)
+    std::pair<bool, std::wstring> read_utf8_file(const std::filesystem::path& filePath,
+                                                 bool& startsWithBom)
         {
         if (!valid_utf8_file(filePath, startsWithBom))
             {
