@@ -18,15 +18,15 @@ namespace i18n_string_util
             return false;
             }
         // protocols
-        if (string_util::strnicmp(text, std::wstring_view{ L"http:" }) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"http://" }) == 0)
             {
             return true;
             }
-        if (string_util::strnicmp(text, std::wstring_view{ L"https:" }) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"https://" }) == 0)
             {
             return true;
             }
-        if (string_util::strnicmp(text, std::wstring_view{ L"ftp:" }) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"ftp://" }) == 0)
             {
             return true;
             }
@@ -38,12 +38,12 @@ namespace i18n_string_util
             {
             return true;
             }
-        if (string_util::strnicmp(text, std::wstring_view{ L"file:" }) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"file://" }) == 0)
             {
             return true;
             }
         // relic from the '90s
-        if (string_util::strnicmp(text, std::wstring_view{ L"gopher:" }) == 0)
+        if (string_util::strnicmp(text, std::wstring_view{ L"gopher://" }) == 0)
             {
             return true;
             }
