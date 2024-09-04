@@ -299,7 +299,7 @@ void NewProjectDialog::CreateControls()
                 fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
                 wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
             fileBrowseBoxSizer->Add(folderBrowseButton, wxSizerFlags{}.CenterVertical());
-            
+
             wxBitmapButton* fileBrowseButton = new wxBitmapButton(
                 fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FILES_BROWSE_BUTTON,
                 wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
