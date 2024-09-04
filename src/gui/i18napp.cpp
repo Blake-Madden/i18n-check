@@ -654,7 +654,7 @@ void I18NFrame::SaveProjectIfNeeded()
     if (m_projectDirty)
         {
         if (wxMessageBox(_(L"Do you wish to save changes?"), _(L"Save Project"),
-                         wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION) == wxID_YES)
+                         wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION) == wxYES)
             {
             wxRibbonButtonBarEvent event;
             OnSave(event);
