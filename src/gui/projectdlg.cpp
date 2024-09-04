@@ -232,11 +232,12 @@ void NewProjectDialog::CreateControls()
                 wxSize(FromDIP(500), -1), wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
                 wxGenericValidator(&m_filePath));
             filePathEdit->AutoCompleteFileNames();
+            filePathEdit->AutoCompleteDirectories();
             fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
 
             wxBitmapButton* fileBrowseButton =
                 new wxBitmapButton(fileBrowseBoxSizer->GetStaticBox(), ID_FOLDER_BROWSE_BUTTON,
-                                   wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
+                                   wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
             fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
 
             filePathEdit->SetFocus();
@@ -254,12 +255,13 @@ void NewProjectDialog::CreateControls()
                                wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP,
                                wxGenericValidator(&m_excludedPaths));
             filePathEdit->AutoCompleteFileNames();
+            filePathEdit->AutoCompleteDirectories();
             fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
 
-            wxBitmapButton* fileBrowseButton = new wxBitmapButton(
+            wxBitmapButton* folderBrowseButton = new wxBitmapButton(
                 fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
-                wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
-            fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
+                wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
+            fileBrowseBoxSizer->Add(folderBrowseButton, wxSizerFlags{}.CenterVertical());
             }
 
         mainSizer->Add(
