@@ -25,6 +25,8 @@ NewProjectDialog::NewProjectDialog(
          NewProjectDialog::ID_FOLDER_BROWSE_BUTTON);
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnExcludedFolderButtonClick, this,
          NewProjectDialog::ID_EXCLUDED_FOLDERS_BROWSE_BUTTON);
+    Bind(wxEVT_BUTTON, &NewProjectDialog::OnExcludedFileButtonClick, this,
+         NewProjectDialog::ID_EXCLUDED_FILES_BROWSE_BUTTON);
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnOK, this, wxID_OK);
     }
 
@@ -176,7 +178,7 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
 void NewProjectDialog::OnFolderButtonClick([[maybe_unused]] wxCommandEvent&)
     {
     TransferDataFromWindow();
-    wxDirDialog dirDlg(this);
+    wxDirDialog dirDlg(this, _(L"Select Folder to Analyze"));
     dirDlg.SetPath(m_filePath);
     if (dirDlg.ShowModal() != wxID_OK)
         {
@@ -191,7 +193,7 @@ void NewProjectDialog::OnFolderButtonClick([[maybe_unused]] wxCommandEvent&)
 void NewProjectDialog::OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEvent&)
     {
     TransferDataFromWindow();
-    wxDirDialog dirDlg(this);
+    wxDirDialog dirDlg(this, _(L"Select Subfolders to Ignore"));
     if (dirDlg.ShowModal() != wxID_OK)
         {
         return;
@@ -203,6 +205,41 @@ void NewProjectDialog::OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEve
     else
         {
         m_excludedPaths += L"; " + dirDlg.GetPath();
+        }
+    TransferDataToWindow();
+    SetFocus();
+    }
+
+//-------------------------------------------------------------
+void NewProjectDialog::OnExcludedFileButtonClick([[maybe_unused]] wxCommandEvent&)
+    {
+    TransferDataFromWindow();
+    wxFileDialog dialog(this, _(L"Select Files to Ignore"), wxString{}, wxString{},
+                        _(L"All Files (*.*)|*.*"),
+                        wxFD_OPEN | wxFD_MULTIPLE | wxFD_FILE_MUST_EXIST | wxFD_PREVIEW);
+    if (dialog.ShowModal() != wxID_OK)
+        {
+        return;
+        }
+
+    wxArrayString paths;
+    dialog.GetPaths(paths);
+    wxString allPaths;
+    for (const auto& path : paths)
+        {
+        allPaths += L"; " + path;
+        }
+    if (m_excludedPaths.empty())
+        {
+        if (allPaths.length() > 2)
+            {
+            allPaths.erase(0, 2);
+            }
+        m_excludedPaths = allPaths;
+        }
+    else
+        {
+        m_excludedPaths += allPaths;
         }
     TransferDataToWindow();
     SetFocus();
@@ -245,13 +282,13 @@ void NewProjectDialog::CreateControls()
 
             {
             wxStaticBoxSizer* fileBrowseBoxSizer =
-                new wxStaticBoxSizer(wxHORIZONTAL, generalSettingsPage, _(L"Subfolders to ignore"));
+                new wxStaticBoxSizer(wxHORIZONTAL, generalSettingsPage, _(L"Subfolders/files to ignore"));
 
             mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags{ 1 }.Expand().Border());
 
             wxTextCtrl* filePathEdit =
                 new wxTextCtrl(fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{},
-                               wxDefaultPosition, wxSize(FromDIP(500), FromDIP(40)),
+                               wxDefaultPosition, wxSize(FromDIP(500), FromDIP(60)),
                                wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP,
                                wxGenericValidator(&m_excludedPaths));
             filePathEdit->AutoCompleteFileNames();
@@ -262,6 +299,11 @@ void NewProjectDialog::CreateControls()
                 fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
                 wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
             fileBrowseBoxSizer->Add(folderBrowseButton, wxSizerFlags{}.CenterVertical());
+            
+            wxBitmapButton* fileBrowseButton = new wxBitmapButton(
+                fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FILES_BROWSE_BUTTON,
+                wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
+            fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
             }
 
         mainSizer->Add(

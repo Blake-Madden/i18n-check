@@ -176,10 +176,12 @@ class NewProjectDialog final : public wxDialog
     void CreateControls();
     void OnFolderButtonClick([[maybe_unused]] wxCommandEvent&);
     void OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEvent&);
+    void OnExcludedFileButtonClick([[maybe_unused]] wxCommandEvent&);
     void OnOK([[maybe_unused]] wxCommandEvent&);
 
     constexpr static int ID_FOLDER_BROWSE_BUTTON = wxID_HIGHEST;
     constexpr static int ID_EXCLUDED_FOLDERS_BROWSE_BUTTON = ID_FOLDER_BROWSE_BUTTON + 1;
+    constexpr static int ID_EXCLUDED_FILES_BROWSE_BUTTON = ID_EXCLUDED_FOLDERS_BROWSE_BUTTON + 1;
     wxString m_filePath;
     wxString m_excludedPaths;
     // options for all file types
