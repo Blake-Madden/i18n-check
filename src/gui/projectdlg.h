@@ -13,6 +13,7 @@
 #define __I18N_PROJECT_DLG_H__
 
 #include "../i18n_review.h"
+#include "app_options.h"
 #include <wx/artprov.h>
 #include <wx/combobox.h>
 #include <wx/dirdlg.h>
@@ -40,13 +41,46 @@ class NewProjectDialog final : public wxDialog
         @param size The window size.
         @param style The window style (i.e., decorations and flags).*/
     NewProjectDialog(wxWindow* parent, wxWindowID id = wxID_ANY,
-                     const wxString& caption = _(L"New Project"),
+                     const wxString& caption = _(L"New Project"), const bool showFileOptions = true,
                      const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
                      long style = wxDEFAULT_DIALOG_STYLE | wxCLIP_CHILDREN | wxRESIZE_BORDER);
     /// @private
     NewProjectDialog(const NewProjectDialog&) = delete;
     /// @private
     NewProjectDialog& operator=(const NewProjectDialog&) = delete;
+
+    [[nodiscard]]
+    I18NOptions GetAllOptions() noexcept
+        {
+        TransferDataFromWindow();
+        I18NOptions options;
+        options.m_options = GetOptions();
+        options.m_filePath = GetPath();
+        options.m_excludedPaths = GetExcludedPath();
+        options.m_fuzzyTranslations = UseFuzzyTranslations();
+        options.m_logMessagesCanBeTranslated = LogMessagesCanBeTranslated();
+        options.m_allowTranslatingPunctuationOnlyStrings = AllowTranslatingPunctuationOnlyStrings();
+        options.m_exceptionsShouldBeTranslatable = ExceptionsShouldBeTranslatable();
+        options.m_minWordsForClassifyingUnavailableString =
+            MinWordsForClassifyingUnavailableString();
+        options.m_minCppVersion = MinCppVersion();
+        return options;
+        }
+
+    void SetAllOptions(const I18NOptions& options)
+        {
+        SetOptions(static_cast<i18n_check::review_style>(options.m_options));
+        m_filePath = options.m_filePath;
+        m_excludedPaths = options.m_excludedPaths;
+        m_fuzzyTranslations = options.m_fuzzyTranslations;
+        m_logMessagesCanBeTranslated = options.m_logMessagesCanBeTranslated;
+        m_allowTranslatingPunctuationOnlyStrings = options.m_allowTranslatingPunctuationOnlyStrings;
+        m_exceptionsShouldBeTranslatable = options.m_exceptionsShouldBeTranslatable;
+        m_minWordsForClassifyingUnavailableString =
+            options.m_minWordsForClassifyingUnavailableString;
+        MinCppVersion(options.m_minCppVersion);
+        TransferDataToWindow();
+        }
 
     /// @returns The path of the selected folder.
     [[nodiscard]]
@@ -87,9 +121,9 @@ class NewProjectDialog final : public wxDialog
         return m_fuzzyTranslations;
         }
 
-    void UseFuzzyTranslations(const bool use)
+    void UseFuzzyTranslations(const bool useFuzzy)
         {
-        m_fuzzyTranslations = use;
+        m_fuzzyTranslations = useFuzzy;
         TransferDataToWindow();
         }
 
@@ -99,9 +133,9 @@ class NewProjectDialog final : public wxDialog
         return m_logMessagesCanBeTranslated;
         }
 
-    void LogMessagesCanBeTranslated(const bool use)
+    void LogMessagesCanBeTranslated(const bool logTran)
         {
-        m_logMessagesCanBeTranslated = use;
+        m_logMessagesCanBeTranslated = logTran;
         TransferDataToWindow();
         }
 
@@ -111,9 +145,9 @@ class NewProjectDialog final : public wxDialog
         return m_allowTranslatingPunctuationOnlyStrings;
         }
 
-    void AllowTranslatingPunctuationOnlyStrings(const bool use)
+    void AllowTranslatingPunctuationOnlyStrings(const bool allow)
         {
-        m_allowTranslatingPunctuationOnlyStrings = use;
+        m_allowTranslatingPunctuationOnlyStrings = allow;
         TransferDataToWindow();
         }
 
@@ -123,9 +157,9 @@ class NewProjectDialog final : public wxDialog
         return m_exceptionsShouldBeTranslatable;
         }
 
-    void ExceptionsShouldBeTranslatable(const bool use)
+    void ExceptionsShouldBeTranslatable(const bool exptTran)
         {
-        m_exceptionsShouldBeTranslatable = use;
+        m_exceptionsShouldBeTranslatable = exptTran;
         TransferDataToWindow();
         }
 
@@ -135,21 +169,34 @@ class NewProjectDialog final : public wxDialog
         return m_minWordsForClassifyingUnavailableString;
         }
 
-    void MinWordsForClassifyingUnavailableString(const size_t use)
+    void MinWordsForClassifyingUnavailableString(const size_t minWords)
         {
-        m_minWordsForClassifyingUnavailableString = use;
+        m_minWordsForClassifyingUnavailableString = minWords;
         TransferDataToWindow();
         }
 
     [[nodiscard]]
     size_t MinCppVersion() const
         {
+        switch (m_minCppVersion)
+            {
+        case 0:
+            return 11;
+        case 1:
+            return 14;
+        case 2:
+            return 17;
+        case 3:
+            return 20;
+        case 4:
+            return 23;
+            }
         return m_minCppVersion;
         }
 
-    void MinCppVersion(const size_t use)
+    void MinCppVersion(const size_t minVer)
         {
-        switch (use)
+        switch (minVer)
             {
         case 11:
             m_minCppVersion = 0;
@@ -182,6 +229,9 @@ class NewProjectDialog final : public wxDialog
     constexpr static int ID_FOLDER_BROWSE_BUTTON = wxID_HIGHEST;
     constexpr static int ID_EXCLUDED_FOLDERS_BROWSE_BUTTON = ID_FOLDER_BROWSE_BUTTON + 1;
     constexpr static int ID_EXCLUDED_FILES_BROWSE_BUTTON = ID_EXCLUDED_FOLDERS_BROWSE_BUTTON + 1;
+
+    bool m_showFileOptions{ true };
+
     wxString m_filePath;
     wxString m_excludedPaths;
     // options for all file types

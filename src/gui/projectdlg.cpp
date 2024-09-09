@@ -11,8 +11,10 @@
 //-------------------------------------------------------------
 NewProjectDialog::NewProjectDialog(
     wxWindow* parent, wxWindowID id /*= wxID_ANY*/, const wxString& caption /*= _(L"New Project")*/,
-    const wxPoint& pos /*= wxDefaultPosition*/, const wxSize& size /*= wxDefaultSize*/,
+    const bool showFileOptions /*= true*/, const wxPoint& pos /*= wxDefaultPosition*/,
+    const wxSize& size /*= wxDefaultSize*/,
     long style /*= wxDEFAULT_DIALOG_STYLE | wxCLIP_CHILDREN | wxRESIZE_BORDER*/)
+    : m_showFileOptions(showFileOptions)
     {
     SetExtraStyle(GetExtraStyle() | wxWS_EX_BLOCK_EVENTS | wxWS_EX_CONTEXTHELP);
     wxDialog::Create(parent, id, caption, pos, size, style);
@@ -63,7 +65,7 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
     {
     TransferDataFromWindow();
 
-    if (m_filePath.empty() || !wxFileName::DirExists(m_filePath))
+    if (m_showFileOptions && (m_filePath.empty() || !wxFileName::DirExists(m_filePath)))
         {
         wxMessageBox(_(L"Please select a valid folder."), _(L"Invalid Folder"),
                      wxICON_EXCLAMATION | wxOK, this);
@@ -145,24 +147,7 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
         m_options |= i18n_check::review_style::check_line_width;
         }
 
-    switch (m_minCppVersion)
-        {
-    case 0:
-        m_minCppVersion = 11;
-        break;
-    case 1:
-        m_minCppVersion = 14;
-        break;
-    case 2:
-        m_minCppVersion = 17;
-        break;
-    case 3:
-        m_minCppVersion = 20;
-        break;
-    case 4:
-        m_minCppVersion = 23;
-        break;
-        };
+    m_minCppVersion = MinCppVersion();
 
     if (IsModal())
         {
@@ -258,52 +243,56 @@ void NewProjectDialog::CreateControls()
 
         wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
+        if (m_showFileOptions)
             {
-            wxStaticBoxSizer* fileBrowseBoxSizer =
-                new wxStaticBoxSizer(wxHORIZONTAL, generalSettingsPage, _(L"Folder to analyze"));
+                {
+                wxStaticBoxSizer* fileBrowseBoxSizer = new wxStaticBoxSizer(
+                    wxHORIZONTAL, generalSettingsPage, _(L"Folder to analyze"));
 
-            mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags().Expand().Border());
+                mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags().Expand().Border());
 
-            wxTextCtrl* filePathEdit = new wxTextCtrl(
-                fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{}, wxDefaultPosition,
-                wxSize(FromDIP(500), -1), wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
-                wxGenericValidator(&m_filePath));
-            filePathEdit->AutoCompleteFileNames();
-            filePathEdit->AutoCompleteDirectories();
-            fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
+                wxTextCtrl* filePathEdit = new wxTextCtrl(
+                    fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{}, wxDefaultPosition,
+                    wxSize(FromDIP(500), -1), wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
+                    wxGenericValidator(&m_filePath));
+                filePathEdit->AutoCompleteFileNames();
+                filePathEdit->AutoCompleteDirectories();
+                fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
 
-            wxBitmapButton* fileBrowseButton =
-                new wxBitmapButton(fileBrowseBoxSizer->GetStaticBox(), ID_FOLDER_BROWSE_BUTTON,
-                                   wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
-            fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
+                wxBitmapButton* fileBrowseButton = new wxBitmapButton(
+                    fileBrowseBoxSizer->GetStaticBox(), ID_FOLDER_BROWSE_BUTTON,
+                    wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
+                fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
 
-            filePathEdit->SetFocus();
-            }
+                filePathEdit->SetFocus();
+                }
 
-            {
-            wxStaticBoxSizer* fileBrowseBoxSizer =
-                new wxStaticBoxSizer(wxHORIZONTAL, generalSettingsPage, _(L"Subfolders/files to ignore"));
+                // files/folders to ignore
+                {
+                wxStaticBoxSizer* fileBrowseBoxSizer = new wxStaticBoxSizer(
+                    wxHORIZONTAL, generalSettingsPage, _(L"Subfolders/files to ignore"));
 
-            mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags{ 1 }.Expand().Border());
+                mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags{ 1 }.Expand().Border());
 
-            wxTextCtrl* filePathEdit =
-                new wxTextCtrl(fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{},
-                               wxDefaultPosition, wxSize(FromDIP(500), FromDIP(60)),
-                               wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP,
-                               wxGenericValidator(&m_excludedPaths));
-            filePathEdit->AutoCompleteFileNames();
-            filePathEdit->AutoCompleteDirectories();
-            fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
+                wxTextCtrl* filePathEdit =
+                    new wxTextCtrl(fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{},
+                                   wxDefaultPosition, wxSize(FromDIP(500), FromDIP(60)),
+                                   wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP,
+                                   wxGenericValidator(&m_excludedPaths));
+                filePathEdit->AutoCompleteFileNames();
+                filePathEdit->AutoCompleteDirectories();
+                fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
 
-            wxBitmapButton* folderBrowseButton = new wxBitmapButton(
-                fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
-                wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
-            fileBrowseBoxSizer->Add(folderBrowseButton, wxSizerFlags{}.CenterVertical());
+                wxBitmapButton* folderBrowseButton = new wxBitmapButton(
+                    fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
+                    wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
+                fileBrowseBoxSizer->Add(folderBrowseButton, wxSizerFlags{}.CenterVertical());
 
-            wxBitmapButton* fileBrowseButton = new wxBitmapButton(
-                fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FILES_BROWSE_BUTTON,
-                wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
-            fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
+                wxBitmapButton* fileBrowseButton = new wxBitmapButton(
+                    fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FILES_BROWSE_BUTTON,
+                    wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
+                fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
+                }
             }
 
         mainSizer->Add(

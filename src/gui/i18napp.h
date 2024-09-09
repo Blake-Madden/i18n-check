@@ -14,6 +14,7 @@
 
 #include "../analyze.h"
 #include "../input.h"
+#include "app_options.h"
 #include "datamodel.h"
 #include "projectdlg.h"
 #include <wx/aboutdlg.h>
@@ -31,6 +32,7 @@
 #include <wx/richmsgdlg.h>
 #include <wx/splitter.h>
 #include <wx/stc/stc.h>
+#include <wx/stdpaths.h>
 #include <wx/tokenzr.h>
 #include <wx/wx.h>
 #include <wx/xml/xml.h>
@@ -69,6 +71,7 @@ class I18NFrame : public wxFrame
     void OnExpandAll([[maybe_unused]] wxCommandEvent&);
     void OnCollapseAll([[maybe_unused]] wxCommandEvent&);
     void OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&);
+    void OnSettings([[maybe_unused]] wxCommandEvent&);
     void OnAbout([[maybe_unused]] wxCommandEvent&);
 
   private:
@@ -110,25 +113,7 @@ class I18NFrame : public wxFrame
 
     constexpr static int ERROR_ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
-    // active project options
-    wxString m_filePath;
-    wxString m_excludedPaths;
-    int m_options{ static_cast<int>(i18n_check::review_style::check_l10n_strings |
-                                    i18n_check::review_style::check_suspect_l10n_string_usage |
-                                    i18n_check::review_style::check_not_available_for_l10n |
-                                    i18n_check::review_style::check_deprecated_macros |
-                                    i18n_check::review_style::check_utf8_encoded |
-                                    i18n_check::review_style::check_printf_single_number |
-                                    i18n_check::review_style::check_l10n_contains_url |
-                                    i18n_check::review_style::check_malformed_strings |
-                                    i18n_check::review_style::check_fonts |
-                                    i18n_check::review_style::all_l10n_checks) };
-    bool m_fuzzyTranslations{ false };
-    bool m_logMessagesCanBeTranslated{ true };
-    bool m_allowTranslatingPunctuationOnlyStrings{ false };
-    bool m_exceptionsShouldBeTranslatable{ true };
-    int m_minWordsForClassifyingUnavailableString{ 2 };
-    int m_minCppVersion{ 14 };
+    I18NOptions m_activeProjectOptions;
     };
 
 // Application
@@ -136,6 +121,10 @@ class I18NApp : public wxApp
     {
   public:
     bool OnInit() final;
+    int OnExit() final;
+
+    I18NOptions m_defaultOptions;
+    wxString m_optionsFilePath;
     };
 
     /** @}*/

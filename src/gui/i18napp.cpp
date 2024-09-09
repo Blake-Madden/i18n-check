@@ -99,9 +99,11 @@ void I18NFrame::InitControls()
         m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), false);
 
         wxRibbonPanel* helpPanel =
-            new wxRibbonPanel(homePage, wxID_ANY, _(L"Help"), wxNullBitmap, wxDefaultPosition,
+            new wxRibbonPanel(homePage, wxID_ANY, _(L"General"), wxNullBitmap, wxDefaultPosition,
                               wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
         wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(helpPanel);
+        toolbar->AddButton(XRCID("ID_SETTINGS"), _(L"Settings"),
+                           wxArtProvider::GetBitmap(L"ID_SETTINGS", wxART_OTHER, wxSize{ 32, 32 }));
         toolbar->AddButton(wxID_ABOUT, _(L"About"),
                            wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
         }
@@ -266,7 +268,16 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnCollapseAll, this, XRCID("ID_COLLAPSE_ALL"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnIgnoreSelectedFile, this,
          XRCID("ID_IGNORE_SELECTED"));
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSettings, this, XRCID("ID_SETTINGS"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
+            wxRibbonButtonBarEvent event;
+            OnSettings(event);
+        },
+        XRCID("ID_SETTINGS"));
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -473,14 +484,27 @@ void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
                     }
                 }
 
-            m_excludedPaths +=
-                m_excludedPaths.empty() ? node->m_fileName : L"; " + node->m_fileName;
+            m_activeProjectOptions.m_excludedPaths +=
+                m_activeProjectOptions.m_excludedPaths.empty() ? node->m_fileName :
+                                                                 L"; " + node->m_fileName;
 
             m_resultsModel->Delete(selectedItem);
             m_resultsModel->Cleared();
 
             m_projectDirty = true;
             }
+        }
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnSettings([[maybe_unused]] wxCommandEvent&)
+    {
+    NewProjectDialog projDlg(this, wxID_ANY, _(L"Settings"), false);
+    projDlg.SetAllOptions(wxGetApp().m_defaultOptions);
+
+    if (projDlg.ShowModal() == wxID_OK)
+        {
+        wxGetApp().m_defaultOptions = projDlg.GetAllOptions();
         }
     }
 
@@ -499,28 +523,11 @@ void I18NFrame::OnAbout([[maybe_unused]] wxCommandEvent&)
 void I18NFrame::OnRefresh([[maybe_unused]] wxCommandEvent&)
     {
     NewProjectDialog projDlg(this);
-    projDlg.SetOptions(static_cast<i18n_check::review_style>(m_options));
-    projDlg.SetPath(m_filePath);
-    projDlg.SetExcludedPath(m_excludedPaths);
-    projDlg.UseFuzzyTranslations(m_fuzzyTranslations);
-    projDlg.LogMessagesCanBeTranslated(m_logMessagesCanBeTranslated);
-    projDlg.AllowTranslatingPunctuationOnlyStrings(m_allowTranslatingPunctuationOnlyStrings);
-    projDlg.ExceptionsShouldBeTranslatable(m_exceptionsShouldBeTranslatable);
-    projDlg.MinWordsForClassifyingUnavailableString(m_minWordsForClassifyingUnavailableString);
-    projDlg.MinCppVersion(m_minCppVersion);
+    projDlg.SetAllOptions(m_activeProjectOptions);
 
     if (projDlg.ShowModal() == wxID_OK)
         {
-        m_options = projDlg.GetOptions();
-        m_filePath = projDlg.GetPath();
-        m_excludedPaths = projDlg.GetExcludedPath();
-        m_fuzzyTranslations = projDlg.UseFuzzyTranslations();
-        m_logMessagesCanBeTranslated = projDlg.LogMessagesCanBeTranslated();
-        m_allowTranslatingPunctuationOnlyStrings = projDlg.AllowTranslatingPunctuationOnlyStrings();
-        m_exceptionsShouldBeTranslatable = projDlg.ExceptionsShouldBeTranslatable();
-        m_minWordsForClassifyingUnavailableString =
-            projDlg.MinWordsForClassifyingUnavailableString();
-        m_minCppVersion = projDlg.MinCppVersion();
+        m_activeProjectOptions = projDlg.GetAllOptions();
 
         Process();
 
@@ -534,13 +541,7 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     SaveProjectIfNeeded();
 
     NewProjectDialog projDlg(this);
-    projDlg.SetOptions(static_cast<i18n_check::review_style>(m_options));
-    projDlg.UseFuzzyTranslations(m_fuzzyTranslations);
-    projDlg.LogMessagesCanBeTranslated(m_logMessagesCanBeTranslated);
-    projDlg.AllowTranslatingPunctuationOnlyStrings(m_allowTranslatingPunctuationOnlyStrings);
-    projDlg.ExceptionsShouldBeTranslatable(m_exceptionsShouldBeTranslatable);
-    projDlg.MinWordsForClassifyingUnavailableString(m_minWordsForClassifyingUnavailableString);
-    projDlg.MinCppVersion(m_minCppVersion);
+    projDlg.SetAllOptions(wxGetApp().m_defaultOptions);
 
     if (projDlg.ShowModal() == wxID_CANCEL)
         {
@@ -550,15 +551,7 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     m_activeProjectFilePath.clear();
     m_projectDirty = true;
 
-    m_options = projDlg.GetOptions();
-    m_filePath = projDlg.GetPath();
-    m_excludedPaths = projDlg.GetExcludedPath();
-    m_fuzzyTranslations = projDlg.UseFuzzyTranslations();
-    m_logMessagesCanBeTranslated = projDlg.LogMessagesCanBeTranslated();
-    m_allowTranslatingPunctuationOnlyStrings = projDlg.AllowTranslatingPunctuationOnlyStrings();
-    m_exceptionsShouldBeTranslatable = projDlg.ExceptionsShouldBeTranslatable();
-    m_minWordsForClassifyingUnavailableString = projDlg.MinWordsForClassifyingUnavailableString();
-    m_minCppVersion = projDlg.MinCppVersion();
+    m_activeProjectOptions = projDlg.GetAllOptions();
 
     Process();
     }
@@ -579,61 +572,7 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
     m_activeProjectFilePath = dialog.GetPath();
     m_projectDirty = false;
 
-    wxXmlDocument xmlDoc;
-    if (!xmlDoc.Load(m_activeProjectFilePath))
-        {
-        wxMessageBox(_(L"Error loading project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
-        return;
-        }
-
-    if (xmlDoc.GetRoot()->GetName() != "i18n-check-settings")
-        {
-        wxMessageBox(_(L"Invalid project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
-        return;
-        }
-
-    wxXmlNode* child = xmlDoc.GetRoot()->GetChildren();
-    while (child != nullptr)
-        {
-        if (child->GetName() == L"path")
-            {
-            m_filePath = child->GetNodeContent();
-            }
-        else if (child->GetName() == L"excluded-paths")
-            {
-            m_excludedPaths = child->GetNodeContent();
-            }
-        else if (child->GetName() == L"checks")
-            {
-            const wxString intVal = child->GetNodeContent();
-            intVal.ToInt(&m_options);
-            }
-        else if (child->GetName() == L"fuzzy-translations")
-            {
-            m_fuzzyTranslations = (child->GetNodeContent() == L"true");
-            }
-        else if (child->GetName() == L"log-messages-can-be-translated")
-            {
-            m_logMessagesCanBeTranslated = (child->GetNodeContent() == L"true");
-            }
-        else if (child->GetName() == L"allow-translating-punctuation-only-strings")
-            {
-            m_allowTranslatingPunctuationOnlyStrings = (child->GetNodeContent() == L"true");
-            }
-        else if (child->GetName() == L"exceptions-should-be-translatable")
-            {
-            m_exceptionsShouldBeTranslatable = (child->GetNodeContent() == L"true");
-            }
-        else if (child->GetName() == L"min-words-for-classifying-unavailable-string")
-            {
-            const wxString intVal = child->GetNodeContent();
-            intVal.ToInt(&m_minWordsForClassifyingUnavailableString);
-            }
-        else if (child->GetName() == L"min-cpp-version")
-            {
-            const wxString intVal = child->GetNodeContent();
-            intVal.ToInt(&m_minCppVersion);
-            }
+    m_activeProjectOptions.Load(m_activeProjectFilePath);
 
         child = child->GetNext();
         }
@@ -646,7 +585,7 @@ void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
     {
     if (m_activeProjectFilePath.empty())
         {
-        const wxFileName projectName{ m_filePath };
+        const wxFileName projectName{ m_activeProjectOptions.m_filePath };
         const wxString lastFolder = projectName.GetDirs().empty() ?
                                         wxString{ L"project" } :
                                         projectName.GetDirs()[projectName.GetDirs().size() - 1];
@@ -661,47 +600,7 @@ void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
         m_activeProjectFilePath = dialog.GetPath();
         }
 
-    wxXmlDocument xmlDoc;
-
-    wxXmlNode* root = new wxXmlNode(nullptr, wxXML_ELEMENT_NODE, L"i18n-check-settings");
-    xmlDoc.SetRoot(root);
-
-    wxXmlNode* node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"path");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_filePath));
-
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"excluded-paths");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_excludedPaths));
-
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"checks");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_options)));
-
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"fuzzy-translations");
-    node->AddChild(
-        new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_fuzzyTranslations ? L"true" : L"false"));
-
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"log-messages-can-be-translated");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
-                                 m_logMessagesCanBeTranslated ? L"true" : L"false"));
-
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"allow-translating-punctuation-only-strings");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
-                                 m_allowTranslatingPunctuationOnlyStrings ? L"true" : L"false"));
-
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"exceptions-should-be-translatable");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
-                                 m_exceptionsShouldBeTranslatable ? L"true" : L"false"));
-
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"min-words-for-classifying-unavailable-string");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
-                                 std::to_wstring(m_minWordsForClassifyingUnavailableString)));
-
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"min-cpp-version");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_minCppVersion)));
-
-    if (!xmlDoc.Save(m_activeProjectFilePath))
-        {
-        wxMessageBox(_(L"Error saving project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
-        }
+    m_activeProjectOptions.Save(m_activeProjectFilePath);
 
     m_projectDirty = false;
     }
@@ -762,11 +661,11 @@ void I18NFrame::Process()
     m_activeSourceFile.clear();
     m_editor->SetText(wxString{});
 
-    std::wstring inputFolder{ m_filePath.c_str() };
+    std::wstring inputFolder{ m_activeProjectOptions.m_filePath.c_str() };
 
     std::vector<std::wstring> excludedPaths;
     wxStringTokenizer tokenizer(
-        m_excludedPaths, L";",
+        m_activeProjectOptions.m_excludedPaths, L";",
         wxStringTokenizerMode(wxTOKEN_STRTOK | wxTOKEN_RET_EMPTY | wxTOKEN_RET_EMPTY_ALL));
     while (tokenizer.HasMoreTokens())
         {
@@ -787,18 +686,21 @@ void I18NFrame::Process()
     }();
 
     i18n_check::cpp_i18n_review cpp;
-    cpp.set_style(static_cast<i18n_check::review_style>(m_options));
-    cpp.log_messages_can_be_translatable(m_logMessagesCanBeTranslated);
-    cpp.allow_translating_punctuation_only_strings(m_allowTranslatingPunctuationOnlyStrings);
-    cpp.exceptions_should_be_translatable(m_exceptionsShouldBeTranslatable);
-    cpp.set_min_words_for_classifying_unavailable_string(m_minWordsForClassifyingUnavailableString);
-    cpp.set_min_cpp_version(m_minCppVersion);
+    cpp.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
+    cpp.log_messages_can_be_translatable(m_activeProjectOptions.m_logMessagesCanBeTranslated);
+    cpp.allow_translating_punctuation_only_strings(
+        m_activeProjectOptions.m_allowTranslatingPunctuationOnlyStrings);
+    cpp.exceptions_should_be_translatable(m_activeProjectOptions.m_exceptionsShouldBeTranslatable);
+    cpp.set_min_words_for_classifying_unavailable_string(
+        m_activeProjectOptions.m_minWordsForClassifyingUnavailableString);
+    cpp.set_min_cpp_version(m_activeProjectOptions.m_minCppVersion);
     i18n_check::rc_file_review rc;
-    rc.set_style(static_cast<i18n_check::review_style>(m_options));
-    rc.allow_translating_punctuation_only_strings(m_allowTranslatingPunctuationOnlyStrings);
+    rc.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
+    rc.allow_translating_punctuation_only_strings(
+        m_activeProjectOptions.m_allowTranslatingPunctuationOnlyStrings);
     i18n_check::po_file_review po;
-    po.set_style(static_cast<i18n_check::review_style>(m_options));
-    po.review_fuzzy_translations(m_fuzzyTranslations);
+    po.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
+    po.review_fuzzy_translations(m_activeProjectOptions.m_fuzzyTranslations);
 
     std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
     std::vector<std::wstring> filesThatContainUTF8Signature;
@@ -894,6 +796,17 @@ bool I18NApp::OnInit()
 
     wxArtProvider::Push(new I18NArtProvider);
 
+    const wxString appSettingFolderPath = wxStandardPaths::Get().GetUserDataDir();
+    if (!wxFileName::DirExists(appSettingFolderPath))
+        {
+        wxFileName::Mkdir(appSettingFolderPath);
+        }
+    m_optionsFilePath = appSettingFolderPath + wxFileName::GetPathSeparator() + L"settings.xml";
+    if (wxFileName::FileExists(m_optionsFilePath))
+        {
+        m_defaultOptions.Load(m_optionsFilePath);
+        }
+
     // create the main application window
     I18NFrame* frame = new I18NFrame(GetAppName());
     frame->InitControls();
@@ -906,4 +819,12 @@ bool I18NApp::OnInit()
     frame->SetIcon(appIcon);
 
     return true;
+    }
+
+//------------------------------------------------------
+int I18NApp::OnExit()
+    {
+    m_defaultOptions.Save(m_optionsFilePath);
+
+    return 0;
     }
