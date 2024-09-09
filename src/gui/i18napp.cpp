@@ -414,7 +414,11 @@ void I18NFrame::InitControls()
 
                  if (node->m_line != -1)
                      {
-                     m_editor->GotoLine(node->m_line + 1);
+                     // if scrolling up, then step back up an extra line so that we can see it
+                     // after adding the annotation beneath it
+                     m_editor->GotoLine((m_editor->GetFirstVisibleLine() < node->m_line) ?
+                                            node->m_line :
+                                            node->m_line - 1);
                      m_editor->AnnotationSetText(node->m_line - 1, node->m_explaination);
                      m_editor->AnnotationSetStyle(node->m_line - 1, ERROR_ANNOTATION_STYLE);
 
