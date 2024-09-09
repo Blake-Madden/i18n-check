@@ -191,9 +191,11 @@ void I18NFrame::InitControls()
     m_editor->AutoCompSetIgnoreCase(true);
     m_editor->AutoCompSetAutoHide(true);
     // annotations styles
+#if wxCHECK_VERSION(3, 3, 0)
     m_editor->StyleSetBackground(
         ERROR_ANNOTATION_STYLE,
         wxSystemSettings::SelectLightDark(wxColour(244, 220, 220), wxColour(100, 100, 100)));
+#endif
     m_editor->StyleSetSizeFractional(
         ERROR_ANNOTATION_STYLE, (m_editor->StyleGetSizeFractional(wxSTC_STYLE_DEFAULT) * 4) / 5);
     // turn on annotations
@@ -673,7 +675,7 @@ void I18NFrame::Process()
         wxStringTokenizerMode(wxTOKEN_STRTOK | wxTOKEN_RET_EMPTY | wxTOKEN_RET_EMPTY_ALL));
     while (tokenizer.HasMoreTokens())
         {
-        std::wstring currentFolder{ tokenizer.GetNextToken().wc_string() };
+        std::wstring currentFolder{ tokenizer.GetNextToken().wc_str() };
         string_util::trim(currentFolder);
         excludedPaths.push_back(std::move(currentFolder));
         }
@@ -800,6 +802,7 @@ bool I18NApp::OnInit()
 
     wxArtProvider::Push(new I18NArtProvider);
 
+    // load the settings
     const wxString appSettingFolderPath = wxStandardPaths::Get().GetUserDataDir();
     if (!wxFileName::DirExists(appSettingFolderPath))
         {
@@ -814,7 +817,7 @@ bool I18NApp::OnInit()
     // create the main application window
     I18NFrame* frame = new I18NFrame(GetAppName());
     frame->InitControls();
-    frame->SetSize(frame->FromDIP(wxSize{ 1200, 1200 }));
+    frame->SetSize(frame->FromDIP(wxSize{ 1200, 1000 }));
     frame->CenterOnScreen();
     frame->Show(true);
 

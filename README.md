@@ -209,7 +209,7 @@ After building, "i18n-check" will then be available in the "bin" folder.
 
 # Building (GUI)
 
-[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.3 or higher is required for building the graphical user interface version for `i18n-check`.
+[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version for `i18n-check`.
 
 Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as `i18n-check`:
 
