@@ -18,6 +18,7 @@
 #include <wx/combobox.h>
 #include <wx/dirdlg.h>
 #include <wx/filename.h>
+#include <wx/gbsizer.h>
 #include <wx/spinctrl.h>
 #include <wx/statline.h>
 #include <wx/string.h>
