@@ -144,7 +144,7 @@ void I18NFrame::InitControls()
 
     wxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    mainSizer->Add(m_ribbon, wxSizerFlags().Expand());
+    mainSizer->Add(m_ribbon, wxSizerFlags{}.Expand());
 
     wxSplitterWindow* splitter = new wxSplitterWindow(this);
 
@@ -283,7 +283,7 @@ void I18NFrame::InitControls()
     m_editor->CallTipUseStyle(40);
 
     splitter->SplitHorizontally(m_resultsDataView, m_editor, FromDIP(-300));
-    mainSizer->Add(splitter, wxSizerFlags(1).Expand());
+    mainSizer->Add(splitter, wxSizerFlags{ 1 }.Expand());
 
     SetSizer(mainSizer);
 
