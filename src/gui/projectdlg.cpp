@@ -251,6 +251,9 @@ void NewProjectDialog::CreateControls()
         wxStaticText* statLabel = new wxStaticText(parent, wxID_STATIC, L"[" + label + L"]",
                                                    wxDefaultPosition, wxDefaultSize);
         statLabel->SetFont(statLabel->GetFont().Bold());
+        statLabel->SetForegroundColour(wxSystemSettings::GetAppearance().IsDark() ?
+                                           wxColour{ L"#89CFF0" } :
+                                           wxColour{ L"#0095B6" });
         return statLabel;
     };
 
@@ -258,6 +261,7 @@ void NewProjectDialog::CreateControls()
 
     wxBoxSizer* mainDlgSizer = new wxBoxSizer(wxVERTICAL);
 
+        // source code options
         {
         wxPanel* generalSettingsPage =
             new wxPanel(treeBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
@@ -311,78 +315,85 @@ void NewProjectDialog::CreateControls()
 
                 wxBitmapButton* fileBrowseButton = new wxBitmapButton(
                     fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FILES_BROWSE_BUTTON,
-                    wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_BUTTON));
+                    wxArtProvider::GetBitmapBundle(wxART_NEW, wxART_BUTTON));
                 fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
                 }
             }
 
+        wxStaticBoxSizer* checkOptionsSizer =
+            new wxStaticBoxSizer(wxVERTICAL, generalSettingsPage, _(L"Run the following checks:"));
+
         wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
         size_t currentRow{ 0 };
 
-        gbSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
-                                    _(L"Check for strings not exposed for translation"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_notL10NAvailable)),
+        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                    _(L"Strings not exposed for translation"), wxDefaultPosition,
+                                    wxDefaultSize, 0, wxGenericValidator(&m_notL10NAvailable)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"notL10NAvailable"), generalSettingsPage),
+        gbSizer->Add(buildCodeLabel(L"notL10NAvailable", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
-                                    _(L"Check for translatable strings that shouldn't be"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_suspectL10NString)),
+        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                    _(L"Translatable strings that shouldn't be"), wxDefaultPosition,
+                                    wxDefaultSize, 0, wxGenericValidator(&m_suspectL10NString)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"suspectL10NString"), generalSettingsPage),
+        gbSizer->Add(buildCodeLabel(L"suspectL10NString", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
-                                    _(L"Check for translatable strings being used "
-                                      "in internal contexts"),
+        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                    _(L"Translatable strings being used "
+                                      "in debug functions"),
                                     wxDefaultPosition, wxDefaultSize, 0,
                                     wxGenericValidator(&m_suspectL10NUsage)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"suspectL10NUsage"), generalSettingsPage),
+        gbSizer->Add(buildCodeLabel(L"suspectL10NUsage", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
-                                    _(L"Check for translatable strings that contain URLs or "
+        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                    _(L"Translatable strings that contain URLs or "
                                       "email addresses"),
                                     wxDefaultPosition, wxDefaultSize, 0,
                                     wxGenericValidator(&m_urlInL10NString)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"urlInL10NString"), generalSettingsPage),
+        gbSizer->Add(buildCodeLabel(L"urlInL10NString", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
-                                    _(L"Check for deprecated macros and functions"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_deprecatedMacro)),
+        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                    _(L"Deprecated macros and functions"), wxDefaultPosition,
+                                    wxDefaultSize, 0, wxGenericValidator(&m_deprecatedMacro)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"deprecatedMacro"), generalSettingsPage),
+        gbSizer->Add(buildCodeLabel(L"deprecatedMacro", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
-                                    _(L"Check for printf()-like functions being used to just "
+        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                    _(L"printf()-like functions being used to just "
                                       "format a number"),
                                     wxDefaultPosition, wxDefaultSize, 0,
                                     wxGenericValidator(&m_printfSingleNumber)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"printfSingleNumber"), generalSettingsPage),
+        gbSizer->Add(buildCodeLabel(L"printfSingleNumber", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
-                                    _(L"Check for malformed syntax in strings"), wxDefaultPosition,
+        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                    _(L"Malformed syntax in strings"), wxDefaultPosition,
                                     wxDefaultSize, 0, wxGenericValidator(&m_malformedString)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"malformedString"), generalSettingsPage),
+        gbSizer->Add(buildCodeLabel(L"malformedString", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        mainSizer->Add(gbSizer, wxSizerFlags{}.Border(wxLEFT));
+        checkOptionsSizer->Add(gbSizer, wxSizerFlags{}.Border());
+
+        mainSizer->Add(checkOptionsSizer, wxSizerFlags{}.Expand().Border());
 
         mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
                                       _(L"Strings passed to logging functions can be translatable"),
                                       wxDefaultPosition, wxDefaultSize, 0,
                                       wxGenericValidator(&m_logMessagesCanBeTranslated)),
+                       wxSizerFlags{}.Border().Left());
+        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
+                                      _(L"Exception messages should be available for translation"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_exceptionsShouldBeTranslatable)),
                        wxSizerFlags{}.Border().Left());
         mainSizer->Add(
             new wxCheckBox(generalSettingsPage, wxID_ANY,
@@ -390,16 +401,11 @@ void NewProjectDialog::CreateControls()
                            wxDefaultSize, 0,
                            wxGenericValidator(&m_allowTranslatingPunctuationOnlyStrings)),
             wxSizerFlags{}.Border().Left());
-        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY,
-                                      _(L"Exception messages should be available for translation"),
-                                      wxDefaultPosition, wxDefaultSize, 0,
-                                      wxGenericValidator(&m_exceptionsShouldBeTranslatable)),
-                       wxSizerFlags{}.Border().Left());
 
         wxBoxSizer* minWordSizer = new wxBoxSizer(wxHORIZONTAL);
 
         minWordSizer->Add(new wxStaticText(generalSettingsPage, wxID_STATIC,
-                                           _(L"Minimum number of words that a string must have to "
+                                           _(L"Minimum words for a string to "
                                              "be considered translatable:"),
                                            wxDefaultPosition, wxDefaultSize),
                           wxSizerFlags{}.CenterVertical());
@@ -413,71 +419,12 @@ void NewProjectDialog::CreateControls()
 
         mainSizer->Add(minWordSizer, wxSizerFlags{}.Expand().Border());
 
-        generalSettingsPage->SetSizer(mainSizer);
-        treeBook->AddPage(generalSettingsPage, _(L"General"), true);
-        }
-
-        // C++
-        {
-        wxPanel* cppPage =
-            new wxPanel(treeBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
-
-        wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
-        size_t currentRow{ 0 };
-
-        gbSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
-                                    _(L"Check that files containing extended ASCII characters "
-                                      "are UTF-8 encoded"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_nonUTF8File)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"nonUTF8File"), cppPage), wxGBPosition(currentRow++, 1),
-                     wxGBSpan{});
-
-        gbSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
-                                    _(L"Check for UTF-8 encoded files which start with a "
-                                      "BOM/UTF-8 signature"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_UTF8FileWithBOM)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"UTF8FileWithBOM"), cppPage), wxGBPosition(currentRow++, 1),
-                     wxGBSpan{});
-
-        gbSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
-                                    _(L"Check for strings containing extended ASCII characters "
-                                      "that are not encoded"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_unencodedExtASCII)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"unencodedExtASCII"), cppPage),
-                     wxGBPosition(currentRow++, 1), wxGBSpan{});
-
-        gbSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
-                                    _(L"Check for ID variables being assigned a "
-                                      "hard-coded number"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_numberAssignedToId)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"numberAssignedToId"), cppPage),
-                     wxGBPosition(currentRow++, 1), wxGBSpan{});
-
-        gbSizer->Add(new wxCheckBox(cppPage, wxID_ANY,
-                                    _(L"Check for the same value being assigned to different "
-                                      "ID variables"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_dupValAssignedToIds)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"dupValAssignedToIds"), cppPage),
-                     wxGBPosition(currentRow++, 1), wxGBSpan{});
-
         wxBoxSizer* cppVersionSizer = new wxBoxSizer(wxHORIZONTAL);
 
-        cppVersionSizer->Add(
-            new wxStaticText(
-                cppPage, wxID_STATIC,
-                _(L"C++ standard that should be assumed when issuing deprecated macro warnings:"),
-                wxDefaultPosition, wxDefaultSize),
-            wxSizerFlags{}.CenterVertical());
+        cppVersionSizer->Add(new wxStaticText(generalSettingsPage, wxID_STATIC,
+                                              _(L"C++ standard when issuing deprecation warnings:"),
+                                              wxDefaultPosition, wxDefaultSize),
+                             wxSizerFlags{}.CenterVertical());
 
         wxArrayString cppVersions;
         cppVersions.Add(L"11");
@@ -486,120 +433,169 @@ void NewProjectDialog::CreateControls()
         cppVersions.Add(L"20");
         cppVersions.Add(L"23");
         wxChoice* cppVersionRadioBox =
-            new wxChoice(cppPage, wxID_ANY, wxDefaultPosition, wxDefaultSize, cppVersions, 0,
-                         wxGenericValidator(&m_minCppVersion));
+            new wxChoice(generalSettingsPage, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+                         cppVersions, 0, wxGenericValidator(&m_minCppVersion));
         cppVersionSizer->Add(cppVersionRadioBox, wxSizerFlags{}.Border(wxLEFT).Left());
 
-        gbSizer->Add(cppVersionSizer, wxGBPosition(currentRow, 0), wxGBSpan{});
+        mainSizer->Add(cppVersionSizer, wxSizerFlags{}.Expand().Border());
 
-        wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-        mainSizer->Add(gbSizer);
-        mainSizer->AddStretchSpacer();
-
-        cppPage->SetSizer(mainSizer);
-        treeBook->AddPage(cppPage, L"C++", false);
+        generalSettingsPage->SetSizer(mainSizer);
+        treeBook->AddPage(generalSettingsPage, _(L"Source Code"), true);
         }
 
-        // translation catalogs
+        // resource files
         {
         wxPanel* transPage =
             new wxPanel(treeBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
 
         wxStaticBoxSizer* poOptionsSizer =
-            new wxStaticBoxSizer(wxVERTICAL, transPage, _(L"PO Catalog Files"));
+            new wxStaticBoxSizer(wxVERTICAL, transPage, _(L"PO catalogs"));
 
-        wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
-        size_t currentRow{ 0 };
+            {
+            wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
+            size_t currentRow{ 0 };
 
-        gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
-                                    _(L"Check for mismatching printf() commands"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_printfMismatch)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"printfMismatch"), poOptionsSizer->GetStaticBox()),
-                     wxGBPosition(currentRow++, 1), wxGBSpan{});
+            gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Check for mismatching printf() commands"),
+                                        wxDefaultPosition, wxDefaultSize, 0,
+                                        wxGenericValidator(&m_printfMismatch)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"printfMismatch", poOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
-                                    _(L"Review fuzzy translations"), wxDefaultPosition,
-                                    wxDefaultSize, 0, wxGenericValidator(&m_fuzzyTranslations)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        poOptionsSizer->Add(gbSizer);
+            gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Review fuzzy translations"), wxDefaultPosition,
+                                        wxDefaultSize, 0, wxGenericValidator(&m_fuzzyTranslations)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            poOptionsSizer->Add(gbSizer);
+            }
+
+        wxStaticBoxSizer* rcOptionsSizer =
+            new wxStaticBoxSizer(wxVERTICAL, transPage, _(L"Windows RC files"));
+
+            {
+            wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
+            size_t currentRow{ 0 };
+
+            gbSizer->Add(new wxCheckBox(rcOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Check for font issues"), wxDefaultPosition,
+                                        wxDefaultSize, 0, wxGenericValidator(&m_fontIssue)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"fontIssue", rcOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
+            rcOptionsSizer->Add(gbSizer);
+            }
 
         wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
         mainSizer->Add(poOptionsSizer, wxSizerFlags{}.Expand().Border());
-
-        transPage->SetSizer(mainSizer);
-        treeBook->AddPage(transPage, _(L"Translation Catalogs"), false);
-        }
-
-        // resource files
-        {
-        wxPanel* resourceFilesPage =
-            new wxPanel(treeBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
-
-        wxStaticBoxSizer* rcOptionsSizer =
-            new wxStaticBoxSizer(wxVERTICAL, resourceFilesPage, _(L"Windows RC Files"));
-
-        wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
-        size_t currentRow{ 0 };
-
-        gbSizer->Add(new wxCheckBox(rcOptionsSizer->GetStaticBox(), wxID_ANY,
-                                    _(L"Check for font issues"), wxDefaultPosition, wxDefaultSize,
-                                    0, wxGenericValidator(&m_fontIssue)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"fontIssue"), rcOptionsSizer->GetStaticBox()),
-                     wxGBPosition(currentRow++, 1), wxGBSpan{});
-        rcOptionsSizer->Add(gbSizer);
-
-        wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
         mainSizer->Add(rcOptionsSizer, wxSizerFlags{}.Expand().Border());
 
-        resourceFilesPage->SetSizer(mainSizer);
-        treeBook->AddPage(resourceFilesPage, _(L"Resource Files"), false);
+        transPage->SetSizer(mainSizer);
+        treeBook->AddPage(transPage, _(L"Resource Files"), false);
         }
 
-        // code formatting
+        // extra checks
         {
-        wxPanel* codeFormattingPage =
+        wxPanel* extraChecksPage =
             new wxPanel(treeBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
 
-        wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
-        size_t currentRow{ 0 };
+        wxStaticBoxSizer* formattingOptionsSizer =
+            new wxStaticBoxSizer(wxVERTICAL, extraChecksPage, _(L"Formatting && encoding checks:"));
 
-        gbSizer->Add(new wxCheckBox(codeFormattingPage, wxID_ANY,
-                                    _(L"Check lines for trailing spaces"), wxDefaultPosition,
-                                    wxDefaultSize, 0, wxGenericValidator(&m_trailingSpaces)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"trailingSpaces"), codeFormattingPage),
-                     wxGBPosition(currentRow++, 1), wxGBSpan{});
+            {
+            wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
+            size_t currentRow{ 0 };
 
-        gbSizer->Add(new wxCheckBox(codeFormattingPage, wxID_ANY, _(L"Check for tabs"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_tabs)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"tabs"), codeFormattingPage), wxGBPosition(currentRow++, 1),
-                     wxGBSpan{});
+            gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Non-UTF8 encoded files"), wxDefaultPosition,
+                                        wxDefaultSize, 0, wxGenericValidator(&m_nonUTF8File)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"nonUTF8File", formattingOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(codeFormattingPage, wxID_ANY, _(L"Check for overly long lines"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_wideLine)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"wideLine"), codeFormattingPage),
-                     wxGBPosition(currentRow++, 1), wxGBSpan{});
+            gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"BOM/UTF-8 signatures"), wxDefaultPosition,
+                                        wxDefaultSize, 0, wxGenericValidator(&m_UTF8FileWithBOM)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(
+                buildCodeLabel(_(L"UTF8FileWithBOM"), formattingOptionsSizer->GetStaticBox()),
+                wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(codeFormattingPage, wxID_ANY,
-                                    _(L"Check that comments start with a space"), wxDefaultPosition,
-                                    wxDefaultSize, 0, wxGenericValidator(&m_commentMissingSpace)),
-                     wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(_(L"commentMissingSpace"), codeFormattingPage),
-                     wxGBPosition(currentRow++, 1), wxGBSpan{});
+            gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Unencoded extended ASCII characters"),
+                                        wxDefaultPosition, wxDefaultSize, 0,
+                                        wxGenericValidator(&m_unencodedExtASCII)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(
+                buildCodeLabel(_(L"unencodedExtASCII"), formattingOptionsSizer->GetStaticBox()),
+                wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+            gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Trailing spaces"), wxDefaultPosition, wxDefaultSize, 0,
+                                        wxGenericValidator(&m_trailingSpaces)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"trailingSpaces", formattingOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+            gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Tabs"), wxDefaultPosition, wxDefaultSize, 0,
+                                        wxGenericValidator(&m_tabs)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(_(L"tabs"), formattingOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+            gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Overly long lines"), wxDefaultPosition, wxDefaultSize,
+                                        0, wxGenericValidator(&m_wideLine)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"wideLine", formattingOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+            gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Comments not starting with a space"), wxDefaultPosition,
+                                        wxDefaultSize, 0,
+                                        wxGenericValidator(&m_commentMissingSpace)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(
+                buildCodeLabel(L"commentMissingSpace", formattingOptionsSizer->GetStaticBox()),
+                wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+            formattingOptionsSizer->Add(gbSizer, wxSizerFlags{}.Expand().Border());
+            }
+
+        wxStaticBoxSizer* codeOptionsSizer =
+            new wxStaticBoxSizer(wxVERTICAL, extraChecksPage, _(L"Code checks:"));
+
+            {
+            wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
+            size_t currentRow{ 0 };
+
+            gbSizer->Add(new wxCheckBox(codeOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Hard-coded ID numbers"), wxDefaultPosition,
+                                        wxDefaultSize, 0,
+                                        wxGenericValidator(&m_numberAssignedToId)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"numberAssignedToId", codeOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+            gbSizer->Add(new wxCheckBox(codeOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"ID variables assigned the same value"),
+                                        wxDefaultPosition, wxDefaultSize, 0,
+                                        wxGenericValidator(&m_dupValAssignedToIds)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"dupValAssignedToIds", codeOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+            codeOptionsSizer->Add(gbSizer, wxSizerFlags{}.Border());
+            }
 
         wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-        mainSizer->Add(gbSizer);
+        mainSizer->Add(formattingOptionsSizer, wxSizerFlags{}.Expand().Border());
+        mainSizer->Add(codeOptionsSizer, wxSizerFlags{}.Expand().Border());
         mainSizer->AddStretchSpacer();
 
-        codeFormattingPage->SetSizer(mainSizer);
-        treeBook->AddPage(codeFormattingPage, _(L"Code Formatting"), false);
+        extraChecksPage->SetSizer(mainSizer);
+        treeBook->AddPage(extraChecksPage, _(L"Extra Checks"), false);
         }
 
     mainDlgSizer->Add(treeBook, wxSizerFlags{}.Expand().Border());
