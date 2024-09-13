@@ -114,6 +114,7 @@ class I18NFrame : public wxFrame
     constexpr static int ERROR_ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
     I18NOptions m_activeProjectOptions;
+    bool m_hasOpenProject{ false };
     };
 
 // Application

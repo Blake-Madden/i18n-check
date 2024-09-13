@@ -156,13 +156,13 @@ void I18NFrame::InitControls()
     m_resultsDataView->AssociateModel(m_resultsModel.get());
 
     // Warning ID
-    wxDataViewTextRenderer* tr = new wxDataViewTextRenderer(L"string", wxDATAVIEW_CELL_INERT);
+    wxDataViewTextRenderer* tr = new wxDataViewTextRenderer();
     m_resultsDataView->AppendColumn(
         new wxDataViewColumn(_(L"Warning ID"), tr, 0, FromDIP(200), wxALIGN_LEFT,
                              wxDATAVIEW_COL_SORTABLE | wxDATAVIEW_COL_RESIZABLE));
 
     // Value
-    tr = new wxDataViewTextRenderer(L"string", wxDATAVIEW_CELL_INERT);
+    tr = new wxDataViewTextRenderer();
     m_resultsDataView->AppendColumn(
         new wxDataViewColumn(_(L"Value"), tr, 1, FromDIP(150), wxALIGN_LEFT,
                              wxDATAVIEW_COL_SORTABLE | wxDATAVIEW_COL_RESIZABLE));
@@ -183,7 +183,7 @@ void I18NFrame::InitControls()
                              wxDATAVIEW_COL_SORTABLE | wxDATAVIEW_COL_RESIZABLE));
 
     // Explanation
-    tr = new wxDataViewTextRenderer(L"string", wxDATAVIEW_CELL_INERT);
+    tr = new wxDataViewTextRenderer();
     m_resultsDataView->AppendColumn(
         new wxDataViewColumn(_(L"Summary"), tr, 4, FromDIP(200), wxALIGN_LEFT,
                              wxDATAVIEW_COL_SORTABLE | wxDATAVIEW_COL_RESIZABLE));
@@ -286,6 +286,15 @@ void I18NFrame::InitControls()
     mainSizer->Add(splitter, wxSizerFlags{ 1 }.Expand());
 
     SetSizer(mainSizer);
+
+    wxAcceleratorEntry accelEntries[5];
+    accelEntries[0].Set(wxACCEL_NORMAL, WXK_F1, wxID_HELP);
+    accelEntries[1].Set(wxACCEL_CMD, static_cast<int>(L'N'), wxID_NEW);
+    accelEntries[2].Set(wxACCEL_CMD, static_cast<int>(L'O'), wxID_OPEN);
+    accelEntries[3].Set(wxACCEL_CMD, static_cast<int>(L'S'), wxID_SAVE);
+    accelEntries[4].Set(wxACCEL_NORMAL, WXK_F5, wxID_REFRESH);
+    wxAcceleratorTable accelTable(std::size(accelEntries), accelEntries);
+    SetAcceleratorTable(accelTable);
 
     Bind(wxEVT_CLOSE_WINDOW,
          [this](wxCloseEvent& event)
@@ -537,7 +546,7 @@ void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
 //------------------------------------------------------
 void I18NFrame::OnSettings([[maybe_unused]] wxCommandEvent&)
     {
-    NewProjectDialog projDlg(this, wxID_ANY, _(L"Settings"), false);
+    NewProjectDialog projDlg(this, wxID_ANY, _(L"Default Settings"), false);
     projDlg.SetAllOptions(wxGetApp().m_defaultOptions);
 
     if (projDlg.ShowModal() == wxID_OK)
@@ -560,7 +569,12 @@ void I18NFrame::OnAbout([[maybe_unused]] wxCommandEvent&)
 //------------------------------------------------------
 void I18NFrame::OnRefresh([[maybe_unused]] wxCommandEvent&)
     {
-    NewProjectDialog projDlg(this);
+    if (!m_hasOpenProject)
+        {
+        return;
+        }
+
+    NewProjectDialog projDlg(this, wxID_ANY, _("Edit Project"));
     projDlg.SetAllOptions(m_activeProjectOptions);
 
     if (projDlg.ShowModal() == wxID_OK)
@@ -600,7 +614,7 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
     SaveProjectIfNeeded();
 
     wxFileDialog dialog(this, _(L"Select Project to Open"), wxString{}, wxString{},
-                        _(L"i18n Project Files (*.xml)|*.xml"),
+                        _(L"i18n-check Project Files (*.xml)|*.xml"),
                         wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_PREVIEW);
     if (dialog.ShowModal() != wxID_OK)
         {
@@ -618,14 +632,19 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
 //------------------------------------------------------
 void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
     {
+    if (!m_hasOpenProject)
+        {
+        return;
+        }
+
     if (m_activeProjectFilePath.empty())
         {
         const wxFileName projectName{ m_activeProjectOptions.m_filePath };
         const wxString lastFolder = projectName.GetDirs().empty() ?
-                                        wxString{ L"project" } :
+                                        wxString{ _(L"Project") } :
                                         projectName.GetDirs()[projectName.GetDirs().size() - 1];
         wxFileDialog dialog(nullptr, _(L"Save Project"), wxString{}, lastFolder + L".xml",
-                            _(L"i18n Project Files (*.xml)|*.xml"),
+                            _(L"i18n-check Project Files (*.xml)|*.xml"),
                             wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
         if (dialog.ShowModal() != wxID_OK)
             {
@@ -645,7 +664,7 @@ void I18NFrame::SaveProjectIfNeeded()
     {
     if (m_projectDirty)
         {
-        if (wxMessageBox(_(L"Do you wish to save changes?"), _(L"Save Project"),
+        if (wxMessageBox(_(L"Do you wish to save changes to the project?"), _(L"Save Project"),
                          wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION) == wxYES)
             {
             wxRibbonButtonBarEvent event;
@@ -812,6 +831,7 @@ void I18NFrame::Process()
 
     ExpandAll();
 
+    m_hasOpenProject = true;
     m_projectBar->EnableButton(wxID_SAVE, true);
     m_projectBar->EnableButton(wxID_REFRESH, true);
     m_projectBar->EnableButton(XRCID("ID_IGNORE_SELECTED"), true);
