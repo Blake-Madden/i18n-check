@@ -310,7 +310,7 @@ namespace i18n_check
             std::wregex(
                 LR"((([A-Z]+|[bB]itmap) [(]([*][.][A-Za-z0-9]{1,7})(;[*][.][A-Za-z0-9]{1,7})*[)][|]([*][.][A-Za-z0-9]{1,7})(;[*][.][A-Za-z0-9]{1,7})*[|]{0,2})+)"),
             // multiple file filters next to each other
-            std::wregex(LR"(([*][.][A-Za-z0-9]{1,7}[[:space:]]*)+)"),
+            std::wregex(LR"(([*][.][A-Za-z0-9]{1,7}[;]?[[:space:]]*)+)"),
             // clang-tidy commands
             std::wregex(LR"(\-checks=.*)"),
             // generic measuring string (or regex expression)
@@ -428,10 +428,8 @@ namespace i18n_check
                 LR"((Microsoft )?Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2})"),
             // products and standards
             std::wregex(LR"((Misra|MISRA) C( [0-9]+)?)"),
-            std::wregex(LR"(Borland C\+\+ Builder( [0-9]+)?)"),
-            std::wregex(LR"(Qt Creator)"),
-            std::wregex(LR"((Microsoft )VS Code)"),
-            std::wregex(LR"((Microsoft )?Visual Studio)"),
+            std::wregex(LR"(Borland C\+\+ Builder( [0-9]+)?)"), std::wregex(LR"(Qt Creator)"),
+            std::wregex(LR"((Microsoft )VS Code)"), std::wregex(LR"((Microsoft )?Visual Studio)"),
             std::wregex(LR"((Microsoft )?Visual C\+\+)"),
             std::wregex(LR"((Microsoft )?Visual Basic)")
         };
@@ -509,12 +507,12 @@ namespace i18n_check
             L"wxFileName::CreateTempFileName", L"wxExecute", L"SetFailedWithLastError",
             L"wxIconHandler", L"wxBitmapHandler", L"OutputDumpLine", L"wxFileTypeInfo",
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo", L"Platform::DebugPrintf",
-            L"wxGetCommandOutput", L"SetKeyWords",
+            L"wxGetCommandOutput", L"SetKeyWords", L"AddDeveloper", L"AddDocWriter", L"AddArtist",
+            L"AddTranslator", L"SetCopyright",
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern", L"qmlRegisterUncreatableMetaObject",
             L"addShaderFromSourceCode", L"QStandardPaths::findExecutable", L"QDateTime::fromString",
-            L"QFileInfo",
-            L"qCDebug", L"qDebug", L"Q_MOC_INCLUDE", L"Q_CLASSINFO",
+            L"QFileInfo", L"qCDebug", L"qDebug", L"Q_MOC_INCLUDE", L"Q_CLASSINFO",
             // Catch2
             L"TEST_CASE", L"BENCHMARK", L"TEMPLATE_TEST_CASE", L"SECTION", L"DYNAMIC_SECTION",
             L"REQUIRE", L"REQUIRE_THROWS_WITH", L"REQUIRE_THAT", L"CHECK", L"CATCH_ENFORCE",
@@ -655,6 +653,13 @@ namespace i18n_check
                                        L"regex",
                                        L"std::regex",
                                        L"QRegularExpression",
+                                       L"wxDataViewRenderer",
+                                       L"wxDataViewBitmapRenderer",
+                                       L"wxDataViewDateRenderer",
+                                       L"wxDataViewTextRenderer",
+                                       L"wxDataViewIconTextRenderer",
+                                       L"wxDataViewCustomRenderer",
+                                       L"wxDataViewToggleRenderer",
                                        L"wxDataObjectSimple" };
 
         add_variable_name_pattern_to_ignore(
@@ -1223,7 +1228,7 @@ namespace i18n_check
     //--------------------------------------------------
     bool i18n_review::is_untranslatable_string(std::wstring& str, const bool limitWordCount) const
         {
-        static const std::wregex oneWordRE{ LR"((\b[a-zA-Z'\-]+([\.\-\/:]*[\w'\-]*)*))" };
+        static const std::wregex oneWordRE{ LR"((\b[a-zA-Z&'\-]+([\.\-\/:]*[\w'\-]*)*))" };
         static const std::wregex loremIpsum(L"Lorem ipsum.*");
 
         i18n_string_util::replace_escaped_control_chars(str);
