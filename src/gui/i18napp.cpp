@@ -18,6 +18,9 @@ I18NArtProvider::I18NArtProvider()
                     { wxART_NEW, L"images/document.svg" },
                     { wxART_REFRESH, L"images/reload.svg" },
                     { wxART_DELETE, L"images/delete.svg" },
+                    { L"ID_CODE", L"images/code.svg" },
+                    { L"ID_TRANSLATIONS", L"images/translations.svg" },
+                    { L"ID_CHECK", L"images/check.svg" },
                     { L"ID_SETTINGS", L"images/project-settings.svg" },
                     { L"ID_ABOUT", L"images/app-logo.svg" } };
     }

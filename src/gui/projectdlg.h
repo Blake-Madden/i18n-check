@@ -19,11 +19,11 @@
 #include <wx/dirdlg.h>
 #include <wx/filename.h>
 #include <wx/gbsizer.h>
+#include <wx/listbook.h>
 #include <wx/spinctrl.h>
 #include <wx/statline.h>
 #include <wx/string.h>
 #include <wx/tokenzr.h>
-#include <wx/treebook.h>
 #include <wx/valgen.h>
 #include <wx/valtext.h>
 #include <wx/wx.h>

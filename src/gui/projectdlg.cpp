@@ -257,14 +257,21 @@ void NewProjectDialog::CreateControls()
         return statLabel;
     };
 
-    wxTreebook* treeBook = new wxTreebook(this, wxID_ANY);
+    wxListbook* listBook = new wxListbook(this, wxID_ANY);
+    const wxSize imageSize{ 32, 32 };
+    wxBookCtrlBase::Images images = {
+        wxArtProvider::GetBitmapBundle(L"ID_CODE", wxART_OTHER, imageSize),
+        wxArtProvider::GetBitmapBundle(L"ID_TRANSLATIONS", wxART_OTHER, imageSize),
+        wxArtProvider::GetBitmapBundle(L"ID_CHECK", wxART_OTHER, imageSize)
+    };
+    listBook->SetImages(images);
 
     wxBoxSizer* mainDlgSizer = new wxBoxSizer(wxVERTICAL);
 
         // source code options
         {
         wxPanel* generalSettingsPage =
-            new wxPanel(treeBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
+            new wxPanel(listBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
 
         wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
@@ -278,7 +285,7 @@ void NewProjectDialog::CreateControls()
 
                 wxTextCtrl* filePathEdit = new wxTextCtrl(
                     fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{}, wxDefaultPosition,
-                    wxSize(FromDIP(500), -1), wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
+                    wxSize{ FromDIP(500), -1 }, wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
                     wxGenericValidator(&m_filePath));
                 filePathEdit->AutoCompleteFileNames();
                 filePathEdit->AutoCompleteDirectories();
@@ -301,7 +308,7 @@ void NewProjectDialog::CreateControls()
 
                 wxTextCtrl* filePathEdit =
                     new wxTextCtrl(fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{},
-                                   wxDefaultPosition, wxSize(FromDIP(500), FromDIP(60)),
+                                   wxDefaultPosition, wxSize{ FromDIP(500), FromDIP(60) },
                                    wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP,
                                    wxGenericValidator(&m_excludedPaths));
                 filePathEdit->AutoCompleteFileNames();
@@ -440,13 +447,13 @@ void NewProjectDialog::CreateControls()
         mainSizer->Add(cppVersionSizer, wxSizerFlags{}.Expand().Border());
 
         generalSettingsPage->SetSizer(mainSizer);
-        treeBook->AddPage(generalSettingsPage, _(L"Source Code"), true);
+        listBook->AddPage(generalSettingsPage, _(L"Source Code"), true, 0);
         }
 
         // resource files
         {
         wxPanel* transPage =
-            new wxPanel(treeBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
+            new wxPanel(listBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
 
         wxStaticBoxSizer* poOptionsSizer =
             new wxStaticBoxSizer(wxVERTICAL, transPage, _(L"PO catalogs"));
@@ -491,13 +498,13 @@ void NewProjectDialog::CreateControls()
         mainSizer->Add(rcOptionsSizer, wxSizerFlags{}.Expand().Border());
 
         transPage->SetSizer(mainSizer);
-        treeBook->AddPage(transPage, _(L"Resource Files"), false);
+        listBook->AddPage(transPage, _(L"Resource Files"), false, 1);
         }
 
         // extra checks
         {
         wxPanel* extraChecksPage =
-            new wxPanel(treeBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
+            new wxPanel(listBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
 
         wxStaticBoxSizer* formattingOptionsSizer =
             new wxStaticBoxSizer(wxVERTICAL, extraChecksPage, _(L"Formatting && encoding checks:"));
@@ -595,10 +602,10 @@ void NewProjectDialog::CreateControls()
         mainSizer->AddStretchSpacer();
 
         extraChecksPage->SetSizer(mainSizer);
-        treeBook->AddPage(extraChecksPage, _(L"Extra Checks"), false);
+        listBook->AddPage(extraChecksPage, _(L"Additional Checks"), false, 2);
         }
 
-    mainDlgSizer->Add(treeBook, wxSizerFlags{}.Expand().Border());
+    mainDlgSizer->Add(listBook, wxSizerFlags{}.Expand().Border());
     mainDlgSizer->Add(CreateSeparatedButtonSizer(wxOK | wxCANCEL),
                       wxSizerFlags{}.Expand().Border());
 
