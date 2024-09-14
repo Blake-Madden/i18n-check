@@ -19,6 +19,9 @@
 #include <string>
 #include <utility>
 #include <vector>
+#if __has_include(<omp.h>)
+    #include <omp.h>
+#endif
 
 /// @brief Classes for checking source code for internationalization/localization issues.
 /// @details Refer to https://www.gnu.org/software/gettext/manual/gettext.html

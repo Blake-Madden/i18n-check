@@ -31,9 +31,28 @@ add_executable(i18n-check ${FILES})
 
 # set up compiler flags
 if(MSVC)
-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /Zc:__cplusplus /MP /W3 /WX
+  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /Zc:__cplusplus /MP /W3 /WX  /openmp
                          $<$<CONFIG:Debug>:/Od> $<$<CONFIG:Release>:/O2>)
 else()
   target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Werror
                          $<$<CONFIG:Debug>:-Og> $<$<CONFIG:Release>:-O2>)
+endif()
+
+if(UNIX)
+    # Add OpenMP for mutlithreading
+    find_package(OpenMP)
+    find_package(TBB)
+    if(OpenMP_FOUND AND TBB_FOUND)
+        message(STATUS "OpenMP: ${OpenMP_VERSION}")
+        message(STATUS "Intel Threading Building Blocks: ${TBB_VERSION}")
+        target_link_libraries(${CMAKE_PROJECT_NAME} TBB::tbb OpenMP::OpenMP_CXX)
+    elseif(OpenMP_FOUND)
+        message(STATUS "OpenMP: ${OpenMP_VERSION}")
+        target_link_libraries(${CMAKE_PROJECT_NAME} OpenMP::OpenMP_CXX)
+    elseif(TBB_FOUND)
+        message(STATUS "Intel Threading Building Blocks: ${TBB_VERSION}")
+        target_link_libraries(${CMAKE_PROJECT_NAME} TBB::tbb)
+    else()
+        target_link_libraries(${CMAKE_PROJECT_NAME})
+    endif()
 endif()

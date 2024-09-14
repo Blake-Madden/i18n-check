@@ -1,3 +1,11 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        rc_file_review.cpp
+// Author:      Blake Madden
+// Copyright:   (c) 2021-2024 Blake Madden
+// License:     3-Clause BSD license
+// SPDX-License-Identifier: BSD-3-Clause
+///////////////////////////////////////////////////////////////////////////////
+
 #include "rc_file_review.h"
 
 namespace i18n_check

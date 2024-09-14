@@ -147,7 +147,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE ${FILES})
 if(MSVC)
     target_compile_definitions(${PROJECT_NAME} PUBLIC __WXMSW__ _UNICODE
     $<$<CONFIG:Debug>:__WXDEBUG__> $<$<CONFIG:Release>:NDEBUG>)
-    target_compile_options(${PROJECT_NAME} PUBLIC /Zc:__cplusplus /MP /W3 /WX /wd6211
+    target_compile_options(${PROJECT_NAME} PUBLIC /Zc:__cplusplus /MP /W3 /WX /wd6211  /openmp
                             $<$<CONFIG:Debug>:/Od>
                             $<$<CONFIG:Release>:/O2>)
 elseif(MINGW OR MSYS)
@@ -174,10 +174,17 @@ endif()
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
 elseif(UNIX)
-    # TBB is required for GCC linkage sometimes, although this app is not explicitly using it,
-    # so try to link it in.
+    # Add OpenMP for mutlithreading
+    find_package(OpenMP)
     find_package(TBB)
-    if(TBB_FOUND)
+    if(OpenMP_FOUND AND TBB_FOUND)
+        message(STATUS "OpenMP: ${OpenMP_VERSION}")
+        message(STATUS "Intel Threading Building Blocks: ${TBB_VERSION}")
+        target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES} TBB::tbb OpenMP::OpenMP_CXX)
+    elseif(OpenMP_FOUND)
+        message(STATUS "OpenMP: ${OpenMP_VERSION}")
+        target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES} OpenMP::OpenMP_CXX)
+    elseif(TBB_FOUND)
         message(STATUS "Intel Threading Building Blocks: ${TBB_VERSION}")
         target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES} TBB::tbb)
     else()
