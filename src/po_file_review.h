@@ -102,21 +102,24 @@ namespace i18n_check
             }
 
       private:
-        std::tuple<bool, std::wstring_view, size_t>
+        [[nodiscard]]
+        static std::tuple<bool, std::wstring_view, size_t>
         read_catalog_entry(std::wstring_view& poFileText);
-        std::pair<bool, std::wstring> read_msg(std::wstring_view& poFileText,
+
+        [[nodiscard]]
+        static std::pair<bool, std::wstring> read_msg(std::wstring_view& poFileText,
                                                const std::wstring_view msgTag);
 
         void review_prinf_issues();
 
         [[nodiscard]]
-        std::vector<std::wstring>
+        static std::vector<std::wstring>
         convert_positional_cpp_printf(const std::vector<std::wstring>& printfCommands,
                                       std::wstring& errorInfo);
 
         [[nodiscard]]
-        std::vector<std::wstring> load_cpp_printf_commands(const std::wstring& resource,
-                                                           std::wstring& errorInfo);
+        static std::vector<std::wstring> load_cpp_printf_commands(const std::wstring& resource,
+                                                                  std::wstring& errorInfo);
 
         std::vector<std::pair<std::wstring, po_catalog_entry>> m_catalog_entries;
 

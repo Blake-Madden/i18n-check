@@ -990,66 +990,25 @@ namespace i18n_check
 
         std::wstring m_file_name;
 
-        // HTML, but also includes some GTK formatting tags
-        std::wregex m_html_regex{
-            LR"([^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*)",
-            std::regex_constants::icase
-        };
-        // <doc-val>Some text</doc-val>
-        std::wregex m_html_element_regex{
-            LR"(<[a-zA-Z0-9_\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\-]+>)",
-            std::regex_constants::icase
-        };
-        std::wregex m_html_tag_regex{ LR"(&[[:alpha:]]{2,5};.*)" };
-        std::wregex m_html_tag_unicode_regex{ LR"(&#[[:digit:]]{2,4};.*)" };
-        std::wregex m_2letter_regex{ LR"([[:alpha:]]{2,})" };
-        std::wregex m_hashtag_regex{ LR"(#[[:alnum:]]{2,})" };
-        std::wregex m_key_shortcut_regex{
-            LR"((CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+)",
-            std::regex_constants::icase
-        };
-        std::wregex m_function_signature_regex{
-            LR"([[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)])"
-        };
-        std::wregex m_plural_regex{ LR"([[:alnum:]]{2,}[(]s[)])" };
-        std::wregex m_open_function_signature_regex{ LR"([[:alnum:]]{2,}[(])" };
-        std::wregex m_diagnostic_function_regex{
-            LR"(([a-zA-Z0-9_]*|^)(ASSERT|VERIFY|PROFILE|CHECK)([a-zA-Z0-9_]*|$))"
-        };
-        // UINT MENU_ID_PRINT = 1'000;
-        std::wregex m_id_assignment_regex{
-            LR"((int|uint32_t|INT|UINT|wxWindowID|#define)([[:space:]]|const)*([a-zA-Z0-9_]*ID[a-zA-Z0-9_]*)[[:space:]]*[=\({]?[[:space:]\({]*([a-zA-Z0-9_ \+\-\'<>:\.]+){1}(.?))"
-        };
-        std::wregex m_sql_code{
-            LR"(.*(SELECT \*|CREATE TABLE|CREATE INDEX|COLLATE NOCASE|ALTER TABLE|DROP TABLE|COLLATE DATABASE_DEFAULT).*)",
-            std::regex_constants::icase
-        };
-        std::wregex m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
-        std::wregex m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
-
-        // first capture group ensures that printf command is not proceeded by a negating '%'
-        // second capture group is the actual printf command
-        //
-        // Note: a space specifier is OK for numbers, but not strings and pointers:
-        //
-        // "space: if the result of a signed conversion does not start with a sign character,
-        //  or is empty, space is prepended to the result. It is ignored if + flag is present."
-        //
-        // Note: '<PRId64>' type specifiers are written as part of a printf string
-        // (it's a macro outside of the string that the preprocessor maps to something else),
-        // but PO files will embed these into the translations and source strings.
-        std::wregex m_printf_cpp_int_regex{
-            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64|<PRI(d|i|u|x)(32|64)>)))"
-        };
-        std::wregex m_printf_cpp_float_regex{
-            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l|L)?(f|F)))"
-        };
-        std::wregex m_printf_cpp_string_regex{
-            LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s))"
-        };
-        std::wregex m_printf_cpp_pointer_regex{
-            LR"((^|\b|[%]{2}|[^%])[%]([%]([[:digit:]]+[$])?p))"
-        };
+        static const std::wregex m_html_regex;
+        static const std::wregex m_html_element_regex;
+        static const std::wregex m_html_tag_regex;
+        static const std::wregex m_html_tag_unicode_regex;
+        static const std::wregex m_2letter_regex;
+        static const std::wregex m_hashtag_regex;
+        static const std::wregex m_key_shortcut_regex;
+        static const std::wregex m_function_signature_regex;
+        static const std::wregex m_plural_regex;
+        static const std::wregex m_open_function_signature_regex;
+        static const std::wregex m_diagnostic_function_regex;
+        static const std::wregex m_id_assignment_regex;
+        static const std::wregex m_sql_code;
+        static const std::wregex m_malformed_html_tag;
+        static const std::wregex m_malformed_html_tag_bad_amp;
+        static const std::wregex m_printf_cpp_int_regex;
+        static const std::wregex m_printf_cpp_float_regex;
+        static const std::wregex m_printf_cpp_string_regex;
+        static const std::wregex m_printf_cpp_pointer_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
 
         // helpers

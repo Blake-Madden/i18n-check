@@ -10,6 +10,75 @@
 
 namespace i18n_check
     {
+    const std::wregex i18n_review::m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
+
+    const std::wregex i18n_review::m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
+
+    const std::wregex i18n_review::m_sql_code{
+        LR"(.*(SELECT \*|CREATE TABLE|CREATE INDEX|COLLATE NOCASE|ALTER TABLE|DROP TABLE|COLLATE DATABASE_DEFAULT).*)",
+        std::regex_constants::icase
+    };
+
+    // UINT MENU_ID_PRINT = 1'000;
+    const std::wregex i18n_review::m_id_assignment_regex{
+        LR"((int|uint32_t|INT|UINT|wxWindowID|#define)([[:space:]]|const)*([a-zA-Z0-9_]*ID[a-zA-Z0-9_]*)[[:space:]]*[=\({]?[[:space:]\({]*([a-zA-Z0-9_ \+\-\'<>:\.]+){1}(.?))"
+    };
+
+    const std::wregex i18n_review::m_diagnostic_function_regex{
+        LR"(([a-zA-Z0-9_]*|^)(ASSERT|VERIFY|PROFILE|CHECK)([a-zA-Z0-9_]*|$))"
+    };
+
+    const std::wregex i18n_review::m_plural_regex{ LR"([[:alnum:]]{2,}[(]s[)])" };
+    const std::wregex i18n_review::m_open_function_signature_regex{ LR"([[:alnum:]]{2,}[(])" };
+    const std::wregex i18n_review::m_html_tag_regex{ LR"(&[[:alpha:]]{2,5};.*)" };
+    const std::wregex i18n_review::m_html_tag_unicode_regex{ LR"(&#[[:digit:]]{2,4};.*)" };
+    const std::wregex i18n_review::m_2letter_regex{ LR"([[:alpha:]]{2,})" };
+    const std::wregex i18n_review::m_hashtag_regex{ LR"(#[[:alnum:]]{2,})" };
+    const std::wregex i18n_review::m_key_shortcut_regex{
+        LR"((CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+)",
+        std::regex_constants::icase
+    };
+    const std::wregex i18n_review::m_function_signature_regex{
+        LR"([[:alnum:]]{2,}[(][[:alnum:]]+(,[[:space:]]*[[:alnum:]]+)*[)])"
+    };
+
+    // HTML, but also includes some GTK formatting tags
+    const std::wregex i18n_review::m_html_regex{
+        LR"([^[:alnum:]<]*<(span|object|property|div|p|ul|ol|li|img|html|[?]xml|meta|body|table|tbody|tr|td|thead|head|title|a[[:space:]]|!--|/|!DOCTYPE|br|center|dd|em|dl|dt|tt|font|form|h[[:digit:]]|hr|main|map|pre|script).*)",
+        std::regex_constants::icase
+    };
+    // <doc-val>Some text</doc-val>
+    const std::wregex i18n_review::m_html_element_regex{
+        LR"(<[a-zA-Z0-9_\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\-]+>)", std::regex_constants::icase
+    };
+
+    // first capture group ensures that printf command is not proceeded by a negating '%'
+    // second capture group is the actual printf command
+    //
+    // Note: a space specifier is OK for numbers, but not strings and pointers:
+    //
+    // "space: if the result of a signed conversion does not start with a sign character,
+    //  or is empty, space is prepended to the result. It is ignored if + flag is present."
+    //
+    // Note: '<PRId64>' type specifiers are written as part of a printf string
+    // (it's a macro outside of the string that the preprocessor maps to something else),
+    // but PO files will embed these into the translations and source strings.
+    const std::wregex i18n_review::m_printf_cpp_int_regex{
+        LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64|<PRI(d|i|u|x)(32|64)>)))"
+    };
+
+    const std::wregex i18n_review::m_printf_cpp_float_regex{
+        LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?([+]|[-] #0)?(([*]|[[:digit:]]+)*[.]?[[:digit:]]*)?(l|L)?(f|F)))"
+    };
+
+    const std::wregex i18n_review::m_printf_cpp_string_regex{
+        LR"((^|\b|[%]{2}|[^%])([%]([[:digit:]]+[$])?[-]?(([*]|[[:digit:]]+)*[.][[:digit:]]*)?s))"
+    };
+
+    const std::wregex i18n_review::m_printf_cpp_pointer_regex{
+        LR"((^|\b|[%]{2}|[^%])[%]([%]([[:digit:]]+[$])?p))"
+    };
+
     // common font faces that we would usually ignore (client can add to this)
     std::set<string_util::case_insensitive_wstring> i18n_review::m_font_names = { // NOLINT
         L"Arial",
