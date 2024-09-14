@@ -293,7 +293,7 @@ void NewProjectDialog::CreateControls()
 
                 wxTextCtrl* filePathEdit = new wxTextCtrl(
                     fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{}, wxDefaultPosition,
-                    wxSize{ FromDIP(500), -1 }, wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
+                    wxSize{ FromDIP(400), -1 }, wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
                     wxGenericValidator(&m_filePath));
                 filePathEdit->AutoCompleteFileNames();
                 filePathEdit->AutoCompleteDirectories();
@@ -316,7 +316,7 @@ void NewProjectDialog::CreateControls()
 
                 wxTextCtrl* filePathEdit =
                     new wxTextCtrl(fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{},
-                                   wxDefaultPosition, wxSize{ FromDIP(500), FromDIP(60) },
+                                   wxDefaultPosition, wxSize{ FromDIP(400), FromDIP(60) },
                                    wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP,
                                    wxGenericValidator(&m_excludedPaths));
                 filePathEdit->AutoCompleteFileNames();
