@@ -1768,14 +1768,14 @@ namespace i18n_check
     //--------------------------------------------------
     std::pair<size_t, size_t>
     i18n_review::get_line_and_column(size_t position,
-                                     const wchar_t* fileStart /*= nullptr*/) const noexcept
+                                     std::wstring_view fileStart /*= std::wstring_view*/) const
         {
         if (position == std::wstring::npos)
             {
             return std::make_pair(std::wstring::npos, std::wstring::npos);
             }
 
-        const auto* startSentinel = ((fileStart != nullptr) ? fileStart : m_file_start);
+        const auto* startSentinel = (!fileStart.empty() ? fileStart.data() : m_file_start);
         if (startSentinel == nullptr)
             {
             return std::make_pair(std::wstring::npos, std::wstring::npos);

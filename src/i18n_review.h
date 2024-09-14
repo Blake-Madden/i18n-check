@@ -918,10 +918,11 @@ namespace i18n_check
         /// @returns The line and column position from a character position.
         /// @param position The character position in the file.
         /// @param fileStart The start of a file buffer to begin the search from.\n
-        ///     If @c nullptr, will use the currently loaded file.
+        ///     If an empty view, will use the currently loaded file.
         [[nodiscard]]
         std::pair<size_t, size_t>
-        get_line_and_column(size_t position, const wchar_t* fileStart = nullptr) const noexcept;
+        get_line_and_column(size_t position,
+                            std::wstring_view fileStart = std::wstring_view{}) const;
 
         /// @brief Removes the quotes and whitespace between multiple quotes
         ///     strings that constitute a single string.
