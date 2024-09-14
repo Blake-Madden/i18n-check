@@ -445,6 +445,11 @@ void I18NFrame::InitControls()
                               "union unsigned using virtual void volatile wchar_t while xor xor_eq "
                               "final override import module"));
                          }
+                     else if (fileExt.CmpNoCase(L"po") == 0)
+                         {
+                         m_editor->SetLexer(wxSTC_LEX_PO);
+                         m_editor->SetKeyWords(0, _DT(L"msgid msgstr msgid_plural"));
+                         }
                      else
                          {
                          m_editor->SetLexer(wxSTC_LEX_NULL);
