@@ -43,4 +43,6 @@ struct I18NOptions
     int m_minCppVersion{ 14 };
     };
 
+    /** @}*/
+
 #endif //__I18N_APPOPTIONS_H__
