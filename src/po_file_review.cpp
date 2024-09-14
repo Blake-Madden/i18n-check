@@ -7,6 +7,8 @@ namespace i18n_check
         {
         m_file_name = fileName;
 
+        const std::wstring_view originalPoFileText{ poFileText };
+
         if (poFileText.empty())
             {
             return;
@@ -34,15 +36,19 @@ namespace i18n_check
         std::vector<std::wstring> entryLines;
         std::vector<std::wstring> formatFlags;
 
+        size_t currentPos{ 0 };
+
         while (!poFileText.empty())
             {
-            auto [entryFound, entry] = read_catalog_entry(poFileText);
+            auto [entryFound, entry, entryPos] = read_catalog_entry(poFileText);
             if (!entryFound)
                 {
                 break;
                 }
             // step over the section for the next catalog read later
             poFileText.remove_prefix(entry.length());
+            // update the position in the original text of where this entry is
+            currentPos += entryPos + entry.length();
 
             entryLines.clear();
             std::copy(std::regex_token_iterator<decltype(entry)::const_iterator>(
@@ -99,18 +105,19 @@ namespace i18n_check
                                   // singular and plural translations are kept
                                   msgStr.empty() ? std::move(msg0Str) : std::move(msgStr),
                                   std::move(msg1Str), pofs,
-                                  std::vector<std::pair<translation_issue, std::wstring>>{} }));
+                                  std::vector<std::pair<translation_issue, std::wstring>>{},
+                                  get_line_and_column(currentPos, originalPoFileText).first }));
             }
         }
 
     //------------------------------------------------
-    std::pair<bool, std::wstring_view>
+    std::tuple<bool, std::wstring_view, size_t>
     po_file_review::read_catalog_entry(std::wstring_view& poFileText)
         {
-        size_t entryPos = poFileText.find(L"\n#");
+        const size_t entryPos = poFileText.find(L"\n#");
         if (entryPos == std::wstring_view::npos)
             {
-            return std::make_pair(false, std::wstring_view{});
+            return { false, std::wstring_view{}, std::wstring_view::npos };
             }
         poFileText.remove_prefix(entryPos);
 
@@ -123,7 +130,7 @@ namespace i18n_check
             if (endOfEntryPos == std::wstring_view::npos ||
                 endOfEntryPos == poFileText.length() - 1)
                 {
-                return std::make_pair(true, poFileText);
+                return { true, poFileText, entryPos };
                 }
             ++endOfEntryPos;
             // eat up whitespace on line
@@ -139,7 +146,7 @@ namespace i18n_check
                 break;
                 }
             }
-        return std::make_pair(true, poFileText.substr(0, endOfEntryPos));
+        return { true, poFileText.substr(0, endOfEntryPos), entryPos };
         }
 
     //------------------------------------------------

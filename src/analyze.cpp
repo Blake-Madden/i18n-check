@@ -528,7 +528,7 @@ namespace i18n_check
                 if (issue.first == translation_issue::printf_issue)
                     {
                     report
-                        << catEntry.first << L"\t\t\t" << issue.second
+                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t" << issue.second
                         << L"\tMismatching printf command between source and translation strings."
                            "\t[printfMismatch]\n";
                     }

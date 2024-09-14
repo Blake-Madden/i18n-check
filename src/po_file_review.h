@@ -54,8 +54,10 @@ namespace i18n_check
         std::wstring m_translation_plural;
         /// @brief The printf syntax used by the strings.
         po_format_string m_po_format{ po_format_string::no_format };
-        /// @brief Any issued detected in this entry.
+        /// @brief Any issues detected in this entry.
         std::vector<std::pair<translation_issue, std::wstring>> m_issues;
+        /// @brief The position in the file.
+        size_t m_line{ std::wstring_view::npos };
         };
 
     /** @brief Class to extract and review translations from PO catalogs.*/
@@ -67,7 +69,8 @@ namespace i18n_check
             @param fileName The (optional) name of source file being analyzed.*/
         void operator()(std::wstring_view poFileText, const std::wstring& fileName) final;
 
-        /// @returns All loaded catalog entries (and any detected errors connected to them).
+        /// @returns All loaded catalog entries (and any detected errors connected to them).\n
+        ///     The first key is the filepath, and the second is all catalog entries in that file.
         [[nodiscard]]
         const std::vector<std::pair<std::wstring, po_catalog_entry>>&
         get_catalog_entries() const noexcept
@@ -86,6 +89,8 @@ namespace i18n_check
 
         /// @brief Whether fuzzy translations should be reviewed.
         /// @param enable @c true to review fuzzy translation entries; @c false to ignore them.
+        /// @note It is recommended that this be false, as fuzzy translations are generally
+        ///     considered to be "needing work" and are known to have issues.
         void review_fuzzy_translations(const bool enable) noexcept { m_reviewFuzzy = enable; }
 
         /// @returns @c true if fuzzy translations are being reviewed.\n
@@ -97,7 +102,8 @@ namespace i18n_check
             }
 
       private:
-        std::pair<bool, std::wstring_view> read_catalog_entry(std::wstring_view& poFileText);
+        std::tuple<bool, std::wstring_view, size_t>
+        read_catalog_entry(std::wstring_view& poFileText);
         std::pair<bool, std::wstring> read_msg(std::wstring_view& poFileText,
                                                const std::wstring_view msgTag);
 
