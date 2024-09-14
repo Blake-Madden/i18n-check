@@ -246,15 +246,23 @@ void NewProjectDialog::OnExcludedFileButtonClick([[maybe_unused]] wxCommandEvent
 //-------------------------------------------------------------
 void NewProjectDialog::CreateControls()
     {
-    const auto buildCodeLabel = [](const wxString& label, wxWindow* parent)
+    const auto buildCodeLabel = [](const wxString& label, wxWindow* parent) -> wxWindow*
     {
-        wxStaticText* statLabel = new wxStaticText(parent, wxID_STATIC, L"[" + label + L"]",
-                                                   wxDefaultPosition, wxDefaultSize);
-        statLabel->SetFont(statLabel->GetFont().Bold());
-        statLabel->SetForegroundColour(wxSystemSettings::GetAppearance().IsDark() ?
-                                           wxColour{ L"#89CFF0" } :
-                                           wxColour{ L"#0095B6" });
-        return statLabel;
+        if (wxGetMouseState().ShiftDown())
+            {
+            wxStaticText* statLabel = new wxStaticText(parent, wxID_STATIC, L"[" + label + L"]",
+                                                       wxDefaultPosition, wxDefaultSize);
+            statLabel->SetFont(statLabel->GetFont().Bold());
+            statLabel->SetForegroundColour(wxSystemSettings::GetAppearance().IsDark() ?
+                                               wxColour{ L"#89CFF0" } :
+                                               wxColour{ L"#0095B6" });
+            return statLabel;
+            }
+        else
+            {
+            return new wxStaticText(parent, wxID_STATIC, wxString{}, wxDefaultPosition,
+                                    wxDefaultSize);
+            }
     };
 
     wxListbook* listBook = new wxListbook(this, wxID_ANY);
