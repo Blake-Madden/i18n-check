@@ -267,11 +267,10 @@ void NewProjectDialog::CreateControls()
 
     wxListbook* listBook = new wxListbook(this, wxID_ANY);
     const wxSize imageSize{ 32, 32 };
-    wxBookCtrlBase::Images images = {
-        wxArtProvider::GetBitmapBundle(L"ID_CODE", wxART_OTHER, imageSize),
-        wxArtProvider::GetBitmapBundle(L"ID_TRANSLATIONS", wxART_OTHER, imageSize),
-        wxArtProvider::GetBitmapBundle(L"ID_CHECK", wxART_OTHER, imageSize)
-    };
+    wxBookCtrlBase::Images images;
+    images.push_back(wxArtProvider::GetBitmapBundle(L"ID_CODE", wxART_OTHER, imageSize));
+    images.push_back(wxArtProvider::GetBitmapBundle(L"ID_TRANSLATIONS", wxART_OTHER, imageSize));
+    images.push_back(wxArtProvider::GetBitmapBundle(L"ID_CHECK", wxART_OTHER, imageSize));
     listBook->SetImages(images);
 
     wxBoxSizer* mainDlgSizer = new wxBoxSizer(wxVERTICAL);
