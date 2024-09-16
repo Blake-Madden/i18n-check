@@ -147,6 +147,7 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
             }
         else if (node->m_warningId == L"[printfMismatch]" ||
                  node->m_warningId == L"[suspectL10NString]" ||
+                 node->m_warningId == L"[suspectL10NUsage]" ||
                  node->m_warningId == L"[urlInL10NString]" ||
                  node->m_warningId == L"[printfMismatch]" ||
                  node->m_warningId == L"[notL10NAvailable]" ||
