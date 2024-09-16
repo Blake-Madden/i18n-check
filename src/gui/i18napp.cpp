@@ -21,6 +21,8 @@ I18NArtProvider::I18NArtProvider()
                     { L"ID_CODE", L"images/code.svg" },
                     { L"ID_TRANSLATIONS", L"images/translations.svg" },
                     { L"ID_CHECK", L"images/check.svg" },
+                    { L"ID_FORMAT", L"images/format.svg" },
+                    { L"ID_DEBUG", L"images/bug.svg" },
                     { L"ID_SETTINGS", L"images/project-settings.svg" },
                     { L"ID_ABOUT", L"images/app-logo.svg" } };
     }
@@ -159,13 +161,13 @@ void I18NFrame::InitControls()
     m_resultsDataView->AssociateModel(m_resultsModel.get());
 
     // Warning ID
-    wxDataViewTextRenderer* tr = new wxDataViewTextRenderer();
+    wxDataViewIconTextRenderer* tir = new wxDataViewIconTextRenderer();
     m_resultsDataView->AppendColumn(
-        new wxDataViewColumn(_(L"Warning ID"), tr, 0, FromDIP(200), wxALIGN_LEFT,
+        new wxDataViewColumn(_(L"Warning ID"), tir, 0, FromDIP(200), wxALIGN_LEFT,
                              wxDATAVIEW_COL_SORTABLE | wxDATAVIEW_COL_RESIZABLE));
 
     // Value
-    tr = new wxDataViewTextRenderer();
+    wxDataViewTextRenderer* tr = new wxDataViewTextRenderer();
     m_resultsDataView->AppendColumn(
         new wxDataViewColumn(_(L"Value"), tr, 1, FromDIP(150), wxALIGN_LEFT,
                              wxDATAVIEW_COL_SORTABLE | wxDATAVIEW_COL_RESIZABLE));

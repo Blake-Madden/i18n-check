@@ -139,9 +139,47 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
     switch (col)
         {
     case 0:
-        variant = wxFileName::Exists(node->m_warningId) ?
-                      wxFileName{ node->m_warningId }.GetFullName() :
-                      node->m_warningId;
+        {
+        wxBitmapBundle bmps;
+        if (wxFileName::Exists(node->m_warningId))
+            {
+            bmps = wxArtProvider::GetBitmapBundle(wxART_NEW, wxART_BUTTON);
+            }
+        else if (node->m_warningId == L"[printfMismatch]" ||
+                 node->m_warningId == L"[suspectL10NString]" ||
+                 node->m_warningId == L"[urlInL10NString]" ||
+                 node->m_warningId == L"[printfMismatch]" ||
+                 node->m_warningId == L"[notL10NAvailable]" ||
+                 node->m_warningId == L"[printfMismatch]")
+            {
+            bmps = wxArtProvider::GetBitmapBundle(L"ID_TRANSLATIONS", wxART_OTHER);
+            }
+        else if (node->m_warningId == L"[fontIssue]" || node->m_warningId == L"[deprecatedMacro]" ||
+                 node->m_warningId == L"[printfSingleNumber]" ||
+                 node->m_warningId == L"[dupValAssignedToIds]" ||
+                 node->m_warningId == L"[numberAssignedToId]" ||
+                 node->m_warningId == L"[malformedString]")
+            {
+            bmps = wxArtProvider::GetBitmapBundle(L"ID_CODE", wxART_OTHER);
+            }
+        else if (node->m_warningId == L"[nonUTF8File]" ||
+                 node->m_warningId == L"[UTF8FileWithBOM]" ||
+                 node->m_warningId == L"[unencodedExtASCII]" ||
+                 node->m_warningId == L"[trailingSpaces]" || node->m_warningId == L"[tabs]" ||
+                 node->m_warningId == L"[wideLine]" ||
+                 node->m_warningId == L"[commentMissingSpace]")
+            {
+            bmps = wxArtProvider::GetBitmapBundle(L"ID_FORMAT", wxART_OTHER);
+            }
+        else if (node->m_warningId == L"[debugParserInfo]")
+            {
+            bmps = wxArtProvider::GetBitmapBundle(L"ID_DEBUG", wxART_OTHER);
+            }
+        variant = (wxVariant)wxDataViewIconText(wxFileName::Exists(node->m_warningId) ?
+                                                    wxFileName{ node->m_warningId }.GetFullName() :
+                                                    node->m_warningId,
+                                                bmps);
+        }
         break;
     case 1:
         variant = node->m_issue;
