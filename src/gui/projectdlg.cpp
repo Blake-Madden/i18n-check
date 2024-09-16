@@ -41,7 +41,7 @@ void NewProjectDialog::SetOptions(const i18n_check::review_style style)
     m_suspectL10NString = (m_options & i18n_check::review_style::check_l10n_strings);
     m_suspectL10NUsage = (m_options & i18n_check::review_style::check_suspect_l10n_string_usage);
     m_printfMismatch = (m_options & i18n_check::review_style::check_mismatching_printf_commands);
-    m_urlInL10NString = (m_options & i18n_check::review_style::check_mismatching_printf_commands);
+    m_urlInL10NString = (m_options & i18n_check::review_style::check_l10n_contains_url);
     m_deprecatedMacro = (m_options & i18n_check::review_style::check_deprecated_macros);
     m_nonUTF8File = (m_options & i18n_check::review_style::check_utf8_encoded);
     m_UTF8FileWithBOM = (m_options & i18n_check::review_style::check_utf8_with_signature);
@@ -55,7 +55,7 @@ void NewProjectDialog::SetOptions(const i18n_check::review_style style)
     m_fontIssue = (m_options & i18n_check::review_style::check_fonts);
     m_tabs = (m_options & i18n_check::review_style::check_tabs);
     m_wideLine = (m_options & i18n_check::review_style::check_line_width);
-    m_commentMissingSpace = (m_options & i18n_check::review_style::check_line_width);
+    m_commentMissingSpace = (m_options & i18n_check::review_style::check_space_after_comment);
 
     TransferDataToWindow();
     }
@@ -92,7 +92,7 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
         }
     if (m_urlInL10NString)
         {
-        m_options |= i18n_check::review_style::check_mismatching_printf_commands;
+        m_options |= i18n_check::review_style::check_l10n_contains_url;
         }
     if (m_deprecatedMacro)
         {
@@ -144,7 +144,7 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
         }
     if (m_commentMissingSpace)
         {
-        m_options |= i18n_check::review_style::check_line_width;
+        m_options |= i18n_check::review_style::check_space_after_comment;
         }
 
     m_minCppVersion = MinCppVersion();
