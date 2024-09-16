@@ -250,8 +250,7 @@ void NewProjectDialog::CreateControls()
     {
         if (wxGetMouseState().ShiftDown())
             {
-            wxStaticText* statLabel = new wxStaticText(parent, wxID_STATIC, L"[" + label + L"]",
-                                                       wxDefaultPosition, wxDefaultSize);
+            wxStaticText* statLabel = new wxStaticText(parent, wxID_STATIC, L"[" + label + L"]");
             statLabel->SetFont(statLabel->GetFont().Bold());
             statLabel->SetForegroundColour(wxSystemSettings::GetAppearance().IsDark() ?
                                                wxColour{ L"#89CFF0" } :
@@ -441,11 +440,11 @@ void NewProjectDialog::CreateControls()
                              wxSizerFlags{}.CenterVertical());
 
         wxArrayString cppVersions;
-        cppVersions.Add(L"11");
-        cppVersions.Add(L"14");
-        cppVersions.Add(L"17");
-        cppVersions.Add(L"20");
-        cppVersions.Add(L"23");
+        cppVersions.Add(L"2011");
+        cppVersions.Add(L"2014");
+        cppVersions.Add(L"2017");
+        cppVersions.Add(L"2020");
+        cppVersions.Add(L"2023");
         wxChoice* cppVersionRadioBox =
             new wxChoice(generalSettingsPage, wxID_ANY, wxDefaultPosition, wxDefaultSize,
                          cppVersions, 0, wxGenericValidator(&m_minCppVersion));
@@ -503,6 +502,10 @@ void NewProjectDialog::CreateControls()
         wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
         mainSizer->Add(poOptionsSizer, wxSizerFlags{}.Expand().Border());
         mainSizer->Add(rcOptionsSizer, wxSizerFlags{}.Expand().Border());
+        mainSizer->AddStretchSpacer();
+        mainSizer->Add(new wxStaticText(transPage, wxID_STATIC,
+            _(L"Note: additional checks will also be performed on source messages.")),
+            wxSizerFlags{}.Expand().Border());
 
         transPage->SetSizer(mainSizer);
         listBook->AddPage(transPage, _(L"Resource Files"), false, 1);
