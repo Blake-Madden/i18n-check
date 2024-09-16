@@ -665,8 +665,8 @@ namespace i18n_check
             L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose", L"SDL_LogWarn",
             // GnuCash
             L"PERR", L"PWARN", L"PINFO", L"ENTER", L"LEAVE",
-            // this program
-            L"log_message"
+            // other programs
+            L"log_message", L"outLog"
         };
 
         m_streamable_functions = { L"qDebug",  L"qInfo",  L"qWarning",  L"qCritical", L"qFatal",
@@ -720,6 +720,7 @@ namespace i18n_check
                                        L"LOGFONTW",
                                        L"SecretSchema",
                                        L"GtkTypeInfo",
+                                       L"QKeySequence",
                                        L"wxRegEx",
                                        L"wregex",
                                        L"std::wregex",
@@ -746,6 +747,7 @@ namespace i18n_check
         add_variable_name_pattern_to_ignore(
             std::wregex(LR"((sql|db|database)(Table|Update|Query|Command|Upgrade)?[[:alnum:]_\-]*)",
                         std::regex_constants::icase));
+        add_variable_name_pattern_to_ignore(std::wregex(LR"(log)"));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(wxColourDialogNames)"));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(wxColourTable)"));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(QT_MESSAGE_PATTERN)"));
