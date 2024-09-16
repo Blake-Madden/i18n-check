@@ -36,18 +36,19 @@ namespace i18n_check
             const std::wregex stringTableEndRegEx{ LR"([\r\n]+(END|\}))" };
             std::match_results<decltype(rcFileText)::const_iterator> stPositions;
             std::match_results<decltype(rcFileText)::const_iterator> endPositions;
-            auto currentPos{ rcFileText };
-            while (std::regex_search(currentPos.cbegin(), currentPos.cend(), stPositions,
-                                     stringTableRegEx))
+            auto currentTextBlock{ rcFileText };
+            while (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(),
+                                     stPositions, stringTableRegEx))
                 {
-                currentPos = currentPos.substr(stPositions.position());
-                if (std::regex_search(currentPos.cbegin(), currentPos.cend(), endPositions,
-                                      stringTableEndRegEx))
+                currentTextBlock = currentTextBlock.substr(stPositions.position());
+                if (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(),
+                                      endPositions, stringTableEndRegEx))
                     {
-                    stringTables.emplace_back(
-                        currentPos.substr(0, endPositions.position() + endPositions.length()));
+                    stringTables.emplace_back(currentTextBlock.substr(
+                        0, endPositions.position() + endPositions.length()));
 
-                    currentPos = currentPos.substr(endPositions.position() + endPositions.length());
+                    currentTextBlock =
+                        currentTextBlock.substr(endPositions.position() + endPositions.length());
                     }
                 }
 
@@ -64,19 +65,19 @@ namespace i18n_check
                 }
 
             // review table entries
-            for (auto& tabEntry : tableEntries)
+            for (auto& tableEntry : tableEntries)
                 {
                 // strip off trailing quote
-                if (tabEntry.length() > 0)
+                if (tableEntry.length() > 0)
                     {
-                    tabEntry.pop_back();
+                    tableEntry.pop_back();
                     }
                 // don't include transformed string in report
-                const auto originalStr{ tabEntry };
-                if (is_untranslatable_string(tabEntry, false))
+                std::wstring originalStr{ tableEntry };
+                if (is_untranslatable_string(originalStr, false))
                     {
                     m_unsafe_localizable_strings.emplace_back(
-                        originalStr,
+                        tableEntry,
                         string_info::usage_info(string_info::usage_info::usage_type::orphan,
                                                 std::wstring{}, std::wstring{}),
                         m_file_name, std::make_pair(-1, -1));
@@ -84,10 +85,24 @@ namespace i18n_check
                 else
                     {
                     m_localizable_strings.emplace_back(
-                        originalStr,
+                        tableEntry,
                         string_info::usage_info(string_info::usage_info::usage_type::orphan,
                                                 std::wstring{}, std::wstring{}),
                         m_file_name, std::make_pair(-1, -1));
+                    }
+
+                if (m_reviewStyles & check_l10n_contains_url)
+                    {
+                    std::wsmatch results;
+
+                    if (std::regex_search(tableEntry, results, m_urlEmailRE))
+                        {
+                        m_localizable_strings_with_urls.emplace_back(
+                            tableEntry,
+                            string_info::usage_info(string_info::usage_info::usage_type::orphan,
+                                                    std::wstring{}, std::wstring{}),
+                            m_file_name, std::make_pair(-1, -1));
+                        }
                     }
                 }
             }

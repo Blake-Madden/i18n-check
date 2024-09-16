@@ -354,12 +354,35 @@ namespace i18n_check
         }
 
     //------------------------------------------------
-    void po_file_review::review_prinf_issues()
+    void po_file_review::review_strings()
         {
         std::vector<std::wstring> printfStrings1, printfStrings2;
         std::wstring errorInfo;
         for (auto& catEntry : m_catalog_entries)
             {
+            if (static_cast<bool>(m_reviewStyles & check_l10n_strings))
+                {
+                std::wstring originalStr{ catEntry.second.m_source };
+                if (is_untranslatable_string(originalStr, false))
+                    {
+                    catEntry.second.m_issues.emplace_back(
+                        translation_issue::unsafe_source_issue,
+                        catEntry.second.m_source);
+                    }
+                }
+            if (m_reviewStyles & check_l10n_contains_url)
+                {
+                std::wsmatch results;
+ 
+                if (std::regex_search(catEntry.second.m_source, results, m_urlEmailRE))
+                    {
+                    catEntry.second.m_issues.emplace_back(
+                        translation_issue::unsafe_source_issue,
+                        catEntry.second.m_source);
+                    }
+                }
+            if (static_cast<bool>(m_reviewStyles & check_mismatching_printf_commands))
+                {
             if (catEntry.second.m_po_format == po_format_string::cpp_format)
                 {
                 // only look at strings that have a translation
@@ -401,5 +424,6 @@ namespace i18n_check
                     }
                 }
             }
+        }
         }
     } // namespace i18n_check

@@ -296,8 +296,15 @@ namespace i18n_check
         for (const auto& val : rc.get_unsafe_localizable_strings())
             {
             report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
-                   << L"\"\t" << L"String available for translation that probably should not be"
+                   << L"\"\t" << L"String available for translation that probably should not be."
                    << L"\t[suspectL10NString]\n";
+            }
+
+        for (const auto& val : rc.get_localizable_strings_with_urls())
+            {
+            report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
+                   << L"\"\t" << L"String available for translation that contains an URL or email address."
+                   << L"\t[urlInL10NString]\n";
             }
 
         for (const auto& val : rc.get_bad_dialog_font_sizes())
@@ -312,6 +319,28 @@ namespace i18n_check
             report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
                    << L"\"\t" << L"Font issue in resource file dialog definition."
                    << L"\t[fontIssue]\n";
+            }
+
+        // gettext catalogs
+        for (const auto& catEntry : po.get_catalog_entries())
+            {
+            for (const auto& issue : catEntry.second.m_issues)
+                {
+                if (issue.first == translation_issue::printf_issue)
+                    {
+                    report
+                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t" << issue.second
+                        << L"\tMismatching printf command between source and translation strings."
+                           "\t[printfMismatch]\n";
+                    }
+                else if (issue.first == translation_issue::unsafe_source_issue)
+                    {
+                    report
+                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t" << issue.second
+                        << L"\tString available for translation that probably should not be, or contains a hard-coded URL or email address."
+                           "\t[suspectL10NString]\n";
+                    }
+                }
             }
 
         // C/C++ warnings
@@ -519,20 +548,6 @@ namespace i18n_check
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
                    << L"Space should be inserted between comment tag and comment."
                    << L"\t[commentMissingSpace]\n";
-            }
-
-        for (const auto& catEntry : po.get_catalog_entries())
-            {
-            for (const auto& issue : catEntry.second.m_issues)
-                {
-                if (issue.first == translation_issue::printf_issue)
-                    {
-                    report
-                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t" << issue.second
-                        << L"\tMismatching printf command between source and translation strings."
-                           "\t[printfMismatch]\n";
-                    }
-                }
             }
 
         if (verbose)

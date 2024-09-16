@@ -129,7 +129,8 @@ namespace i18n_check
     /// @brief Types of translation (i.e., l10n) issues.
     enum class translation_issue
         {
-        printf_issue
+        printf_issue,
+        unsafe_source_issue
         };
 
     /// @brief File types that can be analyzed.
@@ -279,9 +280,6 @@ namespace i18n_check
         ///     of your files via `operator()`.
         virtual void review_strings()
             {
-            const std::wregex urlEmailRE{
-                LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"
-            };
             process_strings();
 
             if (m_reviewStyles & check_l10n_contains_url)
@@ -289,7 +287,7 @@ namespace i18n_check
                 std::wsmatch results;
                 for (const auto& str : m_localizable_strings)
                     {
-                    if (std::regex_search(str.m_string, results, urlEmailRE))
+                    if (std::regex_search(str.m_string, results, m_urlEmailRE))
                         {
                         m_localizable_strings_with_urls.push_back(str);
                         }
@@ -993,6 +991,7 @@ namespace i18n_check
 
         std::wstring m_file_name;
 
+        static const std::wregex m_urlEmailRE;
         static const std::wregex m_html_regex;
         static const std::wregex m_html_element_regex;
         static const std::wregex m_html_tag_regex;

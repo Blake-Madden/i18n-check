@@ -10,6 +10,10 @@
 
 namespace i18n_check
     {
+    const std::wregex i18n_review::m_urlEmailRE{
+                LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"
+    };
+
     const std::wregex i18n_review::m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
 
     const std::wregex i18n_review::m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };

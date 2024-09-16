@@ -79,13 +79,7 @@ namespace i18n_check
             }
 
         /// @brief Reviews the loaded PO content for issues.
-        void review_strings() final
-            {
-            if (static_cast<bool>(m_reviewStyles & check_mismatching_printf_commands))
-                {
-                review_prinf_issues();
-                }
-            }
+        void review_strings() final;
 
         /// @brief Whether fuzzy translations should be reviewed.
         /// @param enable @c true to review fuzzy translation entries; @c false to ignore them.
@@ -109,8 +103,6 @@ namespace i18n_check
         [[nodiscard]]
         static std::pair<bool, std::wstring> read_msg(std::wstring_view& poFileText,
                                                const std::wstring_view msgTag);
-
-        void review_prinf_issues();
 
         [[nodiscard]]
         static std::vector<std::wstring>
