@@ -3,9 +3,15 @@
 i18n-check
 =============================
 
-Internationalization & localization analysis system for C++ code.
+Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows RC files.
 
-`i18n-check` is a command-line utility that scans a folder of C++ code and checks for the following issues:
+![](main-window.png)
+
+![](options-dialog-source.png)
+
+![](options-dialog-resources.png)
+
+`i18n-check` is a command-line utility and graphical interface that scans a folder of files and checks for the following issues:
 - Strings exposed for translation¹ that probably should not be. This includes (but not limited to):
   - Filenames
   - Strings only containing `printf()` commands
@@ -217,6 +223,7 @@ Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the 
 git clone https://github.com/wxWidgets/wxWidgets.git --recurse-submodules
 ```
 
+Build wxWidgets with the defaults, expect `wxBUILD_SHARED` should be set to "OFF".
 Refer [here](https://github.com/wxWidgets/wxWidgets/blob/master/README-GIT.md) for how to build wxWidgets.
 
 After building wxWidgets, `ii18n-gui` can be configured and built with *Cmake*.
