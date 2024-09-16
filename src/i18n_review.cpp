@@ -178,22 +178,14 @@ namespace i18n_check
     i18n_review::i18n_review()
         {
         m_deprecated_string_macros = {
-            { L"wxT", L"wxT() macro can be removed. "
-                      "(Add 'L' in front of string to make it double-byte.)" },
-            { L"wxT_2", L"wxT_2() macro can be removed. "
-                        "(Add 'L' in front of string to make it double-byte.)" },
-            { L"_T", L"_T() macro can be removed. "
-                     "(Add 'L' in front of string to make it double-byte.)" },
-            { L"__T", L"__T() macro can be removed. "
-                      "(Add 'L' in front of string to make it double-byte.)" },
-            { L"TEXT", L"TEXT() macro can be removed. "
-                       "(Add 'L' in front of string to make it double-byte.)" },
-            { L"_TEXT", L"_TEXT() macro can be removed. "
-                        "(Add 'L' in front of string to make it double-byte.)" },
-            { L"__TEXT", L"__TEXT() macro can be removed. "
-                         "(Add 'L' in front of string to make it double-byte.)" },
-            { L"_WIDE", L"_WIDE() macro can be removed. "
-                        "(Add 'L' in front of string to make it double-byte.)" }
+            { L"wxT", L"wxT() macro can be removed." },
+            { L"wxT_2", L"wxT_2() macro can be removed." },
+            { L"_T", L"_T() macro can be removed." },
+            { L"__T", L"__T() macro can be removed." },
+            { L"TEXT", L"TEXT() macro can be removed." },
+            { L"_TEXT", L"_TEXT() macro can be removed." },
+            { L"__TEXT", L"__TEXT() macro can be removed." },
+            { L"_WIDE", L"_WIDE() macro can be removed." }
         };
 
         // Whole file needs to be scanned for these, as string variables can be passed to these
