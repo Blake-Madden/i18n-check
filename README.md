@@ -5,11 +5,10 @@ i18n-check
 
 Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows RC files.
 
-![](main-window.png)
+<img src="main-window.png" width="400" />
 
-![](options-dialog-source.png)
-
-![](options-dialog-resources.png)
+<img src="options-dialog-source.png" width="250" />
+<img src="options-dialog-resources.png" width="250" />
 
 `i18n-check` is a command-line utility and graphical interface that scans a folder of files and checks for the following issues:
 - Strings exposed for translation¹ that probably should not be. This includes (but not limited to):
