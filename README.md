@@ -5,10 +5,10 @@ i18n-check
 
 Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows RC files.
 
-<img src="main-window.png" width="400" />
+<img src="main-window.png" width="500" />
 
-<img src="options-dialog-source.png" width="250" />
-<img src="options-dialog-resources.png" width="250" />
+<img src="options-dialog-source.png" width="300" />
+<img src="options-dialog-resources.png" width="300" />
 
 `i18n-check` is a command-line utility and graphical interface that scans a folder of files and checks for the following issues:
 - Strings exposed for translation¹ that probably should not be. This includes (but not limited to):
@@ -225,7 +225,7 @@ git clone https://github.com/wxWidgets/wxWidgets.git --recurse-submodules
 Build wxWidgets with the defaults, expect `wxBUILD_SHARED` should be set to "OFF".
 Refer [here](https://github.com/wxWidgets/wxWidgets/blob/master/README-GIT.md) for how to build wxWidgets.
 
-After building wxWidgets, `ii18n-gui` can be configured and built with *Cmake*.
+After building wxWidgets, `i18n-gui` can be configured and built with *Cmake*.
 
 On Unix:
 
@@ -237,7 +237,7 @@ cmake --build . --target all -j $(nproc)
 
 On Windows, "gui/CMakeLists.txt" can be opened and built directly in Visual Studio.
 
-After building, "ii18n-gui" will then be available in the "bin" folder.
+After building, "i18n-gui" will then be available in the "bin" folder.
 
 # GitHub Action
 
