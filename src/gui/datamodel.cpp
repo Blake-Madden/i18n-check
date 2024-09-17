@@ -149,9 +149,7 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
                  node->m_warningId == L"[suspectL10NString]" ||
                  node->m_warningId == L"[suspectL10NUsage]" ||
                  node->m_warningId == L"[urlInL10NString]" ||
-                 node->m_warningId == L"[printfMismatch]" ||
-                 node->m_warningId == L"[notL10NAvailable]" ||
-                 node->m_warningId == L"[printfMismatch]")
+                 node->m_warningId == L"[notL10NAvailable]")
             {
             bmps = wxArtProvider::GetBitmapBundle(L"ID_TRANSLATIONS", wxART_OTHER);
             }
