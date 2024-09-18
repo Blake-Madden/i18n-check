@@ -11,7 +11,7 @@
 namespace i18n_check
     {
     const std::wregex i18n_review::m_urlEmailRE{
-                LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"
+        LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"
     };
 
     const std::wregex i18n_review::m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
@@ -178,12 +178,12 @@ namespace i18n_check
     i18n_review::i18n_review()
         {
         m_deprecated_string_macros = { { L"wxT", L"wxT() macro can be removed." },
-            { L"wxT_2", L"wxT_2() macro can be removed." },
-            { L"_T", L"_T() macro can be removed." },
-            { L"__T", L"__T() macro can be removed." },
-            { L"TEXT", L"TEXT() macro can be removed." },
-            { L"_TEXT", L"_TEXT() macro can be removed." },
-            { L"__TEXT", L"__TEXT() macro can be removed." },
+                                       { L"wxT_2", L"wxT_2() macro can be removed." },
+                                       { L"_T", L"_T() macro can be removed." },
+                                       { L"__T", L"__T() macro can be removed." },
+                                       { L"TEXT", L"TEXT() macro can be removed." },
+                                       { L"_TEXT", L"_TEXT() macro can be removed." },
+                                       { L"__TEXT", L"__TEXT() macro can be removed." },
                                        { L"_WIDE", L"_WIDE() macro can be removed." } };
 
         // Whole file needs to be scanned for these, as string variables can be passed to these
@@ -422,9 +422,11 @@ namespace i18n_check
             // Pascal-case words (e.g., "GetValueFromUser");
             // surrounding punctuation is stripped first.
             std::wregex(LR"([[:punct:]]*[A-Z]+[a-z0-9]+([A-Z]+[a-z0-9]+)+[[:punct:]]*)"),
-            // camel-case words (e.g., "getValueFromUser");
+            // camel-case words (e.g., "getValueFromUser", "unencodedExtASCII");
             // surrounding punctuation is stripped first.
-            std::wregex(LR"([[:punct:]]*[a-z]+[[:digit:]]*([A-Z]+[a-z0-9]+)+[[:punct:]]*)"),
+            std::wregex(LR"([[:punct:]]*[a-z]+[[:digit:]]*([A-Z]+[a-z0-9]*)+[[:punct:]]*)"),
+            // reverse camel-case (e.g., "UTF8FileWithBOM")
+            std::wregex(LR"([[:punct:]]*[A-Z]+[[:digit:]]*([a-z0-9]+[A-Z]+)+[[:punct:]]*)"),
             // formulas (e.g., ABS(-2.7), POW(-4, 2), =SUM(1; 2) )
             std::wregex(LR"((=)?[A-Za-z0-9_]{3,}[(]([RC0-9\-\.,;:\[\] ])*[)])"),
             // formulas (e.g., ComputeNumbers() )
@@ -547,13 +549,19 @@ namespace i18n_check
             L"pmr::u8string", L"pmr::u16string", L"pmr::u32string",
             // MFC, ATL
             L"CString", L"_bstr_t",
+            // Java
+            L"Locale",
             // formatting functions (not actually a CTOR) that should be skipped over
             L"wxString::Format"
         };
 
-        // debugging & system call functions that should never have
-        // their string parameters translated
+        // Debugging & system call functions that should never have
+        // their string parameters translated. This can also include resource
+        // loading functions that take a string ID.
         m_internal_functions = {
+            // Java resource/key functions
+            L"getBundle", L"getObject", L"handleGetObject", L"getString", L"getStringArray",
+            L"containsKey",
             // attributes
             L"deprecated", L"nodiscard", L"_Pragma",
             // assert functions
@@ -571,7 +579,8 @@ namespace i18n_check
             L"wxIconHandler", L"wxBitmapHandler", L"OutputDumpLine", L"wxFileTypeInfo",
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo", L"Platform::DebugPrintf",
             L"wxGetCommandOutput", L"SetKeyWords", L"AddDeveloper", L"AddDocWriter", L"AddArtist",
-            L"AddTranslator", L"SetCopyright",
+            L"AddTranslator", L"SetCopyright", L"MarkerSetBackground", L"SetProperty",
+            L"SetAppName",
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern", L"qmlRegisterUncreatableMetaObject",
             L"addShaderFromSourceCode", L"QStandardPaths::findExecutable", L"QDateTime::fromString",
@@ -594,6 +603,10 @@ namespace i18n_check
             L"ASSERT_STRNE", L"ASSERT_STRCASEEQ", L"ASSERT_STRCASENE", L"ASSERT_TRUE",
             L"ASSERT_THAT", L"ASSERT_FALSE", L"ASSERT_EQ", L"ASSERT_NE", L"ASSERT_LT", L"ASSERT_LE",
             L"ASSERT_GT", L"ASSERT_GE",
+            // JUnit asserts
+            L"assertEquals", L"assertNotEquals", L"assertArrayEquals", L"assertTrue", L"assertNull",
+            L"assertNotNull", L"assertThat", L"assertNotEquals", L"assertNotSame", L"assertSame",
+            L"assertThrows", L"fail",
             // other testing frameworks
             L"do_test", L"run_check", L"GNC_TEST_ADD_FUNC", L"GNC_TEST_ADD", L"g_test_message",
             L"check_binary_op", L"check_binary_op_equal", L"MockProvider",
@@ -693,6 +706,7 @@ namespace i18n_check
         // variables whose CTORs take a string that should never be translated
         m_variable_types_to_ignore = { L"wxUxThemeHandle",
                                        L"wxRegKey",
+                                       L"wxXmlNode",
                                        L"wxLoadedDLL",
                                        L"wxConfigPathChanger",
                                        L"wxWebViewEvent",
@@ -1830,10 +1844,10 @@ namespace i18n_check
         return functionOrVarNamePos;
         }
 
-        //------------------------------------------------
+    //------------------------------------------------
     std::vector<std::wstring>
     i18n_review::convert_positional_cpp_printf(const std::vector<std::wstring>& printfCommands,
-                                                  std::wstring& errorInfo)
+                                               std::wstring& errorInfo)
         {
         errorInfo.clear();
 
@@ -1896,7 +1910,7 @@ namespace i18n_check
 
     //------------------------------------------------
     std::vector<std::wstring> i18n_review::load_cpp_printf_commands(const std::wstring& resource,
-                                                                       std::wstring& errorInfo)
+                                                                    std::wstring& errorInfo)
         {
         std::vector<std::pair<size_t, std::wstring>> results;
 
