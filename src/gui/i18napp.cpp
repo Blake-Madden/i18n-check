@@ -873,6 +873,17 @@ bool I18NApp::OnInit()
         m_defaultOptions.Load(m_optionsFilePath);
         }
 
+    wxTranslations* const translations{ new wxTranslations{} };
+    wxTranslations::Set(translations);
+    if (!translations->AddCatalog(GetAppName()))
+        {
+        wxLogDebug(L"Could not find application's translation catalog.");
+        }
+    if (!translations->AddStdCatalog())
+        {
+        wxLogDebug(L"Could not find standard translation catalog.");
+        }
+
 #if wxCHECK_VERSION(3, 3, 0) && defined(__WXMSW__)
     MSWEnableDarkMode();
 #endif
