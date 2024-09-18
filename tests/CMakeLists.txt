@@ -52,6 +52,8 @@ add_executable(${CMAKE_PROJECT_NAME} ../src/i18n_string_util.cpp
 ../src/i18n_review.cpp ../src/cpp_i18n_review.cpp
 ../src/po_file_review.cpp
 ../src/rc_file_review.cpp
+../src/translation_catalog_review.cpp
+../src/pseudo_translate.cpp
 i18nstringtests.cpp stringutiltests.cpp cpptests.cpp
 decodetests.cpp rctests.cpp potests.cpp testingmain.cpp)
 if(MSVC)
