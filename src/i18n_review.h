@@ -758,12 +758,12 @@ namespace i18n_check
         read_po_catalog_entry(std::wstring_view& poFileText);
 
         /** @brief Finds and returns the message entry in a gettext catalog entry.
-            @param poFileText the po file content to parse.
+            @param poCatalogEntry the po file catalog entry to parse.
             @returns If an entry is found, returns @c true, the message's value, its
             starting position in the entry section, and the length of the message.*/
         [[nodiscard]]
         static std::tuple<bool, std::wstring, size_t, size_t>
-        read_po_msg(std::wstring_view& poFileText, const std::wstring_view msgTag);
+        read_po_msg(std::wstring_view& poCatalogEntry, const std::wstring_view msgTag);
 
       protected:
         // traditionally, 80 chars is the recommended line width,

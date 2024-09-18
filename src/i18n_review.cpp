@@ -2061,9 +2061,9 @@ namespace i18n_check
 
     //------------------------------------------------
     std::tuple<bool, std::wstring, size_t, size_t>
-    i18n_review::read_po_msg(std::wstring_view& poFileText, const std::wstring_view msgTag)
+    i18n_review::read_po_msg(std::wstring_view& poCatalogEntry, const std::wstring_view msgTag)
         {
-        const size_t idPos = poFileText.find(msgTag);
+        const size_t idPos = poCatalogEntry.find(msgTag);
         if (idPos == std::wstring_view::npos)
             {
             return { false, std::wstring{}, std::wstring::npos, std::wstring::npos };
@@ -2072,27 +2072,27 @@ namespace i18n_check
         // out translation (#~).
         size_t lookBehindIndex{ idPos };
         while (lookBehindIndex > 0 &&
-               string_util::is_neither(poFileText[lookBehindIndex], L'\r', L'\n'))
+               string_util::is_neither(poCatalogEntry[lookBehindIndex], L'\r', L'\n'))
             {
             --lookBehindIndex;
             }
-        if (poFileText[++lookBehindIndex] == L'#')
+        if (poCatalogEntry[++lookBehindIndex] == L'#')
             {
             return { false, std::wstring{}, std::wstring::npos, std::wstring::npos };
             }
 
-        poFileText.remove_prefix(idPos + msgTag.length());
+        poCatalogEntry.remove_prefix(idPos + msgTag.length());
 
         size_t idEndPos{ 0 };
         while (true)
             {
-            idEndPos = poFileText.find(L'\"', idEndPos);
+            idEndPos = poCatalogEntry.find(L'\"', idEndPos);
             if (idEndPos == std::wstring_view::npos)
                 {
                 return { false, std::wstring{}, std::wstring::npos, std::wstring::npos };
                 }
             // skip escaped quotes
-            if (idEndPos > 0 && poFileText[idEndPos - 1] == L'\\')
+            if (idEndPos > 0 && poCatalogEntry[idEndPos - 1] == L'\\')
                 {
                 ++idEndPos;
                 continue;
@@ -2101,19 +2101,20 @@ namespace i18n_check
                 {
                 size_t lookAheadIndex{ idEndPos + 1 };
                 // jump to next line
-                while (lookAheadIndex < poFileText.length() &&
-                       string_util::is_either(poFileText[lookAheadIndex], L'\r', L'\n'))
+                while (lookAheadIndex < poCatalogEntry.length() &&
+                       string_util::is_either(poCatalogEntry[lookAheadIndex], L'\r', L'\n'))
                     {
                     ++lookAheadIndex;
                     }
                 // eat up leading spaces
-                while (lookAheadIndex < poFileText.length() &&
-                       string_util::is_either(poFileText[lookAheadIndex], L'\t', L' '))
+                while (lookAheadIndex < poCatalogEntry.length() &&
+                       string_util::is_either(poCatalogEntry[lookAheadIndex], L'\t', L' '))
                     {
                     ++lookAheadIndex;
                     }
                 // if a quote, then this is still be part of the same string
-                if (lookAheadIndex < poFileText.length() && poFileText[lookAheadIndex] == L'"')
+                if (lookAheadIndex < poCatalogEntry.length() &&
+                    poCatalogEntry[lookAheadIndex] == L'"')
                     {
                     idEndPos = lookAheadIndex + 1;
                     continue;
@@ -2121,9 +2122,9 @@ namespace i18n_check
                 break;
                 }
             }
-        const std::wstring msgId{ process_po_msg(poFileText.substr(0, idEndPos)) };
+        const std::wstring msgId{ process_po_msg(poCatalogEntry.substr(0, idEndPos)) };
 
-        poFileText.remove_prefix(idEndPos);
+        poCatalogEntry.remove_prefix(idEndPos);
 
         return { true, msgId, idPos, idEndPos };
         }
