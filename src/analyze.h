@@ -15,6 +15,7 @@
 #include "cpp_i18n_review.h"
 #include "i18n_string_util.h"
 #include "po_file_review.h"
+#include "pseudo_translate.h"
 #include "rc_file_review.h"
 #include "unicode_extract_text.h"
 #include "utfcpp/source/utf8.h"
@@ -34,7 +35,8 @@ namespace i18n_check
     /// @private
     bool valid_utf8_file(const std::filesystem::path& filePath, bool& startsWithBom);
     /// @private
-    std::pair<bool, std::wstring> read_utf8_file(const std::filesystem::path& filePath, bool& startsWithBom);
+    std::pair<bool, std::wstring> read_utf8_file(const std::filesystem::path& filePath,
+                                                 bool& startsWithBom);
 
     /** @brief Runs all analyzers on a set of files.
         @param filesToAnalyze The files to analyze.
@@ -46,11 +48,22 @@ namespace i18n_check
             Windows UTF-8 file signature.
         @param callback Callback function to display the progress.
             Takes the current file index, overall file count, and the name of the current file.
-            Returning @c indicates that the user cancelled the analysis.*/
+            Returning @c false indicates that the user cancelled the analysis.*/
     void analyze(const std::vector<std::wstring>& filesToAnalyze, i18n_check::cpp_i18n_review& cpp,
                  i18n_check::rc_file_review& rc, i18n_check::po_file_review& po,
                  std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,
-                 std::vector<std::wstring>& filesThatContainUTF8Signature, analyze_callback callback);
+                 std::vector<std::wstring>& filesThatContainUTF8Signature,
+                 analyze_callback callback);
+
+    /** @brief Pseudo translates a set of files.
+        @details Copies of each file are made in the same folder with
+            'pseudo_' prepended to the file name.
+        @param filesToTranslate The files to translate.
+        @param callback Callback function to display the progress.
+            Takes the current file index, overall file count, and the name of the current file.
+            Returning @c false indicates that the user cancelled the analysis.*/
+    void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
+                          analyze_callback callback);
 
     /** @returns A formatted summary of the results.
         @param[in,out] cpp The C++ analyzer that was used.

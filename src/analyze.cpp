@@ -108,6 +108,84 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
+    void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
+                          analyze_callback callback)
+        {
+        size_t currentFileIndex{ 0 };
+
+        const auto outputFile = [](const std::filesystem::path filePath, const std::wstring content)
+        {
+            std::u32string outBuffer;
+            outBuffer.reserve(content.size());
+            for (const auto& chr : content)
+                {
+                outBuffer += static_cast<char32_t>(chr);
+                }
+            std::string utfBuffer{ utf8::utf32to8(outBuffer) };
+
+            std::ofstream out(filePath);
+            if (out.is_open())
+                {
+                out.write(utfBuffer.c_str(), utfBuffer.size());
+                }
+        };
+
+        pseudo_translater trans;
+
+        // load file content into analyzers
+        for (const auto& file : filesToTranslate)
+            {
+            if (!callback(++currentFileIndex, filesToTranslate.size(), file))
+                {
+                return;
+                }
+
+            const file_review_type fileType = get_file_type(file);
+
+            std::filesystem::path outPath = std::filesystem::path{ file };
+            outPath.replace_filename(L"pseudo_" + outPath.filename().generic_wstring());
+
+            try
+                {
+                bool startsWithBom{ false };
+                if (auto [readUtf8Ok, fileUtf8Text] = read_utf8_file(file, startsWithBom);
+                    readUtf8Ok)
+                    {
+                    if (fileType == file_review_type::po)
+                        {
+                        trans.po_file(fileUtf8Text);
+                        outputFile(outPath, fileUtf8Text);
+                        }
+                    }
+                else if (auto [readUtf16Ok, fileUtf16Text] = read_utf16_file(file); readUtf16Ok)
+                    {
+                    // UTF-16 may not be supported consistently on all platforms and compilers
+                    if (fileType == file_review_type::po)
+                        {
+                        trans.po_file(fileUtf16Text);
+                        outputFile(outPath, fileUtf16Text);
+                        }
+                    }
+                else
+                    {
+                    std::wifstream ifs(std::filesystem::path(file).string());
+                    std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
+                                     std::istreambuf_iterator<wchar_t>());
+                    if (fileType == file_review_type::po)
+                        {
+                        trans.po_file(str);
+                        outputFile(outPath, str);
+                        }
+                    }
+                }
+            catch (const std::exception& expt)
+                {
+                std::wcout << i18n_string_util::lazy_string_to_wstring(expt.what()) << L"\n";
+                }
+            }
+        }
+
+    //------------------------------------------------------
     void analyze(const std::vector<std::wstring>& filesToAnalyze, i18n_check::cpp_i18n_review& cpp,
                  i18n_check::rc_file_review& rc, i18n_check::po_file_review& po,
                  std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,
