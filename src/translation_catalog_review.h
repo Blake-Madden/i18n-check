@@ -47,7 +47,10 @@ namespace i18n_check
         void review_strings() override;
 
       private:
-        void operator()(std::wstring_view poFileText, const std::wstring& fileName) override {}
+        void operator()([[maybe_unused]] std::wstring_view,
+                        [[maybe_unused]] const std::wstring&) override
+            {
+            }
 
         std::vector<std::pair<std::wstring, translation_catalog_entry>> m_catalog_entries;
         };
