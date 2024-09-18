@@ -35,7 +35,7 @@ NewProjectDialog::NewProjectDialog(
 //-------------------------------------------------------------
 void NewProjectDialog::SetOptions(const i18n_check::review_style style)
     {
-    m_options = static_cast<int>(style);
+    m_options = static_cast<int64_t>(style);
 
     m_notL10NAvailable = (m_options & i18n_check::review_style::check_not_available_for_l10n);
     m_suspectL10NString = (m_options & i18n_check::review_style::check_l10n_strings);
@@ -506,7 +506,7 @@ void NewProjectDialog::CreateControls()
         mainSizer->Add(
             new wxStaticText(
                 transPage, wxID_STATIC,
-            _(L"Note: additional checks will also be performed on source messages.")),
+                _(L"Note: additional checks will also be performed on source messages.")),
             wxSizerFlags{}.Expand().Border());
 
         transPage->SetSizer(mainSizer);
@@ -537,7 +537,7 @@ void NewProjectDialog::CreateControls()
                                         wxDefaultSize, 0, wxGenericValidator(&m_UTF8FileWithBOM)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
             gbSizer->Add(
-                buildCodeLabel(_(L"UTF8FileWithBOM"), formattingOptionsSizer->GetStaticBox()),
+                buildCodeLabel(L"UTF8FileWithBOM", formattingOptionsSizer->GetStaticBox()),
                 wxGBPosition(currentRow++, 1), wxGBSpan{});
 
             gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
@@ -546,7 +546,7 @@ void NewProjectDialog::CreateControls()
                                         wxGenericValidator(&m_unencodedExtASCII)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
             gbSizer->Add(
-                buildCodeLabel(_(L"unencodedExtASCII"), formattingOptionsSizer->GetStaticBox()),
+                buildCodeLabel(L"unencodedExtASCII", formattingOptionsSizer->GetStaticBox()),
                 wxGBPosition(currentRow++, 1), wxGBSpan{});
 
             gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
@@ -560,7 +560,7 @@ void NewProjectDialog::CreateControls()
                                         _(L"Tabs"), wxDefaultPosition, wxDefaultSize, 0,
                                         wxGenericValidator(&m_tabs)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
-            gbSizer->Add(buildCodeLabel(_(L"tabs"), formattingOptionsSizer->GetStaticBox()),
+            gbSizer->Add(buildCodeLabel(L"tabs", formattingOptionsSizer->GetStaticBox()),
                          wxGBPosition(currentRow++, 1), wxGBSpan{});
 
             gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,

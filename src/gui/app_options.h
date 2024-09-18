@@ -25,15 +25,16 @@ struct I18NOptions
 
     wxString m_filePath;
     wxString m_excludedPaths;
-    int m_options{ static_cast<int>(i18n_check::review_style::check_l10n_strings |
-                                    i18n_check::review_style::check_suspect_l10n_string_usage |
-                                    i18n_check::review_style::check_not_available_for_l10n |
-                                    i18n_check::review_style::check_deprecated_macros |
-                                    i18n_check::review_style::check_utf8_encoded |
-                                    i18n_check::review_style::check_printf_single_number |
-                                    i18n_check::review_style::check_l10n_contains_url |
+    int64_t m_options{ static_cast<int64_t>(
+        i18n_check::review_style::check_l10n_strings |
+        i18n_check::review_style::check_suspect_l10n_string_usage |
+        i18n_check::review_style::check_not_available_for_l10n |
+        i18n_check::review_style::check_deprecated_macros |
+        i18n_check::review_style::check_utf8_encoded |
+        i18n_check::review_style::check_printf_single_number |
+        i18n_check::review_style::check_l10n_contains_url |
         i18n_check::review_style::check_malformed_strings | i18n_check::review_style::check_fonts |
-                                    i18n_check::review_style::all_l10n_checks) };
+        i18n_check::review_style::all_l10n_checks) };
     bool m_fuzzyTranslations{ false };
     bool m_logMessagesCanBeTranslated{ true };
     bool m_allowTranslatingPunctuationOnlyStrings{ false };

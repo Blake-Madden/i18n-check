@@ -39,88 +39,125 @@
 namespace i18n_check
     {
     /// @brief Tests to perform.
-    enum review_style
+    enum review_style : int64_t
         {
         /// @brief Do not perform any checks.
         no_checks = 0x00,
         /// @brief Check that strings exposed for localization are safe to translate.\n
         ///     For example, a printf statement with no actual words in it should
         ///     not be translatable.
-        check_l10n_strings = (1 << 0),
+        check_l10n_strings = (static_cast<int64_t>(1) << 0),
         /// @brief Check for localizable strings being used with internal functions
         ///     (e.g., debug and logging messages).
-        check_suspect_l10n_string_usage = (1 << 1),
+        check_suspect_l10n_string_usage = (static_cast<int64_t>(1) << 1),
         /// @brief Check for quotes strings in the source that are not available
         ///     for translation that probably should be.
-        check_not_available_for_l10n = (1 << 2),
+        check_not_available_for_l10n = (static_cast<int64_t>(1) << 2),
         /// @brief Check for deprecated text macros (e.g., `wxT()`).
-        check_deprecated_macros = (1 << 3),
+        check_deprecated_macros = (static_cast<int64_t>(1) << 3),
         /// @brief Check that files containing extended ASCII characters are UTF-8 encoded.
-        check_utf8_encoded = (1 << 4),
+        check_utf8_encoded = (static_cast<int64_t>(1) << 4),
         /// @brief Check for strings that contain extended ASCII characters that are not encoded.
-        check_unencoded_ext_ascii = (1 << 5),
+        check_unencoded_ext_ascii = (static_cast<int64_t>(1) << 5),
         /// @brief Check for printf() commands being used to format a single number
         ///     (without any particular precision or padding features).\n
         ///     In this situation, it is better to use std::to_string() to avoid
         ///     potentially dangerous printf() commands.
-        check_printf_single_number = (1 << 6),
+        check_printf_single_number = (static_cast<int64_t>(1) << 6),
         /// @brief Check for URLs or email addresses inside translatable strings.
         /// @details It is recommended to format those into the strings dynamically,
         ///     so that translators do not have to manage them.
-        check_l10n_contains_url = (1 << 7),
+        check_l10n_contains_url = (static_cast<int64_t>(1) << 7),
         /// @brief Check for ID variables being assigned a hard-coded number.
         /// @details It may be preferred to assign framework-defined constant to ID.
-        check_number_assigned_to_id = (1 << 8),
+        check_number_assigned_to_id = (static_cast<int64_t>(1) << 8),
         /// @brief Check for the same value being assigned to different ID variables.
         check_duplicate_value_assigned_to_ids = (1 << 9),
         /// @brief Check for malformed syntax in strings (e.g., malformed HTML tags).
-        check_malformed_strings = (1 << 10),
+        check_malformed_strings = (static_cast<int64_t>(1) << 10),
         /// @brief Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
-        check_utf8_with_signature = (1 << 11),
+        check_utf8_with_signature = (static_cast<int64_t>(1) << 11),
         /// @brief Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
         ///     or using unusual font sizes).
-        check_fonts = (1 << 12),
+        check_fonts = (static_cast<int64_t>(1) << 12),
         /// @private
-        i18n_reserved1 = (1 << 13),
+        i18n_reserved1 = (static_cast<int64_t>(1) << 13),
         /// @private
-        i18n_reserved2 = (1 << 14),
+        i18n_reserved2 = (static_cast<int64_t>(1) << 14),
         /// @private
-        i18n_reserved3 = (1 << 15),
+        i18n_reserved3 = (static_cast<int64_t>(1) << 15),
         /// @private
-        i18n_reserved4 = (1 << 16),
+        i18n_reserved4 = (static_cast<int64_t>(1) << 16),
         /// @private
-        i18n_reserved5 = (1 << 17),
+        i18n_reserved5 = (static_cast<int64_t>(1) << 17),
         /// @private
-        i18n_reserved6 = (1 << 18),
+        i18n_reserved6 = (static_cast<int64_t>(1) << 18),
         /// @private
-        i18n_reserved7 = (1 << 19),
+        i18n_reserved7 = (static_cast<int64_t>(1) << 19),
+        /// @private
+        i18n_reserved8 = (static_cast<int64_t>(1) << 20),
+        /// @private
+        i18n_reserved9 = (static_cast<int64_t>(1) << 21),
+        /// @private
+        i18n_reserved10 = (static_cast<int64_t>(1) << 22),
+        /// @private
+        i18n_reserved11 = (static_cast<int64_t>(1) << 23),
+        /// @private
+        i18n_reserved12 = (static_cast<int64_t>(1) << 24),
+        /// @private
+        i18n_reserved13 = (static_cast<int64_t>(1) << 25),
+        /// @private
+        i18n_reserved14 = (static_cast<int64_t>(1) << 26),
+        /// @private
+        i18n_reserved15 = (static_cast<int64_t>(1) << 27),
+        /// @private
+        i18n_reserved16 = (static_cast<int64_t>(1) << 28),
+        /// @private
+        i18n_reserved17 = (static_cast<int64_t>(1) << 29),
         /// @brief Perform all aforementioned internationalization checks.
         all_i18n_checks = (check_l10n_strings | check_suspect_l10n_string_usage |
         check_not_available_for_l10n | check_deprecated_macros | check_utf8_encoded |
         check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
         check_number_assigned_to_id | check_duplicate_value_assigned_to_ids |
         check_malformed_strings | check_utf8_with_signature | check_fonts),
+
         /// @brief Check for mismatching printf commands between source strings and their
         ///     respective translations.
-        check_mismatching_printf_commands = (1 << 20),
+        check_mismatching_printf_commands = (static_cast<int64_t>(1) << 30),
         /// @private
-        l10n_reserved1 = (1 << 21),
+        l10n_reserved1 = (static_cast<int64_t>(1) << 31),
         /// @private
-        l10n_reserved2 = (1 << 22),
+        l10n_reserved2 = (static_cast<int64_t>(1) << 32),
         /// @private
-        l10n_reserved3 = (1 << 23),
+        l10n_reserved3 = (static_cast<int64_t>(1) << 33),
         /// @private
-        l10n_reserved4 = (1 << 24),
+        l10n_reserved4 = (static_cast<int64_t>(1) << 34),
+        l10n_reserved5 = (static_cast<int64_t>(1) << 35),
+        l10n_reserved6 = (static_cast<int64_t>(1) << 36),
+        l10n_reserved7 = (static_cast<int64_t>(1) << 37),
+        l10n_reserved8 = (static_cast<int64_t>(1) << 38),
+        l10n_reserved9 = (static_cast<int64_t>(1) << 39),
+        l10n_reserved10 = (static_cast<int64_t>(1) << 40),
+        l10n_reserved11 = (static_cast<int64_t>(1) << 41),
+        l10n_reserved12 = (static_cast<int64_t>(1) << 42),
+        l10n_reserved13 = (static_cast<int64_t>(1) << 43),
+        l10n_reserved14 = (static_cast<int64_t>(1) << 44),
+        l10n_reserved15 = (static_cast<int64_t>(1) << 45),
+        l10n_reserved16 = (static_cast<int64_t>(1) << 46),
+        l10n_reserved17 = (static_cast<int64_t>(1) << 47),
+        l10n_reserved18 = (static_cast<int64_t>(1) << 48),
+        l10n_reserved19 = (static_cast<int64_t>(1) << 49),
         /// @brief Perform all aforementioned localization checks.
         all_l10n_checks = (check_mismatching_printf_commands),
+
         /// @brief Check for trailing spaces at the end of each line.
-        check_trailing_spaces = (1 << 25),
+        check_trailing_spaces = (static_cast<int64_t>(1) << 50),
         /// @brief Check for tabs (spaces are recommended).
-        check_tabs = (1 << 26),
+        check_tabs = (static_cast<int64_t>(1) << 51),
         /// @brief Check for overly long lines.
-        check_line_width = (1 << 27),
+        check_line_width = (static_cast<int64_t>(1) << 52),
         /// @brief Check that there is a space at the start of a comment.
-        check_space_after_comment = (1 << 28),
+        check_space_after_comment = (static_cast<int64_t>(1) << 53),
         /// @brief Check all aforementioned code formatting issues.
         all_code_formatting_checks =
         (check_trailing_spaces | check_tabs | check_line_width | check_space_after_comment)
@@ -129,8 +166,10 @@ namespace i18n_check
     /// @brief Types of translation (i.e., l10n) issues.
     enum class translation_issue
         {
+        /// @brief Inconsistent inconsistent printf format specifiers.
         printf_issue,
-        unsafe_source_issue
+        /// @brief Suspect string exposed for translation in the catalog.
+        suspect_source_issue
         };
 
     /// @brief File types that can be analyzed.

@@ -84,7 +84,7 @@ void I18NOptions::Load(const wxString& filePath)
         else if (child->GetName() == L"checks")
             {
             const wxString intVal = child->GetNodeContent();
-            intVal.ToInt(&m_options);
+            intVal.ToLongLong(&m_options);
             }
         else if (child->GetName() == L"fuzzy-translations")
             {

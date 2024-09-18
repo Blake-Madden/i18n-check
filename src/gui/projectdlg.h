@@ -267,7 +267,7 @@ class NewProjectDialog final : public wxDialog
     bool m_commentMissingSpace{ true };
 
     // checks
-    int m_options{ i18n_check::review_style::no_checks };
+    int64_t m_options{ i18n_check::review_style::no_checks };
     };
 
     /** @}*/

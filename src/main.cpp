@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
     if (result.count("enable"))
         {
         const auto& styles = result["enable"].as<std::vector<std::string>>();
-        int rs{ i18n_check::review_style::no_checks };
+        int64_t rs{ i18n_check::review_style::no_checks };
         for (const auto& r : styles)
             {
             if (r == "allI18N")
@@ -275,7 +275,7 @@ int main(int argc, char* argv[])
     if (result.count("disable"))
         {
         const auto& styles = result["disable"].as<std::vector<std::string>>();
-        int rs{ static_cast<int>(cpp.get_style()) };
+        int64_t rs{ static_cast<int64_t>(cpp.get_style()) };
         for (const auto& r : styles)
             {
             if (r == "allI18N")
