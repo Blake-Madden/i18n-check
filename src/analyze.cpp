@@ -133,22 +133,7 @@ namespace i18n_check
                 return;
                 }
 
-            const file_review_type fileType = [&file]()
-            {
-                const auto ext = std::filesystem::path{ file }.extension();
-                if (ext.compare(std::filesystem::path(L".rc")) == 0)
-                    {
-                    return file_review_type::rc;
-                    }
-                else if (ext.compare(std::filesystem::path(L".po")) == 0)
-                    {
-                    return file_review_type::po;
-                    }
-                else
-                    {
-                    return file_review_type::cpp;
-                    }
-            }();
+            const file_review_type fileType = get_file_type(file);
 
             try
                 {

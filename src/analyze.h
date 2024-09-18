@@ -76,6 +76,27 @@ namespace i18n_check
     std::wstringstream format_summary(const i18n_check::cpp_i18n_review& cpp,
                                       const i18n_check::rc_file_review& rc,
                                       const i18n_check::po_file_review& po);
+
+    /// @brief Gets the file type of a file based on extension.
+    /// @param file The file path.
+    /// @returns The file type, based on extension.
+    [[nodiscard]]
+    inline file_review_type get_file_type(const std::wstring& file)
+        {
+        const auto ext = std::filesystem::path{ file }.extension();
+        if (ext.compare(std::filesystem::path(L".rc")) == 0)
+            {
+            return file_review_type::rc;
+            }
+        else if (ext.compare(std::filesystem::path(L".po")) == 0)
+            {
+            return file_review_type::po;
+            }
+        else
+            {
+            return file_review_type::cpp;
+            }
+        }
     } // namespace i18n_check
 
 /** @}*/

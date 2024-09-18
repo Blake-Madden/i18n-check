@@ -48,7 +48,7 @@ namespace i18n_check
 
         while (!poFileText.empty())
             {
-            auto [entryFound, entry, entryPos] = read_catalog_entry(poFileText);
+            auto [entryFound, entry, entryPos] = read_po_catalog_entry(poFileText);
             if (!entryFound)
                 {
                 break;
@@ -95,16 +95,17 @@ namespace i18n_check
                 }
 
             // read section from catalog entry
-            auto [msgIdFound, msgId] = read_msg(entry, MSGID);
+            auto [msgIdFound, msgId, msgPos, msgLen] = read_po_msg(entry, MSGID);
             if (!msgIdFound)
                 {
                 continue;
                 }
             // plural is optional, translations may be one string or two (for plural)
-            auto [msgIdPluralFound, msgPluralId] = read_msg(entry, MSGID_PLURAL);
-            auto [msgStrFound, msgStr] = read_msg(entry, MSGSTR);
-            auto [msgStr0Found, msg0Str] = read_msg(entry, MSGSTR0);
-            auto [msgStr1Found, msg1Str] = read_msg(entry, MSGSTR1);
+            auto [msgIdPluralFound, msgPluralId, msgPosPlural, msgPluralLen] =
+                read_po_msg(entry, MSGID_PLURAL);
+            auto [msgStrFound, msgStr, msgStrPos, msgStrLen] = read_po_msg(entry, MSGSTR);
+            auto [msgStr0Found, msg0Str, msgStr0Pos, msgStr0Len] = read_po_msg(entry, MSGSTR0);
+            auto [msgStr1Found, msg1Str, msgStr1Pos, msgStr1Len] = read_po_msg(entry, MSGSTR1);
 
             get_catalog_entries().push_back(std::make_pair(
                 fileName,
@@ -116,121 +117,5 @@ namespace i18n_check
                     pofs, std::vector<std::pair<translation_issue, std::wstring>>{},
                     get_line_and_column(currentPos, originalPoFileText).first }));
             }
-        }
-
-    //------------------------------------------------
-    std::tuple<bool, std::wstring_view, size_t>
-    po_file_review::read_catalog_entry(std::wstring_view& poFileText)
-        {
-        const size_t entryPos = poFileText.find(L"\n#");
-        if (entryPos == std::wstring_view::npos)
-            {
-            return { false, std::wstring_view{}, std::wstring_view::npos };
-            }
-        poFileText.remove_prefix(entryPos);
-
-        // find the next blank line, which is the separator between catalog entries
-        size_t endOfEntryPos{ 0 };
-        while (endOfEntryPos != std::wstring_view::npos)
-            {
-            endOfEntryPos = poFileText.find(L'\n', endOfEntryPos);
-            // we must be at the last entry
-            if (endOfEntryPos == std::wstring_view::npos ||
-                endOfEntryPos == poFileText.length() - 1)
-                {
-                return { true, poFileText, entryPos };
-                }
-            ++endOfEntryPos;
-            // eat up whitespace on line
-            while (endOfEntryPos < poFileText.length() - 1 &&
-                   string_util::is_either(poFileText[endOfEntryPos], L'\t', L' '))
-                {
-                ++endOfEntryPos;
-                }
-            // stop if we encountered a blank line (with or without empty whitespace in it)
-            if (endOfEntryPos == poFileText.length() - 1 ||
-                string_util::is_either(poFileText[endOfEntryPos], L'\r', L'\n'))
-                {
-                break;
-                }
-            }
-        return { true, poFileText.substr(0, endOfEntryPos), entryPos };
-        }
-
-    //------------------------------------------------
-    std::pair<bool, std::wstring> po_file_review::read_msg(std::wstring_view& poFileText,
-                                                           const std::wstring_view msgTag)
-        {
-        size_t idPos = poFileText.find(msgTag);
-        if (idPos == std::wstring_view::npos)
-            {
-            return std::make_pair(false, std::wstring{});
-            }
-        // Step back to see if this is a previous translation (#|) or commented
-        // out translation (#~).
-        size_t lookBehindIndex{ idPos };
-        while (lookBehindIndex > 0 &&
-               string_util::is_neither(poFileText[lookBehindIndex], L'\r', L'\n'))
-            {
-            --lookBehindIndex;
-            }
-        if (poFileText[++lookBehindIndex] == L'#')
-            {
-            return std::make_pair(false, std::wstring{});
-            }
-
-        poFileText.remove_prefix(idPos + msgTag.length());
-
-        size_t idEndPos{ 0 };
-        while (true)
-            {
-            idEndPos = poFileText.find(L'\"', idEndPos);
-            if (idEndPos == std::wstring_view::npos)
-                {
-                return std::make_pair(false, std::wstring{});
-                }
-            // skip escaped quotes
-            if (idEndPos > 0 && poFileText[idEndPos - 1] == L'\\')
-                {
-                ++idEndPos;
-                continue;
-                }
-            else
-                {
-                size_t lookAheadIndex{ idEndPos + 1 };
-                // jump to next line
-                while (lookAheadIndex < poFileText.length() &&
-                       string_util::is_either(poFileText[lookAheadIndex], L'\r', L'\n'))
-                    {
-                    ++lookAheadIndex;
-                    }
-                // eat up leading spaces
-                while (lookAheadIndex < poFileText.length() &&
-                       string_util::is_either(poFileText[lookAheadIndex], L'\t', L' '))
-                    {
-                    ++lookAheadIndex;
-                    }
-                // if a quote, then this is still be part of the same string
-                if (lookAheadIndex < poFileText.length() && poFileText[lookAheadIndex] == L'"')
-                    {
-                    idEndPos = lookAheadIndex + 1;
-                    continue;
-                    }
-                break;
-                }
-            }
-        std::wstring msgId{ poFileText.substr(0, idEndPos) };
-        if (msgId.length() > 0 && msgId.front() == L'"')
-            {
-            msgId.erase(0, 1);
-            }
-        /// @todo make single pass
-        string_util::replace_all<std::wstring>(msgId, L"\"\r\n\"", L"");
-        string_util::replace_all<std::wstring>(msgId, L"\r\n\"", L"");
-        string_util::replace_all<std::wstring>(msgId, L"\"\n\"", L"");
-        string_util::replace_all<std::wstring>(msgId, L"\n\"", L"");
-        poFileText.remove_prefix(idEndPos);
-
-        return std::make_pair(true, msgId);
         }
     } // namespace i18n_check

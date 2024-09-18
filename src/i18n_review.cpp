@@ -1977,6 +1977,175 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
+    std::vector<std::pair<size_t, size_t>>
+    i18n_review::load_cpp_printf_command_positions(const std::wstring& resource)
+        {
+        std::vector<std::pair<size_t, size_t>> results;
+
+        // we need to do this multipass because a single regex command for all printf
+        // commands is too complex and will cause the regex library to randomly throw exceptions
+        std::wstring::const_iterator searchStart(resource.cbegin());
+        std::wsmatch res;
+        size_t commandPosition{ 0 };
+        size_t previousLength{ 0 };
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_int_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(res.position(2), res.length(2)));
+            }
+
+        searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_float_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(res.position(2), res.length(2)));
+            }
+
+        searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_string_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(res.position(2), res.length(2)));
+            }
+
+        searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_pointer_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(res.position(2), res.length(2)));
+            }
+
+        // sort by position
+        std::sort(results.begin(), results.end(),
+                  [](const auto& lhv, const auto& rhv) noexcept { return lhv.first < rhv.first; });
+
+        return results;
+        }
+
+    //------------------------------------------------
+    std::tuple<bool, std::wstring_view, size_t>
+    i18n_review::read_po_catalog_entry(std::wstring_view& poFileText)
+        {
+        const size_t entryPos = poFileText.find(L"\n#");
+        if (entryPos == std::wstring_view::npos)
+            {
+            return { false, std::wstring_view{}, std::wstring_view::npos };
+            }
+        poFileText.remove_prefix(entryPos);
+
+        // find the next blank line, which is the separator between catalog entries
+        size_t endOfEntryPos{ 0 };
+        while (endOfEntryPos != std::wstring_view::npos)
+            {
+            endOfEntryPos = poFileText.find(L'\n', endOfEntryPos);
+            // we must be at the last entry
+            if (endOfEntryPos == std::wstring_view::npos ||
+                endOfEntryPos == poFileText.length() - 1)
+                {
+                return { true, poFileText, entryPos };
+                }
+            ++endOfEntryPos;
+            // eat up whitespace on line
+            while (endOfEntryPos < poFileText.length() - 1 &&
+                   string_util::is_either(poFileText[endOfEntryPos], L'\t', L' '))
+                {
+                ++endOfEntryPos;
+                }
+            // stop if we encountered a blank line (with or without empty whitespace in it)
+            if (endOfEntryPos == poFileText.length() - 1 ||
+                string_util::is_either(poFileText[endOfEntryPos], L'\r', L'\n'))
+                {
+                break;
+                }
+            }
+        return { true, poFileText.substr(0, endOfEntryPos), entryPos };
+        }
+
+    //------------------------------------------------
+    std::tuple<bool, std::wstring, size_t, size_t>
+    i18n_review::read_po_msg(std::wstring_view& poFileText, const std::wstring_view msgTag)
+        {
+        const size_t idPos = poFileText.find(msgTag);
+        if (idPos == std::wstring_view::npos)
+            {
+            return { false, std::wstring{}, std::wstring::npos, std::wstring::npos };
+            }
+        // Step back to see if this is a previous translation (#|) or commented
+        // out translation (#~).
+        size_t lookBehindIndex{ idPos };
+        while (lookBehindIndex > 0 &&
+               string_util::is_neither(poFileText[lookBehindIndex], L'\r', L'\n'))
+            {
+            --lookBehindIndex;
+            }
+        if (poFileText[++lookBehindIndex] == L'#')
+            {
+            return { false, std::wstring{}, std::wstring::npos, std::wstring::npos };
+            }
+
+        poFileText.remove_prefix(idPos + msgTag.length());
+
+        size_t idEndPos{ 0 };
+        while (true)
+            {
+            idEndPos = poFileText.find(L'\"', idEndPos);
+            if (idEndPos == std::wstring_view::npos)
+                {
+                return { false, std::wstring{}, std::wstring::npos, std::wstring::npos };
+                }
+            // skip escaped quotes
+            if (idEndPos > 0 && poFileText[idEndPos - 1] == L'\\')
+                {
+                ++idEndPos;
+                continue;
+                }
+            else
+                {
+                size_t lookAheadIndex{ idEndPos + 1 };
+                // jump to next line
+                while (lookAheadIndex < poFileText.length() &&
+                       string_util::is_either(poFileText[lookAheadIndex], L'\r', L'\n'))
+                    {
+                    ++lookAheadIndex;
+                    }
+                // eat up leading spaces
+                while (lookAheadIndex < poFileText.length() &&
+                       string_util::is_either(poFileText[lookAheadIndex], L'\t', L' '))
+                    {
+                    ++lookAheadIndex;
+                    }
+                // if a quote, then this is still be part of the same string
+                if (lookAheadIndex < poFileText.length() && poFileText[lookAheadIndex] == L'"')
+                    {
+                    idEndPos = lookAheadIndex + 1;
+                    continue;
+                    }
+                break;
+                }
+            }
+        const std::wstring msgId{ process_po_msg(poFileText.substr(0, idEndPos)) };
+
+        poFileText.remove_prefix(idEndPos);
+
+        return { true, msgId, idPos, idEndPos };
+        }
+
+    //--------------------------------------------------
     std::pair<size_t, size_t>
     i18n_review::get_line_and_column(size_t position,
                                      std::wstring_view fileStart /*= std::wstring_view*/) const

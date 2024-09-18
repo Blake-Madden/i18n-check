@@ -183,7 +183,7 @@ namespace i18n_check
         po
         };
 
-        /// @brief Types of printf languages that a PO file can contain.
+    /// @brief Types of printf languages that a PO file can contain.
     /// @details This determines which type of syntax is expected.
     enum class po_format_string
         {
@@ -742,6 +742,29 @@ namespace i18n_check
             return m_file_extensions.find(str) != m_file_extensions.cend();
             }
 
+        /** @brief Loads all `printf` format commands from a string.
+            @param resource The string to parse.
+            @returns A vector of positions and lengths of all printf commands from the string.*/
+        [[nodiscard]]
+        static std::vector<std::pair<size_t, size_t>>
+        load_cpp_printf_command_positions(const std::wstring& resource);
+
+        /** @brief Finds and returns the next translation entry in a gettext po file.
+            @param poFileText the po file content to parse.
+            @returns If an entry is found, returns @c true, a view of the block, and its
+            starting position in @c poFileText.*/
+        [[nodiscard]]
+        static std::tuple<bool, std::wstring_view, size_t>
+        read_po_catalog_entry(std::wstring_view& poFileText);
+
+        /** @brief Finds and returns the message entry in a gettext catalog entry.
+            @param poFileText the po file content to parse.
+            @returns If an entry is found, returns @c true, the message's value, its
+            starting position in the entry section, and the length of the message.*/
+        [[nodiscard]]
+        static std::tuple<bool, std::wstring, size_t, size_t>
+        read_po_msg(std::wstring_view& poFileText, const std::wstring_view msgTag);
+
       protected:
         // traditionally, 80 chars is the recommended line width,
         // but 120 is a bit more reasonable
@@ -779,6 +802,24 @@ namespace i18n_check
                            const std::wstring& functionName, const std::wstring& variableType,
                            const std::wstring& deprecatedMacroEncountered,
                            const size_t parameterPosition);
+
+        [[nodiscard]]
+        static std::wstring process_po_msg(std::wstring_view msg)
+            {
+            std::wstring msgId{ msg };
+
+            if (msgId.length() > 0 && msgId.front() == L'"')
+                {
+                msgId.erase(0, 1);
+                }
+            /// @todo make single pass
+            string_util::replace_all<std::wstring>(msgId, L"\"\r\n\"", L"");
+            string_util::replace_all<std::wstring>(msgId, L"\r\n\"", L"");
+            string_util::replace_all<std::wstring>(msgId, L"\"\n\"", L"");
+            string_util::replace_all<std::wstring>(msgId, L"\n\"", L"");
+
+            return msgId;
+            }
 
         /// Determines whether a hard-coded string should actually be
         ///     exposed for translation or not. If so, then it will be added to the queue of
@@ -1101,7 +1142,7 @@ namespace i18n_check
         static const std::wregex m_printf_cpp_pointer_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
 
-    private:
+      private:
         [[nodiscard]]
         static std::vector<std::wstring>
         convert_positional_cpp_printf(const std::vector<std::wstring>& printfCommands,

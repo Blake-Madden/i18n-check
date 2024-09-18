@@ -45,14 +45,6 @@ namespace i18n_check
             }
 
       private:
-        [[nodiscard]]
-        static std::tuple<bool, std::wstring_view, size_t>
-        read_catalog_entry(std::wstring_view& poFileText);
-
-        [[nodiscard]]
-        static std::pair<bool, std::wstring> read_msg(std::wstring_view& poFileText,
-                                                      const std::wstring_view msgTag);
-
         bool m_reviewFuzzy{ false };
         };
     } // namespace i18n_check
