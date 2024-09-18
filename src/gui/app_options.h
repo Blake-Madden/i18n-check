@@ -32,8 +32,7 @@ struct I18NOptions
                                     i18n_check::review_style::check_utf8_encoded |
                                     i18n_check::review_style::check_printf_single_number |
                                     i18n_check::review_style::check_l10n_contains_url |
-                                    i18n_check::review_style::check_malformed_strings |
-                                    i18n_check::review_style::check_fonts |
+        i18n_check::review_style::check_malformed_strings | i18n_check::review_style::check_fonts |
                                     i18n_check::review_style::all_l10n_checks) };
     bool m_fuzzyTranslations{ false };
     bool m_logMessagesCanBeTranslated{ true };

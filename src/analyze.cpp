@@ -303,7 +303,8 @@ namespace i18n_check
         for (const auto& val : rc.get_localizable_strings_with_urls())
             {
             report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
-                   << L"\"\t" << L"String available for translation that contains an URL or email address."
+                   << L"\"\t"
+                   << L"String available for translation that contains an URL or email address."
                    << L"\t[urlInL10NString]\n";
             }
 
@@ -329,16 +330,18 @@ namespace i18n_check
                 if (issue.first == translation_issue::printf_issue)
                     {
                     report
-                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t" << issue.second
+                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
+                        << issue.second
                         << L"\tMismatching printf command between source and translation strings."
                            "\t[printfMismatch]\n";
                     }
-                else if (issue.first == translation_issue::unsafe_source_issue)
+                else if (issue.first == translation_issue::suspect_source_issue)
                     {
-                    report
-                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t" << issue.second
-                        << L"\tString available for translation that probably should not be, or contains a hard-coded URL or email address."
-                           "\t[suspectL10NString]\n";
+                    report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
+                           << issue.second
+                           << L"\tString available for translation that probably should not be, or "
+                              "contains a hard-coded URL or email address."
+                              "\t[suspectL10NString]\n";
                     }
                 }
             }

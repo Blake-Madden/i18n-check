@@ -379,7 +379,7 @@ void NewProjectDialog::CreateControls()
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
         gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
-                                    _(L"printf()-like functions being used to just "
+                                    _(L"printf functions being used to just "
                                       "format a number"),
                                     wxDefaultPosition, wxDefaultSize, 0,
                                     wxGenericValidator(&m_printfSingleNumber)),
@@ -469,7 +469,7 @@ void NewProjectDialog::CreateControls()
             size_t currentRow{ 0 };
 
             gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
-                                        _(L"Check for mismatching printf() commands"),
+                                        _(L"Check for inconsistent printf format specifiers"),
                                         wxDefaultPosition, wxDefaultSize, 0,
                                         wxGenericValidator(&m_printfMismatch)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
@@ -503,7 +503,9 @@ void NewProjectDialog::CreateControls()
         mainSizer->Add(poOptionsSizer, wxSizerFlags{}.Expand().Border());
         mainSizer->Add(rcOptionsSizer, wxSizerFlags{}.Expand().Border());
         mainSizer->AddStretchSpacer();
-        mainSizer->Add(new wxStaticText(transPage, wxID_STATIC,
+        mainSizer->Add(
+            new wxStaticText(
+                transPage, wxID_STATIC,
             _(L"Note: additional checks will also be performed on source messages.")),
             wxSizerFlags{}.Expand().Border());
 

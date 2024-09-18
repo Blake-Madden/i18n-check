@@ -144,6 +144,39 @@ namespace i18n_check
         po
         };
 
+        /// @brief Types of printf languages that a PO file can contain.
+    /// @details This determines which type of syntax is expected.
+    enum class po_format_string
+        {
+        /// @brief This string is not meant for `printf()`-like functions.
+        no_format,
+        /// @brief C/C++ style `printf()`.
+        cpp_format,
+        /// @brief Objective-C.
+        objc_format
+        };
+
+    /// @brief An entry in a PO file, which contains source and translation strings,
+    ///     printf syntax that they use, and any encountered issues.
+    struct translation_catalog_entry
+        {
+        /// @brief The main source string.
+        std::wstring m_source;
+        /// @brief An optional plural variation of the source string.
+        std::wstring m_source_plural;
+        /// @brief The translation of the main source string.
+        std::wstring m_translation;
+        /// @brief The translation of the optional plural form of the source string.
+        std::wstring m_translation_plural;
+        /// @brief The printf syntax used by the strings.\n
+        ///     Only used for gettext PO files.
+        po_format_string m_po_format{ po_format_string::no_format };
+        /// @brief Any issues detected in this entry.
+        std::vector<std::pair<translation_issue, std::wstring>> m_issues;
+        /// @brief The position in the file.
+        size_t m_line{ std::wstring_view::npos };
+        };
+
     /** @brief Class to extract and review localizable/nonlocalizable
             text from source code.*/
     class i18n_review
@@ -794,6 +827,22 @@ namespace i18n_check
             return m_keywords.find(str) != m_keywords.cend();
             }
 
+        /** @brief Loads all `printf` format commands from a string.
+            @param resource The string to parse.
+            @param[out] errorInfo Information about any bad printf commands\n
+                (e.g., positional and regular commands in the same string).
+            @returns All `printf` format commands from @c resource.
+            @details `printf` syntax:
+
+             https://en.cppreference.com/w/c/io/fprintf
+
+             `printf` positional arguments:
+
+             https://learn.microsoft.com/en-us/cpp/c-runtime-library/printf-p-positional-parameters?view=msvc-170*/
+        [[nodiscard]]
+        static std::vector<std::wstring> load_cpp_printf_commands(const std::wstring& resource,
+                                                                  std::wstring& errorInfo);
+
         /** @brief Logs a debug message.
             @param info Information, such as a string causing a parsing error.
             @param message An informational message.
@@ -1012,6 +1061,12 @@ namespace i18n_check
         static const std::wregex m_printf_cpp_string_regex;
         static const std::wregex m_printf_cpp_pointer_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
+
+    private:
+        [[nodiscard]]
+        static std::vector<std::wstring>
+        convert_positional_cpp_printf(const std::vector<std::wstring>& printfCommands,
+                                      std::wstring& errorInfo);
 
         // helpers
         mutable std::vector<parse_messages> m_error_log;

@@ -177,16 +177,14 @@ namespace i18n_check
     //--------------------------------------------------
     i18n_review::i18n_review()
         {
-        m_deprecated_string_macros = {
-            { L"wxT", L"wxT() macro can be removed." },
+        m_deprecated_string_macros = { { L"wxT", L"wxT() macro can be removed." },
             { L"wxT_2", L"wxT_2() macro can be removed." },
             { L"_T", L"_T() macro can be removed." },
             { L"__T", L"__T() macro can be removed." },
             { L"TEXT", L"TEXT() macro can be removed." },
             { L"_TEXT", L"_TEXT() macro can be removed." },
             { L"__TEXT", L"__TEXT() macro can be removed." },
-            { L"_WIDE", L"_WIDE() macro can be removed." }
-        };
+                                       { L"_WIDE", L"_WIDE() macro can be removed." } };
 
         // Whole file needs to be scanned for these, as string variables can be passed to these
         // as well as hard-coded strings.
@@ -1830,6 +1828,138 @@ namespace i18n_check
             }
 
         return functionOrVarNamePos;
+        }
+
+        //------------------------------------------------
+    std::vector<std::wstring>
+    i18n_review::convert_positional_cpp_printf(const std::vector<std::wstring>& printfCommands,
+                                                  std::wstring& errorInfo)
+        {
+        errorInfo.clear();
+
+        const std::wregex positionalRegex{ L"^%([[:digit:]]+)[$](.*)" };
+
+        std::map<long, std::wstring> positionalCommands;
+        std::vector<std::wstring> adjustedCommands{ printfCommands };
+
+        size_t nonPositionalCommands{ 0 };
+        for (const auto& pc : printfCommands)
+            {
+            std::match_results<std::wstring::const_iterator> matches;
+            if (std::regex_search(pc, matches, positionalRegex))
+                {
+                if (matches.size() >= 3)
+                    {
+                    // position will need to be zero-indexed
+                    long position = std::wcstol(matches[1].str().c_str(), nullptr, 10) - 1;
+                    const auto [insertionPos, inserted] = positionalCommands.insert(
+                        std::make_pair(position, L"%" + matches[2].str()));
+                    // if positional argument is used more than once, make sure they are consistent
+                    if (!inserted)
+                        {
+                        if (insertionPos->second != L"%" + matches[2].str())
+                            {
+                            errorInfo = L"('" + matches[0].str() +
+                                        L"': positional argument provided more than once, but with "
+                                        "different data types.)";
+                            return std::vector<std::wstring>{};
+                            }
+                        }
+                    };
+                }
+            else
+                {
+                ++nonPositionalCommands;
+                }
+            }
+
+        // Fill output commands from positional arguments.
+        // Note that you cannot mix positional and non-positional arguments
+        // in the same printf string. If that is happening here, then the
+        // non-positional ones will be thrown out and be recorded as an error later.
+        if (positionalCommands.size())
+            {
+            if (nonPositionalCommands > 0)
+                {
+                errorInfo =
+                    L"(Positional and non-positional commands mixed in the same printf string.)";
+                }
+            adjustedCommands.clear();
+            for (auto& posArg : positionalCommands)
+                {
+                adjustedCommands.push_back(std::move(posArg.second));
+                }
+            }
+
+        return adjustedCommands;
+        }
+
+    //------------------------------------------------
+    std::vector<std::wstring> i18n_review::load_cpp_printf_commands(const std::wstring& resource,
+                                                                       std::wstring& errorInfo)
+        {
+        std::vector<std::pair<size_t, std::wstring>> results;
+
+        // we need to do this multipass because a single regex command for all printf
+        // commands is too complex and will cause the regex library to randomly throw exceptions
+        std::wstring::const_iterator searchStart(resource.cbegin());
+        std::wsmatch res;
+        size_t commandPosition{ 0 };
+        size_t previousLength{ 0 };
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_int_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.str(2)));
+            }
+
+        searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_float_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.str(2)));
+            }
+
+        searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_string_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.str(2)));
+            }
+
+        searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
+        while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_pointer_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.str(2)));
+            }
+
+        // sort by position
+        std::sort(results.begin(), results.end(),
+                  [](const auto& lhv, const auto& rhv) noexcept { return lhv.first < rhv.first; });
+
+        std::vector<std::wstring> finalStrings;
+        finalStrings.reserve(results.size());
+        for (auto& result : results)
+            {
+            finalStrings.push_back(std::move(result.second));
+            }
+
+        return convert_positional_cpp_printf(finalStrings, errorInfo);
         }
 
     //--------------------------------------------------
