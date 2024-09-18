@@ -44,6 +44,8 @@ namespace i18n_check
             return m_reviewFuzzy;
             }
 
+        void review_strings() final { translation_catalog_review::review_strings(); }
+
       private:
         bool m_reviewFuzzy{ false };
         };
