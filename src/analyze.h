@@ -108,7 +108,8 @@ namespace i18n_check
             {
             return file_review_type::rc;
             }
-        else if (ext.compare(std::filesystem::path(L".po")) == 0)
+        else if (ext.compare(std::filesystem::path(L".po")) == 0 ||
+                 ext.compare(std::filesystem::path(L".pot")) == 0)
             {
             return file_review_type::po;
             }
