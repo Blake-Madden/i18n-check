@@ -171,6 +171,13 @@ namespace i18n_check
         newMsg.reserve(m_add_surrounding_brackets ? msg.size() + 6 : msg.size());
         for (size_t i = 0; i < msg.length(); /* handled in loop*/)
             {
+            // step over escaped characters
+            if (msg[i] == L'\\')
+                {
+                newMsg += msg[i++];
+                newMsg += msg[i++];
+                continue;
+                }
             // step over printf commands
             const auto foundPos = std::find_if(printfSpecifiers.cbegin(), printfSpecifiers.cend(),
                                                [i](auto val) noexcept { return val.first == i; });
