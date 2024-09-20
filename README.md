@@ -10,7 +10,12 @@ Internationalization & localization analysis system for C++ code, *gettext* cata
 <img src="options-dialog-source.png" width="300" />
 <img src="options-dialog-resources.png" width="300" />
 
-`i18n-check` is a command-line utility and graphical interface that scans a folder of files and checks for the following issues:
+`i18n-check` is a command-line utility and graphical interface that scans source and resource files and checks for
+various i18n and l10n issues. Additionally, the GUI version provides pseudo-translation support for
+*gettext* catalogs (\*.po files).
+
+The command line and GUI versions provide the following checks:
+
 - Strings exposed for translation¹ that probably should not be. This includes (but not limited to):
   - Filenames
   - Strings only containing `printf()` commands
@@ -27,7 +32,7 @@ Internationalization & localization analysis system for C++ code, *gettext* cata
   best portability between compilers.
 - Strings with malformed syntax (e.g., malformed HTML tags).
 - Use of deprecated text macros (e.g., `wxT()` in wxWidgets, `_T()` in Win32).
-- Use of deprecated string functions (e.g., `_tcsncpy` in Win32).
+- Use of deprecated string functions (e.g., `_tcsncpy()` in Win32).
 - Files that contain extended ASCII characters, but are not UTF-8 encoded.<br />
   (It is recommended that files be UTF-8 encoded for portability between compilers.)
 - UTF-8 encoded files which start with a BOM/UTF-8 signature.<br />
