@@ -13,6 +13,7 @@
 #define __PSEUDO_FILE_REVIEW_H__
 
 #include "i18n_review.h"
+#include <cmath>
 #include <map>
 #include <regex>
 #include <set>
