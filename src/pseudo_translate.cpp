@@ -79,39 +79,50 @@ namespace i18n_check
             std::wstring_view msgIdEntry{ entryContent };
             const auto [foundMsgId, msgIdContent, msgIdPos, msgIdLen] =
                 i18n_review::read_po_msg(msgIdEntry, MSGID);
+            // read the plural source string
+            std::wstring_view msgIdPluralEntry{ entryContent };
             const auto [foundMsgPluralId, msgIdPluralContent, msgIdPluralPos, msgIdPluralLen] =
-                i18n_review::read_po_msg(msgIdEntry, MSGID_PLURAL);
+                i18n_review::read_po_msg(msgIdPluralEntry, MSGID_PLURAL);
+
+            // read the plural translation...
+            std::wstring_view msgStrPluralEntry{ entryContent };
+            const auto [foundMsgPluralStr, msgStrPluralContent, msgStrPluralPos, msgStrPluralLen] =
+                i18n_review::read_po_msg(msgStrPluralEntry, MSGSTR1);
+
+            // if there is a plural source string, then pseudo-translate msgstr[0] based
+            // on the singular form; otherwise, pseudo-translate msgstr.
+            const std::wstring_view msgStrKey = (foundMsgPluralId ? MSGSTR0 : MSGSTR);
+            // read the main translation
+            std::wstring_view msgStrEntry{ entryContent };
+            const auto [foundMsgStr, msgStrContent, msgStrPos, msgStrLen] =
+                i18n_review::read_po_msg(msgStrEntry, msgStrKey);
+
+            size_t adjustedMainTranslationLength{ 0 };
+
             if (foundMsgId)
                 {
-                // if there is a plural source string, then pseudo-translate msgstr[0] based
-                // on the singular form; otherwise, pseudo-translate msgstr.
-                const std::wstring_view msgStrKey = (foundMsgPluralId ? MSGSTR0 : MSGSTR);
-                // read the main translation...
-                std::wstring_view msgStrEntry{ entryContent };
-                const auto [foundMsgStr, msgStrContent, msgStrPos, msgStrLen] =
-                    i18n_review::read_po_msg(msgStrEntry, msgStrKey);
                 if (foundMsgStr)
                     {
-                    // ...and replace it with a pseudo-translation
-                    altertedLenthDiff = msgIdLen - msgStrLen;
+                    // replace main translation it with a pseudo-translation
+                    auto mutatedStr{ mutate_message(msgIdContent) };
+                    adjustedMainTranslationLength = mutatedStr.length() - msgStrLen;
+                    altertedLenthDiff = mutatedStr.length() - msgStrLen;
                     poFileText.replace(currentPosition + msgStrPos + msgStrKey.length(), msgStrLen,
-                                       mutate_message(msgIdContent));
+                                       std::move(mutatedStr));
                     }
                 }
             // if a plural form of the source string exists, then pseudo-translate msgstr[1]
-            // based on that
+            // based on that...
             if (foundMsgPluralId)
                 {
-                // read the plural translation...
-                std::wstring_view msgStrEntry{ entryContent };
-                const auto [foundMsgStr, msgStrContent, msgStrPos, msgStrLen] =
-                    i18n_review::read_po_msg(msgStrEntry, MSGSTR1);
-                if (foundMsgStr)
+                if (foundMsgPluralStr)
                     {
                     // ...and replace it with a pseudo-translation
-                    altertedLenthDiff += msgIdPluralLen - msgStrLen;
-                    poFileText.replace(currentPosition + msgStrPos + MSGSTR1.length(), msgStrLen,
-                                       mutate_message(msgIdPluralContent));
+                    auto mutatedStr{ mutate_message(msgIdPluralContent) };
+                    altertedLenthDiff += mutatedStr.length() - msgStrPluralLen;
+                    poFileText.replace(currentPosition + msgStrPluralPos + MSGSTR1.length() +
+                                           adjustedMainTranslationLength,
+                                       msgStrPluralLen, std::move(mutatedStr));
                     }
                 }
 
