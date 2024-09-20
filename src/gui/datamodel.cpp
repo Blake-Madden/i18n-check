@@ -174,10 +174,10 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
             {
             bmps = wxArtProvider::GetBitmapBundle(L"ID_DEBUG", wxART_OTHER);
             }
-        variant = (wxVariant)wxDataViewIconText(wxFileName::Exists(node->m_warningId) ?
-                                                    wxFileName{ node->m_warningId }.GetFullName() :
+        variant = static_cast<wxVariant>(wxDataViewIconText(
+            wxFileName::Exists(node->m_warningId) ? wxFileName{ node->m_warningId }.GetFullName() :
                                                     node->m_warningId,
-                                                bmps);
+            bmps));
         }
         break;
     case 1:
