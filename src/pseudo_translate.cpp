@@ -153,12 +153,22 @@ namespace i18n_check
 
         // mark the file's encoding as UTF-8
         const std::wregex CONTENT_TYPE_RE{
-            LR"((\r|\n)\"Content-Type:[ ]*text/plain;[ ]*charset[ ]*=[ ]*([a-zA-Z0-9\-]+))"
+            LR"((\r|\n)\"Content-Type:[ ]*text/plain;[ ]*charset[ ]*=[ ]*([a-zA-Z0-9\-]*))"
         };
         std::wsmatch matches;
         if (std::regex_search(poFileText, matches, CONTENT_TYPE_RE) && matches.size() >= 3)
             {
             poFileText.replace(matches.position(2), matches.length(2), L"UTF-8");
+            }
+
+        // if target language is missing, then set to Esperanto
+        const std::wregex LANG_RE{
+            LR"((\r|\n)\"Language:[ ]*([a-zA-Z0-9\-]*))"
+        };
+        if (std::regex_search(poFileText, matches, LANG_RE) && matches.size() >= 3 &&
+            matches.length(2) == 0)
+            {
+            poFileText.replace(matches.position(2), matches.length(2), L"eo");
             }
         }
 
