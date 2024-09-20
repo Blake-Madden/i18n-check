@@ -42,6 +42,7 @@ msgstr "Сервер не поддерживает команду PORT."")";
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
+
 #: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%u, %s) for the frame #%u"
@@ -64,6 +65,7 @@ msgstr "Неправильный размер кадра (%d, %s) для frame #
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
+
 #: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%u, %s) for the frame #%u"
@@ -82,6 +84,7 @@ TEST_CASE("Printf fuzzy", "[po][l10n]")
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
+
 #: ../src/common/decod.cpp:826
 #, c-format, fuzzy
 msgid "Incorrect frame size (%u, %s) for the frame #%u"
@@ -105,6 +108,7 @@ TEST_CASE("Printf fuzzy allow", "[po][l10n]")
 		po_file_review po;
 		po.review_fuzzy_translations(true);
 		const wchar_t* code = LR"(
+
 #: ../src/common/decod.cpp:826
 #, c-format, fuzzy
 msgid "Incorrect frame size (%u, %s) for the frame #%u"
@@ -127,6 +131,7 @@ TEST_CASE("Printf no format", "[po][l10n]")
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
+
 #: ../src/common/decod.cpp:826
 #, no-cpp-format, fuzzy
 msgid "Incorrect frame size (%u, %s) for the frame #%u"
@@ -148,7 +153,9 @@ msgstr "Неправильный размер кадра (%d, %s) для frame #
 TEST_CASE("Printf c-format percentage", "[po][l10n]")
 	{
 	po_file_review po;
-		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
 #, c-format
 msgid "Volume %ld%%."
 msgstr "Bolumena: %%%ld")";
@@ -165,7 +172,9 @@ msgstr "Bolumena: %%%ld")";
 TEST_CASE("Printf c-format percentage has issue", "[po][l10n]")
 	{
 	po_file_review po;
-		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
 #, c-format
 msgid "Volume %ld%%."
 msgstr "Bolumena: %%%d")";
@@ -182,7 +191,9 @@ msgstr "Bolumena: %%%d")";
 TEST_CASE("Printf c-format slash", "[po][l10n]")
 	{
 	po_file_review po;
-		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
 #, c-format
 msgid "%d/%d blocks at 0x%02x"
 msgstr "%d%d bloques en 0x%02x")";
@@ -202,6 +213,7 @@ TEST_CASE("Printf c-format positionals", "[po][l10n]")
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
+
 #: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%u, %s) for the value %.5f"
@@ -219,6 +231,7 @@ msgstr "Неправильный размер кадра (%2$s, %1$u) для val
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
+
 #: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%u, %s) for the value %.5f"
@@ -236,6 +249,7 @@ msgstr "Неправильный %2$s размер кадра (%2$s, %1$u) дл�
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
+
 #: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%u, %s) for the value %.5f"
@@ -253,6 +267,7 @@ msgstr "Неправильный %2$s размер кадра (%2$d, %1$u) дл�
 		{
 		po_file_review po;
 		const wchar_t* code = LR"(
+
 #: ../src/common/decod.cpp:826
 #, c-format
 msgid "Incorrect frame size (%u, %s) value"
