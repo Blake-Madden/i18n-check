@@ -40,7 +40,7 @@ namespace i18n_check
         /** @brief Pseudo-translates a gettext PO file.
             @param[in,out] poFileText The PO file's text to translate.
             @todo Add support for ignoring C++20 format library specifiers.*/
-        void po_file(std::wstring& poFileText) const;
+        void translate_po_file(std::wstring& poFileText) const;
 
         /** @brief Sets how to pseudo-translate the strings.
             @param method The pseudo-translation method.*/

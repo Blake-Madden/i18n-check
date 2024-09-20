@@ -30,14 +30,13 @@ namespace i18n_check
     };
 
     //------------------------------------------------
-    void pseudo_translater::po_file(std::wstring& poFileText) const
+    void pseudo_translater::translate_po_file(std::wstring& poFileText) const
         {
         if (poFileText.empty())
             {
             return;
             }
 
-        static const std::wregex msgstr_regex{ LR"((\r|\n)+msgstr(\[[0-9]+\])? ")" };
         static const std::wstring_view MSGID{ L"msgid \"" };
         static const std::wstring_view MSGID_PLURAL{ L"msgid_plural \"" };
         static const std::wstring_view MSGSTR{ L"msgstr \"" };
@@ -150,6 +149,16 @@ namespace i18n_check
             --nextChar; // step back to last newline
             poFileText.replace(lastChar, nextChar - lastChar, L"");
             foundPos = poFileText.find(L"#, fuzzy", foundPos);
+            }
+
+        // mark the file's encoding as UTF-8
+        const std::wregex CONTENT_TYPE_RE{
+            LR"((\r|\n)\"Content-Type:[ ]*text/plain;[ ]*charset[ ]*=[ ]*([a-zA-Z0-9\-]+))"
+        };
+        std::wsmatch matches;
+        if (std::regex_search(poFileText, matches, CONTENT_TYPE_RE) && matches.size() >= 3)
+            {
+            poFileText.replace(matches.position(2), matches.length(2), L"UTF-8");
             }
         }
 

@@ -158,7 +158,7 @@ namespace i18n_check
                     {
                     if (fileType == file_review_type::po)
                         {
-                        trans.po_file(fileUtf8Text);
+                        trans.translate_po_file(fileUtf8Text);
                         outputFile(outPath, fileUtf8Text);
                         }
                     }
@@ -167,7 +167,7 @@ namespace i18n_check
                     // UTF-16 may not be supported consistently on all platforms and compilers
                     if (fileType == file_review_type::po)
                         {
-                        trans.po_file(fileUtf16Text);
+                        trans.translate_po_file(fileUtf16Text);
                         outputFile(outPath, fileUtf16Text);
                         }
                     }
@@ -178,7 +178,7 @@ namespace i18n_check
                                      std::istreambuf_iterator<wchar_t>());
                     if (fileType == file_review_type::po)
                         {
-                        trans.po_file(str);
+                        trans.translate_po_file(str);
                         outputFile(outPath, str);
                         }
                     }
