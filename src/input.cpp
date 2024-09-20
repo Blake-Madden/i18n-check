@@ -80,7 +80,10 @@ namespace i18n_check
 
         if (std::filesystem::is_regular_file(inputFolder) && std::filesystem::exists(inputFolder))
             {
-            filesToAnalyze.push_back(inputFolder.wstring());
+            if (!inputFolder.filename().wstring().starts_with(L"pseudo_"))
+                {
+                filesToAnalyze.push_back(inputFolder.wstring());
+                }
             }
         else if (std::filesystem::is_directory(inputFolder) && std::filesystem::exists(inputFolder))
             {
@@ -121,7 +124,9 @@ namespace i18n_check
                      ext.compare(std::filesystem::path(L".po")) == 0) &&
                     // ignore CMake build files
                     p.path().filename().compare(L"CMakeCXXCompilerId.cpp") != 0 &&
-                    p.path().filename().compare(L"CMakeCCompilerId.c") != 0)
+                    p.path().filename().compare(L"CMakeCCompilerId.c") != 0 &&
+                    // ignore pseudo-translated message catalogs what we previously generated
+                    !p.path().filename().wstring().starts_with(L"pseudo_"))
                     {
                     filesToAnalyze.push_back(p.path().wstring());
                     }

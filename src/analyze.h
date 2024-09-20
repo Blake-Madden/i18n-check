@@ -59,10 +59,17 @@ namespace i18n_check
         @details Copies of each file are made in the same folder with
             'pseudo_' prepended to the file name.
         @param filesToTranslate The files to translate.
+        @param pseudoMethod How to pseudo-translate the content.
+        @param widthIncrease How much width to increase the pseudo-translation from
+            the source string. This will pad the string with hyphens.
+        @param addSurroundingBrackets @c true to add square brackets and bangs
+            around each translation.
         @param callback Callback function to display the progress.
             Takes the current file index, overall file count, and the name of the current file.
             Returning @c false indicates that the user cancelled the analysis.*/
     void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
+                          i18n_check::pseudo_translation_method pseudoMethod,
+                          bool addSurroundingBrackets, uint8_t widthIncrease,
                           analyze_callback callback);
 
     /** @returns A formatted summary of the results.

@@ -776,7 +776,37 @@ void I18NFrame::Process()
             wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
     progressDlg.Centre();
 
-    analyze(
+    if (m_activeProjectOptions.m_pseudoTranslationMethod !=
+        i18n_check::pseudo_translation_method::none)
+        {
+        i18n_check::pseudo_translate(
+            filesToAnalyze, m_activeProjectOptions.m_pseudoTranslationMethod,
+            m_activeProjectOptions.m_addPseudoTransBrackets,
+            m_activeProjectOptions.m_widthPseudoIncrease,
+            [&progressDlg](const size_t currentFileIndex, const size_t fileCount,
+                           const std::wstring& file)
+            {
+                progressDlg.SetTitle(
+                    wxString::Format(_(L"Pseudo-translating %s of %s Files..."),
+                                     wxNumberFormatter::ToString(
+                                         currentFileIndex, 0,
+                                         wxNumberFormatter::Style::Style_NoTrailingZeroes |
+                                             wxNumberFormatter::Style::Style_WithThousandsSep),
+                                     wxNumberFormatter::ToString(
+                                         fileCount, 0,
+                                         wxNumberFormatter::Style::Style_NoTrailingZeroes |
+                                             wxNumberFormatter::Style::Style_WithThousandsSep)));
+                if (!progressDlg.Update(currentFileIndex,
+                                        wxString::Format(_(L"Pseudo-translating %s..."),
+                                                         wxFileName{ file }.GetFullName())))
+                    {
+                    return false;
+                    }
+                return true;
+            });
+        }
+
+    i18n_check::analyze(
         filesToAnalyze, cpp, rc, po, filesThatShouldBeConvertedToUTF8,
         filesThatContainUTF8Signature,
         [&progressDlg](const size_t currentFileIndex, const size_t fileCount,

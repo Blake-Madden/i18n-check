@@ -15,6 +15,7 @@
 #include "../i18n_review.h"
 #include "app_options.h"
 #include <wx/artprov.h>
+#include <wx/choice.h>
 #include <wx/combobox.h>
 #include <wx/dirdlg.h>
 #include <wx/filename.h>
@@ -27,6 +28,7 @@
 #include <wx/valgen.h>
 #include <wx/valtext.h>
 #include <wx/wx.h>
+#include <wx/slider.h>
 
 /** @brief Prompt for selecting a folder,
         a file filter for files to select from it,
@@ -60,6 +62,10 @@ class NewProjectDialog final : public wxDialog
         options.m_filePath = GetPath();
         options.m_excludedPaths = GetExcludedPath();
         options.m_fuzzyTranslations = UseFuzzyTranslations();
+        options.m_addPseudoTransBrackets = m_addPseudoTransBrackets;
+        options.m_widthPseudoIncrease = m_widthPseudoIncrease;
+        options.m_pseudoTranslationMethod =
+            static_cast<i18n_check::pseudo_translation_method>(m_pseudoTranslationMethod);
         options.m_logMessagesCanBeTranslated = LogMessagesCanBeTranslated();
         options.m_allowTranslatingPunctuationOnlyStrings = AllowTranslatingPunctuationOnlyStrings();
         options.m_exceptionsShouldBeTranslatable = ExceptionsShouldBeTranslatable();
@@ -75,6 +81,9 @@ class NewProjectDialog final : public wxDialog
         m_filePath = options.m_filePath;
         m_excludedPaths = options.m_excludedPaths;
         m_fuzzyTranslations = options.m_fuzzyTranslations;
+        m_widthPseudoIncrease = options.m_widthPseudoIncrease;
+        m_addPseudoTransBrackets = options.m_addPseudoTransBrackets;
+        m_pseudoTranslationMethod = static_cast<int>(options.m_pseudoTranslationMethod);
         m_logMessagesCanBeTranslated = options.m_logMessagesCanBeTranslated;
         m_allowTranslatingPunctuationOnlyStrings = options.m_allowTranslatingPunctuationOnlyStrings;
         m_exceptionsShouldBeTranslatable = options.m_exceptionsShouldBeTranslatable;
@@ -82,6 +91,22 @@ class NewProjectDialog final : public wxDialog
             options.m_minWordsForClassifyingUnavailableString;
         MinCppVersion(options.m_minCppVersion);
         TransferDataToWindow();
+        if (m_pseudoSurroundingBracketsCheckbox != nullptr)
+            {
+            m_pseudoSurroundingBracketsCheckbox->Enable(m_pseudoTranslationMethod != 0);
+            }
+        if (m_pseudoIncreaseSlider != nullptr)
+            {
+            m_pseudoIncreaseSlider->Enable(m_pseudoTranslationMethod != 0);
+            }
+        if (m_pseudoSliderLabel != nullptr)
+            {
+            m_pseudoSliderLabel->Enable(m_pseudoTranslationMethod != 0);
+            }
+        if (m_pseudoSliderPercentLabel != nullptr)
+            {
+            m_pseudoSliderPercentLabel->Enable(m_pseudoTranslationMethod != 0);
+            }
         }
 
     /// @returns The path of the selected folder.
@@ -110,7 +135,7 @@ class NewProjectDialog final : public wxDialog
         }
 
     [[nodiscard]]
-    i18n_check::review_style GetOptions() const
+    i18n_check::review_style GetOptions() const noexcept
         {
         return static_cast<i18n_check::review_style>(m_options);
         }
@@ -118,7 +143,7 @@ class NewProjectDialog final : public wxDialog
     void SetOptions(const i18n_check::review_style style);
 
     [[nodiscard]]
-    bool UseFuzzyTranslations() const
+    bool UseFuzzyTranslations() const noexcept
         {
         return m_fuzzyTranslations;
         }
@@ -130,7 +155,7 @@ class NewProjectDialog final : public wxDialog
         }
 
     [[nodiscard]]
-    bool LogMessagesCanBeTranslated() const
+    bool LogMessagesCanBeTranslated() const noexcept
         {
         return m_logMessagesCanBeTranslated;
         }
@@ -142,7 +167,7 @@ class NewProjectDialog final : public wxDialog
         }
 
     [[nodiscard]]
-    bool AllowTranslatingPunctuationOnlyStrings() const
+    bool AllowTranslatingPunctuationOnlyStrings() const noexcept
         {
         return m_allowTranslatingPunctuationOnlyStrings;
         }
@@ -154,7 +179,7 @@ class NewProjectDialog final : public wxDialog
         }
 
     [[nodiscard]]
-    bool ExceptionsShouldBeTranslatable() const
+    bool ExceptionsShouldBeTranslatable() const noexcept
         {
         return m_exceptionsShouldBeTranslatable;
         }
@@ -166,7 +191,7 @@ class NewProjectDialog final : public wxDialog
         }
 
     [[nodiscard]]
-    size_t MinWordsForClassifyingUnavailableString() const
+    size_t MinWordsForClassifyingUnavailableString() const noexcept
         {
         return m_minWordsForClassifyingUnavailableString;
         }
@@ -231,6 +256,7 @@ class NewProjectDialog final : public wxDialog
     constexpr static int ID_FOLDER_BROWSE_BUTTON = wxID_HIGHEST;
     constexpr static int ID_EXCLUDED_FOLDERS_BROWSE_BUTTON = wxID_HIGHEST + 1;
     constexpr static int ID_EXCLUDED_FILES_BROWSE_BUTTON = wxID_HIGHEST + 2;
+    constexpr static int ID_PSEUDO_METHODS = wxID_HIGHEST + 3;
 
     bool m_showFileOptions{ true };
 
@@ -260,14 +286,21 @@ class NewProjectDialog final : public wxDialog
     bool m_fontIssue{ true };
     // PO options
     bool m_fuzzyTranslations{ true };
+    int m_pseudoTranslationMethod{ 0 };
+    bool m_addPseudoTransBrackets{ false };
+    int m_widthPseudoIncrease{ 0 };
     // formatting options
     bool m_trailingSpaces{ true };
     bool m_tabs{ true };
     bool m_wideLine{ true };
     bool m_commentMissingSpace{ true };
-
     // checks
     int64_t m_options{ i18n_check::review_style::no_checks };
+
+    wxCheckBox* m_pseudoSurroundingBracketsCheckbox{ nullptr };
+    wxStaticText* m_pseudoSliderLabel{ nullptr };
+    wxStaticText* m_pseudoSliderPercentLabel{ nullptr };
+    wxSlider* m_pseudoIncreaseSlider{ nullptr };
     };
 
     /** @}*/

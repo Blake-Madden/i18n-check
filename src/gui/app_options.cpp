@@ -29,6 +29,18 @@ void I18NOptions::Save(const wxString& filePath)
     node->AddChild(
         new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_fuzzyTranslations ? L"true" : L"false"));
 
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"pseudo-translation-method");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
+                                 std::to_wstring(static_cast<int>(m_pseudoTranslationMethod))));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"pseudo-translation-add-brackets");
+    node->AddChild(
+        new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_addPseudoTransBrackets ? L"true" : L"false"));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"pseudo-width-increase");
+    node->AddChild(
+        new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_widthPseudoIncrease)));
+
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"log-messages-can-be-translated");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
                                  m_logMessagesCanBeTranslated ? L"true" : L"false"));
@@ -83,12 +95,25 @@ void I18NOptions::Load(const wxString& filePath)
             }
         else if (child->GetName() == L"checks")
             {
-            const wxString intVal = child->GetNodeContent();
-            intVal.ToLongLong(&m_options);
+            child->GetNodeContent().ToLongLong(&m_options);
             }
         else if (child->GetName() == L"fuzzy-translations")
             {
             m_fuzzyTranslations = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"pseudo-translation-method")
+            {
+            int tempInt{ 0 };
+            child->GetNodeContent().ToInt(&tempInt);
+            m_pseudoTranslationMethod = static_cast<i18n_check::pseudo_translation_method>(tempInt);
+            }
+        else if (child->GetName() == L"pseudo-translation-add-brackets")
+            {
+            m_addPseudoTransBrackets = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"pseudo-width-increase")
+            {
+            child->GetNodeContent().ToInt(&m_widthPseudoIncrease);
             }
         else if (child->GetName() == L"log-messages-can-be-translated")
             {
@@ -104,13 +129,11 @@ void I18NOptions::Load(const wxString& filePath)
             }
         else if (child->GetName() == L"min-words-for-classifying-unavailable-string")
             {
-            const wxString intVal = child->GetNodeContent();
-            intVal.ToInt(&m_minWordsForClassifyingUnavailableString);
+            child->GetNodeContent().ToInt(&m_minWordsForClassifyingUnavailableString);
             }
         else if (child->GetName() == L"min-cpp-version")
             {
-            const wxString intVal = child->GetNodeContent();
-            intVal.ToInt(&m_minCppVersion);
+            child->GetNodeContent().ToInt(&m_minCppVersion);
             }
 
         child = child->GetNext();

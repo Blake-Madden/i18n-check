@@ -1986,31 +1986,49 @@ namespace i18n_check
         // commands is too complex and will cause the regex library to randomly throw exceptions
         std::wstring::const_iterator searchStart(resource.cbegin());
         std::wsmatch res;
+        size_t commandPosition{ 0 };
+        size_t previousLength{ 0 };
         while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_int_regex))
             {
-            searchStart += res.position() + res.length();
-            results.push_back(std::make_pair(res.position(2), res.length(2)));
+            // the position and length of the actual specifier, not the junk in front of it
+            searchStart += res.position(2) + res.length(2);
+            commandPosition += res.position(2) + previousLength;
+            previousLength = res.length(2);
+
+            results.push_back(std::make_pair(commandPosition, res.length(2)));
             }
 
         searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
         while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_float_regex))
             {
-            searchStart += res.position() + res.length();
-            results.push_back(std::make_pair(res.position(2), res.length(2)));
+            searchStart += res.position(2) + res.length(2);
+            commandPosition += res.position(2) + previousLength;
+            previousLength = res.length(2);
+
+            results.push_back(std::make_pair(commandPosition, res.length(2)));
             }
 
         searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
         while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_string_regex))
             {
-            searchStart += res.position() + res.length();
-            results.push_back(std::make_pair(res.position(2), res.length(2)));
+            searchStart += res.position(2) + res.length(2);
+            commandPosition += res.position(2) + previousLength;
+            previousLength = res.length(2);
+
+            results.push_back(std::make_pair(commandPosition, res.length(2)));
             }
 
         searchStart = resource.cbegin();
+        commandPosition = previousLength = 0;
         while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_pointer_regex))
             {
-            searchStart += res.position() + res.length();
-            results.push_back(std::make_pair(res.position(2), res.length(2)));
+            searchStart += res.position(2) + res.length(2);
+            commandPosition += res.position(2) + previousLength;
+            previousLength = res.length(2);
+
+            results.push_back(std::make_pair(commandPosition, res.length(2)));
             }
 
         // sort by position

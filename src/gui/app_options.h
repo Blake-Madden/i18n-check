@@ -13,6 +13,7 @@
 #define __I18N_APPOPTIONS_H__
 
 #include "../i18n_review.h"
+#include "../pseudo_translate.h"
 #include <wx/wx.h>
 #include <wx/xml/xml.h>
 #include <wx/xrc/xmlres.h>
@@ -36,9 +37,14 @@ struct I18NOptions
         i18n_check::review_style::check_malformed_strings | i18n_check::review_style::check_fonts |
         i18n_check::review_style::all_l10n_checks) };
     bool m_fuzzyTranslations{ false };
+    i18n_check::pseudo_translation_method m_pseudoTranslationMethod{
+        i18n_check::pseudo_translation_method::none
+    };
+    bool m_addPseudoTransBrackets{ false };
     bool m_logMessagesCanBeTranslated{ true };
     bool m_allowTranslatingPunctuationOnlyStrings{ false };
     bool m_exceptionsShouldBeTranslatable{ true };
+    int m_widthPseudoIncrease{ 0 };
     int m_minWordsForClassifyingUnavailableString{ 2 };
     int m_minCppVersion{ 14 };
     };

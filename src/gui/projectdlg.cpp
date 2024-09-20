@@ -30,6 +30,28 @@ NewProjectDialog::NewProjectDialog(
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnExcludedFileButtonClick, this,
          NewProjectDialog::ID_EXCLUDED_FILES_BROWSE_BUTTON);
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnOK, this, wxID_OK);
+    Bind(
+        wxEVT_CHOICE,
+        [this](wxCommandEvent& evt)
+        {
+            if (m_pseudoSurroundingBracketsCheckbox != nullptr)
+                {
+                m_pseudoSurroundingBracketsCheckbox->Enable(evt.GetSelection() != 0);
+                }
+            if (m_pseudoIncreaseSlider != nullptr)
+                {
+                m_pseudoIncreaseSlider->Enable(evt.GetSelection() != 0);
+                }
+            if (m_pseudoSliderLabel != nullptr)
+                {
+                m_pseudoSliderLabel->Enable(evt.GetSelection() != 0);
+                }
+            if (m_pseudoSliderPercentLabel != nullptr)
+                {
+                m_pseudoSliderPercentLabel->Enable(evt.GetSelection() != 0);
+                }
+        },
+        ID_PSEUDO_METHODS);
     }
 
 //-------------------------------------------------------------
@@ -480,7 +502,62 @@ void NewProjectDialog::CreateControls()
                                         _(L"Review fuzzy translations"), wxDefaultPosition,
                                         wxDefaultSize, 0, wxGenericValidator(&m_fuzzyTranslations)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
+
+            wxStaticBoxSizer* pseudoTransSizer = new wxStaticBoxSizer(
+                wxVERTICAL, poOptionsSizer->GetStaticBox(), _(L"Pseudo-translation"));
+
+            wxBoxSizer* pseudoTransMethodSizer = new wxBoxSizer(wxHORIZONTAL);
+
+            pseudoTransMethodSizer->Add(new wxStaticText(pseudoTransSizer->GetStaticBox(),
+                                                         wxID_STATIC, _(L"Method:"),
+                                                         wxDefaultPosition, wxDefaultSize),
+                                        wxSizerFlags{}.CenterVertical());
+
+            wxArrayString pseudoOptions;
+            pseudoOptions.Add(_(L"None (do not generate anything)"));
+            pseudoOptions.Add(_(L"UPPERCASE"));
+            pseudoOptions.Add(_(L"European characters"));
+            pseudoTransMethodSizer->Add(
+                new wxChoice(pseudoTransSizer->GetStaticBox(), ID_PSEUDO_METHODS, wxDefaultPosition,
+                             wxDefaultSize, pseudoOptions, 0,
+                             wxGenericValidator(&m_pseudoTranslationMethod)),
+                wxSizerFlags{}.Border(wxLEFT).Left().CenterVertical());
+
+            pseudoTransSizer->Add(pseudoTransMethodSizer, wxSizerFlags{}.Expand().Border());
+
+            m_pseudoSurroundingBracketsCheckbox = new wxCheckBox(
+                pseudoTransSizer->GetStaticBox(), wxID_ANY, _(L"Add surrounding brackets"),
+                wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_addPseudoTransBrackets));
+            m_pseudoSurroundingBracketsCheckbox->Enable(m_pseudoTranslationMethod != 0);
+            pseudoTransSizer->Add(m_pseudoSurroundingBracketsCheckbox,
+                                  wxSizerFlags{}.Expand().Border());
+
+            wxBoxSizer* pseudoWidthSizer = new wxBoxSizer(wxHORIZONTAL);
+
+            m_pseudoSliderLabel =
+                new wxStaticText(pseudoTransSizer->GetStaticBox(), wxID_STATIC,
+                                 _(L"Increase width:"), wxDefaultPosition, wxDefaultSize);
+
+            m_pseudoIncreaseSlider = new wxSlider(
+                pseudoTransSizer->GetStaticBox(), wxID_ANY, m_widthPseudoIncrease, 0, 100,
+                wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_MIN_MAX_LABELS,
+                wxGenericValidator(&m_widthPseudoIncrease));
+
+            m_pseudoSliderPercentLabel =
+                new wxStaticText(pseudoTransSizer->GetStaticBox(), wxID_STATIC, L"%",
+                                 wxDefaultPosition, wxDefaultSize);
+
+            pseudoWidthSizer->Add(m_pseudoSliderLabel,
+                                  wxSizerFlags{}.Left().CenterVertical());
+            pseudoWidthSizer->Add(m_pseudoIncreaseSlider,
+                                  wxSizerFlags{ 1 }.Expand().Border(wxLEFT));
+            pseudoWidthSizer->Add(m_pseudoSliderPercentLabel,
+                                  wxSizerFlags{}.Border(wxLEFT).Left().CenterVertical());
+
+            pseudoTransSizer->Add(pseudoWidthSizer, wxSizerFlags{}.Expand().Border());
+
             poOptionsSizer->Add(gbSizer);
+            poOptionsSizer->Add(pseudoTransSizer, wxSizerFlags{}.Expand().Border());
             }
 
         wxStaticBoxSizer* rcOptionsSizer =
@@ -536,9 +613,8 @@ void NewProjectDialog::CreateControls()
                                         _(L"BOM/UTF-8 signatures"), wxDefaultPosition,
                                         wxDefaultSize, 0, wxGenericValidator(&m_UTF8FileWithBOM)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
-            gbSizer->Add(
-                buildCodeLabel(L"UTF8FileWithBOM", formattingOptionsSizer->GetStaticBox()),
-                wxGBPosition(currentRow++, 1), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"UTF8FileWithBOM", formattingOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
 
             gbSizer->Add(new wxCheckBox(formattingOptionsSizer->GetStaticBox(), wxID_ANY,
                                         _(L"Unencoded extended ASCII characters"),
