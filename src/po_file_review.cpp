@@ -46,6 +46,24 @@ namespace i18n_check
 
         size_t currentPos{ 0 };
 
+        // find the first blank line so that we can skip over the header section
+        while (true)
+            {
+            const size_t newLinePos = poFileText.find(L'\n', currentPos);
+            // if no blank lines, then bail as there will be nothing to load
+            if (newLinePos == std::wstring_view::npos || newLinePos == poFileText.length() - 1)
+                {
+                return;
+                }
+            if (poFileText[newLinePos + 1] == L'\r' || poFileText[newLinePos + 1] == L'\n')
+                {
+                currentPos = newLinePos;
+                poFileText.remove_prefix(currentPos);
+                break;
+                }
+            currentPos = newLinePos + 1;
+            }
+
         while (!poFileText.empty())
             {
             auto [entryFound, entry, entryPos] = read_po_catalog_entry(poFileText);
