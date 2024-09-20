@@ -150,6 +150,13 @@ namespace i18n_check
             std::filesystem::path outPath = std::filesystem::path{ file };
             outPath.replace_filename(L"pseudo_" + outPath.filename().generic_wstring());
 
+            // change copy of PO template files to PO files
+            auto blah = outPath.extension();
+            if (outPath.extension().compare(L".pot") == 0)
+                {
+                outPath.replace_extension(L".po");
+                }
+
             try
                 {
                 bool startsWithBom{ false };
