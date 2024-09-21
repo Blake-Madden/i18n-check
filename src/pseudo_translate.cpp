@@ -317,12 +317,14 @@ namespace i18n_check
         // account when increasing the width of the message later
         const std::wstring trackPrefix = [this]()
         {
-    #if __cpp_lib_format > 201907L
             if (m_track)
                 {
+#if __cpp_lib_format > 201907L
                 return L"[" + std::format(L"{:06X}", m_current_id++) + L"]";
+#else
+                return L"[" + std::to_wstring(m_current_id++) + L"]";
+#endif
                 }
-    #endif
             return std::wstring{};
         }();
 
