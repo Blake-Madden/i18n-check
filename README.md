@@ -3,16 +3,17 @@
 i18n-check
 =============================
 
-Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows RC files.
+Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows&reg; RC files.
 
-<img src="main-window.png" width="500" />
-
-<img src="options-dialog-source.png" width="300" />
-<img src="options-dialog-resources.png" width="300" />
+![](main-window.png)
 
 `i18n-check` is a command-line utility and graphical interface that scans source and resource files and checks for
 various i18n and l10n issues. Additionally, the GUI version provides pseudo-translation support for
 *gettext* catalogs (\*.po files).
+
+## Checks
+
+![](options-dialog-source.png)
 
 The command line and GUI versions provide the following checks:
 
@@ -56,7 +57,25 @@ Code formatting issues can also be checked for, such as:
 - Lines longer than 120 characters.
 - Spaces missing between "//" and their comments.
 
-`i18n-check` will work with C, modern C++, and '98/'03 C++ code, GNU *gettext* translation files (\*.po), and Windows resource files (\*.rc).
+## Pseudo-translation
+
+(availabe in the GUI version)
+
+![](options-dialog-resources.png)
+
+Pseudo-translation includes features such as:
+- Multiple methods for character replacement (e.g., replacing characters with accented variations or upper casing them).
+- Increasing the width of the translations. This is useful for ensuring that strings are not being truncated at runtime.
+- Wrapping the translations in braces. This is useful for ensuring that strings are not being pieced together at runtime.
+- Appending a unique ID to each translation. This is useful for finding where a translation is being loaded from.
+
+When pseudo-translating, a copy of all *gettext* \*.po and \*.pot files will be created and have their translations filled
+with mutations of the respective source strings. These files (which will have a "pseudo_" prefix) can then be compiled into \*.mo files and
+loaded by your application for integration testing.
+
+## File Support
+
+`i18n-check` will work with C, modern C++, and '98/'03 C++ code, GNU *gettext* translation files (\*.po), and Windows&reg; resource files (\*.rc).
 In particular, it offers specialized support for the following frameworks:
 
 - wxWidgets
