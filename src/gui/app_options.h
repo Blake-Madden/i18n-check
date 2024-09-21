@@ -41,6 +41,7 @@ struct I18NOptions
         i18n_check::pseudo_translation_method::none
     };
     bool m_addPseudoTransBrackets{ false };
+    bool m_pseudoTrack{ false };
     bool m_logMessagesCanBeTranslated{ true };
     bool m_allowTranslatingPunctuationOnlyStrings{ false };
     bool m_exceptionsShouldBeTranslatable{ true };

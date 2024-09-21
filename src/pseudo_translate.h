@@ -14,6 +14,7 @@
 
 #include "i18n_review.h"
 #include <cmath>
+#include <format>
 #include <map>
 #include <regex>
 #include <set>
@@ -49,7 +50,7 @@ namespace i18n_check
             @param method The pseudo-translation method.*/
         void set_pseudo_method(const pseudo_translation_method method) noexcept
             {
-            m_transType = method;
+            m_trans_type = method;
             }
 
         /** @brief Whether to add surrounding square brackets and bangs around translations.
@@ -67,13 +68,22 @@ namespace i18n_check
             m_width_increase = std::clamp<uint8_t>(increasedWidth, 0, 100);
             }
 
+        /// @brief Adds a unique ID in front of every pseudo-tranlated string.
+        /// @param enable @c true to enable tracking.
+        void enable_tracking(const bool enable) noexcept { m_track = enable; }
+
+        /// @brief If tracking is enabled, then resets the ID incrementer to zero.
+        void reset_tracking() noexcept { m_current_id = 0; }
+
       private:
         static const std::map<wchar_t, wchar_t> m_euro_char_map;
         static size_t find_po_msg_end(const std::wstring& poFileText, const size_t startPos);
         std::wstring mutate_message(const std::wstring& msg) const;
-        pseudo_translation_method m_transType{ pseudo_translation_method::all_caps };
+        pseudo_translation_method m_trans_type{ pseudo_translation_method::all_caps };
         bool m_add_surrounding_brackets{ false };
         uint8_t m_width_increase{ 0 };
+        bool m_track{ false };
+        mutable int64_t m_current_id{ 0 };
         };
     } // namespace i18n_check
 

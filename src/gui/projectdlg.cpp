@@ -38,6 +38,10 @@ NewProjectDialog::NewProjectDialog(
                 {
                 m_pseudoSurroundingBracketsCheckbox->Enable(evt.GetSelection() != 0);
                 }
+            if (m_pseudoTrackCheckbox != nullptr)
+                {
+                m_pseudoTrackCheckbox->Enable(evt.GetSelection() != 0);
+                }
             if (m_pseudoIncreaseSlider != nullptr)
                 {
                 m_pseudoIncreaseSlider->Enable(evt.GetSelection() != 0);
@@ -531,6 +535,13 @@ void NewProjectDialog::CreateControls()
                 wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_addPseudoTransBrackets));
             m_pseudoSurroundingBracketsCheckbox->Enable(m_pseudoTranslationMethod != 0);
             pseudoTransSizer->Add(m_pseudoSurroundingBracketsCheckbox,
+                                  wxSizerFlags{}.Expand().Border());
+            
+            m_pseudoTrackCheckbox = new wxCheckBox(
+                pseudoTransSizer->GetStaticBox(), wxID_ANY, _(L"Add tracking IDs"),
+                wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_pseudoTrack));
+            m_pseudoTrackCheckbox->Enable(m_pseudoTranslationMethod != 0);
+            pseudoTransSizer->Add(m_pseudoTrackCheckbox,
                                   wxSizerFlags{}.Expand().Border());
 
             wxBoxSizer* pseudoWidthSizer = new wxBoxSizer(wxHORIZONTAL);

@@ -110,7 +110,7 @@ namespace i18n_check
     //------------------------------------------------------
     void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
                           i18n_check::pseudo_translation_method pseudoMethod,
-                          bool addSurroundingBrackets, uint8_t widthIncrease,
+                          bool addSurroundingBrackets, uint8_t widthIncrease, bool addTrackingIds, 
                           analyze_callback callback)
         {
         size_t currentFileIndex{ 0 };
@@ -136,6 +136,7 @@ namespace i18n_check
         trans.set_pseudo_method(pseudoMethod);
         trans.add_surrounding_brackets(addSurroundingBrackets);
         trans.increase_width(widthIncrease);
+        trans.enable_tracking(addTrackingIds);
 
         // load file content into analyzers
         for (const auto& file : filesToTranslate)

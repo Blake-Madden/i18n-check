@@ -270,11 +270,11 @@ namespace i18n_check
 
             if (std::iswalnum(msg[i]))
                 {
-                if (m_transType == pseudo_translation_method::all_caps)
+                if (m_trans_type == pseudo_translation_method::all_caps)
                     {
                     newMsg += std::towupper(msg[i]);
                     }
-                else if (m_transType == pseudo_translation_method::Xx_es)
+                else if (m_trans_type == pseudo_translation_method::Xx_es)
                     {
                     if (std::iswupper(msg[i]))
                         {
@@ -289,7 +289,7 @@ namespace i18n_check
                         newMsg += msg[i];
                         }
                     }
-                else if (m_transType == pseudo_translation_method::european_characters)
+                else if (m_trans_type == pseudo_translation_method::european_characters)
                     {
                     const auto charPos = m_euro_char_map.find(msg[i]);
                     if (charPos != m_euro_char_map.cend())
@@ -313,22 +313,45 @@ namespace i18n_check
             ++i;
             }
 
+        // build the track prefix here so that we can take its length into
+        // account when increasing the width of the message later
+        const std::wstring trackPrefix = [this]()
+        {
+            if (m_track)
+                {
+                return L"[" + std::format(L"{:06X}", m_current_id++) + L"]";
+                }
+            return std::wstring{};
+        }();
+
         if (m_width_increase > 0)
             {
-            size_t newCharCountToAdd = static_cast<size_t>(
+            int64_t newCharCountToAdd = static_cast<int64_t>(
                 std::ceil(msg.length() * (static_cast<double>(m_width_increase) / 100)));
             if (m_add_surrounding_brackets && newCharCountToAdd >= 2)
                 {
                 newCharCountToAdd -= 2;
                 }
-            newMsg.insert(0, newCharCountToAdd / 2, L'-');
-            newMsg.append(newCharCountToAdd / 2, L'-');
+            if (!trackPrefix.empty())
+                {
+                newCharCountToAdd -= trackPrefix.length();
+                }
+            if (newCharCountToAdd > 0)
+                {
+                newMsg.insert(0, static_cast<size_t>(newCharCountToAdd) / 2, L'-');
+                newMsg.append(static_cast<size_t>(newCharCountToAdd) / 2, L'-');
+                }
             }
 
         if (m_add_surrounding_brackets)
             {
             newMsg.insert(0, L"[");
             newMsg.append(L"]");
+            }
+
+        if (m_track)
+            {
+            newMsg.insert(0, trackPrefix);
             }
 
         // prepend the leading whitespace from the source into the mutated string

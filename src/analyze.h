@@ -62,6 +62,7 @@ namespace i18n_check
         @param pseudoMethod How to pseudo-translate the content.
         @param widthIncrease How much width to increase the pseudo-translation from
             the source string. This will pad the string with hyphens.
+        @param addTrackingIds @c true to add unique IDs in front the the strings.
         @param addSurroundingBrackets @c true to add square brackets and bangs
             around each translation.
         @param callback Callback function to display the progress.
@@ -70,6 +71,7 @@ namespace i18n_check
     void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
                           i18n_check::pseudo_translation_method pseudoMethod,
                           bool addSurroundingBrackets, uint8_t widthIncrease,
+                          bool addTrackingIds, 
                           analyze_callback callback);
 
     /** @returns A formatted summary of the results.

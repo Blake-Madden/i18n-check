@@ -783,6 +783,7 @@ void I18NFrame::Process()
             filesToAnalyze, m_activeProjectOptions.m_pseudoTranslationMethod,
             m_activeProjectOptions.m_addPseudoTransBrackets,
             m_activeProjectOptions.m_widthPseudoIncrease,
+            m_activeProjectOptions.m_pseudoTrack,
             [&progressDlg](const size_t currentFileIndex, const size_t fileCount,
                            const std::wstring& file)
             {

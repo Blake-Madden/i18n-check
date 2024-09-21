@@ -63,6 +63,7 @@ class NewProjectDialog final : public wxDialog
         options.m_excludedPaths = GetExcludedPath();
         options.m_fuzzyTranslations = UseFuzzyTranslations();
         options.m_addPseudoTransBrackets = m_addPseudoTransBrackets;
+        options.m_pseudoTrack = m_pseudoTrack;
         options.m_widthPseudoIncrease = m_widthPseudoIncrease;
         options.m_pseudoTranslationMethod =
             static_cast<i18n_check::pseudo_translation_method>(m_pseudoTranslationMethod);
@@ -83,6 +84,7 @@ class NewProjectDialog final : public wxDialog
         m_fuzzyTranslations = options.m_fuzzyTranslations;
         m_widthPseudoIncrease = options.m_widthPseudoIncrease;
         m_addPseudoTransBrackets = options.m_addPseudoTransBrackets;
+        m_pseudoTrack = options.m_pseudoTrack;
         m_pseudoTranslationMethod = static_cast<int>(options.m_pseudoTranslationMethod);
         m_logMessagesCanBeTranslated = options.m_logMessagesCanBeTranslated;
         m_allowTranslatingPunctuationOnlyStrings = options.m_allowTranslatingPunctuationOnlyStrings;
@@ -94,6 +96,10 @@ class NewProjectDialog final : public wxDialog
         if (m_pseudoSurroundingBracketsCheckbox != nullptr)
             {
             m_pseudoSurroundingBracketsCheckbox->Enable(m_pseudoTranslationMethod != 0);
+            }
+        if (m_pseudoTrackCheckbox != nullptr)
+            {
+            m_pseudoTrackCheckbox->Enable(m_pseudoTranslationMethod != 0);
             }
         if (m_pseudoIncreaseSlider != nullptr)
             {
@@ -286,6 +292,7 @@ class NewProjectDialog final : public wxDialog
     bool m_fontIssue{ true };
     // PO options
     bool m_fuzzyTranslations{ true };
+    bool m_pseudoTrack{ false };
     int m_pseudoTranslationMethod{ 0 };
     bool m_addPseudoTransBrackets{ false };
     int m_widthPseudoIncrease{ 0 };
@@ -298,6 +305,7 @@ class NewProjectDialog final : public wxDialog
     int64_t m_options{ i18n_check::review_style::no_checks };
 
     wxCheckBox* m_pseudoSurroundingBracketsCheckbox{ nullptr };
+    wxCheckBox* m_pseudoTrackCheckbox{ nullptr };
     wxStaticText* m_pseudoSliderLabel{ nullptr };
     wxStaticText* m_pseudoSliderPercentLabel{ nullptr };
     wxSlider* m_pseudoIncreaseSlider{ nullptr };
