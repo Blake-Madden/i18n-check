@@ -517,6 +517,7 @@ void NewProjectDialog::CreateControls()
             pseudoOptions.Add(_(L"None (do not generate anything)"));
             pseudoOptions.Add(_(L"UPPERCASE"));
             pseudoOptions.Add(_(L"European characters"));
+            pseudoOptions.Add(_(L"Fill with 'X'es"));
             pseudoTransMethodSizer->Add(
                 new wxChoice(pseudoTransSizer->GetStaticBox(), ID_PSEUDO_METHODS, wxDefaultPosition,
                              wxDefaultSize, pseudoOptions, 0,

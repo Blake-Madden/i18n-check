@@ -274,6 +274,21 @@ namespace i18n_check
                     {
                     newMsg += std::towupper(msg[i]);
                     }
+                else if (m_transType == pseudo_translation_method::Xx_es)
+                    {
+                    if (std::iswupper(msg[i]))
+                        {
+                        newMsg += L'X';
+                        }
+                    else if (std::iswlower(msg[i]))
+                        {
+                        newMsg += L'x';
+                        }
+                    else
+                        {
+                        newMsg += msg[i];
+                        }
+                    }
                 else if (m_transType == pseudo_translation_method::european_characters)
                     {
                     const auto charPos = m_euro_char_map.find(msg[i]);

@@ -31,7 +31,9 @@ namespace i18n_check
         /// @brief Uppercase all letters.
         all_caps,
         /// @brief European (accented) characters.
-        european_characters
+        european_characters,
+        /// @brief Fills with 'X'es
+        Xx_es
         };
 
     /** @brief Class to pseudo-translate a file.*/
