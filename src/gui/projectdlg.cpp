@@ -536,7 +536,7 @@ void NewProjectDialog::CreateControls()
             m_pseudoSurroundingBracketsCheckbox->Enable(m_pseudoTranslationMethod != 0);
             pseudoTransSizer->Add(m_pseudoSurroundingBracketsCheckbox,
                                   wxSizerFlags{}.Expand().Border());
-            
+
             m_pseudoTrackCheckbox = new wxCheckBox(
                 pseudoTransSizer->GetStaticBox(), wxID_ANY, _(L"Add tracking IDs"),
                 wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_pseudoTrack));

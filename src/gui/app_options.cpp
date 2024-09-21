@@ -36,7 +36,7 @@ void I18NOptions::Save(const wxString& filePath)
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"pseudo-translation-add-brackets");
     node->AddChild(
         new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_addPseudoTransBrackets ? L"true" : L"false"));
-    
+
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"pseudo-track");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_pseudoTrack ? L"true" : L"false"));
 

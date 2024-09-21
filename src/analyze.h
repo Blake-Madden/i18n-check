@@ -71,7 +71,7 @@ namespace i18n_check
     void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
                           i18n_check::pseudo_translation_method pseudoMethod,
                           bool addSurroundingBrackets, uint8_t widthIncrease,
-                          bool addTrackingIds, 
+                          bool addTrackingIds,
                           analyze_callback callback);
 
     /** @returns A formatted summary of the results.
