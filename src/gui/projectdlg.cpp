@@ -595,7 +595,7 @@ void NewProjectDialog::CreateControls()
         mainSizer->Add(
             new wxStaticText(
                 transPage, wxID_STATIC,
-                _(L"Note: additional checks will also be performed on source messages.")),
+                _(L"Note: additional checks will be performed on source messages.")),
             wxSizerFlags{}.Expand().Border());
 
         transPage->SetSizer(mainSizer);
