@@ -59,7 +59,7 @@ Code formatting issues can also be checked for, such as:
 
 ## Pseudo-translation
 
-(availabe in the GUI version)
+(available in the GUI version)
 
 ![](options-dialog-resources.png)
 
