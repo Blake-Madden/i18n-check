@@ -1141,6 +1141,7 @@ namespace i18n_check
         static const std::wregex m_printf_cpp_string_regex;
         static const std::wregex m_printf_cpp_pointer_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
+        std::set<std::wstring> m_untranslatable_exceptions;
 
       private:
         [[nodiscard]]

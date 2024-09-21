@@ -349,6 +349,8 @@ namespace i18n_check
                 { L"WXUNUSED", L"Use [[maybe_unused]] instead of WXUNUSED()." });
             }
 
+        m_untranslatable_exceptions = { L"PhD" };
+
         m_untranslatable_regexes = {
             // nothing but numbers, punctuation, or control characters?
             std::wregex(LR"(([[:digit:][:space:][:punct:][:cntrl:]]|\\[rnt])+)"),
@@ -1422,6 +1424,11 @@ namespace i18n_check
             // a real user-message (not an internal string)
             if (str.length() > minMessageLength && !std::regex_match(str, loremIpsum) &&
                 !std::regex_match(str, m_sql_code))
+                {
+                return false;
+                }
+
+            if (m_untranslatable_exceptions.find(str) != m_untranslatable_exceptions.cend())
                 {
                 return false;
                 }
