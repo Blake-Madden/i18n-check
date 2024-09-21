@@ -227,7 +227,7 @@ namespace i18n_check
                     continue;
                     }
                 else if ((msg[i] == L'r' || msg[i] == L'n' || msg[i] == L't') && i > 0 &&
-                    msg[i - 1] == L'\\')
+                         msg[i - 1] == L'\\')
                     {
                     i -= 2;
                     continue;
@@ -317,10 +317,12 @@ namespace i18n_check
         // account when increasing the width of the message later
         const std::wstring trackPrefix = [this]()
         {
+    #if __cpp_lib_format > 201907L
             if (m_track)
                 {
                 return L"[" + std::format(L"{:06X}", m_current_id++) + L"]";
                 }
+    #endif
             return std::wstring{};
         }();
 

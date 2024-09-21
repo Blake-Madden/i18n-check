@@ -14,7 +14,9 @@
 
 #include "i18n_review.h"
 #include <cmath>
-#include <format>
+#if __has_include(<format>)
+    #include <format>
+#endif
 #include <map>
 #include <regex>
 #include <set>
