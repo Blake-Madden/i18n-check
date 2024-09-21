@@ -173,9 +173,7 @@ namespace i18n_check
             }
 
         // if target language is missing, then set to Esperanto
-        const std::wregex LANG_RE{
-            LR"((\r|\n)\"Language:[ ]*([a-zA-Z0-9\-]*))"
-        };
+        const std::wregex LANG_RE{ LR"((\r|\n)\"Language:[ ]*([a-zA-Z0-9\-]*))" };
         if (std::regex_search(poFileText, matches, LANG_RE) && matches.size() >= 3 &&
             matches.length(2) == 0)
             {
@@ -186,11 +184,72 @@ namespace i18n_check
     //------------------------------------------------
     std::wstring pseudo_translater::mutate_message(const std::wstring& msg) const
         {
+        if (msg.empty())
+            {
+            return msg;
+            }
+
         const auto printfSpecifiers = i18n_review::load_cpp_printf_command_positions(msg);
 
+        // Get the position of the first character that is not a space or whitespace control
+        // sequence. We will step over this and add them to the mutated string after the brackets
+        // and dashes are added.
+        const size_t startPos = [&msg]()
+        {
+            size_t i{ 0 };
+            for (; i < msg.length(); /* handled in loop*/)
+                {
+                if (msg[i] == L' ')
+                    {
+                    ++i;
+                    continue;
+                    }
+                else if (msg[i] == L'\\' && i < (msg.length() - 1) &&
+                         (msg[i + 1] == L'r' || msg[i + 1] == L'n' || msg[i + 1] == L't'))
+                    {
+                    i += 2;
+                    continue;
+                    }
+                break;
+                }
+            return i;
+        }();
+
+        // Do the same for the trailing spaces.
+        const size_t endPos = [&msg]()
+        {
+            int64_t i{ static_cast<int64_t>(msg.length() - 1) };
+            for (; i > 0; /* handled in loop*/)
+                {
+                if (msg[i] == L' ')
+                    {
+                    --i;
+                    continue;
+                    }
+                else if ((msg[i] == L'r' || msg[i] == L'n' || msg[i] == L't') && i > 0 &&
+                    msg[i - 1] == L'\\')
+                    {
+                    i -= 2;
+                    continue;
+                    }
+                break;
+                }
+            return static_cast<size_t>(i + 1);
+        }();
+
+        // If nothing but spaces and newlines, then leave it alone.
+        // A separate analysis will complain about this string,
+        // depending on which checks are being performed.
+        if (startPos == endPos)
+            {
+            return msg;
+            }
+
         std::wstring newMsg;
-        newMsg.reserve(m_add_surrounding_brackets ? msg.size() + 6 : msg.size());
-        for (size_t i = 0; i < msg.length(); /* handled in loop*/)
+        newMsg.reserve(msg.size() +
+                       static_cast<size_t>(std::ceil(
+                           msg.length() * (static_cast<double>(m_width_increase) / 100))));
+        for (size_t i = startPos; i < endPos; /* handled in loop*/)
             {
             // step over escaped characters
             if (msg[i] == L'\\')
@@ -255,6 +314,17 @@ namespace i18n_check
             {
             newMsg.insert(0, L"[");
             newMsg.append(L"]");
+            }
+
+        // prepend the leading whitespace from the source into the mutated string
+        if (startPos > 0)
+            {
+            newMsg.insert(0, msg.substr(0, startPos));
+            }
+        // ...and append any trailing spaces
+        if (endPos < msg.length())
+            {
+            newMsg.append(msg.substr(endPos));
             }
 
         return newMsg;
