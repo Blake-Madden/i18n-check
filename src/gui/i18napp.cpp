@@ -86,7 +86,7 @@ void I18NFrame::InitControls()
             wxID_REFRESH, _(L"Refresh"),
             wxArtProvider::GetBitmap(wxART_REFRESH, wxART_OTHER, wxSize{ 32, 32 }));
         m_projectBar->AddButton(
-            XRCID("ID_IGNORE_SELECTED"), _(L"Ignore Selected"),
+            XRCID("ID_IGNORE_SELECTED"), _(L"Ignore Selected File"),
             wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 32, 32 }));
         m_projectBar->EnableButton(wxID_SAVE, false);
         m_projectBar->EnableButton(wxID_REFRESH, false);
