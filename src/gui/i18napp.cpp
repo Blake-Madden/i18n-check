@@ -549,6 +549,8 @@ void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
             m_resultsModel->Cleared();
 
             m_projectDirty = true;
+
+            SetTitle(GetTitle() + L"*");
             }
         }
     }
@@ -594,6 +596,8 @@ void I18NFrame::OnRefresh([[maybe_unused]] wxCommandEvent&)
         Process();
 
         m_projectDirty = true;
+
+        SetTitle(GetTitle() + L"*");
         }
     }
 
@@ -615,6 +619,8 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
 
     m_activeProjectOptions = projDlg.GetAllOptions();
 
+    SetTitle(wxGetApp().GetAppName() + L" - untitled");
+
     Process();
     }
 
@@ -635,6 +641,8 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
     m_projectDirty = false;
 
     m_activeProjectOptions.Load(m_activeProjectFilePath);
+
+    SetTitle(wxGetApp().GetAppName() + L" - " + wxFileName{ m_activeProjectFilePath }.GetFullName() );
 
     Process();
     }
@@ -665,6 +673,9 @@ void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
         }
 
     m_activeProjectOptions.Save(m_activeProjectFilePath);
+
+    SetTitle(wxGetApp().GetAppName() + L" - " +
+             wxFileName{ m_activeProjectFilePath }.GetFullName());
 
     m_projectDirty = false;
     }
