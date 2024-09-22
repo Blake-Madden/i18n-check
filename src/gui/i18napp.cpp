@@ -550,7 +550,7 @@ void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
 
             m_projectDirty = true;
 
-            SetTitle(GetTitle() + L"*");
+            SetTitleDirty();
             }
         }
     }
@@ -586,7 +586,9 @@ void I18NFrame::OnRefresh([[maybe_unused]] wxCommandEvent&)
         return;
         }
 
-    NewProjectDialog projDlg(this, wxID_ANY, _("Edit Project"));
+    NewProjectDialog projDlg(this, wxID_ANY,
+                             wxString::Format(_("Edit Project - %s"),
+                                              wxFileName{ m_activeProjectFilePath }.GetFullName()));
     projDlg.SetAllOptions(m_activeProjectOptions);
 
     if (projDlg.ShowModal() == wxID_OK)
@@ -597,7 +599,7 @@ void I18NFrame::OnRefresh([[maybe_unused]] wxCommandEvent&)
 
         m_projectDirty = true;
 
-        SetTitle(GetTitle() + L"*");
+        SetTitleDirty();
         }
     }
 
@@ -619,7 +621,7 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
 
     m_activeProjectOptions = projDlg.GetAllOptions();
 
-    SetTitle(wxGetApp().GetAppName() + L" - untitled");
+    SetTitle(wxGetApp().GetAppName() + L" - Untitled");
 
     Process();
     }
@@ -642,7 +644,8 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
 
     m_activeProjectOptions.Load(m_activeProjectFilePath);
 
-    SetTitle(wxGetApp().GetAppName() + L" - " + wxFileName{ m_activeProjectFilePath }.GetFullName() );
+    SetTitle(wxGetApp().GetAppName() + L" - " +
+             wxFileName{ m_activeProjectFilePath }.GetFullName());
 
     Process();
     }
@@ -793,8 +796,7 @@ void I18NFrame::Process()
         i18n_check::pseudo_translate(
             filesToAnalyze, m_activeProjectOptions.m_pseudoTranslationMethod,
             m_activeProjectOptions.m_addPseudoTransBrackets,
-            m_activeProjectOptions.m_widthPseudoIncrease,
-            m_activeProjectOptions.m_pseudoTrack,
+            m_activeProjectOptions.m_widthPseudoIncrease, m_activeProjectOptions.m_pseudoTrack,
             [&progressDlg](const size_t currentFileIndex, const size_t fileCount,
                            const std::wstring& file)
             {

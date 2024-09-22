@@ -97,6 +97,17 @@ class I18NFrame : public wxFrame
             }
         }
 
+    void SetTitleDirty()
+        {
+        wxString title{ GetTitle() };
+        if (title.ends_with(L"*"))
+            {
+            title.erase(title.length() - 1);
+            }
+        title.append(L"*");
+        SetTitle(std::move(title));
+        }
+
     void SaveSourceFileIfNeeded();
     void SaveProjectIfNeeded();
 
