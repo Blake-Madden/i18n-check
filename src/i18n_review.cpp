@@ -760,6 +760,107 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
+    void i18n_review::review_strings()
+        {
+        process_strings();
+
+        if (m_reviewStyles & check_l10n_contains_url)
+            {
+            std::wsmatch results;
+            for (const auto& str : m_localizable_strings)
+                {
+                if (std::regex_search(str.m_string, results, m_urlEmailRE))
+                    {
+                    m_localizable_strings_with_urls.push_back(str);
+                    }
+                }
+            }
+
+        if (m_reviewStyles & check_l10n_strings)
+            {
+            for (const auto& str : m_localizable_strings)
+                {
+                auto strToReview{ str.m_string };
+                if (str.m_string.length() && is_untranslatable_string(strToReview, false))
+                    {
+                    m_unsafe_localizable_strings.push_back(str);
+                    }
+                }
+            }
+
+        if (m_reviewStyles & check_malformed_strings)
+            {
+            const auto& classifyMalformedStrings = [this](const auto& strings)
+            {
+                for (const auto& str : strings)
+                    {
+                    if (std::regex_search(str.m_string, m_malformed_html_tag) ||
+                        std::regex_search(str.m_string, m_malformed_html_tag_bad_amp))
+                        {
+                        m_malformed_strings.push_back(str);
+                        }
+                    }
+            };
+
+            classifyMalformedStrings(m_localizable_strings);
+            classifyMalformedStrings(m_marked_as_non_localizable_strings);
+            classifyMalformedStrings(m_internal_strings);
+            classifyMalformedStrings(m_not_available_for_localization_strings);
+            classifyMalformedStrings(m_unsafe_localizable_strings);
+            classifyMalformedStrings(m_localizable_strings_with_urls);
+            classifyMalformedStrings(m_localizable_strings_in_internal_call);
+            }
+
+        if (m_reviewStyles & check_unencoded_ext_ascii)
+            {
+            const auto& classifyUnencodedStrings = [this](const auto& strings)
+            {
+                for (const auto& str : strings)
+                    {
+                    for (const auto& ch : str.m_string)
+                        {
+                        if (ch >= 128)
+                            {
+                            m_unencoded_strings.push_back(str);
+                            break;
+                            }
+                        }
+                    }
+            };
+
+            classifyUnencodedStrings(m_localizable_strings);
+            classifyUnencodedStrings(m_marked_as_non_localizable_strings);
+            classifyUnencodedStrings(m_internal_strings);
+            classifyUnencodedStrings(m_not_available_for_localization_strings);
+            classifyUnencodedStrings(m_unsafe_localizable_strings);
+            classifyUnencodedStrings(m_localizable_strings_with_urls);
+            classifyUnencodedStrings(m_localizable_strings_in_internal_call);
+            }
+
+        if (m_reviewStyles & check_printf_single_number)
+            {
+            // only looking at integral values (i.e., no floating-point precision)
+            std::wregex intPrintf{ LR"([%]([+]|[-] #0)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64))" };
+            std::wregex floatPrintf{ LR"([%]([+]|[-] #0)?(l|L)?(f|F))" };
+            const auto& classifyPrintfIntStrings = [&, this](const auto& strings)
+            {
+                for (const auto& str : strings)
+                    {
+                    if (std::regex_match(str.m_string, intPrintf) ||
+                        std::regex_match(str.m_string, floatPrintf))
+                        {
+                        m_printf_single_numbers.push_back(str);
+                        }
+                    }
+            };
+            classifyPrintfIntStrings(m_internal_strings);
+            classifyPrintfIntStrings(m_localizable_strings_in_internal_call);
+            }
+        // log any parsing errors
+        run_diagnostics();
+        }
+
+    //--------------------------------------------------
     void i18n_review::load_deprecated_functions(const std::wstring_view fileText,
                                                 const std::wstring& fileName)
         {
@@ -1262,13 +1363,13 @@ namespace i18n_check
         {
         try
             {
-            m_error_log.reserve(std::min<size_t>(fileCount, 100));
-            m_localizable_strings.reserve(std::min<size_t>(fileCount, 100));
-            m_not_available_for_localization_strings.reserve(std::min<size_t>(fileCount, 100));
-            m_marked_as_non_localizable_strings.reserve(std::min<size_t>(fileCount, 100));
-            m_internal_strings.reserve(std::min<size_t>(fileCount, 100));
-            m_unsafe_localizable_strings.reserve(std::min<size_t>(fileCount, 100));
-            m_deprecated_macros.reserve(std::min<size_t>(fileCount, 100));
+            m_error_log.reserve(std::min<size_t>(fileCount, 10));
+            m_localizable_strings.reserve(std::min<size_t>(fileCount, 10));
+            m_not_available_for_localization_strings.reserve(std::min<size_t>(fileCount, 10));
+            m_marked_as_non_localizable_strings.reserve(std::min<size_t>(fileCount, 10));
+            m_internal_strings.reserve(std::min<size_t>(fileCount, 10));
+            m_unsafe_localizable_strings.reserve(std::min<size_t>(fileCount, 10));
+            m_deprecated_macros.reserve(std::min<size_t>(fileCount, 10));
             }
         catch (const std::bad_alloc&)
             {
