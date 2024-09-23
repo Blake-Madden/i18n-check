@@ -2,10 +2,6 @@
 
 Perform all internationalization checks (the default).
 
-::: {.callout-note}
-This does not include code formatting checks.
-:::
-
 - `suspectL10NString`
 
 Check for translatable strings that should not be (e.g., numbers, keywords, `printf()` commands).
@@ -106,8 +102,8 @@ This is performed on *gettext* \*.po files and will analyze format strings for t
 
 ::: {.callout-note collapse=false}
 The checks performed here are strict; all `printf()` commands in translations must match
-their source counterpart exactly. For example, `%lu` vs. `%l` will emit a warning.
-Questionable commands such as `% s` (space is only meant for numeric formatting) will also emit a warning.
+their source counterpart exactly. For example, "%lu" vs. "%l" will emit a warning.
+Questionable commands such as "% s" (space is only meant for numeric formatting) will also emit a warning.
 :::
 
 - `allCodeFormatting`

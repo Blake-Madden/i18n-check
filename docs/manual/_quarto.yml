@@ -7,7 +7,6 @@ link-citations: true
 nocite: '@*'
 csl: modern-language-association.csl
 pdf-cover: "images/cover.pdf"
-
 book:
   title: "i18n-check"
   author: "Blake Madden"
@@ -20,12 +19,12 @@ book:
   chapters:
     - index.qmd
     - building.qmd
-    - options.qmd
-    - samples.qmd
-    - examples.qmd
-    - github-action.qmd
+    - part: "Command-line Utility"
+      chapters:
+      - command-line/options.qmd
+      - command-line/samples.qmd
+      - command-line/examples.qmd
     - cites.qmd
-
 format:
   html:
     theme: cosmo

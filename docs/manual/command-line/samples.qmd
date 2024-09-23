@@ -13,7 +13,7 @@ This will produce a "results.txt" file in the "bin" folder with output like this
 | subset.cpp | 281  | 38     | "GreaterThanOrEqualTo"                                     | String available for translation that probably should not be in function call: \_               | \[suspectL10NString\] |
 | subset.cpp | 17   | 39     | "Invalid dataset passed to column filter."                 | Localizable string being used within non-user facing function call: wxASSERT_MSG                | \[suspectL10NUsage\]  |
 | subset.cpp | 93   | 52     | "\'%s\': string value not found for \'%s\' column filter." | String not available for translation in function call: std::runtime_error                       | \[notL10NAvailable\]  |
-| subset.cpp | 131  | 38     | wxT                                                        | Deprecated text macro that can be removed. (Add \'L\' in front of string to make it double-byte.) | \[deprecatedMacro\]   |
+| subset.cpp | 131  | 38     | wxT                                                        | Deprecated text macro that can be removed. | \[deprecatedMacro\]   |
 | subset.cpp |      |        |                                                            | File contains extended ASCII characters, but is not encoding as UTF-8.                          | \[nonUTF8File\]       |
 | subset.cpp | 56   | 33     | "\'%s\'--- column not found for filtering."                | String contains extended ASCII characters that should be encoded.                               | \[unencodedExtASCII\] |
 

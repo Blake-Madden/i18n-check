@@ -1,4 +1,4 @@
-# Usage
+# Options
 
 `i18n-check` accepts the following arguments:
 
@@ -29,7 +29,7 @@ passed to functions such as `wxLogMessage`, `g_message`, or `qCWarning`.
 
 Whether it is acceptable for punctuation only strings to be translatable.
 
-Setting this to `true` will suppress warnings about strings such as “ - ”
+Setting this to `true` will suppress warnings about strings such as "? - ?"
 being available for localization.
 
 (Default is `false`.)
@@ -57,11 +57,11 @@ Higher values for this will result in less strings being classified as
 
 The C++ standard that should be assumed when issuing deprecated macro warnings (`deprecatedMacro`).
 
-For example, setting this to `17` or higher will issue warnings for `WXUNUSED`, as it
-can be replaced with `[[maybe_unused]]`. If setting this to `14`, however, `WXUNUSED`
-will be ignore since `[[maybe_unused]]` requires C++17.
+For example, setting this to `2017` or higher will issue warnings for `WXUNUSED`, as it
+can be replaced with `[[maybe_unused]]`. If setting this to `2014`, however, `WXUNUSED`
+will be ignored since `[[maybe_unused]]` requires C++17.
 
-(Default is `14`.)
+(Default is `2014`.)
 
 ## \-\-fuzzy {-}
 
