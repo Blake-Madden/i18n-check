@@ -616,14 +616,14 @@ namespace i18n_check
             @param str The font face name.*/
         static void add_font_name_to_ignore(const string_util::case_insensitive_wstring& str)
             {
-            m_font_names.emplace(str);
+            m_font_names.insert(str);
             }
 
         /** @brief Adds a file extension to be ignored if found as a string.
             @param str The font face name.*/
         static void add_file_extension_to_ignore(const string_util::case_insensitive_wstring& str)
             {
-            m_file_extensions.emplace(str);
+            m_file_extensions.insert(str);
             }
 
         /// @returns @c true if string is a known font face name.
@@ -666,6 +666,11 @@ namespace i18n_check
         read_po_msg(std::wstring_view& poCatalogEntry, const std::wstring_view msgTag);
 
       protected:
+        /// @returns @c true if the next word in @c commentBlock is a suppression command,
+        ///     along with the position of the end of the suppressed block of code.
+        /// @param commentBlock The comment to review (should be after the starting comment tag).
+        static std::pair<bool, size_t> is_block_suppressed(std::wstring_view commentBlock);
+
         // traditionally, 80 chars is the recommended line width,
         // but 120 is a bit more reasonable
         constexpr static auto m_max_line_length{ 120 };

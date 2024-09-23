@@ -58,6 +58,15 @@ namespace i18n_check
                 // or a single line comment
                 else if (*std::next(cppText) == L'/' && std::next(cppText, 2) < endSentinel)
                     {
+                    const auto [isSuppressed, suppresionEnd] = i18n_review::is_block_suppressed(
+                        { std::next(cppText, 2),
+                          static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
+                    if (isSuppressed)
+                        {
+                        clear_section(cppText,
+                                      std::next(cppText, static_cast<ptrdiff_t>(suppresionEnd + 2)));
+                        std::advance(cppText, suppresionEnd);
+                        }
                     const size_t endPos = std::wcscspn(cppText, L"\n\r");
                     if (static_cast<bool>(m_reviewStyles & check_space_after_comment) &&
                         static_cast<bool>(std::iswalnum(*std::next(cppText, 2))) &&

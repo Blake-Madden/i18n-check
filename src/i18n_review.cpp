@@ -764,6 +764,34 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
+    std::pair<bool, size_t> i18n_review::is_block_suppressed(std::wstring_view commentBlock)
+        {
+        const std::wstring_view SUPPRESS_BEGIN{ L"i18n-check-suppress-begin" };
+        const std::wstring_view SUPPRESS_END{ L"i18n-check-suppress-end" };
+
+        const size_t firstNonSpace = commentBlock.find_first_not_of(L" \t\n\r");
+        if (firstNonSpace == std::wstring_view::npos)
+            {
+            return std::make_pair(false, std::wstring_view::npos);
+            }
+        commentBlock.remove_prefix(firstNonSpace);
+        if (commentBlock.length() > SUPPRESS_BEGIN.length() &&
+            commentBlock.compare(0, SUPPRESS_BEGIN.length(), SUPPRESS_BEGIN) == 0)
+            {
+            const size_t endOfBlock = commentBlock.find(SUPPRESS_END);
+            if (endOfBlock == std::wstring_view::npos)
+                {
+                return std::make_pair(false, std::wstring_view::npos);
+                }
+            return std::make_pair(true, firstNonSpace + endOfBlock + SUPPRESS_END.length());
+            }
+        else
+            {
+            return std::make_pair(false, std::wstring_view::npos);
+            }
+        }
+
+    //--------------------------------------------------
     void i18n_review::review_strings()
         {
         process_strings();
