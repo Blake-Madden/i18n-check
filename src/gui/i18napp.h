@@ -22,6 +22,7 @@
 #include <wx/busyinfo.h>
 #include <wx/dataview.h>
 #include <wx/filename.h>
+#include <wx/fontenum.h>
 #include <wx/itemattr.h>
 #include <wx/numformatter.h>
 #include <wx/progdlg.h>

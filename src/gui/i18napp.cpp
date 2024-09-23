@@ -943,6 +943,13 @@ bool I18NApp::OnInit()
     appIcon.CopyFromBitmap(wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
     frame->SetIcon(appIcon);
 
+    wxFontEnumerator fe;
+    auto fontNames = fe.GetFacenames();
+    for (const auto& fn : fontNames)
+        {
+        i18n_check::i18n_review::add_font_name_to_ignore(fn.wc_str());
+        }
+
     return true;
     }
 
