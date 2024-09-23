@@ -380,7 +380,7 @@ namespace i18n_check
                            "of wxEXPAND." }
         };
 
-        if (m_min_cpp_version >= 17)
+        if (m_min_cpp_version >= 2017)
             {
             m_deprecated_string_functions.insert(
                 { L"wxNODISCARD", L"Use [[nodiscard]] instead of wxNODISCARD." });

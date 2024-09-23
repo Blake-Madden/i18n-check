@@ -214,15 +214,15 @@ class NewProjectDialog final : public wxDialog
         switch (m_minCppVersion)
             {
         case 0:
-            return 11;
+            return 2011;
         case 1:
-            return 14;
+            return 2014;
         case 2:
-            return 17;
+            return 2017;
         case 3:
-            return 20;
+            return 2020;
         case 4:
-            return 23;
+            return 2023;
             }
         return m_minCppVersion;
         }
@@ -231,19 +231,19 @@ class NewProjectDialog final : public wxDialog
         {
         switch (minVer)
             {
-        case 11:
+        case 2011:
             m_minCppVersion = 0;
             break;
-        case 14:
+        case 2014:
             m_minCppVersion = 1;
             break;
-        case 17:
+        case 2017:
             m_minCppVersion = 2;
             break;
-        case 20:
+        case 2020:
             m_minCppVersion = 3;
             break;
-        case 23:
+        case 2023:
             m_minCppVersion = 4;
             break;
         default:

@@ -183,7 +183,7 @@ Refer [here](Example.md) for example usage.
                       (Default is false.)
 
 --cpp-version: The C++ standard that should be assumed when issuing deprecated macro warnings.
-               (Default is 14.)
+               (Default is 2014.)
 
 -i,--ignore: Folders and files to ignore (can be used multiple times).
 

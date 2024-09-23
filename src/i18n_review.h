@@ -933,7 +933,7 @@ namespace i18n_check
         bool m_log_messages_are_translatable{ true };
         size_t m_min_words_for_unavailable_string{ 2 };
 
-        int m_min_cpp_version{ 14 };
+        int m_min_cpp_version{ 2014 };
 
         review_style m_reviewStyles{ static_cast<review_style>(
             review_style::check_l10n_strings | review_style::check_suspect_l10n_string_usage |
