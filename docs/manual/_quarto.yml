@@ -30,5 +30,6 @@ format:
     latex-engine: xelatex
     keep-tex: true
     citation-package: biblatex
+    cite-method: biblatex
     lot: true
     code-block-bg: false
