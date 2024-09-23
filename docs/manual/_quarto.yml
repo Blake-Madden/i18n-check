@@ -13,9 +13,6 @@ book:
   date: today
   date-format: long
   language: en
-  search: false
-  cover-image: "images/cover.png"
-  image: "images/cover.png"
   chapters:
     - index.qmd
     - building.qmd
@@ -26,9 +23,12 @@ book:
       - command-line/examples.qmd
     - cites.qmd
 format:
-  html:
-    theme: cosmo
   pdf:
-    documentclass: scrreprt
-
-editor: visual
+    documentclass: book
+    template: latex/default.tex
+    include-in-header: latex/preamble.tex
+    latex-engine: xelatex
+    keep-tex: true
+    citation-package: biblatex
+    lot: true
+    code-block-bg: false
