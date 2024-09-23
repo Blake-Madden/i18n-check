@@ -19,8 +19,7 @@ namespace i18n_check
             {
             if (static_cast<bool>(m_reviewStyles & check_l10n_strings))
                 {
-                std::wstring originalStr{ catEntry.second.m_source };
-                if (is_untranslatable_string(originalStr, false))
+                if (is_untranslatable_string(catEntry.second.m_source, false))
                     {
                     catEntry.second.m_issues.emplace_back(translation_issue::suspect_source_issue,
                                                           catEntry.second.m_source);

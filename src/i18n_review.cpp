@@ -174,6 +174,49 @@ namespace i18n_check
         L"gzip", L"bz2"
     };
 
+    std::set<std::wstring> i18n_review::m_untranslatable_exceptions = { L"PhD" };
+
+    std::vector<std::wregex> i18n_review::m_variable_name_patterns_to_ignore;
+
+    // variables whose CTORs take a string that should never be translated
+    std::set<std::wstring> i18n_review::m_variable_types_to_ignore = {
+        L"wxUxThemeHandle",
+        L"wxRegKey",
+        L"wxXmlNode",
+        L"wxLoadedDLL",
+        L"wxConfigPathChanger",
+        L"wxWebViewEvent",
+        L"wxFileSystemWatcherEvent",
+        L"wxStdioPipe",
+        L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION",
+        L"vmsWarningHandler",
+        L"vmsErrorHandler",
+        L"wxFFileOutputStream",
+        L"wxFFile",
+        L"wxFileName",
+        L"wxColor",
+        L"wxColour",
+        L"wxFont",
+        L"LOGFONTW",
+        L"SecretSchema",
+        L"GtkTypeInfo",
+        L"QKeySequence",
+        L"wxRegEx",
+        L"wregex",
+        L"std::wregex",
+        L"regex",
+        L"std::regex",
+        L"QRegularExpression",
+        L"wxDataViewRenderer",
+        L"wxDataViewBitmapRenderer",
+        L"wxDataViewDateRenderer",
+        L"wxDataViewTextRenderer",
+        L"wxDataViewIconTextRenderer",
+        L"wxDataViewCustomRenderer",
+        L"wxDataViewToggleRenderer",
+        L"wxDataObjectSimple"
+    };
+
     //--------------------------------------------------
     i18n_review::i18n_review()
         {
@@ -348,8 +391,6 @@ namespace i18n_check
             m_deprecated_string_functions.insert(
                 { L"WXUNUSED", L"Use [[maybe_unused]] instead of WXUNUSED()." });
             }
-
-        m_untranslatable_exceptions = { L"PhD" };
 
         m_untranslatable_regexes = {
             // nothing but numbers, punctuation, or control characters?
@@ -705,43 +746,6 @@ namespace i18n_check
         // keywords in the language that can appear in front of a string only
         m_keywords = { L"return", L"else", L"if", L"goto", L"new", L"delete", L"throw" };
 
-        // variables whose CTORs take a string that should never be translated
-        m_variable_types_to_ignore = { L"wxUxThemeHandle",
-                                       L"wxRegKey",
-                                       L"wxXmlNode",
-                                       L"wxLoadedDLL",
-                                       L"wxConfigPathChanger",
-                                       L"wxWebViewEvent",
-                                       L"wxFileSystemWatcherEvent",
-                                       L"wxStdioPipe",
-                                       L"wxCMD_LINE_CHARS_ALLOWED_BY_SHORT_OPTION",
-                                       L"vmsWarningHandler",
-                                       L"vmsErrorHandler",
-                                       L"wxFFileOutputStream",
-                                       L"wxFFile",
-                                       L"wxFileName",
-                                       L"wxColor",
-                                       L"wxColour",
-                                       L"wxFont",
-                                       L"LOGFONTW",
-                                       L"SecretSchema",
-                                       L"GtkTypeInfo",
-                                       L"QKeySequence",
-                                       L"wxRegEx",
-                                       L"wregex",
-                                       L"std::wregex",
-                                       L"regex",
-                                       L"std::regex",
-                                       L"QRegularExpression",
-                                       L"wxDataViewRenderer",
-                                       L"wxDataViewBitmapRenderer",
-                                       L"wxDataViewDateRenderer",
-                                       L"wxDataViewTextRenderer",
-                                       L"wxDataViewIconTextRenderer",
-                                       L"wxDataViewCustomRenderer",
-                                       L"wxDataViewToggleRenderer",
-                                       L"wxDataObjectSimple" };
-
         add_variable_name_pattern_to_ignore(
             std::wregex(LR"(^debug.*)", std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(
@@ -780,8 +784,7 @@ namespace i18n_check
             {
             for (const auto& str : m_localizable_strings)
                 {
-                auto strToReview{ str.m_string };
-                if (str.m_string.length() && is_untranslatable_string(strToReview, false))
+                if (str.m_string.length() && is_untranslatable_string(str.m_string, false))
                     {
                     m_unsafe_localizable_strings.push_back(str);
                     }
@@ -858,6 +861,53 @@ namespace i18n_check
             }
         // log any parsing errors
         run_diagnostics();
+        }
+
+    //--------------------------------------------------
+    void i18n_review::classify_non_localizable_string(string_info str)
+        {
+        if (m_reviewStyles & check_not_available_for_l10n)
+            {
+            if (!should_exceptions_be_translatable() &&
+                m_exceptions.find(str.m_usage.m_value) != m_exceptions.cend())
+                {
+                return;
+                }
+            if (m_log_functions.find(str.m_usage.m_value) != m_log_functions.cend())
+                {
+                return;
+                }
+
+            if (is_untranslatable_string(str.m_string, true))
+                {
+                m_internal_strings.emplace_back(str);
+                }
+            else
+                {
+                m_not_available_for_localization_strings.emplace_back(str);
+                }
+            }
+        }
+
+    //--------------------------------------------------
+    std::wstring_view i18n_review::extract_base_function(const std::wstring_view str) const
+        {
+        if (str.empty() || !is_valid_name_char(str.back()))
+            {
+            return std::wstring_view{};
+            }
+        if (str.length() == 1)
+            {
+            return is_valid_name_char(str[0]) ? str : std::wstring_view{};
+            }
+        for (int64_t i = static_cast<int64_t>(str.length() - 1); i >= 0; --i)
+            {
+            if (!is_valid_name_char(str[static_cast<size_t>(i)]))
+                {
+                return str.substr(static_cast<size_t>(i) + 1, str.length());
+                }
+            }
+        return str;
         }
 
     //--------------------------------------------------
@@ -1408,8 +1458,10 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    bool i18n_review::is_untranslatable_string(std::wstring& str, const bool limitWordCount) const
+    bool i18n_review::is_untranslatable_string(const std::wstring& strToReview,
+                                               const bool limitWordCount) const
         {
+        std::wstring str{ strToReview };
         static const std::wregex oneWordRE{ LR"((\b[a-zA-Z&'\-]+([\.\-\/:]*[\w'\-]*)*))" };
         static const std::wregex loremIpsum(L"Lorem ipsum.*");
 

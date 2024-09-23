@@ -73,8 +73,7 @@ namespace i18n_check
                     tableEntry.pop_back();
                     }
                 // don't include transformed string in report
-                std::wstring originalStr{ tableEntry };
-                if (is_untranslatable_string(originalStr, false))
+                if (is_untranslatable_string(tableEntry, false))
                     {
                     m_unsafe_localizable_strings.emplace_back(
                         tableEntry,

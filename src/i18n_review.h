@@ -489,7 +489,7 @@ namespace i18n_check
                 If a translatable string is assigned to a variable matching this
                 pattern, then it will be logged as an error.
             @param pattern The regex pattern to compare against the variable names.*/
-        void add_variable_name_pattern_to_ignore(const std::wregex& pattern)
+        static void add_variable_name_pattern_to_ignore(const std::wregex& pattern)
             {
             m_variable_name_patterns_to_ignore.emplace_back(pattern);
             }
@@ -497,7 +497,7 @@ namespace i18n_check
         /// @returns The regex patterns compared against variables that have
         ///     strings assigned to them. @sa add_variable_name_patterns_to_ignore().
         [[nodiscard]]
-        const std::vector<std::wregex>& get_ignored_variable_patterns() const noexcept
+        static const std::vector<std::wregex>& get_ignored_variable_patterns() noexcept
             {
             return m_variable_name_patterns_to_ignore;
             }
@@ -508,14 +508,14 @@ namespace i18n_check
             @param varType The variable type to ignore.
             @note This only works for variables with string arguments that
                 are constructed in place.*/
-        void add_variable_type_to_ignore(const std::wstring& varType)
+        static void add_variable_type_to_ignore(const std::wstring& varType)
             {
             m_variable_types_to_ignore.insert(varType);
             }
 
         /// @returns The variable types that will have their string values marked as internal.
         [[nodiscard]]
-        const std::set<std::wstring_view>& get_ignored_variable_types() const noexcept
+        static const std::set<std::wstring>& get_ignored_variable_types() noexcept
             {
             return m_variable_types_to_ignore;
             }
@@ -721,34 +721,12 @@ namespace i18n_check
             return msgId;
             }
 
-        /// Determines whether a hard-coded string should actually be
-        ///     exposed for translation or not. If so, then it will be added to the queue of
-        ///     non-localizable strings; otherwise, it will be considered an internal string.
+        /// @brief Determines whether a hard-coded string should actually be
+        ///     exposed for translation or not.
+        /// @details If so, then it will be added to the queue of non-localizable strings;
+        ///     otherwise, it will be considered an internal string.
         /// @param str The string to review.
-        void classify_non_localizable_string(string_info str)
-            {
-            if (m_reviewStyles & check_not_available_for_l10n)
-                {
-                if (!should_exceptions_be_translatable() &&
-                    m_exceptions.find(str.m_usage.m_value) != m_exceptions.cend())
-                    {
-                    return;
-                    }
-                if (m_log_functions.find(str.m_usage.m_value) != m_log_functions.cend())
-                    {
-                    return;
-                    }
-
-                if (is_untranslatable_string(str.m_string, true))
-                    {
-                    m_internal_strings.emplace_back(str);
-                    }
-                else
-                    {
-                    m_not_available_for_localization_strings.emplace_back(str);
-                    }
-                }
-            }
+        void classify_non_localizable_string(string_info str);
 
         /// @returns Just the function name from a full function call, stripping
         ///     off any class or namespace information.
@@ -756,25 +734,7 @@ namespace i18n_check
         /// @note This assumes that the functions trailing parentheses and template
         ///     specifications have already been removed.
         [[nodiscard]]
-        std::wstring_view extract_base_function(const std::wstring_view str) const
-            {
-            if (str.empty() || !is_valid_name_char(str.back()))
-                {
-                return std::wstring_view{};
-                }
-            if (str.length() == 1)
-                {
-                return is_valid_name_char(str[0]) ? str : std::wstring_view{};
-                }
-            for (int64_t i = static_cast<int64_t>(str.length() - 1); i >= 0; --i)
-                {
-                if (!is_valid_name_char(str[static_cast<size_t>(i)]))
-                    {
-                    return str.substr(static_cast<size_t>(i) + 1, str.length());
-                    }
-                }
-            return str;
-            }
+        std::wstring_view extract_base_function(const std::wstring_view str) const;
 
         /// @returns @c true if a function name is a translation extraction function.
         /// @param functionName The function name to review.
@@ -848,7 +808,7 @@ namespace i18n_check
       public:
 #endif
         /// @returns Whether @c str is a string that should probably not be translated.
-        /// @param[in,out] str The string to review.\n
+        /// @param strToReview The string to review.\n
         ///     This string may have text like HTML and CSS tags removed, as well as being trimmed.
         /// @param limitWordCount If @c true, will consider a word as
         ///    untranslatable if it doesn't meet
@@ -857,7 +817,7 @@ namespace i18n_check
         ///     for l10n as these strings should always be reviewed for safety reasons,
         ///     regardless of length.
         [[nodiscard]]
-        bool is_untranslatable_string(std::wstring& str, const bool limitWordCount) const;
+        bool is_untranslatable_string(const std::wstring& strToReview, const bool limitWordCount) const;
         /// @returns Whether @c functionName is a diagnostic function (e.g., ASSERT) whose
         ///     string parameters shouldn't be translatable.
         /// @param functionName The name of the function to review.
@@ -990,14 +950,17 @@ namespace i18n_check
         std::set<std::wstring_view> m_streamable_functions;
         std::set<std::wstring_view> m_exceptions;
         std::set<std::wstring_view> m_ctors_to_ignore;
-        std::vector<std::wregex> m_variable_name_patterns_to_ignore;
-        std::set<std::wstring_view> m_variable_types_to_ignore;
         std::set<string_util::case_insensitive_wstring> m_known_internal_strings;
         std::set<std::wstring_view> m_keywords;
-        static std::set<string_util::case_insensitive_wstring> m_font_names;
-        static std::set<string_util::case_insensitive_wstring> m_file_extensions;
         std::map<std::wstring_view, std::wstring_view> m_deprecated_string_macros;
         std::map<std::wstring_view, std::wstring_view> m_deprecated_string_functions;
+        // These have built-in values, but can be added to by the client also.
+        // These are static so that client's additions can propagate to other instances.
+        static std::vector<std::wregex> m_variable_name_patterns_to_ignore;
+        static std::set<std::wstring> m_variable_types_to_ignore;
+        static std::set<string_util::case_insensitive_wstring> m_font_names;
+        static std::set<string_util::case_insensitive_wstring> m_file_extensions;
+        static std::set<std::wstring> m_untranslatable_exceptions;
         // results after parsing what the client should maybe review
         std::vector<string_info> m_localizable_strings;
         std::vector<string_info> m_marked_as_non_localizable_strings;
@@ -1041,7 +1004,6 @@ namespace i18n_check
         static const std::wregex m_printf_cpp_string_regex;
         static const std::wregex m_printf_cpp_pointer_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
-        std::set<std::wstring> m_untranslatable_exceptions;
 
       private:
         [[nodiscard]]
