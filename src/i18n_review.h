@@ -652,15 +652,16 @@ namespace i18n_check
         /** @brief Finds and returns the next translation entry in a gettext po file.
             @param poFileText the po file content to parse.
             @returns If an entry is found, returns @c true, a view of the block, and its
-            starting position in @c poFileText.*/
+                starting position in @c poFileText.*/
         [[nodiscard]]
         static std::tuple<bool, std::wstring_view, size_t>
         read_po_catalog_entry(std::wstring_view& poFileText);
 
-        /** @brief Finds and returns the message entry in a gettext catalog entry.
+        /** @brief Finds and returns the message in a gettext catalog entry.
             @param poCatalogEntry the po file catalog entry to parse.
-            @returns If an entry is found, returns @c true, the message's value, its
-            starting position in the entry section, and the length of the message.*/
+            @param msgTag The type of message to look for (e.g., msgid or msgstr).
+            @returns If an entry is found, returns @c true, the message, its
+                starting position in the entry section, and its length.*/
         [[nodiscard]]
         static std::tuple<bool, std::wstring, size_t, size_t>
         read_po_msg(std::wstring_view& poCatalogEntry, const std::wstring_view msgTag);
@@ -707,24 +708,6 @@ namespace i18n_check
                            const std::wstring& functionName, const std::wstring& variableType,
                            const std::wstring& deprecatedMacroEncountered,
                            const size_t parameterPosition);
-
-        [[nodiscard]]
-        static std::wstring process_po_msg(std::wstring_view msg)
-            {
-            std::wstring msgId{ msg };
-
-            if (msgId.length() > 0 && msgId.front() == L'"')
-                {
-                msgId.erase(0, 1);
-                }
-            /// @todo make single pass
-            string_util::replace_all<std::wstring>(msgId, L"\"\r\n\"", L"");
-            string_util::replace_all<std::wstring>(msgId, L"\r\n\"", L"");
-            string_util::replace_all<std::wstring>(msgId, L"\"\n\"", L"");
-            string_util::replace_all<std::wstring>(msgId, L"\n\"", L"");
-
-            return msgId;
-            }
 
         /// @brief Determines whether a hard-coded string should actually be
         ///     exposed for translation or not.
@@ -1011,6 +994,24 @@ namespace i18n_check
         std::vector<std::wregex> m_untranslatable_regexes;
 
       private:
+        [[nodiscard]]
+        static std::wstring process_po_msg(std::wstring_view msg)
+            {
+            std::wstring msgId{ msg };
+
+            if (msgId.length() > 0 && msgId.front() == L'"')
+                {
+                msgId.erase(0, 1);
+                }
+
+            string_util::replace_all<std::wstring>(msgId, L"\"\r\n\"", L"");
+            string_util::replace_all<std::wstring>(msgId, L"\r\n\"", L"");
+            string_util::replace_all<std::wstring>(msgId, L"\"\n\"", L"");
+            string_util::replace_all<std::wstring>(msgId, L"\n\"", L"");
+
+            return msgId;
+            }
+
         [[nodiscard]]
         static std::vector<std::wstring>
         convert_positional_cpp_printf(const std::vector<std::wstring>& printfCommands,
