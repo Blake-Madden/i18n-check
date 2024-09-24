@@ -194,7 +194,7 @@ void TestCLass::TestCase2()
     CHECK(cpp.get_internal_strings()[0].m_usage.m_value == std::wstring{ L"col1" });
     CHECK(cpp.get_internal_strings()[1].m_string == std::wstring{ L"yellow" });
     CHECK(cpp.get_internal_strings()[1].m_usage.m_value == std::wstring{ L"setNamedColor" });
-    CHECK(cpp.get_internal_strings()[2].m_string == std::wstring{ L"" }); // #2F2F20 is stripped down to nothing
+    CHECK(cpp.get_internal_strings()[2].m_string == std::wstring{ L"#2F2F20" });
     CHECK(cpp.get_internal_strings()[2].m_usage.m_value == std::wstring{ L"col2" });
     CHECK(cpp.get_internal_strings()[3].m_string == std::wstring{ L"black" });
     CHECK(cpp.get_internal_strings()[3].m_usage.m_value == std::wstring{ L"setNamedColor" });
@@ -933,9 +933,9 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-            L"Info: Peak Memory Usage: Gbs.");
+            std::wstring{ L"Info: Peak Memory Usage: %.02fGbs." });
         CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
-            L"Release message!");
+            std::wstring{ L"Release message!" });
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
@@ -989,9 +989,9 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-            L"Info: Peak Memory Usage: Gbs.");
+            std::wstring{ L"Info: Peak Memory Usage: %.02fGbs." });
         CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
-            L"Release message!");
+            std::wstring{ L"Release message!" });
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
@@ -1123,7 +1123,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-              LR"(The amount is %0)");
+              std::wstring{ LR"(The amount is %0\n)" });
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
@@ -1138,9 +1138,9 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-              LR"(Invalid Likert response: %)");
+              std::wstring{ LR"(Invalid Likert response: %\n)" });
         CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
-              LR"(Column:   Values should not exceed 7.)");
+              std::wstring{ LR"(Column: %s\nValues should not exceed 7.)" });
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
@@ -1154,7 +1154,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_internal_strings()[0].m_string ==
-              L"text/html; charset=utf-8");
+              std::wstring{ L"text/html; charset=utf-8" });
         }
 
     SECTION("File filter")
@@ -1167,7 +1167,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_internal_strings()[0].m_string ==
-              L"PNG (*.png)|*.png");
+              std::wstring{  L"PNG (*.png)|*.png" });
         }
 
     SECTION("File filter word")
@@ -2480,16 +2480,17 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 5);
         CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"= RR");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"effect_play");
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == L"- RR");
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_usage.m_value == L"effect_play");
-        CHECK(cpp.get_not_available_for_localization_strings()[2].m_string == L"; RR");
-        CHECK(cpp.get_not_available_for_localization_strings()[2].m_usage.m_value == L"effect_play");
-        CHECK(cpp.get_not_available_for_localization_strings()[3].m_string == LR"(>      RR)");
-        CHECK(cpp.get_not_available_for_localization_strings()[3].m_usage.m_value == L"effect_play");
-        CHECK(cpp.get_not_available_for_localization_strings()[4].m_string == L", RR");
-        CHECK(cpp.get_not_available_for_localization_strings()[4].m_usage.m_value == L"effect_play");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"=	RR" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"effect_play" });
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == std::wstring{ L"-	RR" });
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_usage.m_value == std::wstring{ L"effect_play" });
+        CHECK(cpp.get_not_available_for_localization_strings()[2].m_string == std::wstring{ L";	RR" });
+        CHECK(cpp.get_not_available_for_localization_strings()[2].m_usage.m_value == std::wstring{ L"effect_play" });
+        CHECK(cpp.get_not_available_for_localization_strings()[3].m_string == std::wstring{ LR"(>	
+    RR)" });
+        CHECK(cpp.get_not_available_for_localization_strings()[3].m_usage.m_value == std::wstring{ L"effect_play" });
+        CHECK(cpp.get_not_available_for_localization_strings()[4].m_string == std::wstring{ L",	RR" });
+        CHECK(cpp.get_not_available_for_localization_strings()[4].m_usage.m_value == std::wstring{ L"effect_play" });
         }
 
     SECTION("String escaped with escaped slash")
@@ -2501,8 +2502,8 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"<img src=\\\"images\\\\");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your \\\"ID\\\".");
+        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring{ L"<img src=\\\"images\\\\" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Enter your \\\"ID\\\"." });
         }
 
     SECTION("Function name pointer")
@@ -2514,8 +2515,8 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"(II)V");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"GetStaticMethodID");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"(II)V" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"GetStaticMethodID" });
         }
 
     SECTION("Function name global namespace")
@@ -2527,8 +2528,8 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"(II)V");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"GetStaticMethodID");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"(II)V" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"GetStaticMethodID" });
         }
 
     SECTION("Function name member")
@@ -2540,8 +2541,8 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == LR"(standard exception of type \"\" with message \"\")");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"Printf");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ LR"(standard exception of type \"%s\" with message \"%s\")" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"Printf" });
         }
 
     SECTION("Function name template")
@@ -2553,8 +2554,8 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"(II)V");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"GetStaticMethodID");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"(II)V" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"GetStaticMethodID" });
         }
 
     SECTION("String commented paren")
@@ -2566,7 +2567,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Enter your ID." });
         }
 
     SECTION("String start escaped")
@@ -2578,7 +2579,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your \\\"ID\\\".");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Enter your \\\"ID\\\"." });
         }
 
     SECTION("With Email")
