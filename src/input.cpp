@@ -80,7 +80,8 @@ namespace i18n_check
 
         if (std::filesystem::is_regular_file(inputFolder) && std::filesystem::exists(inputFolder))
             {
-            if (!inputFolder.filename().wstring().starts_with(L"pseudo_"))
+            if (!inputFolder.filename().wstring().starts_with(L"pseudo_") &&
+                inputFolder.filename().wstring() != L"catch.hpp")
                 {
                 filesToAnalyze.push_back(inputFolder.wstring());
                 }
@@ -126,6 +127,8 @@ namespace i18n_check
                     // ignore CMake build files
                     p.path().filename().compare(L"CMakeCXXCompilerId.cpp") != 0 &&
                     p.path().filename().compare(L"CMakeCCompilerId.c") != 0 &&
+                    // main catch2 file
+                    p.path().filename().compare(L"catch.hpp") != 0 &&
                     // ignore pseudo-translated message catalogs what we previously generated
                     !p.path().filename().wstring().starts_with(L"pseudo_"))
                     {
