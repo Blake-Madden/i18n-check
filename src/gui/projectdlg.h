@@ -21,6 +21,7 @@
 #include <wx/filename.h>
 #include <wx/gbsizer.h>
 #include <wx/listbook.h>
+#include <wx/slider.h>
 #include <wx/spinctrl.h>
 #include <wx/statline.h>
 #include <wx/string.h>
@@ -28,7 +29,6 @@
 #include <wx/valgen.h>
 #include <wx/valtext.h>
 #include <wx/wx.h>
-#include <wx/slider.h>
 
 /** @brief Prompt for selecting a folder,
         a file filter for files to select from it,

@@ -661,9 +661,8 @@ void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
     if (m_activeProjectFilePath.empty())
         {
         const wxFileName projectName{ m_activeProjectOptions.m_filePath };
-        const wxString lastFolder = projectName.GetDirs().empty() ?
-                                        wxString{ _(L"Project") } :
-                                        projectName.GetDirs()[projectName.GetDirs().size() - 1];
+        const wxString lastFolder =
+            projectName.GetName().empty() ? wxString{ _(L"Project") } : projectName.GetName();
         wxFileDialog dialog(nullptr, _(L"Save Project"), wxString{}, lastFolder + L".xml",
                             _(L"i18n-check Project Files (*.xml)|*.xml"),
                             wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
