@@ -29,7 +29,7 @@ namespace i18n_check
                can find a full string table, but causes an error_stack exception with std::regex
                with some files, so need to more crudely parse string tables by looking for the start
                and end tags.*/
-            std::vector<std::wstring> stringTables;
+            std::vector<std::pair<size_t, std::wstring>> stringTables;
             const std::wregex stringTableRegEx{
                 LR"(STRINGTABLE[[:space:]]*(BEGIN|\{)[[:space:]]*)"
             };
@@ -37,70 +37,83 @@ namespace i18n_check
             std::match_results<decltype(rcFileText)::const_iterator> stPositions;
             std::match_results<decltype(rcFileText)::const_iterator> endPositions;
             auto currentTextBlock{ rcFileText };
+            size_t currentBlockOffset{ 0 };
             while (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(),
                                      stPositions, stringTableRegEx))
                 {
+                currentBlockOffset += stPositions.position();
                 currentTextBlock = currentTextBlock.substr(stPositions.position());
                 if (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(),
                                       endPositions, stringTableEndRegEx))
                     {
-                    stringTables.emplace_back(currentTextBlock.substr(
-                        0, endPositions.position() + endPositions.length()));
+                    stringTables.emplace_back(
+                        currentBlockOffset, currentTextBlock.substr(0, endPositions.position() +
+                                                                           endPositions.length()));
 
-                    currentTextBlock =
-                        currentTextBlock.substr(endPositions.position() + endPositions.length());
+                    currentBlockOffset += endPositions.length();
+
+                    currentTextBlock = currentTextBlock.substr(endPositions.length());
                     }
                 }
 
-            std::vector<std::wstring> tableEntries;
+            std::vector<std::pair<size_t, std::wstring>> tableEntries;
             const std::wregex tableEntryRE{ LR"("([^\n\r]*))" };
-            for (const auto& sTab : stringTables)
+            for (std::pair<size_t, std::wstring> sTab : stringTables)
                 {
-                std::copy(std::regex_token_iterator<
-                              std::remove_reference_t<decltype(sTab)>::const_iterator>(
-                              sTab.cbegin(), sTab.cend(), tableEntryRE, 1),
-                          std::regex_token_iterator<
-                              std::remove_reference_t<decltype(sTab)>::const_iterator>{},
-                          std::back_inserter(tableEntries));
+                size_t matchLenghtOffset{ 0 };
+                std::wsmatch tabEntryResults;
+                while (std::regex_search(sTab.second, tabEntryResults, tableEntryRE))
+                    {
+                    tableEntries.emplace_back(sTab.first + tabEntryResults.position(1) +
+                                                  matchLenghtOffset,
+                                              tabEntryResults.str(1));
+                    sTab.second.erase(0, tabEntryResults.position(1) + tabEntryResults.length(1));
+                    matchLenghtOffset += tabEntryResults.position(1) + tabEntryResults.length(1);
+                    }
                 }
 
             // review table entries
             for (auto& tableEntry : tableEntries)
                 {
                 // strip off trailing quote
-                if (tableEntry.length() > 0)
+                if (tableEntry.second.length() > 0)
                     {
-                    tableEntry.pop_back();
+                    tableEntry.second.pop_back();
                     }
-                // don't include transformed string in report
-                if (is_untranslatable_string(tableEntry, false))
+                if (is_untranslatable_string(tableEntry.second, false))
                     {
                     m_unsafe_localizable_strings.emplace_back(
-                        tableEntry,
+                        tableEntry.second,
                         string_info::usage_info(string_info::usage_info::usage_type::orphan,
                                                 std::wstring{}, std::wstring{}),
-                        m_file_name, std::make_pair(-1, -1));
+                        m_file_name,
+                        std::make_pair(get_line_and_column(tableEntry.first, rcFileText).first,
+                                       -1));
                     }
                 else
                     {
                     m_localizable_strings.emplace_back(
-                        tableEntry,
+                        tableEntry.second,
                         string_info::usage_info(string_info::usage_info::usage_type::orphan,
                                                 std::wstring{}, std::wstring{}),
-                        m_file_name, std::make_pair(-1, -1));
+                        m_file_name,
+                        std::make_pair(get_line_and_column(tableEntry.first, rcFileText).first,
+                                       -1));
                     }
 
                 if (m_reviewStyles & check_l10n_contains_url)
                     {
                     std::wsmatch results;
 
-                    if (std::regex_search(tableEntry, results, m_urlEmailRE))
+                    if (std::regex_search(tableEntry.second, results, m_urlEmailRE))
                         {
                         m_localizable_strings_with_urls.emplace_back(
-                            tableEntry,
+                            tableEntry.second,
                             string_info::usage_info(string_info::usage_info::usage_type::orphan,
                                                     std::wstring{}, std::wstring{}),
-                            m_file_name, std::make_pair(-1, -1));
+                            m_file_name,
+                            std::make_pair(get_line_and_column(tableEntry.first, rcFileText).first,
+                                           -1));
                         }
                     }
                 }
@@ -109,22 +122,36 @@ namespace i18n_check
         // read the fonts
         if (static_cast<bool>(get_style() & check_fonts))
             {
-            std::vector<std::wstring> fontEntries;
-            std::vector<std::wstring> fontParts;
+            std::vector<std::pair<size_t, std::wstring>> fontEntries;
             const std::wregex fontRE{ L"\\bFONT[ ]*([0-9]+),[ ]*\"([^\"]*)\"" };
-            std::copy(std::regex_token_iterator<decltype(rcFileText)::const_iterator>(
-                          rcFileText.cbegin(), rcFileText.cend(), fontRE),
-                      std::regex_token_iterator<decltype(rcFileText)::const_iterator>{},
-                      std::back_inserter(fontEntries));
+            std::match_results<decltype(rcFileText)::const_iterator> stPositions;
+            auto currentTextBlock{ rcFileText };
+            size_t currentBlockOffset{ 0 };
+            while (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(),
+                                     stPositions, fontRE))
+                {
+                currentBlockOffset += stPositions.position();
+                currentTextBlock = currentTextBlock.substr(stPositions.position());
 
+                fontEntries.emplace_back(
+                    currentBlockOffset,
+                    currentTextBlock.substr(0, stPositions.position() + stPositions.length()));
+
+                currentBlockOffset += stPositions.length();
+
+                currentTextBlock = currentTextBlock.substr(stPositions.length());
+                }
+
+            std::vector<std::wstring> fontParts;
             for (const auto& fontEntry : fontEntries)
                 {
                 fontParts.clear();
+                auto theFontEntry{ fontEntry.second };
                 std::copy(std::regex_token_iterator<
-                              std::remove_reference_t<decltype(fontEntry)>::const_iterator>(
-                              fontEntry.cbegin(), fontEntry.cend(), fontRE, { 1, 2 }),
+                              std::remove_reference_t<decltype(theFontEntry)>::const_iterator>(
+                              theFontEntry.cbegin(), theFontEntry.cend(), fontRE, { 1, 2 }),
                           std::regex_token_iterator<
-                              std::remove_reference_t<decltype(fontEntry)>::const_iterator>{},
+                              std::remove_reference_t<decltype(theFontEntry)>::const_iterator>{},
                           std::back_inserter(fontParts));
 
                 const auto fontSize = [&fontParts]()
@@ -144,18 +171,25 @@ namespace i18n_check
                 constexpr int32_t maxFontSize{ 10 };
                 if (fontSize && (fontSize.value() > maxFontSize || fontSize.value() < minFontSize))
                     {
-                    m_badFontSizes.push_back(
-                        string_info{ fontEntry + L": font size " + fontParts[0] +
-                                         L" is non-standard (8 is recommended).",
-                                     string_info::usage_info{}, fileName, std::make_pair(-1, -1) });
+                    m_badFontSizes.push_back(string_info{
+                        std::to_wstring(fontSize.value()),
+                        string_info::usage_info{ L"Font size " + fontParts[0] +
+                                                 L" is non-standard (8 is recommended)." },
+                        fileName,
+                        std::make_pair(get_line_and_column(fontEntry.first, rcFileText).first,
+                                       -1) });
                     }
 
                 if (fontParts[1] != L"MS Shell Dlg" && fontParts[1] != L"MS Shell Dlg 2")
                     {
                     m_nonSystemFontNames.push_back(string_info{
-                        fontEntry + L": font name '" + fontParts[1] +
-                            L"' may not map well on some systems (MS Shell Dlg is recommended).",
-                        string_info::usage_info{}, fileName, std::make_pair(-1, -1) });
+                        fontParts[1],
+                        string_info::usage_info{
+                            L"Font '" + fontParts[1] +
+                            L"' may not map well on some systems (MS Shell Dlg is recommended)." },
+                        fileName,
+                        std::make_pair(get_line_and_column(fontEntry.first, rcFileText).first,
+                                       -1) });
                     }
                 }
             }

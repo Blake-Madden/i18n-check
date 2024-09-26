@@ -452,6 +452,9 @@ namespace i18n_check
             std::wregex(
                 LR"(<[A-Za-z]+[A-Za-z0-9_/\\\-\.'"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\-.']*>)"),
             std::wregex(LR"(<[A-Za-z]+([A-Za-z0-9_\-\.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*)"),
+            std::wregex(LR"(^[[:space:]]*xmlns(:[[:alnum:]]+)?=.*)"),
+            std::wregex(LR"(^[[:space:]]*<soap:[[:alnum:]]+.*)"),
+            std::wregex(LR"(^[[:space:]]*<port\b.*)"),
             // <image x=%d y=\"%d\" width = '%dpx' height="%dpx"
             std::wregex(
                 LR"(<[A-Za-z0-9_\-\.]+[[:space:]]*([A-Za-z0-9_\-\.]+[[:space:]]*=[[:space:]]*[\"'\\]{0,2}[a-zA-Z0-9\-]*[\"'\\]{0,2}[[:space:]]*)+)"),
@@ -516,7 +519,13 @@ namespace i18n_check
             std::wregex(LR"([a-zA-Z][:]([\\]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\[\]\-]*)+)"),
             std::wregex(LR"([/]?sys\$.*)"),
             // Debug message
-            std::wregex(LR"(^DEBUG:[\s\S]*)"),
+            std::wregex(LR"(^DEBUG:[\s\S].*)"),
+            // mail protocals
+            std::wregex(LR"(^(RCPT TO|MAIL TO|MAIL FROM):.*)"),
+            // MIME headers
+            std::wregex(LR"(^X-Priority:*)"),
+            std::wregex(LR"(.*\bContent-Type:[[:space:]]*[[:alnum:]]+/[[:alnum:]]+;.*)"),
+            std::wregex(LR"(.*\bContent-Transfer-Encoding:[[:space:]]*[[:alnum:]]+.*)"),
             // URL
             std::wregex(
                 LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"),

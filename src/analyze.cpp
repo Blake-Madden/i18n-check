@@ -371,31 +371,34 @@ namespace i18n_check
         // Windows resource file warnings
         for (const auto& val : rc.get_unsafe_localizable_strings())
             {
-            report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
-                   << L"\"\t" << L"String available for translation that probably should not be."
+            report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                   << L"String available for translation that probably should not be."
                    << L"\t[suspectL10NString]\n";
             }
 
         for (const auto& val : rc.get_localizable_strings_with_urls())
             {
-            report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
-                   << L"\"\t"
+            report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
                    << L"String available for translation that contains an URL or email address."
                    << L"\t[urlInL10NString]\n";
             }
 
         for (const auto& val : rc.get_bad_dialog_font_sizes())
             {
-            report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
-                   << L"\"\t" << L"Font issue in resource file dialog definition."
-                   << L"\t[fontIssue]\n";
+            report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
+                   << replaceSpecialSpaces(val.m_string)
+                   << L"\"\t"
+                   // this provides more detailed info about the issue
+                   << replaceSpecialSpaces(val.m_usage.m_value) << L"\t[fontIssue]\n";
             }
 
         for (const auto& val : rc.get_non_system_dialog_fonts())
             {
-            report << val.m_file_name << L"\t\t\t" << L"\"" << replaceSpecialSpaces(val.m_string)
-                   << L"\"\t" << L"Font issue in resource file dialog definition."
-                   << L"\t[fontIssue]\n";
+            report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                   << replaceSpecialSpaces(val.m_usage.m_value) << L"\t[fontIssue]\n";
             }
 
         // gettext catalogs

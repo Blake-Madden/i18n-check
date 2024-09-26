@@ -247,6 +247,9 @@ namespace i18n_check
                     }
 
                 /// @private
+                usage_info(std::wstring val) : m_value(std::move(val)) {}
+
+                /// @private
                 usage_type m_type{ usage_type::function };
                 /// @private
                 std::wstring m_value;
@@ -805,7 +808,8 @@ namespace i18n_check
         ///     for l10n as these strings should always be reviewed for safety reasons,
         ///     regardless of length.
         [[nodiscard]]
-        bool is_untranslatable_string(const std::wstring& strToReview, const bool limitWordCount) const;
+        bool is_untranslatable_string(const std::wstring& strToReview,
+                                      const bool limitWordCount) const;
         /// @returns Whether @c functionName is a diagnostic function (e.g., ASSERT) whose
         ///     string parameters shouldn't be translatable.
         /// @param functionName The name of the function to review.
