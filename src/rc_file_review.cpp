@@ -158,6 +158,10 @@ namespace i18n_check
                 {
                     try
                         {
+                        if (fontParts[0].starts_with(L"0x"))
+                            {
+                            return std::optional<int32_t>(std::stol(fontParts[0], nullptr, 16));
+                            }
                         return std::optional<int32_t>(std::stol(fontParts[0]));
                         }
                     catch (...)
