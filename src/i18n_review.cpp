@@ -57,8 +57,10 @@ namespace i18n_check
     };
 
     // <s:complex name=\"{{GetFunctionName}}_{{GetParameterName}}_Array\">
-    const std::wregex i18n_review::m_xml_element_regex{ LR"(<[/]?[a-zA-Z0-9_:'"\.\[\]\/\{\}\-\\=][a-zA-Z0-9_:'"\.\[\]\/\{\}\- \\=]+[/]?>)",
-                                                        std::regex_constants::icase };
+    const std::wregex i18n_review::m_xml_element_regex{
+        LR"(<[/]?[a-zA-Z0-9_:'"\.\[\]\/\{\}\-\\=][a-zA-Z0-9_:'"\.\[\]\/\{\}\- \\=]+[/]?>)",
+        std::regex_constants::icase
+    };
 
     // first capture group ensures that printf command is not proceeded by a negating '%'
     // second capture group is the actual printf command
@@ -678,6 +680,9 @@ namespace i18n_check
             // other testing frameworks
             L"do_test", L"run_check", L"GNC_TEST_ADD_FUNC", L"GNC_TEST_ADD", L"g_test_message",
             L"check_binary_op", L"check_binary_op_equal", L"MockProvider",
+            // MAME
+            L"TEST_INSTRUCTION", L"ASIO_CHECK", L"ASIO_ERROR", L"ASIO_HANDLER_CREATION",
+            L"ASMJIT_DEPRECATED",
             // low-level printf functions
             L"wprintf", L"printf", L"sprintf", L"snprintf", L"fprintf", L"wxSnprintf",
             // KDE
