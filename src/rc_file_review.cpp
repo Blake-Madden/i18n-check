@@ -177,7 +177,7 @@ namespace i18n_check
                                                  L" is non-standard (8 is recommended)." },
                         fileName,
                         std::make_pair(get_line_and_column(fontEntry.first, rcFileText).first,
-                                       -1) });
+                                       std::wstring::npos) });
                     }
 
                 if (fontParts[1] != L"MS Shell Dlg" && fontParts[1] != L"MS Shell Dlg 2")
@@ -189,7 +189,7 @@ namespace i18n_check
                             L"' may not map well on some systems (MS Shell Dlg is recommended)." },
                         fileName,
                         std::make_pair(get_line_and_column(fontEntry.first, rcFileText).first,
-                                       -1) });
+                                       std::wstring::npos) });
                     }
                 }
             }

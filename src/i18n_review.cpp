@@ -988,11 +988,24 @@ namespace i18n_check
             {
             return;
             }
-        std::vector<std::wstring> matches;
-        std::copy(std::regex_token_iterator<decltype(fileText)::const_iterator>(
-                      fileText.cbegin(), fileText.cend(), m_id_assignment_regex),
-                  std::regex_token_iterator<decltype(fileText)::const_iterator>{},
-                  std::back_inserter(matches));
+        std::vector<std::pair<size_t, std::wstring>> matches;
+        std::match_results<decltype(fileText)::const_iterator> stPositions;
+        auto currentTextBlock{ fileText };
+        size_t currentBlockOffset{ 0 };
+        while (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(), stPositions,
+                                 m_id_assignment_regex))
+            {
+            currentBlockOffset += stPositions.position();
+            currentTextBlock = currentTextBlock.substr(stPositions.position());
+
+            matches.emplace_back(
+                currentBlockOffset,
+                currentTextBlock.substr(0, stPositions.position() + stPositions.length()));
+
+            currentBlockOffset += stPositions.length();
+
+            currentTextBlock = currentTextBlock.substr(stPositions.length());
+            }
 
         const std::wregex varNamePartsRE{ L"([a-zA-Z0-9_]*)(ID)([a-zA-Z0-9_]*)" };
         const std::wregex varNameIDPartsRE{ L"([a-zA-Z0-9_]*)(ID[A-Z]?[_]?)([a-zA-Z0-9_]*)" };
@@ -1000,7 +1013,7 @@ namespace i18n_check
         const std::wregex numRE{ LR"(^[\-0-9']+$)" };
         if (!matches.empty())
             {
-            std::vector<std::pair<std::wstring, std::wstring>> idAssignments;
+            std::vector<std::tuple<size_t, std::wstring, std::wstring>> idAssignments;
             idAssignments.reserve(matches.size());
             std::vector<std::wstring> subMatches;
             std::vector<std::wstring> idNameParts;
@@ -1010,12 +1023,14 @@ namespace i18n_check
                 {
                 subMatches.clear();
                 idNameParts.clear();
+                auto varAssignment{ match.second };
                 // get the var name and ID
                 std::copy(std::regex_token_iterator<
-                              std::remove_reference_t<decltype(match)>::const_iterator>(
-                              match.cbegin(), match.cend(), m_id_assignment_regex, { 3, 4, 5 }),
+                              std::remove_reference_t<decltype(varAssignment)>::const_iterator>(
+                              varAssignment.cbegin(), varAssignment.cend(), m_id_assignment_regex,
+                              { 3, 4, 5 }),
                           std::regex_token_iterator<
-                              std::remove_reference_t<decltype(match)>::const_iterator>{},
+                              std::remove_reference_t<decltype(varAssignment)>::const_iterator>{},
                           std::back_inserter(subMatches));
                 // ignore function calls or constructed objects assigning an ID
                 if (subMatches[2] == L"(" || subMatches[2] == L"{")
@@ -1045,7 +1060,7 @@ namespace i18n_check
                      idNameParts[2].starts_with(L"B_") || idNameParts[2].starts_with(L"S_") ||
                      idNameParts[2].starts_with(L"M_") || idNameParts[2].starts_with(L"P_")))
                     {
-                    idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
+                    idAssignments.push_back({ match.first, subMatches[0], subMatches[1] });
                     continue;
                     }
 #endif
@@ -1057,24 +1072,22 @@ namespace i18n_check
                     continue;
                     }
 
-                idAssignments.push_back(std::make_pair(subMatches[0], subMatches[1]));
+                idAssignments.push_back({ match.first, subMatches[0], subMatches[1] });
                 }
-            for (const auto& idAssignment : idAssignments)
+            for (const auto& [position, string1, string2] : idAssignments)
                 {
                 idNameParts.clear();
-                std::copy(
+                std::copy(std::regex_token_iterator<
+                              std::remove_reference_t<decltype(string1)>::const_iterator>(
+                              string1.cbegin(), string1.cend(), varNameIDPartsRE, { 1, 2, 3 }),
                     std::regex_token_iterator<
-                        std::remove_reference_t<decltype(idAssignment.first)>::const_iterator>(
-                        idAssignment.first.cbegin(), idAssignment.first.cend(), varNameIDPartsRE,
-                        { 1, 2, 3 }),
-                    std::regex_token_iterator<
-                        std::remove_reference_t<decltype(idAssignment.first)>::const_iterator>(),
+                              std::remove_reference_t<decltype(string1)>::const_iterator>(),
                     std::back_inserter(idNameParts));
-                const auto idVal = [&idAssignment]()
+                const auto idVal = [&string2]()
                 {
                     try
                         {
-                        return std::optional<int32_t>(std::stol(idAssignment.second));
+                        return std::optional<int32_t>(std::stol(string2));
                         }
                     catch (...)
                         {
@@ -1093,20 +1106,22 @@ namespace i18n_check
                      idNameParts[1] == L"IDI_" || idNameParts[1] == L"IDB_"))
                     {
                     m_ids_assigned_number.push_back(string_info(
-                        idAssignment.second + L" assigned to " + idAssignment.first +
+                        string2 + L" assigned to " + string1 +
                             L"; value should be between 1 and 0x6FFF if this is an MFC project.",
                         string_info::usage_info{}, fileName,
-                        std::make_pair(std::wstring::npos, std::wstring::npos)));
+                        std::make_pair(get_line_and_column(position, fileText).first,
+                                       std::wstring::npos)));
                     }
                 else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && idVal &&
                          !(idVal.value() >= idRangeStart && idVal.value() <= stringIdRangeEnd) &&
                          (idNameParts[1] == L"IDS_" || idNameParts[1] == L"IDP_"))
                     {
                     m_ids_assigned_number.emplace_back(
-                        idAssignment.second + L" assigned to " + idAssignment.first +
+                        string2 + L" assigned to " + string1 +
                             L"; value should be between 1 and 0x7FFF if this is an MFC project.",
                         string_info::usage_info{}, fileName,
-                        std::make_pair(std::wstring::npos, std::wstring::npos));
+                        std::make_pair(get_line_and_column(position, fileText).first,
+                                       std::wstring::npos));
                     }
                 else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && idVal &&
                          !(idVal.value() >= dialogIdRangeStart &&
@@ -1114,38 +1129,38 @@ namespace i18n_check
                          idNameParts[1] == L"IDC_")
                     {
                     m_ids_assigned_number.emplace_back(
-                        idAssignment.second + L" assigned to " + idAssignment.first +
+                        string2 + L" assigned to " + string1 +
                             L"; value should be between 8 and 0xDFFF if this is an MFC project.",
                         string_info::usage_info{}, fileName,
-                        std::make_pair(std::wstring::npos, std::wstring::npos));
+                        std::make_pair(get_line_and_column(position, fileText).first,
+                                       std::wstring::npos));
                     }
                 else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) &&
                          idNameParts[1].length() <= 3 && // ignore MFC IDs (handled above)
-                         std::regex_match(idAssignment.second, numRE) &&
-                         // -1 or 0 are usually generic IDs for the framework or temporary init
-                         // values
-                         idAssignment.second != L"-1" && idAssignment.second != L"0")
+                         std::regex_match(string2, numRE) &&
+                         // -1 or 0 are usually generic IDs for the framework or
+                         // temporary init values
+                         string2 != L"-1" && string2 != L"0")
                     {
                     m_ids_assigned_number.emplace_back(
-                        idAssignment.second + L" assigned to " + idAssignment.first,
-                        string_info::usage_info{}, fileName,
-                        std::make_pair(std::wstring::npos, std::wstring::npos));
+                        string2 + L" assigned to " + string1, string_info::usage_info{}, fileName,
+                        std::make_pair(get_line_and_column(position, fileText).first,
+                                       std::wstring::npos));
                     }
 
-                const auto [pos, inserted] =
-                    assignedIds.insert(std::make_pair(idAssignment.second, idAssignment.first));
+                const auto [pos, inserted] = assignedIds.insert(std::make_pair(string2, string1));
 
                 if (static_cast<bool>(m_reviewStyles & check_duplicate_value_assigned_to_ids) &&
-                    !inserted && idAssignment.second.length() > 0 &&
+                    !inserted && string2.length() > 0 &&
                     // ignore if same ID is assigned to variables with the same name
-                    idAssignment.first != pos->second && idAssignment.second != L"wxID_ANY" &&
-                    idAssignment.second != L"wxID_NONE" && idAssignment.second != L"-1" &&
-                    idAssignment.second != L"0")
+                    string1 != pos->second && string2 != L"wxID_ANY" && string2 != L"wxID_NONE" &&
+                    string2 != L"-1" && string2 != L"0")
                     {
-                    m_duplicates_value_assigned_to_ids.push_back(string_info(
-                        idAssignment.second + L" has been assigned to multiple ID variables.",
+                    m_duplicates_value_assigned_to_ids.push_back(
+                        string_info(string2 + L" has been assigned to multiple ID variables.",
                         string_info::usage_info{}, fileName,
-                        std::make_pair(std::wstring::npos, std::wstring::npos)));
+                                    std::make_pair(get_line_and_column(position, fileText).first,
+                                                   std::wstring::npos)));
                     }
                 }
             }

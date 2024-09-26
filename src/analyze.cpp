@@ -535,13 +535,14 @@ namespace i18n_check
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
                    << L"Prefer using std::to_[w]string() instead of printf() to "
-                      "format a single number."
+                      "format a number."
                    << L"\t[printfSingleNumber]\n";
             }
 
         for (const auto& val : cpp.get_duplicates_value_assigned_to_ids())
             {
-            report << val.m_file_name << L"\t\t\t" << replaceSpecialSpaces(val.m_string) << L"\t"
+            report << val.m_file_name << L"\t" << val.m_line << L"\t\t"
+                   << replaceSpecialSpaces(val.m_string) << L"\t"
                    << L"Verify that duplicate assignment was intended. "
                       "If correct, consider assigning the first ID variable by name "
                       "to the second one to make this intention clear."
@@ -550,7 +551,8 @@ namespace i18n_check
 
         for (const auto& val : cpp.get_ids_assigned_number())
             {
-            report << val.m_file_name << L"\t\t\t" << replaceSpecialSpaces(val.m_string) << L"\t"
+            report << val.m_file_name << L"\t" << val.m_line << L"\t\t"
+                   << replaceSpecialSpaces(val.m_string) << L"\t"
                    << L"Prefer using ID constants provided by your framework when "
                       "assigning values to an ID variable."
                    << L"\t[numberAssignedToId]\n";
@@ -598,8 +600,8 @@ namespace i18n_check
             report
                 << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t" << L"\""
                 << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                << L"String contains extended ASCII characters that should be encoded. Recommended "
-                   L"change: '"
+                << L"String contains extended ASCII characters that should be encoded. "
+                   "Recommended change: '"
                 << encodingRecommendations.str() << L"'\t[unencodedExtASCII]\n";
             }
 
