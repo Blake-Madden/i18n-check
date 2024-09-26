@@ -1,0 +1,19 @@
+# Settings
+
+## Source Files
+
+## Resource Files
+
+### PO catalogs
+
+**Check for inconsistent printf format specifiers**: select this to check for mismatching `printf()` commands between source and translation strings.
+
+**Review fuzzy translations**: select this to review fuzzy translations. This should only be selected if you intend to review translations
+that still require approval and are likely unfinished.
+
+### Windows RC files
+
+**Check for font issues**: select this to check for dialogs that use unusual font sizes
+or are not using \'MS Shell Dlg\'.[@ms-shell-dlg]
+
+## Additional Checks

@@ -26,6 +26,9 @@ book:
       - command-line/options.qmd
       - command-line/examples.qmd
       - command-line/samples.qmd
+    - part: "Graphical Interface"
+      chapters: 
+      - gui/options.qmd
     - part: "Additional Features"
       chapters:
       - suppression.qmd
