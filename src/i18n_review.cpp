@@ -520,7 +520,7 @@ namespace i18n_check
             std::wregex(LR"([/]?sys\$.*)"),
             // Debug message
             std::wregex(LR"(^DEBUG:[\s\S].*)"),
-            // mail protocals
+            // mail protocols
             std::wregex(LR"(^(RCPT TO|MAIL TO|MAIL FROM):.*)"),
             // MIME headers
             std::wregex(LR"(^X-Priority:*)"),

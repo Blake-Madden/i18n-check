@@ -61,11 +61,11 @@ FONT 8, "Comic Sans", 0, 0, 0x0
 BEGIN)";
 		rc(code, L"");
 		REQUIRE(rc.get_bad_dialog_font_sizes().size() == 2);
-		CHECK(rc.get_bad_dialog_font_sizes()[0].m_string == LR"(FONT 7, "MS Shell Dlg": font size 7 is non-standard (8 is recommended).)");
-		CHECK(rc.get_bad_dialog_font_sizes()[1].m_string == LR"(FONT 18, "MS Shell Dlg": font size 18 is non-standard (8 is recommended).)");
+		CHECK(rc.get_bad_dialog_font_sizes()[0].m_string == LR"(7)");
+		CHECK(rc.get_bad_dialog_font_sizes()[1].m_string == LR"(18)");
 
 		REQUIRE(rc.get_non_system_dialog_fonts().size() == 1);
-		CHECK(rc.get_non_system_dialog_fonts()[0].m_string == LR"(FONT 8, "Comic Sans": font name 'Comic Sans' may not map well on some systems (MS Shell Dlg is recommended).)");
+		CHECK(rc.get_non_system_dialog_fonts()[0].m_string == LR"(Comic Sans)");
 	}
 }
 // NOLINTEND
