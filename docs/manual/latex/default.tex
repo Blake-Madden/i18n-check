@@ -476,10 +476,64 @@ $endif$
 
 \begin{document}
 
+% cover page
 $if(pdf-cover)$
 \thispagestyle{empty}
-\includepdf{$pdf-cover$}
+
+$if(pdf-cover-font-color)$
+  \definecolor{cover-font-color}{RGB}{$pdf-cover-font-color$}
+$else$
+  \definecolor{cover-font-color}{RGB}{0, 0, 0}
+$endif$
+
+$if(pdf-cover-color)$
+  \definecolor{cover-color}{RGB}{$pdf-cover-color$}
+$else$
+  \definecolor{cover-color}{RGB}{0, 255, 0}
+$endif$
+
+$if(pdf-cover-author-color)$
+  \definecolor{author-color}{RGB}{$pdf-cover-author-color$}
+$else$
+  \definecolor{author-color}{RGB}{0, 0, 0}
+$endif$
+
+\definecolor{white-smoke}{RGB}{232, 232, 232}
+
+\newgeometry{top=0mm, bottom=0mm, left=0mm, right=0mm}
+
+\begin{overpic}[clip]{$pdf-cover$}
+  % title section
+  \put(-1, 100)
+  {
+  \begin{tcolorbox}[enhanced jigsaw, sharp corners, spread outwards, grow to right by=5mm,
+                    box align=top, boxsep=0.5cm, valign=top, text height=3.75cm, boxrule=0mm,
+                    bicolor,colbacklower=white-smoke, halign lower=center, valign lower=center,
+                    colback=cover-color, colframe=cover-color, opacityback=0.95, opacityframe=0.95]
+       {\fontsize{42pt}{46pt} \usefont{T1}{PlyfrDisplay-OsF}{eb}{n} \color{cover-font-color} $title$}
+
+       \vspace{.5cm}
+       {\fontsize{30pt}{34pt} \usefont{T1}{PlyfrDisplay-OsF}{eb}{it} \color{cover-font-color} $subtitle$\vphantom{Qy}}
+
+       \vspace{0.1cm}
+       \tcblower
+       {\large \color{black} \adforn{45}\quad\textbf{$description$}\quad\adforn{46}}
+  \end{tcolorbox}
+  }
+  % author
+  \put(-1, 0)
+  {
+  \begin{tcolorbox}[enhanced jigsaw, sharp corners, box align=bottom, halign=right, boxsep=0.5cm,
+                    spread outwards, grow to right by=5mm,
+                    colback=cover-color, colframe=cover-color, opacityback=0.4, boxrule=0mm,
+                    borderline north={1pt}{0pt}{cover-color}]
+       {\fontsize{18pt}{22pt} \bfseries \color{author-color} $author$}
+  \end{tcolorbox}
+  }
+\end{overpic}
+
 \clearpage{\thispagestyle{empty}\cleardoublepage}
+\restoregeometry 
 $endif$
 
 \frontmatter

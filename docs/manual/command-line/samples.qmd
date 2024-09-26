@@ -6,20 +6,12 @@ After building, go into the "bin" folder and run this command to analyze the sam
 $ i18n-check ../samples -o results.txt
 ```
 
-This will produce a "results.txt" file in the "bin" folder with output like this:
-
-| File                  | Line | Column | Value                                                  | Explanation                                                                                     | WarningID             |
-|------------|------------|------------|------------|------------|------------|
-| subset.cpp | 281  | 38     | "GreaterThanOrEqualTo"                                     | String available for translation that probably should not be in function call: \_               | \[suspectL10NString\] |
-| subset.cpp | 17   | 39     | "Invalid dataset passed to column filter."                 | Localizable string being used within non-user facing function call: wxASSERT_MSG                | \[suspectL10NUsage\]  |
-| subset.cpp | 93   | 52     | "\'%s\': string value not found for \'%s\' column filter." | String not available for translation in function call: std::runtime_error                       | \[notL10NAvailable\]  |
-| subset.cpp | 131  | 38     | wxT                                                        | Deprecated text macro that can be removed. | \[deprecatedMacro\]   |
-| subset.cpp |      |        |                                                            | File contains extended ASCII characters, but is not encoding as UTF-8.                          | \[nonUTF8File\]       |
-| subset.cpp | 56   | 33     | "\'%s\'--- column not found for filtering."                | String contains extended ASCII characters that should be encoded.                               | \[unencodedExtASCII\] |
+This will produce a "results.txt" file in the "bin" folder which contains tabular results. This file will contain warnings such as:
 
 The `suspectL10NString` warning is because there is a string "GreaterThanOrEqualTo" that is inside of a `_()` macro, making it available for translation. This does not appear to be something appropriate for translation, hence the warning.
 
-The `suspectL10NUsage` warning is because the string "Invalid dataset passed to column filter." is being used in a call to `wxASSERT_MSG()`, which is a debug assert function. Asserts normally should not appear in production releases and shouldn't be seen by end users; therefore, they should not be translated.
+The `suspectL10NUsage` warning is because the string "Invalid dataset passed to column filter." is being used in a call to `wxASSERT_MSG()`, which is a debug assert function.
+Asserts normally should not appear in production releases and shouldn't be seen by end users; therefore, they should not be translated.
 
 The `notL10NAvailable` warning is indicating that the string "\'%s\': string value not found for \'%s\' column filter." is not wrapped in a `_()` macro and not available for localization.
 
@@ -72,12 +64,3 @@ or
 $ i18n-check ../samples --enable=allCodeFormatting
 ```
 
-This will emit the following warnings:
-
-| File                  | Line | Column | Value                                                  | Explanation                                | WarningID          |
-|------------|------------|------------|------------|------------|------------|
-| subset.cpp | 18   | 1      | ""                                                     | Tab detected in file; prefer using spaces. | \[tabs\]           |
-| subset.cpp | 30   | 61     | "m_comparisonType = subsetCriterion.m_comparisonType;" | Trailing space(s) detected at end of line. | \[trailingSpaces\] |
-| subset.cpp | 31   | 12     | ""                                                     | Trailing space(s) detected at end of line. | \[trailingSpaces\] |
-| subset.cpp | 57   | 69     | "subsetCriterion.m_columnName).ToUTF8());"             | Trailing space(s) detected at end of line. | \[trailingSpaces\] |
-| subset.cpp | 80   | 123    | " wxString::Format(\_(L\" ),"                           | Line is 123 characters long.               | \[wideLine\]       |

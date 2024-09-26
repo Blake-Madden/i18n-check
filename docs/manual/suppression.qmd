@@ -1,0 +1,19 @@
+# Inline Suppression
+
+Warnings can be suppressed for blocks of source code by placing `i18n-check-suppress-begin` and `i18n-check-suppress-end` comments around them.
+For example:
+
+``` {.cpp}
+// i18n-check-suppress-begin
+if (_debug && allocFailed)
+    AfxMessageBox("Allocation failed");
+// i18n-check-suppress-end
+```
+
+This will prevent a warning from being emitted about "Allocation failed" not being available for localization.
+
+::: {.notesection data-latex=""}
+The comment style of the begin and end tags must match. For example, if using multiline comments
+(i.e., `/**/`), then `i18n-check-suppress-begin` and its matching `i18n-check-suppress-end` must be
+inside of `/**/` blocks.
+:::

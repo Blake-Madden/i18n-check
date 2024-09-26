@@ -6,9 +6,14 @@ biblio-style: mla
 link-citations: true
 nocite: '@*'
 csl: modern-language-association.csl
-pdf-cover: "images/cover.pdf"
+pdf-cover: "images/cover.jpg"
+pdf-cover-author-color: "0, 0, 0"
+pdf-cover-font-color: "255, 255, 255"
+pdf-cover-color: "111, 144, 132"
 book:
   title: "i18n-check"
+  subtitle: "User Manual"
+  description: "Internationalization & localization analysis system"
   author: "Blake Madden"
   date: today
   date-format: long
@@ -21,6 +26,9 @@ book:
       - command-line/options.qmd
       - command-line/samples.qmd
       - command-line/examples.qmd
+    - part: "Additional Features"
+      chapters:
+      - suppression.qmd
     - cites.qmd
 format:
   pdf:
