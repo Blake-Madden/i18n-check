@@ -455,6 +455,7 @@ namespace i18n_check
             std::wregex(LR"(^[[:space:]]*xmlns(:[[:alnum:]]+)?=.*)"),
             std::wregex(LR"(^[[:space:]]*<soap:[[:alnum:]]+.*)"),
             std::wregex(LR"(^[[:space:]]*<port\b.*)"),
+            std::wregex(LR"(^\{\{.*)"), // soap syntax
             // <image x=%d y=\"%d\" width = '%dpx' height="%dpx"
             std::wregex(
                 LR"(<[A-Za-z0-9_\-\.]+[[:space:]]*([A-Za-z0-9_\-\.]+[[:space:]]*=[[:space:]]*[\"'\\]{0,2}[a-zA-Z0-9\-]*[\"'\\]{0,2}[[:space:]]*)+)"),
@@ -1080,13 +1081,17 @@ namespace i18n_check
                 std::copy(std::regex_token_iterator<
                               std::remove_reference_t<decltype(string1)>::const_iterator>(
                               string1.cbegin(), string1.cend(), varNameIDPartsRE, { 1, 2, 3 }),
-                    std::regex_token_iterator<
+                          std::regex_token_iterator<
                               std::remove_reference_t<decltype(string1)>::const_iterator>(),
-                    std::back_inserter(idNameParts));
+                          std::back_inserter(idNameParts));
                 const auto idVal = [&string2]()
                 {
                     try
                         {
+                        if (string2.starts_with(L"0x"))
+                            {
+                            return std::optional<int32_t>(std::stol(string2, nullptr, 16));
+                            }
                         return std::optional<int32_t>(std::stol(string2));
                         }
                     catch (...)
@@ -1158,7 +1163,7 @@ namespace i18n_check
                     {
                     m_duplicates_value_assigned_to_ids.push_back(
                         string_info(string2 + L" has been assigned to multiple ID variables.",
-                        string_info::usage_info{}, fileName,
+                                    string_info::usage_info{}, fileName,
                                     std::make_pair(get_line_and_column(position, fileText).first,
                                                    std::wstring::npos)));
                     }
