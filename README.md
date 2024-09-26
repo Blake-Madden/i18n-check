@@ -228,40 +228,43 @@ Refer [here](Example.md) for more examples.
 On Unix:
 
 ```shellscript
-cmake .
+cmake . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target all -j $(nproc)
 ```
 
 On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
 
-After building, "i18n-check" will then be available in the "bin" folder.
+After building, "i18n-check" will be available in the "bin" folder.
 
 # Building (GUI)
 
 [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version for `i18n-check`.
 
-Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as `i18n-check`:
-
-```
-git clone https://github.com/wxWidgets/wxWidgets.git --recurse-submodules
-```
-
-Build wxWidgets with the defaults, expect `wxBUILD_SHARED` should be set to "OFF".
-Refer [here](https://github.com/wxWidgets/wxWidgets/blob/master/README-GIT.md) for how to build wxWidgets.
-
+Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as `i18n-check`.
 After building wxWidgets, `i18n-gui` can be configured and built with *Cmake*.
 
 On Unix:
 
 ```shellscript
-cd gui
-cmake .
+cd ..
+git clone https://github.com/wxWidgets/wxWidgets.git --recurse-submodules
+cd wxWidgets
+cmake . -DCMAKE_INSTALL_PREFIX=./wxlib -DwxBUILD_SHARED=OFF \
+      -D"CMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
+cmake --build . --target install -j $(nproc)
+cd ..
+cd i18n-check/gui
+cmake . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target all -j $(nproc)
 ```
 
-On Windows, "gui/CMakeLists.txt" can be opened and built directly in Visual Studio.
+On Windows with Visual Studio, build wxWidgets with the defaults, except `wxBUILD_SHARED` should be set to "OFF"
+(and `MAKE_BUILD_TYPE` set to "Release" for release builds).
 
-After building, "i18n-gui" will then be available in the "bin" folder.
+Open "gui/CMakeLists.txt" in Visual Studio, setting the *CMake* setting's configuration type to "Release" for a release build.
+
+After building, "i18n-gui" will be available in the "bin" folder.
+
 
 # GitHub Action
 
