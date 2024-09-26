@@ -39,6 +39,15 @@ namespace i18n_check
                 // see if a block comment (/*comment*/)
                 if (*std::next(cppText) == L'*')
                     {
+                    const auto [isSuppressed, suppresionEnd] = i18n_review::is_block_suppressed(
+                        { std::next(cppText, 2),
+                          static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
+                    if (isSuppressed)
+                        {
+                        clear_section(
+                            cppText, std::next(cppText, static_cast<ptrdiff_t>(suppresionEnd + 2)));
+                        std::advance(cppText, suppresionEnd);
+                        }
                     wchar_t* end = std::wcsstr(cppText, L"*/");
                     if (end != nullptr && end < endSentinel)
                         {
