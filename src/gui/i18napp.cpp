@@ -700,6 +700,32 @@ void I18NFrame::SaveProjectIfNeeded()
 //------------------------------------------------------
 void I18NFrame::SaveSourceFileIfNeeded()
     {
+    const auto saveFile = [this]()
+    {
+        // Windows RC files are usually ANSI, so get the code page in them
+        // and save with that encoding
+        if (wxFileName{ m_activeSourceFile }.GetExt().CmpNoCase(L"rc") == 0)
+            {
+            std::wstring encoding{ L"utf-8" };
+            const std::wstring fileText = m_editor->GetText().wc_string();
+            const std::wregex codePageRE{ LR"(#pragma code_page\(([0-9]+)\))" };
+            std::wsmatch matchResults;
+            if (std::regex_search(fileText.cbegin(), fileText.cend(), matchResults, codePageRE) &&
+                matchResults.size() >= 2)
+                {
+                encoding = _DT(L"Windows-") + matchResults.str(1);
+                }
+            wxFile outFile{ m_activeSourceFile, wxFile::write };
+            if (outFile.IsOpened())
+                {
+                outFile.Write(fileText, wxCSConv(encoding));
+                }
+            }
+        else
+            {
+            m_editor->SaveFile(m_activeSourceFile);
+            }
+    };
     if (!m_activeSourceFile.empty() && m_editor->IsModified())
         {
         if (m_promptForFileSave)
@@ -720,12 +746,12 @@ void I18NFrame::SaveSourceFileIfNeeded()
             // now see if they said "Yes" or "No"
             if (dlgResponse == wxID_YES)
                 {
-                m_editor->SaveFile(m_activeSourceFile);
+                saveFile();
                 }
             }
         else
             {
-            m_editor->SaveFile(m_activeSourceFile);
+            saveFile();
             }
         }
     }
