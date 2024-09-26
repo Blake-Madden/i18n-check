@@ -88,7 +88,7 @@ namespace i18n_check
                                                 std::wstring{}, std::wstring{}),
                         m_file_name,
                         std::make_pair(get_line_and_column(tableEntry.first, rcFileText).first,
-                                       -1));
+                                       std::wstring::npos));
                     }
                 else
                     {
@@ -98,7 +98,7 @@ namespace i18n_check
                                                 std::wstring{}, std::wstring{}),
                         m_file_name,
                         std::make_pair(get_line_and_column(tableEntry.first, rcFileText).first,
-                                       -1));
+                                       std::wstring::npos));
                     }
 
                 if (m_reviewStyles & check_l10n_contains_url)
@@ -113,7 +113,7 @@ namespace i18n_check
                                                     std::wstring{}, std::wstring{}),
                             m_file_name,
                             std::make_pair(get_line_and_column(tableEntry.first, rcFileText).first,
-                                           -1));
+                                           std::wstring::npos));
                         }
                     }
                 }
