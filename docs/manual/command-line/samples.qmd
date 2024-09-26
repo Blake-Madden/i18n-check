@@ -8,19 +8,20 @@ $ i18n-check ../samples -o results.txt
 
 This will produce a "results.txt" file in the "bin" folder which contains tabular results. This file will contain warnings such as:
 
-The `suspectL10NString` warning is because there is a string "GreaterThanOrEqualTo" that is inside of a `_()` macro, making it available for translation. This does not appear to be something appropriate for translation, hence the warning.
+- `suspectL10NString`: indicates that the string "*GreaterThanOrEqualTo*" is inside of a `_()` macro, making it available for translation.
+This does not appear to be something appropriate for translation; hence the warning.
 
-The `suspectL10NUsage` warning is because the string "Invalid dataset passed to column filter." is being used in a call to `wxASSERT_MSG()`, which is a debug assert function.
+- `suspectL10NUsage`: indicates that the string "*Invalid dataset passed to column filter.*" is being used in a call to `wxASSERT_MSG()`, which is a debug assert function.
 Asserts normally should not appear in production releases and shouldn't be seen by end users; therefore, they should not be translated.
 
-The `notL10NAvailable` warning is indicating that the string "\'%s\': string value not found for \'%s\' column filter." is not wrapped in a `_()` macro and not available for localization.
+- `notL10NAvailable`: indicates that the string "*\'%s\': string value not found for \'%s\' column filter.*" is not wrapped in a `_()` macro and not available for localization.
 
-The `deprecatedMacro` warning is indicating that the text-wrapping macro `wxT()` should be removed.
+- `deprecatedMacro`: indicates that the text-wrapping macro `wxT()` should be removed.
 
-The `nonUTF8File` warning is indicating that the file contains extended ASCII characters, but is not encoded as UTF-8.
+- `nonUTF8File`: indicates that the file contains extended ASCII characters, but is not encoded as UTF-8.
 It is generally recommended to encode files as UTF-8, making them portable between compilers and other tools.
 
-The `unencodedExtASCII` warning is indicating that the string "\'%s\'--- column not found for filtering." contains a hard-coded extended ASCII character.
+- `unencodedExtASCII`: indicates that the file contains hard-coded extended ASCII characters.
 It is recommended that these characters be encoded in hexadecimal format to avoid character-encoding issues between compilers.
 
 To look only for suspect strings that are exposed for translation and show the results in the console window:

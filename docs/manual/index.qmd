@@ -11,7 +11,34 @@ This book is licensed under the [Creative Commons Attribution-NonCommercial-NoDe
 
 # Introduction
 
-`i18n-check` is a command-line utility that scans a folder of a code and translation files and checks for the following issues:
+`i18n-check` is a command-line utility and graphical interface that scans source and resource files to check for
+various i18n and l10n issues. Additionally, the GUI version provides pseudo-translation support for
+*gettext* catalogs (\*.po files).
+
+## File Support
+
+`i18n-check` supports static analysis for the following:
+
+- C code
+- C++ code ('98 and modern C++)
+- Windows resource files (\*.rc)
+
+Static analysis and pseudo-translation are also for:
+
+- GNU *gettext* [@gettext] translation files (\*.po)
+
+Additionally, it offers specialized support for the following frameworks:
+
+- wxWidgets
+- Qt
+- KDE
+- GTK+
+- Win32
+- MFC
+
+## Static Analysis
+
+The command line and GUI versions provide the following checks:
 
 - Strings exposed for translation[^1] that probably should not be. This includes (but not limited to):
   - Filenames
@@ -54,15 +81,19 @@ Code formatting issues can also be checked for, such as:
 - Lines longer than 120 characters.
 - Spaces missing between "//" and their comments.
 
-`i18n-check` will work with C code, '98 and modern C++ code, GNU *gettext* [@gettext] translation files (\*.po), and Windows resource files (\*.rc).
-In particular, it offers specialized support for the following frameworks:
+## Pseudo-translation
 
-- wxWidgets
-- Qt
-- KDE
-- GTK
-- Win32
-- MFC
+(available in the GUI version)
+
+Pseudo-translation includes features such as:
+- Multiple methods for character replacement (e.g., replacing characters with accented variations or upper casing them).
+- Increasing the width of the translations. This is useful for ensuring that strings are not being truncated at runtime.
+- Wrapping the translations in braces. This is useful for ensuring that strings are not being pieced together at runtime.
+- Appending a unique ID to each translation. This is useful for finding where a translation is being loaded from.
+
+When pseudo-translating, a copy of all *gettext* \*.po and \*.pot files will be created and have their translations filled
+with mutations of the respective source strings. These files (which will have a "pseudo_" prefix) can then be compiled into \*.mo files and
+loaded by your application for integration testing.
 
 [^1]: Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
 [wxWidgets](https://www.wxwidgets.org), [Qt](https://www.qt.io), or

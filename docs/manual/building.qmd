@@ -17,7 +17,7 @@ After building, "i18n-check" will be available in the "bin" folder.
 
 ## GUI Version
 
-[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version for `i18n-check`.
+[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version `i18n-gui`.
 
 Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as `i18n-check`.
 After building wxWidgets, `i18n-gui` can be configured and built with *Cmake*.

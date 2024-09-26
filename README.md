@@ -5,13 +5,41 @@ i18n-check
 
 Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows&reg; RC files.
 
-![](main-window.png)
-
-`i18n-check` is a command-line utility and graphical interface that scans source and resource files and checks for
+`i18n-check` is a command-line utility and graphical interface that scans source and resource files to check for
 various i18n and l10n issues. Additionally, the GUI version provides pseudo-translation support for
 *gettext* catalogs (\*.po files).
 
-## Checks
+## File Support
+
+`i18n-check` supports static analysis for the following:
+
+- C code
+- C++ code ('98 and modern C++)
+- Windows resource files (\*.rc)
+
+Static analysis and pseudo-translation are also for:
+
+- GNU *gettext* [@gettext] translation files (\*.po)
+
+Additionally, it offers specialized support for the following frameworks:
+
+- wxWidgets
+- Qt
+- KDE
+- GTK+
+- Win32
+- MFC
+
+¹ Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
+[wxWidgets](https://www.wxwidgets.org), [Qt](https://www.qt.io), or
+[KDE](https://develop.kde.org/docs/plasma/widget/translations-i18n) (ki18n) i18n functions.
+This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translate()`,
+`QT_TR_NOOP()`, `wxTRANSLATE()`, `i18n()`, etc.<br />
+² Variables are determined to be ID variables if they are integral types with the whole word "ID" in their name.
+
+Refer [here](Example.md) for example usage.
+
+## Static Analysis
 
 ![](options-dialog-source.png)
 
@@ -72,27 +100,6 @@ Pseudo-translation includes features such as:
 When pseudo-translating, a copy of all *gettext* \*.po and \*.pot files will be created and have their translations filled
 with mutations of the respective source strings. These files (which will have a "pseudo_" prefix) can then be compiled into \*.mo files and
 loaded by your application for integration testing.
-
-## File Support
-
-`i18n-check` will work with C, modern C++, and '98/'03 C++ code, GNU *gettext* translation files (\*.po), and Windows&reg; resource files (\*.rc).
-In particular, it offers specialized support for the following frameworks:
-
-- wxWidgets
-- Qt
-- KDE
-- GTK
-- Win32
-- MFC
-
-¹ Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
-[wxWidgets](https://www.wxwidgets.org), [Qt](https://www.qt.io), or
-[KDE](https://develop.kde.org/docs/plasma/widget/translations-i18n) (ki18n) i18n functions.
-This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translate()`,
-`QT_TR_NOOP()`, `wxTRANSLATE()`, `i18n()`, etc.<br />
-² Variables are determined to be ID variables if they are integral types with the whole word "ID" in their name.
-
-Refer [here](Example.md) for example usage.
 
 [![Linux Build](https://github.com/Blake-Madden/i18n-check/actions/workflows/linux-build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/linux-build.yml)
 [![macOS build](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml)
@@ -238,7 +245,9 @@ After building, "i18n-check" will be available in the "bin" folder.
 
 # Building (GUI)
 
-[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version for `i18n-check`.
+![](main-window.png)
+
+[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version `i18n-gui`.
 
 Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as `i18n-check`.
 After building wxWidgets, `i18n-gui` can be configured and built with *Cmake*.

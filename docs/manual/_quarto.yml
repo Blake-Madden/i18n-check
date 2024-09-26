@@ -39,5 +39,5 @@ format:
     keep-tex: true
     citation-package: biblatex
     cite-method: biblatex
-    lot: true
+    lot: false
     code-block-bg: false

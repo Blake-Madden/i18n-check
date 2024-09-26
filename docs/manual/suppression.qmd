@@ -1,18 +1,73 @@
 # Inline Suppression
 
+## Code Blocks
+
 Warnings can be suppressed for blocks of source code by placing `i18n-check-suppress-begin` and `i18n-check-suppress-end` comments around them.
 For example:
 
 ``` {.cpp}
 // i18n-check-suppress-begin
 if (_debug && allocFailed)
-    AfxMessageBox("Allocation failed");
+    AfxMessageBox("Allocation failed!");
 // i18n-check-suppress-end
 ```
 
 This will prevent a warning from being emitted about "Allocation failed" not being available for localization.
 
-::: {.notesection data-latex=""}
+::: {.warningsection data-latex=""}
 The comment style of the begin and end tags must match. For example, if using multi-line comments
 (i.e., `/**/`), then both tags must be inside of `/**/` blocks.
+:::
+
+## Individual Strings
+
+To instruct the program that a particular string is not meant for localization, wrap it inside of a `_DT()` or `DONTTRANSLATE()` function call.
+By doing this, the program will not warn about it not being available for localization. For example, both strings in the following will
+be ignored:
+
+``` {.cpp}
+if (allocFailed)
+    MessageBox(DONTTRANSLATE("Allocation failed!"));
+else
+    WriteMessage(_DT("No memory issues"));
+```
+
+You can either include the file "donttranslate.h" into your project to add these functions, or you can define your own:
+
+``` {.cpp}
+#define DONTTRANSLATE(x) (x)
+#define _DT(x) (x)
+```
+
+{{< pagebreak >}}
+
+If using the versions provided in "donttranslate.h," additional arguments can be included to explain why strings should not
+be available for translation. For example:
+
+``` {.cpp}
+const std::string fileName = "C:\\data\\logreport.txt";
+
+// "open " should not be translated, it's part of a command line
+auto command = DONTTRANSLATE("open ") + fileName;
+// expands to "open C:\\data\\logreport.txt"
+
+// a more descriptive approach
+auto command2 = DONTTRANSLATE("open ", DTExplanation::Command) + fileName;
+// also expands to "open C:\\data\\logreport.txt"
+
+// an even more descriptive approach
+auto command3 = DONTTRANSLATE("open ",
+                              DTExplanation::Command,
+                              "This is part of a command line, "
+                              "don't expose for translation!") +
+                fileName;
+// also expands to "open C:\\data\\logreport.txt"
+
+// a shorthand, _DT(), is also available
+auto command = _DT("open ") + fileName;
+```
+
+::: {.notesection data-latex=""}
+`_DT()` and `DONTTRANSLATE()` do not have any effect on the code and would normally be compiled out. Their purpose is only to inform `i18n-check`
+that their arguments should not be translatable.
 :::
