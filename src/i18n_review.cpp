@@ -220,14 +220,18 @@ namespace i18n_check
     //--------------------------------------------------
     i18n_review::i18n_review()
         {
-        m_deprecated_string_macros = { { L"wxT", L"wxT() macro can be removed." },
-                                       { L"wxT_2", L"wxT_2() macro can be removed." },
-                                       { L"_T", L"_T() macro can be removed." },
-                                       { L"__T", L"__T() macro can be removed." },
-                                       { L"TEXT", L"TEXT() macro can be removed." },
-                                       { L"_TEXT", L"_TEXT() macro can be removed." },
-                                       { L"__TEXT", L"__TEXT() macro can be removed." },
-                                       { L"_WIDE", L"_WIDE() macro can be removed." } };
+        m_deprecated_string_macros = {
+            { L"wxT", L"wxT() macro can be removed." },
+            { L"wxT_2", L"wxT_2() macro can be removed." },
+            // wxWidgets can convert ANSI string to double-byte, but Win32/MFC can't
+            // and will need an 'L' prefixed to properly replace _T like macros.
+            { L"_T", L"_T() macro can be removed. Prefix with 'L' to make string wide." },
+            { L"__T", L"__T() macro can be removed. Prefix with 'L' to make string wide." },
+            { L"TEXT", L"TEXT() macro can be removed. Prefix with 'L' to make string wide." },
+            { L"_TEXT", L"_TEXT() macro can be removed. Prefix with 'L' to make string wide." },
+            { L"__TEXT", L"__TEXT() macro can be removed. Prefix with 'L' to make string wide." },
+            { L"_WIDE", L"_WIDE() macro can be removed. Prefix with 'L' to make string wide." }
+        };
 
         // Whole file needs to be scanned for these, as string variables can be passed to these
         // as well as hard-coded strings.
