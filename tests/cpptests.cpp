@@ -824,14 +824,21 @@ TEST_CASE("Code generator strings", "[i18n]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         CHECK(cpp.get_internal_strings().size() == 1);
 
-        // contains translatable text
-        code = LR"(auto var = "xml version=\"1.0\">Hello")";
+        code = LR"(auto var = "xml version=\"1.0\">")";
         cpp.clear_results();
         cpp(code, L"");
         cpp.review_strings();
         CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        code = LR"(auto var = "<s:complex name=\"{{GetFunctionName}}_{{GetParameterName}}_Array\">")";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings();
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
 
         code = LR"(auto var = "< and or >";)";
         cpp.clear_results();
