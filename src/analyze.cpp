@@ -252,8 +252,11 @@ namespace i18n_check
                 else if (const auto [readUtf16Ok, fileUtf16Text] = read_utf16_file(file);
                          readUtf16Ok)
                     {
-                    // UTF-16 may not be supported consistently on all platforms and compilers
-                    if (cpp.get_style() & check_utf8_encoded)
+                    // UTF-16 or ANSI may not be supported consistently on
+                    // all platforms and compilers.
+                    // RC files are usually encoded in ANSI given their age,
+                    // so don't check those files.
+                    if (fileType != file_review_type::rc && cpp.get_style() & check_utf8_encoded)
                         {
                         filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
