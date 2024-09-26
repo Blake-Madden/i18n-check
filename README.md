@@ -19,7 +19,7 @@ various i18n and l10n issues. Additionally, the GUI version provides pseudo-tran
 
 Static analysis and pseudo-translation are also for:
 
-- GNU *gettext* [@gettext] translation files (\*.po)
+- GNU *gettext* translation files (\*.po)
 
 Additionally, it offers specialized support for the following frameworks:
 
