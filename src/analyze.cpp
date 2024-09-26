@@ -534,8 +534,8 @@ namespace i18n_check
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << L"Prefer using std::to_[w]string() instead of printf() formatting a single "
-                      L"number."
+                   << L"Prefer using std::to_[w]string() instead of printf() to "
+                      "format a single number."
                    << L"\t[printfSingleNumber]\n";
             }
 
