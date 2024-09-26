@@ -17,7 +17,7 @@ various i18n and l10n issues. Additionally, the GUI version provides pseudo-tran
 - C++ code ('98 and modern C++)
 - Windows resource files (\*.rc)
 
-Static analysis and pseudo-translation are also for:
+Static analysis and pseudo-translation are available for:
 
 - GNU *gettext* translation files (\*.po)
 
