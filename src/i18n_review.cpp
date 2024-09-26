@@ -922,7 +922,8 @@ namespace i18n_check
         if (m_reviewStyles & check_not_available_for_l10n)
             {
             if (!should_exceptions_be_translatable() &&
-                m_exceptions.find(str.m_usage.m_value) != m_exceptions.cend())
+                (m_exceptions.find(str.m_usage.m_value) != m_exceptions.cend() ||
+                 m_exceptions.find(str.m_usage.m_variableType) != m_exceptions.cend()))
                 {
                 return;
                 }
