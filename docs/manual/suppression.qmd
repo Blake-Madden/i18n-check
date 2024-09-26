@@ -13,7 +13,6 @@ if (_debug && allocFailed)
 This will prevent a warning from being emitted about "Allocation failed" not being available for localization.
 
 ::: {.notesection data-latex=""}
-The comment style of the begin and end tags must match. For example, if using multiline comments
-(i.e., `/**/`), then `i18n-check-suppress-begin` and its matching `i18n-check-suppress-end` must be
-inside of `/**/` blocks.
+The comment style of the begin and end tags must match. For example, if using multi-line comments
+(i.e., `/**/`), then both tags must be inside of `/**/` blocks.
 :::

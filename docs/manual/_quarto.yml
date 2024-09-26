@@ -24,8 +24,8 @@ book:
     - part: "Command-line Utility"
       chapters:
       - command-line/options.qmd
-      - command-line/samples.qmd
       - command-line/examples.qmd
+      - command-line/samples.qmd
     - part: "Additional Features"
       chapters:
       - suppression.qmd

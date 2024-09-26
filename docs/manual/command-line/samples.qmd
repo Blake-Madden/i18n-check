@@ -1,4 +1,4 @@
-# Sample Output
+# Reviewing Output
 
 After building, go into the "bin" folder and run this command to analyze the sample file:
 
