@@ -977,9 +977,10 @@ namespace i18n_check
 
         static const std::wregex m_urlEmailRE;
         static const std::wregex m_html_regex;
-        static const std::wregex m_html_element_regex;
+        static const std::wregex m_html_element_with_content_regex;
         static const std::wregex m_html_tag_regex;
         static const std::wregex m_html_tag_unicode_regex;
+        static const std::wregex m_xml_element_regex;
         static const std::wregex m_2letter_regex;
         static const std::wregex m_hashtag_regex;
         static const std::wregex m_key_shortcut_regex;

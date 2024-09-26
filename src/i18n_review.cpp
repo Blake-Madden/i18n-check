@@ -52,9 +52,13 @@ namespace i18n_check
         std::regex_constants::icase
     };
     // <doc-val>Some text</doc-val>
-    const std::wregex i18n_review::m_html_element_regex{
+    const std::wregex i18n_review::m_html_element_with_content_regex{
         LR"(<[a-zA-Z0-9_\-]+>[[:print:][:cntrl:]]*</[a-zA-Z0-9_\-]+>)", std::regex_constants::icase
     };
+
+    // <s:complex name=\"{{GetFunctionName}}_{{GetParameterName}}_Array\">
+    const std::wregex i18n_review::m_xml_element_regex{ LR"(<[/]?[a-zA-Z0-9_:'"\.\[\]\/\{\}\-\\=][a-zA-Z0-9_:'"\.\[\]\/\{\}\- \\=]+[/]?>)",
+                                                        std::regex_constants::icase };
 
     // first capture group ensures that printf command is not proceeded by a negating '%'
     // second capture group is the actual printf command
@@ -223,7 +227,7 @@ namespace i18n_check
         m_deprecated_string_macros = {
             { L"wxT", L"wxT() macro can be removed." },
             { L"wxT_2", L"wxT_2() macro can be removed." },
-            // wxWidgets can convert ANSI string to double-byte, but Win32/MFC can't
+            // wxWidgets can convert ANSI strings to double-byte, but Win32/MFC can't
             // and will need an 'L' prefixed to properly replace _T like macros.
             { L"_T", L"_T() macro can be removed. Prefix with 'L' to make string wide." },
             { L"__T", L"__T() macro can be removed. Prefix with 'L' to make string wide." },
@@ -237,7 +241,7 @@ namespace i18n_check
         // as well as hard-coded strings.
         m_deprecated_string_functions = {
             // Win32 TCHAR functions (which mapped between _MBCS and _UNICODE builds).
-            // Nowadays, you should always be using _UNICODE (i.e., UTF-16).
+            // Nowadays, you should always be compiling as _UNICODE (i.e., UTF-16).
             { L"__targv", L"Use __wargv instead of __targv." },
             { L"__tcserror", L"Use __wcserror() instead of __tcserror()." },
             { L"__tcserror_s", L"Use __wcserror_s() instead of __tcserror_s()." },
@@ -527,8 +531,15 @@ namespace i18n_check
             std::wregex(LR"(^DEBUG:[\s\S].*)"),
             // mail protocols
             std::wregex(LR"(^(RCPT TO|MAIL TO|MAIL FROM):.*)"),
+            // GUIDs
+            std::wregex(
+                LR"(^\{[a-fA-F0-9]{8}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{12}\}$)"),
+            // encoding
+            std::wregex(LR"(^(base[0-9]+|uuencode|quoted-printable)$)"),
+            std::wregex(LR"(^(250\-AUTH)$)"),
             // MIME headers
-            std::wregex(LR"(^X-Priority:*)"),
+            std::wregex(LR"(^MIME-Version:.*)"), std::wregex(LR"(^X-Priority:.*)"),
+            std::wregex(LR"(^(application/octet-stream|text/plain|rawdata)$)"),
             std::wregex(LR"(.*\bContent-Type:[[:space:]]*[[:alnum:]]+/[[:alnum:]]+;.*)"),
             std::wregex(LR"(.*\bContent-Transfer-Encoding:[[:space:]]*[[:alnum:]]+.*)"),
             // URL
@@ -697,7 +708,7 @@ namespace i18n_check
             L"RegisterClipboardFormat", L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue",
             L"CLSIDFromProgID", L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
             L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
-            L"SetRegistryKey",
+            L"SetRegistryKey", L"CreateDC",
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
@@ -1560,8 +1571,8 @@ namespace i18n_check
             // in front of the HTML tags).
             str = std::regex_replace(str, std::wregex(LR"(<br[[:space:]]*\/>)"), L"\n");
             string_util::trim(str);
-            if (std::regex_match(str, m_html_regex) ||
-                std::regex_match(str, m_html_element_regex) ||
+            if (std::regex_match(str, m_xml_element_regex) || std::regex_match(str, m_html_regex) ||
+                std::regex_match(str, m_html_element_with_content_regex) ||
                 std::regex_match(str, m_html_tag_regex) ||
                 std::regex_match(str, m_html_tag_unicode_regex))
                 {
@@ -1572,6 +1583,7 @@ namespace i18n_check
                 str = std::regex_replace(
                     str, std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"),
                     L"");
+                str = std::regex_replace(str, m_xml_element_regex, L"");
                 // strip things like &ldquo;
                 str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
                 str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
@@ -1597,10 +1609,14 @@ namespace i18n_check
                 return false;
                 }
 
-            // "N/A" is OK to translate, but it won't meet the criterion of at least
-            // two consecutive letters, so check for that first.
-            if (str.length() == 3 && string_util::is_either(str[0], L'N', L'n') && str[1] == L'/' &&
-                string_util::is_either(str[2], L'A', L'a'))
+            // "N/A", "O&n", and "O&K" are OK to translate, but it won't meet the criterion of at
+            // least two consecutive letters, so check for that first.
+            if (str.length() == 3 &&
+                ((string_util::is_either(str[0], L'N', L'n') && str[1] == L'/' &&
+                  string_util::is_either(str[2], L'A', L'a')) ||
+                 (string_util::is_either(str[0], L'O', L'o') && str[1] == L'&' &&
+                  (string_util::is_either(str[2], L'N', L'n') ||
+                   string_util::is_either(str[2], L'K', L'k')))))
                 {
                 return false;
                 }
