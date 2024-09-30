@@ -653,6 +653,8 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
 //------------------------------------------------------
 void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
     {
+    SaveSourceFileIfNeeded();
+
     if (!m_hasOpenProject)
         {
         return;
