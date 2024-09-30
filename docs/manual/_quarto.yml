@@ -16,7 +16,7 @@ book:
   description: "Internationalization & localization analysis system"
   author: "Blake Madden"
   date: today
-  date-format: long
+  date-format: "YYYY"
   language: en
   chapters:
     - index.qmd

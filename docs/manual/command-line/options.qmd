@@ -29,7 +29,7 @@ passed to functions such as `wxLogMessage`, `g_message`, or `qCWarning`.
 
 Whether it is acceptable for punctuation only strings to be translatable.
 
-Setting this to `true` will suppress warnings about strings such as "? - ?"
+Setting this to `true` will suppress warnings about strings such as "*? - ?*"
 being available for localization.
 
 (Default is `false`.)
@@ -81,8 +81,7 @@ Folder and file paths must be absolute or relative to the folder being analyzed.
 
 The output report path (which will result in a tab-delimited text file).
 
-Can either be a full path, or a file name within the current
-working directory.
+Can either be a full path, or a file name within the current working directory.
 
 ## \-q,\-\-quiet {-}
 

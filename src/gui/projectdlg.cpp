@@ -488,7 +488,7 @@ void NewProjectDialog::CreateControls()
             new wxPanel(listBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
 
         wxStaticBoxSizer* poOptionsSizer =
-            new wxStaticBoxSizer(wxVERTICAL, transPage, _(L"PO catalogs"));
+            new wxStaticBoxSizer(wxVERTICAL, transPage, _(L"Translation catalogs"));
 
             {
             wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());

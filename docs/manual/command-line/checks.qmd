@@ -25,8 +25,7 @@ Check for strings not exposed for translation.
 
 Check for deprecated text macros and functions.
 
-This will detect the usage of functions that are no longer relevant, and provide
-a suggested replacement.
+This will detect the usage of functions that are no longer relevant, and provide a suggested replacement.
 
 For example, the `TCHAR` functions and macros [@win32-strings; @win32-strings-guide] used in Win32 programming
 (e.g., `_TEXT`, `_tcscmp`) to help target Windows 98 and NT are no longer necessary.

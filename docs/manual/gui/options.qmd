@@ -2,18 +2,171 @@
 
 ## Source Files
 
+The following options are available for C/C++ source files.
+
+**Folder to analyze**: enter into here the folder to analyze.
+
+**Subfolders/files to ignore**: enter into here the folders and files to ignore.
+This can contain multiple values, separated by a semicolon (`;`).
+
+::: {.callout-note collapse=false}
+Folder and file paths being ignored must be absolute or relative to the folder being analyzed.
+:::
+
+::: {.callout-note collapse=false}
+The above options are only available when creating or editing a project.
+:::
+
+:::: {.optionssection data-latex=""}
+::: {.optionssectiontitle data-latex=""}
+Run the following checks
+:::
+
+**Strings not exposed for translation**: select this to check for strings not exposed for translation.
+
+**Translatable strings that shouldn\'t be**: select this to check for translatable strings that should not be (e.g., numbers, keywords, `printf()` commands).
+
+**Translatable strings being used in debug functions**: select this to check for translatable strings being used in internal contexts (e.g., debugging functions).
+
+**Translatable strings that contain URLs or email addresses**: select this to check for translatable strings that contain URLs or email addresses.
+It is recommended to dynamically format these into the string so that translators do not have to manage them.
+
+**Deprecated macros and functions**: select this to check for deprecated text macros and functions.
+This will detect the usage of functions that are no longer relevant, and provide a suggested replacement.
+
+For example, the `TCHAR` functions and macros used in Win32 programming (e.g., `_TEXT`, `_tcscmp`) to help target Windows 98 and NT are no longer necessary.
+`i18n-check` will recommend how to remove or replace these.
+
+**printf functions being used to just format a number**: select this to check for `printf()`-like functions being used to just format a number.
+In these situations, it is recommended to use the more modern `std::to_[w]string()` function.
+This is limited to integral values; `printf()` commands with floating-point precision will be ignored.
+
+**Malformed syntax in strings**: select this to check for malformed syntax in strings (e.g., malformed HTML tags).
+::::
+
+**Strings passed to logging functions can be translatable**: select this if it should be acceptable to pass translatable strings to logging functions.
+Setting this to `false` will emit warnings when a translatable string is passed to functions such as `wxLogMessage`, `g_message`, or `qCWarning`.
+
+**Exception messages should be available for translation**: select this to verify that exception messages are available for translation.
+Setting this to `true` will emit warnings when untranslatable strings are passed to various exception constructors or functions
+(e.g., `AfxThrowOleDispatchException`).
+
+**Punctuation only strings can be translatable**: select this if it should be acceptable for punctuation only strings to be translatable.
+Setting this to `true` will suppress warnings about strings such as "*? - ?*" being available for localization.
+
+**Minimum words for a string to be considered translatable**: enter into here the minimum number of words that a string must have to be considered translatable.
+Higher values for this will result in less strings being classified as `notL10NAvailable` warnings.
+
+**C++ standard when issuing deprecation warnings**: enter into here the C++ standard that should be assumed when issuing deprecated macro warnings (`deprecatedMacro`).
+For example, setting this to `2017` or higher will issue warnings for `WXUNUSED`, as it can be replaced with `[[maybe_unused]]`.
+If setting this to `2014`, however, `WXUNUSED` will be ignored since `[[maybe_unused]]` requires C++17.
+
+{{< pagebreak >}}
+
 ## Resource Files
 
-### PO catalogs
+The following options are available for resource files (i.e., \*.po and \*.rc).
+
+:::: {.optionssection data-latex=""}
+::: {.optionssectiontitle data-latex=""}
+Translation catalogs
+:::
 
 **Check for inconsistent printf format specifiers**: select this to check for mismatching `printf()` commands between source and translation strings.
 
 **Review fuzzy translations**: select this to review fuzzy translations. This should only be selected if you intend to review translations
 that still require approval and are likely unfinished.
 
-### Windows RC files
+**Pseudo-translation**
+
+While analyzing translation catalogs, copies of them can also be created and be pseudo-translated.
+Later, these catalogs can be loaded by your application for integration testing.
+
+The following options are available for pseudo-translating these files.
+
+**Method**
+
+This option specifies how to generate pseudo-translations.
+
+**None (do not generate anything)**: instructs the program to not generate pseudo-translated files.
+
+**UPPERCASE**: translations will be uppercased variations of the source strings.
+
+**European characters**: letters and numbers from the source string will be replaced with accented variations.
+The translation will be clearly different, but still generally readable.
+
+**Fill with \'X\'es**: letters from the source string will be replaced with either \'x\' or \'X\' (matching the original casing).
+This will produced the most altered appearance for the pseudo-translations.
+
+During integration testing, these pseudo-translations will be easier to spot, but will make navigating the UI more difficult.
+This is recommended for the quickest way to interactively find UI elements that are not being made available for translation.
+
+**Add surrounding brackets**: select this option to add square brackets around the pseudo-translations.
+This can help with identifying them during integration testing, but will slightly increase their widths.
+
+**Add tracking IDs**: select this to add a unique ID number (inside or square brackets) in front of every pseudo-translation.
+This can be helpful for finding which catalog a particular translation is coming from.
+
+**Increase width**: select how much wider (between 0--100%) to make pseudo-translations.
+This widening is done by padding the strings with hyphens on both sides.
+
+::: {.notesection data-latex=""}
+If surrounding brackets or tracking IDs are being included, then their lengths will be factored into the increased width calculation.
+:::
+::::
+
+:::: {.optionssection data-latex=""}
+::: {.optionssectiontitle data-latex=""}
+Windows RC files
+:::
 
 **Check for font issues**: select this to check for dialogs that use unusual font sizes
-or are not using \'MS Shell Dlg\'.[@ms-shell-dlg]
+or are not using \'MS Shell Dlg\'.
+::::
+
+::: {.notesection data-latex=""}
+Some static analysis options from the **Source Files** section will also be used while analyzing the source strings
+in these resource files.
+:::
+
+{{< pagebreak >}}
 
 ## Additional Checks
+
+The following additional options are available for C/C++ source files.
+These options do not relate to internationalization, but are offered as supplemental checks for code formatting and other issues.
+
+:::: {.optionssection data-latex=""}
+::: {.optionssectiontitle data-latex=""}
+Formatting & encoding checks
+:::
+
+**Non-UTF8 encoded files**: select this to check that files containing extended ASCII characters are UTF-8 encoded.
+UTF-8 is recommended for compiler portability.
+
+**BOM/UTF-8 signatures**: select this to check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
+It is recommended to save without the file signature for best compiler portability.
+
+**Unencoded extended ASCII characters**: select this to check for strings containing extended ASCII characters that are not encoded.
+
+**Trailing spaces**: select this to check for trailing spaces at the end of each line.
+
+**Tabs**: select this to check for tabs.
+(Spaces are recommended as tabs may appear differently between editors.)
+
+**Overly long lines**: select this to check for overly long lines.
+
+**Comments not starting with a space**: select this to check that there is a space at the start of a comment.
+::::
+
+:::: {.optionssection data-latex=""}
+::: {.optionssectiontitle data-latex=""}
+Code checks
+:::
+
+**Hard-coded ID numbers**: select this to check for ID variables being assigned a hard-coded number.
+It may be preferred to assign framework-defined constants (e.g., `wxID_HIGHEST`) to IDs.
+
+**ID variables assigned the same value**: select this to check for the same value being assigned to different ID variables.
+This check is performed per file; the same ID being assigned multiple times, but within separate files, will be ignored.
+::::

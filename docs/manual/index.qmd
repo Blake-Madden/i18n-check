@@ -25,7 +25,7 @@ various i18n and l10n issues. Additionally, the GUI version provides pseudo-tran
 
 Static analysis and pseudo-translation are available for:
 
-- GNU *gettext* [@gettext] translation files (\*.po)
+- GNU *gettext* translation files (\*.po and \*.pot)
 
 Additionally, it offers specialized support for the following frameworks:
 
@@ -65,40 +65,40 @@ The command line and GUI versions provide the following checks:
   It is recommended to use `std::to_string()` to do this instead.
 - `printf()` command mismatches between source and translation strings.<br />
   (PO catalogs with C/C++ strings are currently supported.)
-- ID variable[^2] assignment issues:
-  - The same value being assigned to different ID variables in the same source file
-    (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
-  - Hard-coded numbers being assigned to ID variables.
-  - Out-of-range values being assigned to MFC IDs [@mfc-ids].
 - Font issues in Windows resource files [@rc-string-tables]:
   - Dialogs not using "MS Shell Dlg" or "MS Shell Dlg 2."
   - Dialogs with non-standard font sizes.
 
-Code formatting issues can also be checked for, such as:
+Code formatting and other issues can also be checked for, such as:
 
 - Trailing spaces at the end of a line.
 - Tabs (instead of spaces).
 - Lines longer than 120 characters.
 - Spaces missing between "//" and their comments.
+- ID variable[^2] assignment issues:
+  - The same value being assigned to different ID variables in the same source file
+    (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
+  - Hard-coded numbers being assigned to ID variables.
+  - Out-of-range values being assigned to MFC IDs [@mfc-ids].
 
 ## Pseudo-translation
 
 (available in the GUI version)
 
 Pseudo-translation includes features such as:
+
 - Multiple methods for character replacement (e.g., replacing characters with accented variations or upper casing them).
 - Increasing the width of the translations. This is useful for ensuring that strings are not being truncated at runtime.
 - Wrapping the translations in braces. This is useful for ensuring that strings are not being pieced together at runtime.
 - Appending a unique ID to each translation. This is useful for finding where a translation is being loaded from.
 
-When pseudo-translating, a copy of all *gettext* \*.po and \*.pot files will be created and have their translations filled
-with mutations of the respective source strings. These files (which will have a "pseudo_" prefix) can then be compiled into \*.mo files and
-loaded by your application for integration testing.
+When pseudo-translating, a copy of all string catalogs will be created and have their translations filled
+with mutations of their respective source strings.
+These files (which will have a "pseudo_" prefix) can then be compiled and loaded by your application for integration testing.
 
-[^1]: Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
+[^1]: Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/)[@gettext],
 [wxWidgets](https://www.wxwidgets.org), [Qt](https://www.qt.io), or
 [KDE](https://develop.kde.org/docs/plasma/widget/translations-i18n) (ki18n) i18n functions.
 This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translate()`,
 `QT_TR_NOOP()`, `wxTRANSLATE()`, `i18n()`, etc.<br />
 [^2]: Variables are determined to be ID variables if they are integral types with the whole word "ID" in their name.
-

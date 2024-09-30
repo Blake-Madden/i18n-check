@@ -1,5 +1,11 @@
 # Building
 
+`i18n-check` requires a C++20 compiler and can be built on Windows, macOS, and Linux.
+
+*Cmake* scripts are included for building both the command-line and GUI (graphical user interface) versions. *Cmake* 3.25 or higher is required.
+
+For the GUI version, [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required.
+
 ## Command-line Utility
 
 `i18n-check` can be configured and built with *Cmake*.
@@ -7,6 +13,7 @@
 On Unix:
 
 ``` {.bash filename="Terminal"}
+# assuming we are in the 'i18n-check' folder currently
 cmake . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target all -j $(nproc)
 ```
@@ -14,6 +21,8 @@ cmake --build . --target all -j $(nproc)
 On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
 
 After building, "i18n-check" will be available in the "bin" folder.
+
+{{< pagebreak >}}
 
 ## GUI Version
 
@@ -25,17 +34,24 @@ After building wxWidgets, `i18n-gui` can be configured and built with *Cmake*.
 On Unix:
 
 ``` {.bash filename="Terminal"}
+# assuming we are in the 'i18n-check' folder currently,
+# download and build wxWidgets one folder above
 cd ..
 git clone https://github.com/wxWidgets/wxWidgets.git --recurse-submodules
 cd wxWidgets
 cmake . -DCMAKE_INSTALL_PREFIX=./wxlib -DwxBUILD_SHARED=OFF \
       -D"CMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target install -j $(nproc)
+# go back into 'i18n-check' and build the GUI version
 cd ..
 cd i18n-check/gui
 cmake . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target all -j $(nproc)
 ```
+
+::: {.callout-note}
+On macOS, a universal binary 2 (containing arm64 and x86\_64 binaries) will be built with the above commands.
+:::
 
 On Windows with Visual Studio, build wxWidgets with the defaults, except `wxBUILD_SHARED` should be set to "OFF"
 (and `MAKE_BUILD_TYPE` set to "Release" for release builds).

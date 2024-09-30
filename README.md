@@ -70,20 +70,20 @@ The command line and GUI versions provide the following checks:
   It is recommended to use `std::to_string()` to do this instead.
 - `printf()` command mismatches between source and translation strings.<br />
   (PO catalogs with C/C++ strings are currently supported.)
+- Font issues in Windows resource files:
+  - Dialogs not using "MS Shell Dlg" or "MS Shell Dlg 2."
+  - Dialogs with non-standard font sizes.
+
+Code formatting and other issues can also be checked for, such as:
+- Trailing spaces at the end of a line.
+- Tabs (instead of spaces).
+- Lines longer than 120 characters.
+- Spaces missing between "//" and their comments.
 - ID variable² assignment issues:
   - The same value being assigned to different ID variables in the same source file
     (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
   - Hard-coded numbers being assigned to ID variables.
   - Out-of-range values being assigned to MFC IDs.
-- Font issues in Windows resource files:
-  - Dialogs not using "MS Shell Dlg" or "MS Shell Dlg 2."
-  - Dialogs with non-standard font sizes.
-
-Code formatting issues can also be checked for, such as:
-- Trailing spaces at the end of a line.
-- Tabs (instead of spaces).
-- Lines longer than 120 characters.
-- Spaces missing between "//" and their comments.
 
 ## Pseudo-translation
 
