@@ -41,7 +41,7 @@ Refer [here](Example.md) for example usage.
 
 ## Static Analysis
 
-![](options-dialog-source.png)
+<img src="docs/manual/images/options-dialog-source.png" />
 
 The command line and GUI versions provide the following checks:
 
@@ -89,7 +89,7 @@ Code formatting and other issues can also be checked for, such as:
 
 (available in the GUI version)
 
-![](options-dialog-resources.png)
+<img src="docs/manual/images/options-dialog-resources.png" />
 
 Pseudo-translation includes features such as:
 - Multiple methods for character replacement (e.g., replacing characters with accented variations or upper casing them).
@@ -245,7 +245,7 @@ After building, "i18n-check" will be available in the "bin" folder.
 
 # Building (GUI)
 
-![](main-window.png)
+<img src="docs/manual/images/main-window.png" />
 
 [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version `i18n-gui`.
 
