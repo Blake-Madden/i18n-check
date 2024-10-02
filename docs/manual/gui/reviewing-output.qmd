@@ -1,0 +1,17 @@
+```{r}
+#| include: false
+#| eval: true
+
+source('../R/appdown.r')
+```
+
+# Reviewing Output
+
+After opening a project, select any warning message in the top window and the associated file will be displayed beneath it.
+The line where the issue was detected will be scrolled to, along with the warning shown underneath it.
+
+![](../images/main-window.png)
+
+From here, you can edit the file in this window to correct any issues.
+Once you are finished editing, either select another file's warning in the top window or click the `r keys("Save")` button on the ribbon.
+(The latter will also save the project if it has unsaved changes.)

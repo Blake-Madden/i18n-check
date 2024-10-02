@@ -25,9 +25,10 @@ book:
       chapters:
       - command-line/options.qmd
       - command-line/examples.qmd
-      - command-line/samples.qmd
+      - command-line/reviewing-output.qmd
     - part: "Graphical Interface"
       chapters: 
+      - gui/reviewing-output.qmd
       - gui/options.qmd
     - part: "Additional Features"
       chapters:

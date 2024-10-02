@@ -9,11 +9,11 @@ The following options are available for C/C++ source files.
 **Subfolders/files to ignore**: enter into here the folders and files to ignore.
 This can contain multiple values, separated by a semicolon (`;`).
 
-::: {.callout-note collapse=false}
+::: {.tipsection data-latex=""}
 Folder and file paths being ignored must be absolute or relative to the folder being analyzed.
 :::
 
-::: {.callout-note collapse=false}
+::: {.notesection data-latex=""}
 The above options are only available when creating or editing a project.
 :::
 
@@ -74,6 +74,12 @@ Translation catalogs
 
 **Check for inconsistent printf format specifiers**: select this to check for mismatching `printf()` commands between source and translation strings.
 
+::: {.warningsection data-latex=""}
+The checks performed here are strict; all `printf()` commands in translations must match
+their source counterpart exactly. For example, "*%lu*" vs. "*%l*" will emit a warning.
+Questionable commands such as "*% s*" (space is only meant for numeric formatting) will also emit a warning.
+:::
+
 **Review fuzzy translations**: select this to review fuzzy translations. This should only be selected if you intend to review translations
 that still require approval and are likely unfinished.
 
@@ -82,13 +88,14 @@ that still require approval and are likely unfinished.
 While analyzing translation catalogs, copies of them can also be created and be pseudo-translated.
 Later, these catalogs can be loaded by your application for integration testing.
 
-The following options are available for pseudo-translating these files.
-
-**Method**
+:::: {.optionssection data-latex=""}
+::: {.optionssectiontitle data-latex=""}
+Method
+:::
 
 This option specifies how to generate pseudo-translations.
 
-**None (do not generate anything)**: instructs the program to not generate pseudo-translated files.
+**None (do not generate anything)**: instructs the program to not generate any files.
 
 **UPPERCASE**: translations will be uppercased variations of the source strings.
 
@@ -96,16 +103,17 @@ This option specifies how to generate pseudo-translations.
 The translation will be clearly different, but still generally readable.
 
 **Fill with \'X\'es**: letters from the source string will be replaced with either \'x\' or \'X\' (matching the original casing).
-This will produced the most altered appearance for the pseudo-translations.
+This will produce the most altered appearance for the pseudo-translations.
 
 During integration testing, these pseudo-translations will be easier to spot, but will make navigating the UI more difficult.
 This is recommended for the quickest way to interactively find UI elements that are not being made available for translation.
+::::
 
-**Add surrounding brackets**: select this option to add square brackets around the pseudo-translations.
-This can help with identifying them during integration testing, but will slightly increase their widths.
+**Add surrounding brackets**: select this option to add brackets around the pseudo-translations.
+This can help with identifying truncation and strings being pieced together at runtime.
 
 **Add tracking IDs**: select this to add a unique ID number (inside or square brackets) in front of every pseudo-translation.
-This can be helpful for finding which catalog a particular translation is coming from.
+This can help with finding where a particular translation is coming from.
 
 **Increase width**: select how much wider (between 0--100%) to make pseudo-translations.
 This widening is done by padding the strings with hyphens on both sides.

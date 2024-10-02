@@ -49,7 +49,7 @@ cmake . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target all -j $(nproc)
 ```
 
-::: {.callout-note}
+::: {.notesection data-latex=""}
 On macOS, a universal binary 2 (containing arm64 and x86\_64 binaries) will be built with the above commands.
 :::
 

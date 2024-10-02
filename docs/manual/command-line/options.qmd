@@ -73,7 +73,7 @@ Whether to review fuzzy translations.
 
 Folders and files to ignore (can be used multiple times).
 
-::: {.callout-note collapse=false}
+::: {.notesection data-latex=""}
 Folder and file paths must be absolute or relative to the folder being analyzed.
 :::
 
