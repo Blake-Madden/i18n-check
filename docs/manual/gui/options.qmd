@@ -4,7 +4,7 @@
 
 The following options are available for C/C++ source files.
 
-**Folder to analyze**: enter into here the folder to analyze.
+**Folder/file to analyze**: enter into here the folder or file to analyze.
 
 **Subfolders/files to ignore**: enter into here the folders and files to ignore.
 This can contain multiple values, separated by a semicolon (`;`).
