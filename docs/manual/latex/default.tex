@@ -476,7 +476,12 @@ $endif$
 
 \begin{document}
 
-% cover page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Create a cover page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 $if(pdf-cover)$
 \thispagestyle{empty}
 
@@ -502,35 +507,59 @@ $endif$
 
 \newgeometry{top=0mm, bottom=0mm, left=0mm, right=0mm}
 
-\begin{overpic}[clip]{$pdf-cover$}
-  % title section
-  \put(-1, 100)
-  {
-  \begin{tcolorbox}[enhanced jigsaw, sharp corners, spread outwards, grow to right by=5mm,
-                    box align=top, boxsep=0.5cm, valign=top, text height=3.75cm, boxrule=0mm,
-                    bicolor,colbacklower=white-smoke, halign lower=center, valign lower=center,
-                    colback=cover-color, colframe=cover-color, opacityback=0.95, opacityframe=0.95]
-       {\fontsize{42pt}{46pt} \usefont{T1}{PlyfrDisplay-OsF}{eb}{n} \color{cover-font-color} $title$}
+% draw the image with a shadow underneath it
+\newsavebox\myshadowbox
+\newlength\myshadowlen
 
-       \vspace{.5cm}
-       {\fontsize{30pt}{34pt} \usefont{T1}{PlyfrDisplay-OsF}{eb}{it} \color{cover-font-color} $subtitle$\vphantom{Qy}}
+\newcommand\shadowimage[2][]
+  {%
+    {[on background layer]
+    \setbox0=\hbox{\includegraphics[#1]{#2}}
 
-       \vspace{0.1cm}
-       \tcblower
-       {\large \color{black} \adforn{45}\quad\textbf{$description$}\quad\adforn{46}}
-  \end{tcolorbox}
+    \begin{tikzpicture}
+    \node[anchor=south west, inner sep=0, outer sep=0] (image) at (0, 0) {\includegraphics[#1]{#2}};
+
+    \setlength\myshadowlen{\wd0}
+    \ifnum\myshadowlen<\ht0
+      \setlength\myshadowlen{\ht0}
+    \fi
+    \divide \myshadowlen by 120
+
+    \drawshadow{image}
+    
+    \end{tikzpicture}
+    }
   }
-  % author
-  \put(-1, 0)
-  {
-  \begin{tcolorbox}[enhanced jigsaw, sharp corners, box align=bottom, halign=right, boxsep=0.5cm,
-                    spread outwards, grow to right by=5mm,
-                    colback=cover-color, colframe=cover-color, opacityback=0.4, boxrule=0mm,
-                    borderline north={1pt}{0pt}{cover-color}]
-       {\fontsize{18pt}{22pt} \bfseries \color{author-color} $author$}
-  \end{tcolorbox}
-  }
-\end{overpic}
+
+\noindent\shadowimage[width=.9\linewidth]{$pdf-cover$}
+
+% title section (at the top, overlaying image)
+\tikz[overlay, remember picture] \node at (current page.north west)[anchor=north west]
+{
+\begin{tcolorbox}[enhanced jigsaw, sharp corners, spread outwards, grow sidewards by=5mm, enlarge top by=-2mm,
+                boxsep=0.5cm, valign=top, text height=3.75cm, boxrule=0mm,
+                bicolor, colbacklower=white-smoke, halign lower=center, valign lower=center,
+                colback=cover-color, colframe=cover-color, opacityback=0.95, opacityframe=0.95]
+    {\fontsize{42pt}{46pt} \usefont{T1}{PlyfrDisplay-OsF}{eb}{n} \color{cover-font-color} $title$}
+
+    \vspace{.5cm}
+    {\fontsize{30pt}{34pt} \usefont{T1}{PlyfrDisplay-OsF}{eb}{it} \color{cover-font-color} $subtitle$\vphantom{Qy}}
+
+    \vspace{0.1cm}
+    \tcblower
+    {\large \color{black} \adforn{45}\quad {\usefont{T1}{qcs}{b}{sc} \capitalizetitle{$description$}} \quad\adforn{46}}
+\end{tcolorbox}
+};
+
+% author line at the bottom
+\tikz[overlay, remember picture] \node at (current page.south west)[anchor=south west]
+{
+\begin{tcolorbox}[enhanced jigsaw, sharp corners, box align=bottom, halign=right, boxsep=0.5cm,
+                spread outwards, grow sidewards by=5mm,
+                colback=white, colframe=white, colframe=white, opacityback=1, opacityframe=1, boxrule=0mm]
+    {\fontsize{18pt}{22pt} \color{cover-color} {\usefont{T1}{qcs}{b}{sc} \capitalizetitle{$author$}} }
+\end{tcolorbox}
+};
 
 \clearpage{\thispagestyle{empty}\cleardoublepage}
 \restoregeometry 
