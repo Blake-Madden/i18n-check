@@ -1,0 +1,25 @@
+```{r}
+#| include: false
+#| eval: true
+
+source('../R/appdown.r')
+```
+
+# Working with Projects
+
+To create a new project, click the `r keys("New")` button on the ribbon.
+The **New Project** dialog will appear:
+
+![](../images/options-dialog-source.png){width=75% fig-align="center"}
+
+First, select which folder (or file) you wish to analysis.
+If analyzing a folder, you can also optionally select folders and files within that folder that should be ignored.
+Finally, select which checks to perform and which options to use and click `r keys("OK")`.
+(Documentation for these options is available in ch. [-@sec-gui-settings].)
+
+After opening or creating a project, you can reanalyze the folder at any time by clicking `r keys("Refresh")` on the ribbon.
+The **Edit Project** dialog will appear, where you will be able to change any option before re-running the analysis.
+
+When you are finished reviewing a project, click `r keys("Save")` to save it.
+The project file will remember the folder you were reviewing, along with your current settings.
+To reopen this project, click the `r keys("Open")` button on the ribbon and select the project file.

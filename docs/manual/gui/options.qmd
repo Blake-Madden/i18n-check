@@ -1,4 +1,4 @@
-# Settings
+# Settings {#sec-gui-settings}
 
 ## Source Files
 

@@ -9,7 +9,7 @@ This book is the guide to using *i18n-check*, an internationalization & localiza
 This book is licensed under the [Creative Commons Attribution-NonCommercial-NoDerivs 4.0 International License](https://creativecommons.org/licenses/by-nc-nd/4.0/).
 :::
 
-# Introduction
+# Overview
 
 `i18n-check` is a command-line utility and graphical interface that scans source and resource files to check for
 various i18n and l10n issues. Additionally, the GUI version provides pseudo-translation support for
@@ -94,7 +94,7 @@ Pseudo-translation includes features such as:
 
 When pseudo-translating, a copy of all string catalogs will be created and have their translations filled
 with mutations of their respective source strings.
-These files (which will have a "pseudo_" prefix) can then be compiled and loaded by your application for integration testing.
+These files (which will have a "pseudo\_" prefix) can then be compiled and loaded by your application for integration testing.
 
 [^1]: Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/)[@gettext],
 [wxWidgets](https://www.wxwidgets.org), [Qt](https://www.qt.io), or
