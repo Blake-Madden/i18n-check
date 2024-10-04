@@ -3,6 +3,8 @@
 i18n-check
 =============================
 
+<a href="docs/manual/book/i18n-check.pdf"><img alt="Manual" src="docs/manual/images/cover-thumnail.png" width="200" align="right"/></a>
+
 Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows&reg; RC files.
 
 `i18n-check` is a command-line utility and graphical interface that scans source and resource files to check for
