@@ -12,6 +12,7 @@
 #ifndef __I18N_REVIEW_H__
 #define __I18N_REVIEW_H__
 
+#include "donttranslate.h"
 #include "i18n_string_util.h"
 #include <map>
 #include <optional>
@@ -21,6 +22,18 @@
 #include <vector>
 #if __has_include(<omp.h>)
     #include <omp.h>
+#endif
+// for the GUI version, include gettext's translation loading support via wxWidgets
+#if __has_include(<wx/wx.h>)
+    #include <wx/wx.h>
+    #if wxCHECK_VERSION(3, 3, 0)
+        #define _WXTRANS_WSTR(s) _(s).wc_string()
+    #else
+        #define _WXTRANS_WSTR(s) _(s).wc_str()
+    #endif
+#else
+    #define _(s) (s)
+    #define _WXTRANS_WSTR(s) (s)
 #endif
 
 /// @brief Classes for checking source code for internationalization/localization issues.
@@ -944,8 +957,8 @@ namespace i18n_check
         std::set<std::wstring_view> m_ctors_to_ignore;
         std::set<string_util::case_insensitive_wstring> m_known_internal_strings;
         std::set<std::wstring_view> m_keywords;
-        std::map<std::wstring_view, std::wstring_view> m_deprecated_string_macros;
-        std::map<std::wstring_view, std::wstring_view> m_deprecated_string_functions;
+        std::map<std::wstring_view, std::wstring> m_deprecated_string_macros;
+        std::map<std::wstring_view, std::wstring> m_deprecated_string_functions;
         // These have built-in values, but can be added to by the client also.
         // These are static so that client's additions can propagate to other instances.
         static std::vector<std::wregex> m_variable_name_patterns_to_ignore;

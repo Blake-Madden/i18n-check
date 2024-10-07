@@ -571,7 +571,7 @@ namespace i18n_check
                                           static_cast<size_t>(defSymbolEnd - directiveStart) };
             return (std::regex_match(defSymbol, debugRE)) ? findSectionEnd(defSymbolEnd) : nullptr;
             }
-        const std::wstring_view ifdefinedCommand{ L"if defined" };
+        const std::wstring_view ifdefinedCommand{ _DT(L"if defined") };
         if (std::wstring_view{ directiveStart }.starts_with(ifdefinedCommand))
             {
             std::advance(directiveStart, ifdefinedCommand.length());

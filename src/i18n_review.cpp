@@ -227,16 +227,25 @@ namespace i18n_check
     i18n_review::i18n_review()
         {
         m_deprecated_string_macros = {
-            { L"wxT", L"wxT() macro can be removed." },
-            { L"wxT_2", L"wxT_2() macro can be removed." },
+            { L"wxT", _WXTRANS_WSTR(L"wxT() macro can be removed.") },
+            { L"wxT_2", _WXTRANS_WSTR(L"wxT_2() macro can be removed.") },
             // wxWidgets can convert ANSI strings to double-byte, but Win32/MFC can't
             // and will need an 'L' prefixed to properly replace _T like macros.
-            { L"_T", L"_T() macro can be removed. Prefix with 'L' to make string wide." },
-            { L"__T", L"__T() macro can be removed. Prefix with 'L' to make string wide." },
-            { L"TEXT", L"TEXT() macro can be removed. Prefix with 'L' to make string wide." },
-            { L"_TEXT", L"_TEXT() macro can be removed. Prefix with 'L' to make string wide." },
-            { L"__TEXT", L"__TEXT() macro can be removed. Prefix with 'L' to make string wide." },
-            { L"_WIDE", L"_WIDE() macro can be removed. Prefix with 'L' to make string wide." }
+            { L"_T",
+              _WXTRANS_WSTR(L"_T() macro can be removed. Prefix with 'L' to make string wide.") },
+            { L"__T",
+              _WXTRANS_WSTR(L"__T() macro can be removed. Prefix with 'L' to make string wide.") },
+            { L"TEXT",
+              _WXTRANS_WSTR(L"TEXT() macro can be removed. Prefix with 'L' to make string wide.") },
+            { L"_TEXT",
+              _WXTRANS_WSTR(
+                  L"_TEXT() macro can be removed. Prefix with 'L' to make string wide.") },
+            { L"__TEXT",
+              _WXTRANS_WSTR(
+                  L"__TEXT() macro can be removed. Prefix with 'L' to make string wide.") },
+            { L"_WIDE",
+              _WXTRANS_WSTR(
+                  L"_WIDE() macro can be removed. Prefix with 'L' to make string wide.") }
         };
 
         // Whole file needs to be scanned for these, as string variables can be passed to these
@@ -244,162 +253,178 @@ namespace i18n_check
         m_deprecated_string_functions = {
             // Win32 TCHAR functions (which mapped between _MBCS and _UNICODE builds).
             // Nowadays, you should always be compiling as _UNICODE (i.e., UTF-16).
-            { L"__targv", L"Use __wargv instead of __targv." },
-            { L"__tcserror", L"Use __wcserror() instead of __tcserror()." },
-            { L"__tcserror_s", L"Use __wcserror_s() instead of __tcserror_s()." },
-            { L"_tcscat", L"Use std::wcscat() instead of _tcscat()." },
-            { L"_tcscat_s", L"Use wcscat_s() instead of _tcscat_s()." },
-            { L"_tcschr", L"Use std::wcschr() instead of _tcschr()." },
-            { L"_tcsclen", L"Use std::wcslen() instead of _tcsclen()." },
-            { L"_tcscmp", L"Use std::wcscmp() instead of _tcscmp()." },
-            { L"_tcscnlen", L"Use std::wcsnlen() instead of _tcscnlen()." },
-            { L"_tcscoll", L"Use std::wcscoll() instead of _tcscoll()." },
-            { L"_tcscoll_l", L"Use _wcscoll_l() instead of _tcscoll_l()." },
-            { L"_tcscpy", L"Use std::wcscpy() instead of _tcscpy()." },
-            { L"_tcscpy_s", L"Use wcscpy_s() instead of _tcscpy_s()." },
-            { L"_tcscspn", L"Use std::wcscspn() instead of _tcscspn()." },
-            { L"_tcsdup", L"Use _wcsdup() instead of _tcsdup()." },
-            { L"_tcserror", L"Use _wcserror() instead of _tcserror()." },
-            { L"_tcserror_s", L"Use _wcserror_s() instead of _tcserror_s()." },
-            { L"_tcsicmp", L"Use _wcsicmp() instead of _tcsicmp()." },
-            { L"_tcsicmp_l", L"Use _wcsicmp_l() instead of _tcsicmp_l()." },
-            { L"_tcsicoll", L"Use _wcsicoll() instead of _tcsicoll()." },
-            { L"_tcsicoll_l", L"Use _wcsicoll_l() instead of _tcsicoll_l()." },
-            { L"_tcslen", L"Use std::wcslen() instead of _tcslen()." },
-            { L"_tcsncat", L"Use std::wcsncat() instead of _tcsncat()." },
-            { L"_tcsncat_l", L"Use _wcsncat_l() instead of _tcsncat_l()." },
-            { L"_tcsncat_s", L"Use std::wcsncat_s() instead of _tcsncat_s()." },
-            { L"_tcsncat_s_l", L"Use _wcsncat_s_l() instead of _tcsncat_s_l()." },
-            { L"_tcsnccmp", L"Use std::wcsncmp() instead of _tcsnccmp()." },
-            { L"_tcsnccoll", L"Use _wcsncoll() instead of _tcsnccoll()." },
-            { L"_tcsnccoll_l", L"Use _wcsncoll_l() instead of _tcsnccoll_l()." },
-            { L"_tcsncicmp", L"Use _wcsnicmp() instead of _tcsncicmp()." },
-            { L"_tcsncicmp_l", L"Use _wcsnicmp_l() instead of _tcsncicmp_l()." },
-            { L"_tcsncicoll", L"Use _wcsnicoll() instead of _tcsncicoll()." },
-            { L"_tcsncicoll_l", L"Use _wcsnicoll_l() instead of _tcsncicoll_l()." },
-            { L"_tcsncmp", L"Use std::wcsncmp() instead of _tcsncmp()." },
-            { L"_tcsncoll", L"Use _wcsncoll() instead of _tcsncoll()." },
-            { L"_tcsncoll_l", L"Use _wcsncoll_l() instead of _tcsncoll_l()." },
-            { L"_tcsncpy", L"Use std::wcsncpy() instead of _tcsncpy()." },
-            { L"_tcsncpy_l", L"Use _wcsncpy_l() instead of _tcsncpy_l()." },
-            { L"_tcsncpy_s", L"Use wcsncpy_s() instead of _tcsncpy_s()." },
-            { L"_tcsncpy_s_l", L"Use _wcsncpy_s_l() instead of _tcsncpy_s_l()." },
-            { L"_tcsnicmp", L"Use _wcsnicmp() instead of _tcsnicmp()." },
-            { L"_tcsnicmp_l", L"Use _wcsnicmp_l() instead of _tcsnicmp_l()." },
-            { L"_tcsnicoll", L"Use _wcsnicoll() instead of _tcsnicoll()." },
-            { L"_tcsnicoll_l", L"Use _wcsnicoll_l() instead of _tcsnicoll_l()." },
-            { L"_tcsnlen", L"Use std::wcsnlen() instead of _tcsnlen()." },
-            { L"_tcsnset", L"Use _wcsnset() instead of _tcsnset()." },
-            { L"_tcsnset_l", L"Use _wcsnset_l() instead of _tcsnset_l()." },
-            { L"_tcsnset_s", L"Use _wcsnset_s() instead of _tcsnset_s()." },
-            { L"_tcsnset_s_l", L"Use _wcsnset_s_l() instead of _tcsnset_s_l()." },
-            { L"_tcspbrk", L"Use std::wcspbrk() instead of _tcspbrk()." },
-            { L"_tcsrchr", L"Use std::wcsrchr() instead of _tcsrchr()." },
-            { L"_tcsrev", L"Use _wcsrev() instead of _tcsrev()." },
-            { L"_tcsset", L"Use _wcsset() instead of _tcsset()." },
-            { L"_tcsset_l", L"Use _wcsset_l() instead of _tcsset_l()." },
-            { L"_tcsset_s", L"Use _wcsset_s() instead of _tcsset_s()." },
-            { L"_tcsset_s_l", L"Use _wcsset_s_l() instead of _tcsset_s_l()." },
-            { L"_tcsspn", L"Use std::wcsspn() instead of _tcsspn()." },
-            { L"_tcsstr", L"Use std::wcsstr() instead of _tcsstr()." },
-            { L"_tcstod", L"Use std::wcstod() instead of _tcstod()." },
-            { L"_tcstof", L"Use std::wcstof() instead of _tcstof()." },
-            { L"_tcstoimax", L"Use std::wcstoimax() instead of _tcstoimax()." },
-            { L"_tcstok", L"Use _wcstok() instead of _tcstok()." },
-            { L"_tcstok_l", L"Use _wcstok_l() instead of _tcstok_l()." },
-            { L"_tcstok_s", L"Use wcstok_s() instead of _tcstok_s()." },
-            { L"_tcstok_s_l", L"Use _wcstok_s_l() instead of _tcstok_s_l()." },
-            { L"_tcstol", L"Use std::wcstol() instead of _tcstol()." },
-            { L"_tcstold", L"Use std::wcstold() instead of _tcstold()." },
-            { L"_tcstoll", L"Use std::wcstoll() instead of _tcstoll()." },
-            { L"_tcstoul", L"Use std::wcstoul() instead of _tcstoul()." },
-            { L"_tcstoull", L"Use std::wcstoull() instead of _tcstoull()." },
-            { L"_tcstoumax", L"Use std::wcstoumax() instead of _tcstoumax()." },
-            { L"_tcsxfrm", L"Use std::wcsxfrm() instead of _tcsxfrm()" },
-            { L"_tenviron", L"Use _wenviron() instead of _tenviron()." },
-            { L"_tmain", L"Use wmain() instead of _tmain()." },
-            { L"_tprintf", L"Use wprintf() instead of _tprintf()." },
-            { L"_tprintf_l", L"Use _wprintf_l() instead of _tprintf_l()." },
-            { L"_tprintf_s", L"Use wprintf_s() instead of _tprintf_s()." },
-            { L"_tWinMain", L"Use wWinMain() instead of _tWinMain()." },
-            { L"wsprintf", L"Use std::swprintf() instead of wsprintf()." },
-            { L"_stprintf", L"Use std::swprintf() instead of _stprintf()." },
-            { L"TCHAR", L"Use wchar_t instead of TCHAR." },
-            { L"PTCHAR", L"Use wchar_t* instead of PTCHAR." },
-            { L"LPTSTR", L"Use LPWSTR (or wchar_t*) instead of LPTSTR." },
-            { L"LPCTSTR", L"Use LPCWSTR (or const wchar_t*) instead of LPCTSTR." },
+            { L"__targv", _WXTRANS_WSTR(L"Use __wargv instead of __targv.") },
+            { L"__tcserror", _WXTRANS_WSTR(L"Use __wcserror() instead of __tcserror().") },
+            { L"__tcserror_s", _WXTRANS_WSTR(L"Use __wcserror_s() instead of __tcserror_s().") },
+            { L"_tcscat", _WXTRANS_WSTR(L"Use std::wcscat() instead of _tcscat().") },
+            { L"_tcscat_s", _WXTRANS_WSTR(L"Use wcscat_s() instead of _tcscat_s().") },
+            { L"_tcschr", _WXTRANS_WSTR(L"Use std::wcschr() instead of _tcschr().") },
+            { L"_tcsclen", _WXTRANS_WSTR(L"Use std::wcslen() instead of _tcsclen().") },
+            { L"_tcscmp", _WXTRANS_WSTR(L"Use std::wcscmp() instead of _tcscmp().") },
+            { L"_tcscnlen", _WXTRANS_WSTR(L"Use std::wcsnlen() instead of _tcscnlen().") },
+            { L"_tcscoll", _WXTRANS_WSTR(L"Use std::wcscoll() instead of _tcscoll().") },
+            { L"_tcscoll_l", _WXTRANS_WSTR(L"Use _wcscoll_l() instead of _tcscoll_l().") },
+            { L"_tcscpy", _WXTRANS_WSTR(L"Use std::wcscpy() instead of _tcscpy().") },
+            { L"_tcscpy_s", _WXTRANS_WSTR(L"Use wcscpy_s() instead of _tcscpy_s().") },
+            { L"_tcscspn", _WXTRANS_WSTR(L"Use std::wcscspn() instead of _tcscspn().") },
+            { L"_tcsdup", _WXTRANS_WSTR(L"Use _wcsdup() instead of _tcsdup().") },
+            { L"_tcserror", _WXTRANS_WSTR(L"Use _wcserror() instead of _tcserror().") },
+            { L"_tcserror_s", _WXTRANS_WSTR(L"Use _wcserror_s() instead of _tcserror_s().") },
+            { L"_tcsicmp", _WXTRANS_WSTR(L"Use _wcsicmp() instead of _tcsicmp().") },
+            { L"_tcsicmp_l", _WXTRANS_WSTR(L"Use _wcsicmp_l() instead of _tcsicmp_l().") },
+            { L"_tcsicoll", _WXTRANS_WSTR(L"Use _wcsicoll() instead of _tcsicoll().") },
+            { L"_tcsicoll_l", _WXTRANS_WSTR(L"Use _wcsicoll_l() instead of _tcsicoll_l().") },
+            { L"_tcslen", _WXTRANS_WSTR(L"Use std::wcslen() instead of _tcslen().") },
+            { L"_tcsncat", _WXTRANS_WSTR(L"Use std::wcsncat() instead of _tcsncat().") },
+            { L"_tcsncat_l", _WXTRANS_WSTR(L"Use _wcsncat_l() instead of _tcsncat_l().") },
+            { L"_tcsncat_s", _WXTRANS_WSTR(L"Use std::wcsncat_s() instead of _tcsncat_s().") },
+            { L"_tcsncat_s_l", _WXTRANS_WSTR(L"Use _wcsncat_s_l() instead of _tcsncat_s_l().") },
+            { L"_tcsnccmp", _WXTRANS_WSTR(L"Use std::wcsncmp() instead of _tcsnccmp().") },
+            { L"_tcsnccoll", _WXTRANS_WSTR(L"Use _wcsncoll() instead of _tcsnccoll().") },
+            { L"_tcsnccoll_l", _WXTRANS_WSTR(L"Use _wcsncoll_l() instead of _tcsnccoll_l().") },
+            { L"_tcsncicmp", _WXTRANS_WSTR(L"Use _wcsnicmp() instead of _tcsncicmp().") },
+            { L"_tcsncicmp_l", _WXTRANS_WSTR(L"Use _wcsnicmp_l() instead of _tcsncicmp_l().") },
+            { L"_tcsncicoll", _WXTRANS_WSTR(L"Use _wcsnicoll() instead of _tcsncicoll().") },
+            { L"_tcsncicoll_l", _WXTRANS_WSTR(L"Use _wcsnicoll_l() instead of _tcsncicoll_l().") },
+            { L"_tcsncmp", _WXTRANS_WSTR(L"Use std::wcsncmp() instead of _tcsncmp().") },
+            { L"_tcsncoll", _WXTRANS_WSTR(L"Use _wcsncoll() instead of _tcsncoll().") },
+            { L"_tcsncoll_l", _WXTRANS_WSTR(L"Use _wcsncoll_l() instead of _tcsncoll_l().") },
+            { L"_tcsncpy", _WXTRANS_WSTR(L"Use std::wcsncpy() instead of _tcsncpy().") },
+            { L"_tcsncpy_l", _WXTRANS_WSTR(L"Use _wcsncpy_l() instead of _tcsncpy_l().") },
+            { L"_tcsncpy_s", _WXTRANS_WSTR(L"Use wcsncpy_s() instead of _tcsncpy_s().") },
+            { L"_tcsncpy_s_l", _WXTRANS_WSTR(L"Use _wcsncpy_s_l() instead of _tcsncpy_s_l().") },
+            { L"_tcsnicmp", _WXTRANS_WSTR(L"Use _wcsnicmp() instead of _tcsnicmp().") },
+            { L"_tcsnicmp_l", _WXTRANS_WSTR(L"Use _wcsnicmp_l() instead of _tcsnicmp_l().") },
+            { L"_tcsnicoll", _WXTRANS_WSTR(L"Use _wcsnicoll() instead of _tcsnicoll().") },
+            { L"_tcsnicoll_l", _WXTRANS_WSTR(L"Use _wcsnicoll_l() instead of _tcsnicoll_l().") },
+            { L"_tcsnlen", _WXTRANS_WSTR(L"Use std::wcsnlen() instead of _tcsnlen().") },
+            { L"_tcsnset", _WXTRANS_WSTR(L"Use _wcsnset() instead of _tcsnset().") },
+            { L"_tcsnset_l", _WXTRANS_WSTR(L"Use _wcsnset_l() instead of _tcsnset_l().") },
+            { L"_tcsnset_s", _WXTRANS_WSTR(L"Use _wcsnset_s() instead of _tcsnset_s().") },
+            { L"_tcsnset_s_l", _WXTRANS_WSTR(L"Use _wcsnset_s_l() instead of _tcsnset_s_l().") },
+            { L"_tcspbrk", _WXTRANS_WSTR(L"Use std::wcspbrk() instead of _tcspbrk().") },
+            { L"_tcsrchr", _WXTRANS_WSTR(L"Use std::wcsrchr() instead of _tcsrchr().") },
+            { L"_tcsrev", _WXTRANS_WSTR(L"Use _wcsrev() instead of _tcsrev().") },
+            { L"_tcsset", _WXTRANS_WSTR(L"Use _wcsset() instead of _tcsset().") },
+            { L"_tcsset_l", _WXTRANS_WSTR(L"Use _wcsset_l() instead of _tcsset_l().") },
+            { L"_tcsset_s", _WXTRANS_WSTR(L"Use _wcsset_s() instead of _tcsset_s().") },
+            { L"_tcsset_s_l", _WXTRANS_WSTR(L"Use _wcsset_s_l() instead of _tcsset_s_l().") },
+            { L"_tcsspn", _WXTRANS_WSTR(L"Use std::wcsspn() instead of _tcsspn().") },
+            { L"_tcsstr", _WXTRANS_WSTR(L"Use std::wcsstr() instead of _tcsstr().") },
+            { L"_tcstod", _WXTRANS_WSTR(L"Use std::wcstod() instead of _tcstod().") },
+            { L"_tcstof", _WXTRANS_WSTR(L"Use std::wcstof() instead of _tcstof().") },
+            { L"_tcstoimax", _WXTRANS_WSTR(L"Use std::wcstoimax() instead of _tcstoimax().") },
+            { L"_tcstok", _WXTRANS_WSTR(L"Use _wcstok() instead of _tcstok().") },
+            { L"_tcstok_l", _WXTRANS_WSTR(L"Use _wcstok_l() instead of _tcstok_l().") },
+            { L"_tcstok_s", _WXTRANS_WSTR(L"Use wcstok_s() instead of _tcstok_s().") },
+            { L"_tcstok_s_l", _WXTRANS_WSTR(L"Use _wcstok_s_l() instead of _tcstok_s_l().") },
+            { L"_tcstol", _WXTRANS_WSTR(L"Use std::wcstol() instead of _tcstol().") },
+            { L"_tcstold", _WXTRANS_WSTR(L"Use std::wcstold() instead of _tcstold().") },
+            { L"_tcstoll", _WXTRANS_WSTR(L"Use std::wcstoll() instead of _tcstoll().") },
+            { L"_tcstoul", _WXTRANS_WSTR(L"Use std::wcstoul() instead of _tcstoul().") },
+            { L"_tcstoull", _WXTRANS_WSTR(L"Use std::wcstoull() instead of _tcstoull().") },
+            { L"_tcstoumax", _WXTRANS_WSTR(L"Use std::wcstoumax() instead of _tcstoumax().") },
+            { L"_tcsxfrm", _WXTRANS_WSTR(L"Use std::wcsxfrm() instead of _tcsxfrm()") },
+            { L"_tenviron", _WXTRANS_WSTR(L"Use _wenviron() instead of _tenviron().") },
+            { L"_tmain", _WXTRANS_WSTR(L"Use wmain() instead of _tmain().") },
+            { L"_tprintf", _WXTRANS_WSTR(L"Use wprintf() instead of _tprintf().") },
+            { L"_tprintf_l", _WXTRANS_WSTR(L"Use _wprintf_l() instead of _tprintf_l().") },
+            { L"_tprintf_s", _WXTRANS_WSTR(L"Use wprintf_s() instead of _tprintf_s().") },
+            { L"_tWinMain", _WXTRANS_WSTR(L"Use wWinMain() instead of _tWinMain().") },
+            { L"wsprintf", _WXTRANS_WSTR(L"Use std::swprintf() instead of wsprintf().") },
+            { L"_stprintf", _WXTRANS_WSTR(L"Use std::swprintf() instead of _stprintf().") },
+            { L"TCHAR", _WXTRANS_WSTR(L"Use wchar_t instead of TCHAR.") },
+            { L"PTCHAR", _WXTRANS_WSTR(L"Use wchar_t* instead of PTCHAR.") },
+            { L"LPTSTR", _WXTRANS_WSTR(L"Use LPWSTR (or wchar_t*) instead of LPTSTR.") },
+            { L"LPCTSTR", _WXTRANS_WSTR(L"Use LPCWSTR (or const wchar_t*) instead of LPCTSTR.") },
             // wxWidgets
             { L"wxStrlen",
-              L"Use std::wcslen() or (wrap in a std::wstring_view) instead of wxStrlen()." },
-            { L"wxStrstr", L"Use std::wcsstr() instead of wxStrstr()." },
-            { L"wxStrchr", L"Use std::wcschr() instead of wxStrchr()." },
-            { L"wxStrdup", L"Use std::wcsdup() instead of wxStrdup()." },
-            { L"wxStrcpy", L"Use std::wcscpy() instead of wxStrcpy() "
-                           "(or prefer safer functions that process N number of characters)." },
-            { L"wxStrncpy", L"Use std::wcsncpy() (or wxStrlcpy) instead of wxStrncpy()." },
-            { L"wxStrcat ", L"Use std::wcscat() instead of wxStrcat() "
-                            "(or prefer safer functions that process N number of characters)." },
-            { L"wxStrncat", L"Use std::wcsncat() instead of wxStrncat()." },
-            { L"wxStrtok", L"Use std::wcstok() instead of wxStrtok()." },
-            { L"wxStrrchr", L"Use std::wcsrchr() instead of wxStrrchr()." },
-            { L"wxStrpbrk", L"Use std::wcspbrk() instead of wxStrpbrk()." },
-            { L"wxStrxfrm", L"Use std::wcsxfrm() instead of wxStrxfrm." },
-            { L"wxIsEmpty", L"Use wxString's empty() member instead of wxIsEmpty()." },
-            { L"wxIsdigit", L"Use std::iswdigit() instead of wxIsdigit()." },
-            { L"wxIsalnum", L"Use std::iswalnum() instead of wxIsalnum()." },
-            { L"wxIsalpha", L"Use std::iswalpha() instead of wxIsalpha()." },
-            { L"wxIsctrl", L"Use std::iswctrl() instead of wxIsctrl()." },
-            { L"wxIspunct", L"Use std::iswpunct() instead of wxIspunct()." },
-            { L"wxIsspace", L"Use std::iswpspace() instead of wxIsspace()." },
-            { L"wxChar", L"Use wchar_t instead of wxChar." },
-            { L"wxSChar", L"Use wchar_t instead of wxSChar." },
-            { L"wxUChar", L"Use wchar_t instead of wxUChar." },
-            { L"wxStrftime", L"Use wxDateTime's formatting functions instead of wxStrftime()." },
-            { L"wxStrtod", L"Use wxString::ToDouble() instead of wxStrtod." },
-            { L"wxStrtol", L"Use wxString::ToLong() instead of wxStrtol." },
-            { L"wxW64", L"wxW64 is obsolete; remove it." },
-            { L"__WXFUNCTION__", L"Use __func__ or __WXFUNCTION_SIG__ (requires wxWidgets 3.3) "
-                                 "instead of __WXFUNCTION__." },
-            { L"wxTrace", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
-                          L"functions instead of wxTrace." },
-            { L"WXTRACE", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
-                          L"functions instead of WXTRACE." },
-            { L"wxTraceLevel", L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
-                               L"functions instead of wxTraceLevel." },
+              _WXTRANS_WSTR(
+                  L"Use std::wcslen() or (wrap in a std::wstring_view) instead of wxStrlen().") },
+            { L"wxStrstr", _WXTRANS_WSTR(L"Use std::wcsstr() instead of wxStrstr().") },
+            { L"wxStrchr", _WXTRANS_WSTR(L"Use std::wcschr() instead of wxStrchr().") },
+            { L"wxStrdup", _WXTRANS_WSTR(L"Use std::wcsdup() instead of wxStrdup().") },
+            { L"wxStrcpy",
+              _WXTRANS_WSTR(L"Use std::wcscpy() instead of wxStrcpy() "
+                            "(or prefer safer functions that process N number of characters).") },
+            { L"wxStrncpy",
+              _WXTRANS_WSTR(L"Use std::wcsncpy() (or wxStrlcpy) instead of wxStrncpy().") },
+            { L"wxStrcat ",
+              _WXTRANS_WSTR(L"Use std::wcscat() instead of wxStrcat() "
+                            "(or prefer safer functions that process N number of characters).") },
+            { L"wxStrncat", _WXTRANS_WSTR(L"Use std::wcsncat() instead of wxStrncat().") },
+            { L"wxStrtok", _WXTRANS_WSTR(L"Use std::wcstok() instead of wxStrtok().") },
+            { L"wxStrrchr", _WXTRANS_WSTR(L"Use std::wcsrchr() instead of wxStrrchr().") },
+            { L"wxStrpbrk", _WXTRANS_WSTR(L"Use std::wcspbrk() instead of wxStrpbrk().") },
+            { L"wxStrxfrm", _WXTRANS_WSTR(L"Use std::wcsxfrm() instead of wxStrxfrm.") },
+            { L"wxIsEmpty",
+              _WXTRANS_WSTR(L"Use wxString's empty() member instead of wxIsEmpty().") },
+            { L"wxIsdigit", _WXTRANS_WSTR(L"Use std::iswdigit() instead of wxIsdigit().") },
+            { L"wxIsalnum", _WXTRANS_WSTR(L"Use std::iswalnum() instead of wxIsalnum().") },
+            { L"wxIsalpha", _WXTRANS_WSTR(L"Use std::iswalpha() instead of wxIsalpha().") },
+            { L"wxIsctrl", _WXTRANS_WSTR(L"Use std::iswctrl() instead of wxIsctrl().") },
+            { L"wxIspunct", _WXTRANS_WSTR(L"Use std::iswpunct() instead of wxIspunct().") },
+            { L"wxIsspace", _WXTRANS_WSTR(L"Use std::iswpspace() instead of wxIsspace().") },
+            { L"wxChar", _WXTRANS_WSTR(L"Use wchar_t instead of wxChar.") },
+            { L"wxSChar", _WXTRANS_WSTR(L"Use wchar_t instead of wxSChar.") },
+            { L"wxUChar", _WXTRANS_WSTR(L"Use wchar_t instead of wxUChar.") },
+            { L"wxStrftime",
+              _WXTRANS_WSTR(L"Use wxDateTime's formatting functions instead of wxStrftime().") },
+            { L"wxStrtod", _WXTRANS_WSTR(L"Use wxString::ToDouble() instead of wxStrtod.") },
+            { L"wxStrtol", _WXTRANS_WSTR(L"Use wxString::ToLong() instead of wxStrtol.") },
+            { L"wxW64", _WXTRANS_WSTR(L"wxW64 is obsolete; remove it.") },
+            { L"__WXFUNCTION__",
+              _WXTRANS_WSTR(L"Use __func__ or __WXFUNCTION_SIG__ (requires wxWidgets 3.3) "
+                            "instead of __WXFUNCTION__.") },
+            { L"wxTrace",
+              _WXTRANS_WSTR(L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
+                            L"functions instead of wxTrace.") },
+            { L"WXTRACE",
+              _WXTRANS_WSTR(L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
+                            L"functions instead of WXTRACE.") },
+            { L"wxTraceLevel",
+              _WXTRANS_WSTR(L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
+                            L"functions instead of wxTraceLevel.") },
             { L"wxUnix2DosFilename",
-              L"Construct a wxFileName with wxPATH_UNIX and then use "
-              "wxFileName::GetFullPath(wxPATH_DOS) instead of using wxUnix2DosFilename." },
+              _WXTRANS_WSTR(
+                  L"Construct a wxFileName with wxPATH_UNIX and then use "
+                  "wxFileName::GetFullPath(wxPATH_DOS) instead of using wxUnix2DosFilename.") },
             { L"wxSplitPath",
-              L"wxSplitPath is obsolete, please use wxFileName::SplitPath() instead." },
+              _WXTRANS_WSTR(
+                  L"wxSplitPath is obsolete, please use wxFileName::SplitPath() instead.") },
             // not i18n related, just legacy wx functions that can be modernized
-            { L"wxMin", L"Use std::min() instead of wxMin()." },
-            { L"wxMax", L"Use std::max() instead of wxMax()." },
-            { L"wxRound", L"Use std::lround() instead of wxRound()." },
-            { L"wxIsNan", L"Use std::isnan() instead of wxIsNan()." },
-            { L"wxNOEXCEPT", L"Use noexcept instead of wxNOEXCEPT." },
-            { L"__WXMAC__", L"Use __WXOSX__ instead of __WXMAC__." },
-            { L"wxMEMBER_DELETE", L"Use '= delete' instead of wxMEMBER_DELETE." },
-            { L"wxOVERRIDE", L"Use override or final instead of wxOVERRIDE." },
+            { L"wxMin", _WXTRANS_WSTR(L"Use std::min() instead of wxMin().") },
+            { L"wxMax", _WXTRANS_WSTR(L"Use std::max() instead of wxMax().") },
+            { L"wxRound", _WXTRANS_WSTR(L"Use std::lround() instead of wxRound().") },
+            { L"wxIsNan", _WXTRANS_WSTR(L"Use std::isnan() instead of wxIsNan().") },
+            { L"wxNOEXCEPT", _WXTRANS_WSTR(L"Use noexcept instead of wxNOEXCEPT.") },
+            { L"__WXMAC__", _WXTRANS_WSTR(L"Use __WXOSX__ instead of __WXMAC__.") },
+            { L"wxMEMBER_DELETE", _WXTRANS_WSTR(L"Use '= delete' instead of wxMEMBER_DELETE.") },
+            { L"wxOVERRIDE", _WXTRANS_WSTR(L"Use override or final instead of wxOVERRIDE.") },
             { L"wxDECLARE_NO_COPY_CLASS",
-              L"Delete the copy CTOR and assignment operator instead of wxDECLARE_NO_COPY_CLASS." },
+              _WXTRANS_WSTR(L"Delete the copy CTOR and assignment operator instead of "
+                            "wxDECLARE_NO_COPY_CLASS.") },
             { L"DECLARE_NO_COPY_CLASS",
-              L"Delete the copy CTOR and assignment operator instead of DECLARE_NO_COPY_CLASS." },
-            { L"wxGROW", L"Call wxSizer::Add() with a wxSizerFlags object using Expand() instead "
-                         "of wxGROW." },
-            { L"wxEXPAND", L"Call wxSizer::Add() with a wxSizerFlags object using Expand() instead "
-                           "of wxEXPAND." }
+              _WXTRANS_WSTR(L"Delete the copy CTOR and assignment operator "
+                            "instead of DECLARE_NO_COPY_CLASS.") },
+            { L"wxGROW",
+              _WXTRANS_WSTR(L"Call wxSizer::Add() with a wxSizerFlags object using Expand() "
+                            "instead of wxGROW.") },
+            { L"wxEXPAND",
+              _WXTRANS_WSTR(L"Call wxSizer::Add() with a wxSizerFlags object using Expand() "
+                            "instead of wxEXPAND.") }
         };
 
         if (m_min_cpp_version >= 2017)
             {
             m_deprecated_string_functions.insert(
-                { L"wxNODISCARD", L"Use [[nodiscard]] instead of wxNODISCARD." });
+                { L"wxNODISCARD", _WXTRANS_WSTR(L"Use [[nodiscard]] instead of wxNODISCARD.") });
             m_deprecated_string_functions.insert(
-                { L"WXSIZEOF", L"Use std::size() instead of WXSIZEOF()." });
+                { L"WXSIZEOF", _WXTRANS_WSTR(L"Use std::size() instead of WXSIZEOF().") });
             m_deprecated_string_functions.insert(
-                { L"wxUnusedVar", L"Use [[maybe_unused]] instead of wxUnusedVar." });
+                { L"wxUnusedVar", _WXTRANS_WSTR(L"Use [[maybe_unused]] instead of wxUnusedVar.") });
             m_deprecated_string_functions.insert(
-                { L"WXUNUSED", L"Use [[maybe_unused]] instead of WXUNUSED()." });
+                { L"WXUNUSED", _WXTRANS_WSTR(L"Use [[maybe_unused]] instead of WXUNUSED().") });
             }
 
         m_untranslatable_regexes = {
@@ -584,7 +609,9 @@ namespace i18n_check
             L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP", L"QT_TRANSLATE_NOOP",
             L"QApplication::translate", L"QApplication::tr", L"QApplication::trUtf8",
             // KDE (ki18n)
-            L"i18n", L"i18np", L"i18ncp", L"i18nc", L"xi18n", L"xi18nc"
+            L"i18n", L"i18np", L"i18ncp", L"i18nc", L"xi18n", L"xi18nc",
+            // our own functions
+            L"_WXTRANS_WSTR"
         };
 
         // functions that indicate that a string is explicitly marked to not be translatable
@@ -1132,8 +1159,16 @@ namespace i18n_check
                      idNameParts[1] == L"IDI_" || idNameParts[1] == L"IDB_"))
                     {
                     m_ids_assigned_number.push_back(string_info(
-                        string2 + L" assigned to " + string1 +
-                            L"; value should be between 1 and 0x6FFF if this is an MFC project.",
+#ifdef wxVERSION_NUMBER
+                        wxString::Format(_(L"%s assigned to %s; value should be between 1 and "
+                                           "0x6FFF if this is an MFC project."),
+                                         string2, string1)
+                            .wc_str(),
+#else
+                        string2 + _DT(L" assigned to ") + string1 +
+                            _DT(L"; value should be between 1 and 0x6FFF if "
+                                L"this is an MFC project."),
+#endif
                         string_info::usage_info{}, fileName,
                         std::make_pair(get_line_and_column(position, fileText).first,
                                        std::wstring::npos)));
@@ -1143,8 +1178,16 @@ namespace i18n_check
                          (idNameParts[1] == L"IDS_" || idNameParts[1] == L"IDP_"))
                     {
                     m_ids_assigned_number.emplace_back(
-                        string2 + L" assigned to " + string1 +
-                            L"; value should be between 1 and 0x7FFF if this is an MFC project.",
+#ifdef wxVERSION_NUMBER
+                        wxString::Format(_(L"%s assigned to %s; value should be between 1 and "
+                                           "0x7FFF if this is an MFC project."),
+                                         string2, string1)
+                            .wc_str(),
+#else
+                        string2 + _DT(L" assigned to ") + string1 +
+                            _DT(L"; value should be between 1 and 0x7FFF if "
+                                "this is an MFC project."),
+#endif
                         string_info::usage_info{}, fileName,
                         std::make_pair(get_line_and_column(position, fileText).first,
                                        std::wstring::npos));
@@ -1155,8 +1198,16 @@ namespace i18n_check
                          idNameParts[1] == L"IDC_")
                     {
                     m_ids_assigned_number.emplace_back(
-                        string2 + L" assigned to " + string1 +
-                            L"; value should be between 8 and 0xDFFF if this is an MFC project.",
+#ifdef wxVERSION_NUMBER
+                        wxString::Format(_(L"%s assigned to %s; value should be between 8 and "
+                                           "0xDFFF if this is an MFC project."),
+                                         string2, string1)
+                            .wc_str(),
+#else
+                        string2 + _DT(L" assigned to ") + string1 +
+                            _DT(L"; value should be between 8 and 0xDFFF if "
+                                "this is an MFC project."),
+#endif
                         string_info::usage_info{}, fileName,
                         std::make_pair(get_line_and_column(position, fileText).first,
                                        std::wstring::npos));
@@ -1169,7 +1220,12 @@ namespace i18n_check
                          string2 != L"-1" && string2 != L"0")
                     {
                     m_ids_assigned_number.emplace_back(
-                        string2 + L" assigned to " + string1, string_info::usage_info{}, fileName,
+#ifdef wxVERSION_NUMBER
+                        wxString::Format(_(L"%s assigned to %s"), string2, string1).wc_str(),
+#else
+                        string2 + _DT(L" assigned to ") + string1,
+#endif
+                        string_info::usage_info{}, fileName,
                         std::make_pair(get_line_and_column(position, fileText).first,
                                        std::wstring::npos));
                     }
@@ -1182,11 +1238,17 @@ namespace i18n_check
                     string1 != pos->second && string2 != L"wxID_ANY" && string2 != L"wxID_NONE" &&
                     string2 != L"-1" && string2 != L"0")
                     {
-                    m_duplicates_value_assigned_to_ids.push_back(
-                        string_info(string2 + L" has been assigned to multiple ID variables.",
-                                    string_info::usage_info{}, fileName,
-                                    std::make_pair(get_line_and_column(position, fileText).first,
-                                                   std::wstring::npos)));
+                    m_duplicates_value_assigned_to_ids.push_back(string_info(
+#ifdef wxVERSION_NUMBER
+                        wxString::Format(_(L"%s has been assigned to multiple ID variables."),
+                                         string2)
+                            .wc_str(),
+#else
+                        string2 + _DT(L" has been assigned to multiple ID variables."),
+#endif
+                        string_info::usage_info{}, fileName,
+                        std::make_pair(get_line_and_column(position, fileText).first,
+                                       std::wstring::npos)));
                     }
                 }
             }
@@ -2116,9 +2178,18 @@ namespace i18n_check
                         {
                         if (insertionPos->second != L"%" + matches[2].str())
                             {
-                            errorInfo = L"('" + matches[0].str() +
-                                        L"': positional argument provided more than once, but with "
-                                        "different data types.)";
+#ifdef wxVERSION_NUMBER
+                            errorInfo =
+                                wxString::Format(_(L"('%s': positional argument provided more than "
+                                                   "once, but with different data types.)"),
+                                                 matches[0].str())
+                                    .wc_str();
+#else
+                            errorInfo =
+                                L"('" + matches[0].str() +
+                                _DT(L"': positional argument provided more than once, but with "
+                                    "different data types.)");
+#endif
                             return std::vector<std::wstring>{};
                             }
                         }
@@ -2138,8 +2209,8 @@ namespace i18n_check
             {
             if (nonPositionalCommands > 0)
                 {
-                errorInfo =
-                    L"(Positional and non-positional commands mixed in the same printf string.)";
+                errorInfo = _WXTRANS_WSTR(
+                    L"(Positional and non-positional commands mixed in the same printf string.)");
                 }
             adjustedCommands.clear();
             for (auto& posArg : positionalCommands)

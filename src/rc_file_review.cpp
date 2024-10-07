@@ -177,8 +177,16 @@ namespace i18n_check
                     {
                     m_badFontSizes.push_back(string_info{
                         std::to_wstring(fontSize.value()),
-                        string_info::usage_info{ L"Font size " + fontParts[0] +
-                                                 L" is non-standard (8 is recommended)." },
+                        string_info::usage_info{
+#ifdef wxVERSION_NUMBER
+                            wxString::Format(_(L"Font size %s is non-standard (8 is recommended)."),
+                                             fontParts[0])
+                                .wc_string()
+#else
+                            _DT(L"Font size ") + fontParts[0] +
+                            _DT(L" is non-standard (8 is recommended).")
+#endif
+                        },
                         fileName,
                         std::make_pair(get_line_and_column(fontEntry.first, rcFileText).first,
                                        std::wstring::npos) });
@@ -188,9 +196,16 @@ namespace i18n_check
                     {
                     m_nonSystemFontNames.push_back(string_info{
                         fontParts[1],
-                        string_info::usage_info{
-                            L"Font '" + fontParts[1] +
-                            L"' may not map well on some systems (MS Shell Dlg is recommended)." },
+#ifdef wxVERSION_NUMBER
+                        wxString::Format(_(L"Font '%s' may not map well on some systems "
+                                           "(MS Shell Dlg is recommended)."),
+                                         fontParts[1])
+                            .wc_string(),
+#else
+                        string_info::usage_info{ _DT(L"Font '") + fontParts[1] +
+                                                 _DT(L"' may not map well on some systems (MS "
+                                                     "Shell Dlg is recommended).") },
+#endif
                         fileName,
                         std::make_pair(get_line_and_column(fontEntry.first, rcFileText).first,
                                        std::wstring::npos) });
