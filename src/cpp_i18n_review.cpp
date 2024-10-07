@@ -24,9 +24,6 @@ namespace i18n_check
         std::wstring cppBuffer{ srcText };
         wchar_t* cppText = cppBuffer.data();
 
-        load_id_assignments(srcText, fileName);
-        load_deprecated_functions(srcText, fileName);
-
         m_file_start = cppText;
         const wchar_t* const endSentinel =
             std::next(cppText, static_cast<ptrdiff_t>(srcText.length()));
@@ -344,6 +341,10 @@ namespace i18n_check
                 std::advance(cppText, 1);
                 }
             }
+
+        // review full content again once comments and preprocessor blocks are cleared
+        load_id_assignments(cppBuffer, fileName);
+        load_deprecated_functions(cppBuffer, fileName);
 
         m_file_name.clear();
         m_file_start = nullptr;
