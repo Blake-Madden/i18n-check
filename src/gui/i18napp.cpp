@@ -974,6 +974,11 @@ bool I18NApp::OnInit()
     auto fontNames = fe.GetFacenames();
     for (const auto& fn : fontNames)
         {
+        // don't ignore font names that might also be real words
+        if (fn.CmpNoCase(L"Symbol") == 0)
+            {
+            continue;
+            }
         i18n_check::i18n_review::add_font_name_to_ignore(fn.wc_str());
         }
 
