@@ -177,7 +177,7 @@ namespace i18n_check
         // programs
         L"exe", L"swf", L"vbs",
         // source files
-        L"cpp", L"h", L"c", L"idl", L"cs",
+        L"cpp", L"h", L"c", L"idl", L"cs", L"hpp", L"po",
         // compressed files
         L"gzip", L"bz2"
     };
@@ -714,6 +714,8 @@ namespace i18n_check
             L"ASMJIT_DEPRECATED",
             // low-level printf functions
             L"wprintf", L"printf", L"sprintf", L"snprintf", L"fprintf", L"wxSnprintf",
+            // actual console printf (we will consider that most console apps are localized)
+            L"printf",
             // KDE
             L"getDocumentProperty", L"setDocumentProperty",
             // GTK
@@ -774,9 +776,6 @@ namespace i18n_check
             L"log_message", L"outLog"
         };
 
-        m_streamable_functions = { L"qDebug",  L"qInfo",  L"qWarning",  L"qCritical", L"qFatal",
-                                   L"qCDebug", L"qCInfo", L"qCWarning", L"qCCritical" };
-
         m_exceptions = {
             // std exceptions
             L"logic_error", L"std::logic_error", L"domain_error", L"std::domain_error",
@@ -794,6 +793,8 @@ namespace i18n_check
                                      L"style-set", L"underline-set", L"size-set", L"charset",
                                      L"xml", L"gdiplus", L"Direct2D", L"DirectX", L"localhost",
                                      L"32 bit", L"32-bit", L"64 bit", L"64-bit",
+                                     // build types
+                                     L"DEBUG", L"NDEBUG",
                                      // RTF font families
                                      L"fnil", L"fdecor", L"froman", L"fscript", L"fswiss",
                                      L"fmodern", L"ftech",
@@ -820,6 +821,8 @@ namespace i18n_check
         add_variable_name_pattern_to_ignore(std::wregex(LR"(wxColourDialogNames)"));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(wxColourTable)"));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(QT_MESSAGE_PATTERN)"));
+        // console objects
+        add_variable_name_pattern_to_ignore(std::wregex(LR"((std::)?[w]?cout)"));
         }
 
     //--------------------------------------------------
@@ -1300,7 +1303,7 @@ namespace i18n_check
                 // i18n functions that have multiple params, some of which
                 // can be context strings that should not be translatable
                 if ( // Qt
-                    (functionName == L"translate" && parameterPosition == 0) ||
+                    (functionName == _DT(L"translate") && parameterPosition == 0) ||
                     (functionName == L"QApplication::translate" && parameterPosition == 0) ||
                     (functionName == L"QApplication::tr" && parameterPosition == 0) ||
                     (functionName == L"QApplication::trUtf8" && parameterPosition == 0) ||
@@ -1695,7 +1698,12 @@ namespace i18n_check
                  str.find_first_of(L" \n\t\r/-") == std::wstring::npos &&
                  str.find(L"\\n") == std::wstring::npos && str.find(L"\\r") == std::wstring::npos &&
                  str.find(L"\\t") == std::wstring::npos) ||
-                m_known_internal_strings.find(str.c_str()) != m_known_internal_strings.end())
+                m_known_internal_strings.find(str.c_str()) != m_known_internal_strings.end() ||
+                // a string like "_tcscoll" be odd to be in string, but just in case it
+                // should not be localized
+                m_deprecated_string_functions.find(str.c_str()) !=
+                    m_deprecated_string_functions.end() ||
+                m_deprecated_string_macros.find(str.c_str()) != m_deprecated_string_macros.end())
                 {
                 return true;
                 }
@@ -2133,7 +2141,7 @@ namespace i18n_check
                         while (startPos > startSentinel && *startPos != L'(')
                             {
                             std::advance(startPos, -1);
-                        }
+                            }
                         if (startPos > startSentinel)
                             {
                             std::advance(startPos, -1);
