@@ -69,8 +69,8 @@ namespace i18n_check
                           static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
                     if (isSuppressed)
                         {
-                        clear_section(cppText,
-                                      std::next(cppText, static_cast<ptrdiff_t>(suppresionEnd + 2)));
+                        clear_section(
+                            cppText, std::next(cppText, static_cast<ptrdiff_t>(suppresionEnd + 2)));
                         std::advance(cppText, suppresionEnd);
                         }
                     const size_t endPos = std::wcscspn(cppText, L"\n\r");
@@ -638,6 +638,8 @@ namespace i18n_check
             return blockEnd;
             }
 
+        bool shouldClearSection{ true };
+
         // skip single-line directives
         if (std::wstring_view{ directiveStart }.starts_with(L"pragma") ||
             std::wstring_view{ directiveStart }.starts_with(L"include"))
@@ -751,12 +753,14 @@ namespace i18n_check
                     }
                 // example: #define VALUE height, #define VALUE 0x5
                 // No open parentheses after the defined value--then not a function.
-                // Just leave the end marker where it is (EOL) and gobble all of this up.
+                // Just leave the end marker where it is (EOL), but leave the value
+                // assignment as-is for variable assignment checks later.
                 else if ((end > directiveStart) &&
                          std::wstring_view{ directiveStart,
                                             static_cast<size_t>(end - directiveStart) }
                                  .find(L'(') == std::wstring_view::npos)
-                    { /*no-op*/
+                    {
+                    shouldClearSection = false;
                     }
                 // ...or more like a #defined function, so let main parser deal with it
                 // (just strip out the preprocessor junk here)
@@ -765,7 +769,10 @@ namespace i18n_check
                     end = directiveStart;
                     }
                 }
-            clear_section(originalStart, end);
+            if (shouldClearSection)
+                {
+                clear_section(originalStart, end);
+                }
             return end;
             }
         // unknown preprocessor, just skip the '#'
