@@ -73,6 +73,15 @@ TEST_CASE("<<", "[cpp][i18n]")
         REQUIRE(cpp.get_internal_strings().size() == 1);
         }
 
+    SECTION("console")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = LR"(std::cout << "################### THERE IS A MESSAGE #################";)";
+        cpp(code, L"");
+        cpp.review_strings();
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        }
+
     SECTION("Doesn't support <<")
         {
         cpp_i18n_review cpp;

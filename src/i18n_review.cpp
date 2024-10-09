@@ -1287,12 +1287,7 @@ namespace i18n_check
             }
         else if (functionName.length() > 0)
             {
-            if (m_is_in_stream &&
-                m_streamable_functions.find(functionName) == m_streamable_functions.cend())
-                {
-                return;
-                }
-            else if (is_diagnostic_function(functionName))
+            if (is_diagnostic_function(functionName))
                 {
                 m_internal_strings.emplace_back(
                     std::wstring(currentTextPos, quoteEnd - currentTextPos),
@@ -1853,7 +1848,6 @@ namespace i18n_check
         variableType.clear();
         parameterPosition = 0;
         deprecatedMacroEncountered.clear();
-        m_is_in_stream = false;
         int32_t closeParenCount{ 0 };
         int32_t closeBraseCount{ 0 };
         bool quoteWrappedInCTOR{ false };
@@ -2126,16 +2120,57 @@ namespace i18n_check
                 std::advance(startPos, -1);
                 if (startPos > startSentinel && *startPos == L'<')
                     {
+                    bool isFunctionCall{ false };
                     std::advance(startPos, -1);
                     while (startPos > startSentinel && static_cast<bool>(std::iswspace(*startPos)))
                         {
                         std::advance(startPos, -1);
                         }
+                    // step over arguments to streamable function
                     if (startPos > startSentinel && *startPos == L')')
                         {
                         std::advance(startPos, -1);
+                        while (startPos > startSentinel && *startPos != L'(')
+                            {
+                            std::advance(startPos, -1);
                         }
-                    m_is_in_stream = true;
+                        if (startPos > startSentinel)
+                            {
+                            std::advance(startPos, -1);
+                            }
+                        isFunctionCall = true;
+                        }
+                    functionOrVarNamePos = startPos;
+                    while (functionOrVarNamePos > startSentinel &&
+                           is_valid_name_char_ex(*functionOrVarNamePos))
+                        {
+                        std::advance(functionOrVarNamePos, -1);
+                        }
+                    // move back to valid starting character and return
+                    if (!is_valid_name_char_ex(*functionOrVarNamePos))
+                        {
+                        std::advance(functionOrVarNamePos, 1);
+                        }
+                    if (isFunctionCall)
+                        {
+                        functionName.assign(functionOrVarNamePos,
+                                            std::next(startPos) - functionOrVarNamePos);
+                        // ignore localization related functions; in this case, it is the (temporary) string
+                        // objects << operator being called, not the localization function
+                        if (m_localization_functions.find(functionName) != m_localization_functions.cend() ||
+                            m_non_localizable_functions.find(functionName) !=
+                                m_non_localizable_functions.cend())
+                            {
+                            functionName.clear();
+                            }
+                        }
+                    else
+                        {
+                        variableName.assign(functionOrVarNamePos,
+                                            std::next(startPos) - functionOrVarNamePos);
+                        }
+
+                    return functionOrVarNamePos;
                     }
                 }
             else

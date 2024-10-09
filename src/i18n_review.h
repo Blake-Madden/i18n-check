@@ -507,7 +507,7 @@ namespace i18n_check
             @param pattern The regex pattern to compare against the variable names.*/
         static void add_variable_name_pattern_to_ignore(const std::wregex& pattern)
             {
-            m_variable_name_patterns_to_ignore.emplace_back(pattern);
+            m_variable_name_patterns_to_ignore.push_back(pattern);
             }
 
         /// @returns The regex patterns compared against variables that have
@@ -959,7 +959,6 @@ namespace i18n_check
         std::set<std::wstring_view> m_non_localizable_functions;
         std::set<std::wstring_view> m_internal_functions;
         std::set<std::wstring_view> m_log_functions;
-        std::set<std::wstring_view> m_streamable_functions;
         std::set<std::wstring_view> m_exceptions;
         std::set<std::wstring_view> m_ctors_to_ignore;
         std::set<string_util::case_insensitive_wstring> m_known_internal_strings;
@@ -1045,8 +1044,6 @@ namespace i18n_check
 
         // helpers
         mutable std::vector<parse_messages> m_error_log;
-
-        bool m_is_in_stream{ false };
 
         // bookkeeping diagnostics
 #ifndef NDEBUG
