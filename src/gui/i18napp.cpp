@@ -593,6 +593,8 @@ void I18NFrame::OnRefresh([[maybe_unused]] wxCommandEvent&)
 
     if (projDlg.ShowModal() == wxID_OK)
         {
+        SaveSourceFileIfNeeded();
+
         m_activeProjectOptions = projDlg.GetAllOptions();
 
         Process();
