@@ -975,7 +975,7 @@ bool I18NApp::OnInit()
     for (const auto& fn : fontNames)
         {
         // don't ignore font names that might also be real words
-        if (fn.CmpNoCase(L"Symbol") == 0)
+        if (fn.CmpNoCase(_DT(L"Symbol")) == 0)
             {
             continue;
             }
