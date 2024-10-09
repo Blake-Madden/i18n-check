@@ -105,7 +105,7 @@ namespace i18n_check
                     {
                     std::wsmatch results;
 
-                    if (std::regex_search(tableEntry.second, results, m_urlEmailRE))
+                    if (std::regex_search(tableEntry.second, results, m_url_email_regex))
                         {
                         m_localizable_strings_with_urls.emplace_back(
                             tableEntry.second,

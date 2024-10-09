@@ -190,6 +190,7 @@ namespace i18n_check
             }
 
         const auto printfSpecifiers = i18n_review::load_cpp_printf_command_positions(msg);
+        const auto fileFilters = i18n_review::load_file_filter_positions(msg);
 
         // Get the position of the first character that is not a space or whitespace control
         // sequence. We will step over this and add them to the mutated string after the brackets
@@ -259,9 +260,18 @@ namespace i18n_check
                 continue;
                 }
             // step over printf commands
-            const auto foundPos = std::find_if(printfSpecifiers.cbegin(), printfSpecifiers.cend(),
-                                               [i](auto val) noexcept { return val.first == i; });
+            auto foundPos = std::find_if(printfSpecifiers.cbegin(), printfSpecifiers.cend(),
+                                         [i](auto val) noexcept { return val.first == i; });
             if (foundPos != printfSpecifiers.cend())
+                {
+                newMsg += msg.substr(i, foundPos->second);
+                i += foundPos->second;
+                continue;
+                }
+            // step over file filters
+            foundPos = std::find_if(fileFilters.cbegin(), fileFilters.cend(),
+                                    [i](auto val) noexcept { return val.first == i; });
+            if (foundPos != fileFilters.cend())
                 {
                 newMsg += msg.substr(i, foundPos->second);
                 i += foundPos->second;

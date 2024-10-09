@@ -665,6 +665,13 @@ namespace i18n_check
         static std::vector<std::pair<size_t, size_t>>
         load_cpp_printf_command_positions(const std::wstring& resource);
 
+        /** @brief Loads all file filters (e.g., "*.docx;*.doc") from a string.
+            @param resource The string to parse.
+            @returns A vector of positions and lengths of all file filters from the string.*/
+        [[nodiscard]]
+        static std::vector<std::pair<size_t, size_t>>
+        load_file_filter_positions(const std::wstring& resource);
+
         /** @brief Finds and returns the next translation entry in a gettext po file.
             @param poFileText the po file content to parse.
             @returns If an entry is found, returns @c true, a view of the block, and its
@@ -988,7 +995,7 @@ namespace i18n_check
 
         std::wstring m_file_name;
 
-        static const std::wregex m_urlEmailRE;
+        static const std::wregex m_url_email_regex;
         static const std::wregex m_html_regex;
         static const std::wregex m_html_element_with_content_regex;
         static const std::wregex m_html_tag_regex;
@@ -1009,6 +1016,7 @@ namespace i18n_check
         static const std::wregex m_printf_cpp_float_regex;
         static const std::wregex m_printf_cpp_string_regex;
         static const std::wregex m_printf_cpp_pointer_regex;
+        static const std::wregex m_file_filter_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
 
       private:

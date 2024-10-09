@@ -10,7 +10,9 @@
 
 namespace i18n_check
     {
-    const std::wregex i18n_review::m_urlEmailRE{
+    const std::wregex i18n_review::m_file_filter_regex{ LR"(([*][.][[:alnum:]\*]{1,5}[;]?)+$)" };
+
+    const std::wregex i18n_review::m_url_email_regex{
         LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"
     };
 
@@ -858,7 +860,7 @@ namespace i18n_check
             std::wsmatch results;
             for (const auto& str : m_localizable_strings)
                 {
-                if (std::regex_search(str.m_string, results, m_urlEmailRE))
+                if (std::regex_search(str.m_string, results, m_url_email_regex))
                     {
                     m_localizable_strings_with_urls.push_back(str);
                     }
@@ -2292,13 +2294,39 @@ namespace i18n_check
 
     //--------------------------------------------------
     std::vector<std::pair<size_t, size_t>>
+    i18n_review::load_file_filter_positions(const std::wstring& resource)
+        {
+        std::vector<std::pair<size_t, size_t>> results;
+
+        std::wstring::const_iterator searchStart{ resource.cbegin() };
+        std::wsmatch res;
+        size_t commandPosition{ 0 };
+        size_t previousLength{ 0 };
+        while (std::regex_search(searchStart, resource.cend(), res, m_file_filter_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.length()));
+            }
+
+        // sort by position
+        std::sort(results.begin(), results.end(),
+                  [](const auto& lhv, const auto& rhv) noexcept { return lhv.first < rhv.first; });
+
+        return results;
+        }
+
+    //--------------------------------------------------
+    std::vector<std::pair<size_t, size_t>>
     i18n_review::load_cpp_printf_command_positions(const std::wstring& resource)
         {
         std::vector<std::pair<size_t, size_t>> results;
 
         // we need to do this multipass because a single regex command for all printf
         // commands is too complex and will cause the regex library to randomly throw exceptions
-        std::wstring::const_iterator searchStart(resource.cbegin());
+        std::wstring::const_iterator searchStart{ resource.cbegin() };
         std::wsmatch res;
         size_t commandPosition{ 0 };
         size_t previousLength{ 0 };

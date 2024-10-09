@@ -29,7 +29,7 @@ namespace i18n_check
                 {
                 std::wsmatch results;
 
-                if (std::regex_search(catEntry.second.m_source, results, m_urlEmailRE))
+                if (std::regex_search(catEntry.second.m_source, results, m_url_email_regex))
                     {
                     catEntry.second.m_issues.emplace_back(translation_issue::suspect_source_issue,
                                                           catEntry.second.m_source);
