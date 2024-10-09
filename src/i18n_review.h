@@ -24,6 +24,7 @@
     #include <omp.h>
 #endif
 // for the GUI version, include gettext's translation loading support via wxWidgets
+// cppcheck-suppress-begin [preprocessorErrorDirective]
 #if __has_include(<wx/wx.h>)
     #include <wx/wx.h>
     #if wxCHECK_VERSION(3, 3, 0)
@@ -35,6 +36,7 @@
     #define _(s) (s)
     #define _WXTRANS_WSTR(s) (s)
 #endif
+// cppcheck-suppress-end [preprocessorErrorDirective]
 
 /// @brief Classes for checking source code for internationalization/localization issues.
 /// @details Refer to https://www.gnu.org/software/gettext/manual/gettext.html
