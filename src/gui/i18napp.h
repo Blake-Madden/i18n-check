@@ -24,6 +24,7 @@
 #include <wx/filename.h>
 #include <wx/fontenum.h>
 #include <wx/itemattr.h>
+#include <wx/notebook.h>
 #include <wx/numformatter.h>
 #include <wx/progdlg.h>
 #include <wx/ribbon/bar.h>
@@ -34,6 +35,7 @@
 #include <wx/splitter.h>
 #include <wx/stc/stc.h>
 #include <wx/stdpaths.h>
+#include <wx/textctrl.h>
 #include <wx/tokenzr.h>
 #include <wx/wx.h>
 #include <wx/xml/xml.h>
@@ -117,6 +119,7 @@ class I18NFrame : public wxFrame
     wxRibbonButtonBar* m_projectBar{ nullptr };
     wxRibbonButtonBar* m_editBar{ nullptr };
     wxStyledTextCtrl* m_editor{ nullptr };
+    wxTextCtrl* m_logWindow{ nullptr };
     wxString m_activeSourceFile;
     bool m_promptForFileSave{ true };
 

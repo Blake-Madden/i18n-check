@@ -193,7 +193,10 @@ void I18NFrame::InitControls()
         new wxDataViewColumn(_(L"Summary"), tr, 4, FromDIP(200), wxALIGN_LEFT,
                              wxDATAVIEW_COL_SORTABLE | wxDATAVIEW_COL_RESIZABLE));
 
-    m_editor = new wxStyledTextCtrl(splitter);
+    wxNotebook* tabstrip =
+        new wxNotebook(splitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_BOTTOM);
+
+    m_editor = new wxStyledTextCtrl(tabstrip);
     m_editor->StyleClearAll();
     const wxFont font{ wxFontInfo().Family(wxFONTFAMILY_MODERN) };
     for (auto i = 0; i < wxSTC_STYLE_LASTPREDEFINED; ++i)
@@ -287,7 +290,18 @@ void I18NFrame::InitControls()
 
     m_editor->CallTipUseStyle(40);
 
-    splitter->SplitHorizontally(m_resultsDataView, m_editor, FromDIP(-300));
+    m_logWindow = new wxTextCtrl(tabstrip, wxID_ANY, wxString{}, wxDefaultPosition, wxDefaultSize,
+                                 wxTE_RICH2 | wxTE_READONLY | wxTE_MULTILINE | wxBORDER_THEME);
+    if (wxSystemSettings::GetAppearance().IsDark())
+        {
+        m_logWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSystemColour::wxSYS_COLOUR_BACKGROUND));
+        m_logWindow->SetForegroundColour(wxSystemSettings::GetColour(wxSystemColour::wxSYS_COLOUR_BTNTEXT));
+        }
+
+    tabstrip->InsertPage(0, m_editor, _("Edit"));
+    tabstrip->InsertPage(1, m_logWindow, _("Log"), false);
+
+    splitter->SplitHorizontally(m_resultsDataView, tabstrip, FromDIP(-300));
     mainSizer->Add(splitter, wxSizerFlags{ 1 }.Expand());
 
     SetSizer(mainSizer);
@@ -920,6 +934,9 @@ void I18NFrame::Process()
     m_projectBar->EnableButton(XRCID("ID_IGNORE_SELECTED"), true);
     m_editBar->EnableButton(XRCID("ID_EXPAND_ALL"), true);
     m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), true);
+
+    m_logWindow->AppendText(i18n_check::format_summary(cpp, rc, po).str());
+    m_logWindow->AppendText(L"\n");
     }
 
 //------------------------------------------------------
