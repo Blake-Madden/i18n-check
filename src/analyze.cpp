@@ -152,7 +152,6 @@ namespace i18n_check
             outPath.replace_filename(L"pseudo_" + outPath.filename().generic_wstring());
 
             // change copy of PO template files to PO files
-            auto blah = outPath.extension();
             if (outPath.extension().compare(L".pot") == 0)
                 {
                 outPath.replace_extension(L".po");
@@ -338,12 +337,12 @@ namespace i18n_check
                << ((cpp.get_style() & check_line_width) ? L"wideLine\n" : L"")
                << ((cpp.get_style() & check_space_after_comment) ? L"commentMissingSpace\n" : L"")
                << L"\n"
-               << L"Statistics" << L"\n###################################################\n"
-               << L"Strings available for translation within C/C++ source files: "
+               << _(L"Statistics") << L"\n###################################################\n"
+               << _(L"Strings available for translation within C/C++ source files: ")
                << cpp.get_localizable_strings().size() << L"\n"
-               << L"String table entries within Windows resource files: "
+               << _(L"String table entries within Windows resource files: ")
                << rc.get_localizable_strings().size() << L"\n"
-               << L"Translation entries within PO message catalog files: "
+               << _(L"Translation entries within PO message catalog files: ")
                << po.get_catalog_entries().size() << L"\n";
 
         return report;
@@ -499,7 +498,7 @@ namespace i18n_check
                 }
             else
                 {
-                report << L"Localizable string being assigned to " << val.m_usage.m_value << L"\t";
+                report << _(L"Localizable string being assigned to: ") << val.m_usage.m_value << L"\t";
                 }
             report << L"[suspectL10NUsage]\n";
             }
@@ -605,8 +604,8 @@ namespace i18n_check
 
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
                    << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << L"String contains extended ASCII characters that should be encoded. "
-                      "Recommended change: '"
+                   << _(L"String contains extended ASCII characters that should be encoded. "
+                        "Recommended change: '")
                    << encodingRecommendations.str() << L"'\t[unencodedExtASCII]\n";
             }
 
@@ -614,28 +613,28 @@ namespace i18n_check
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << L"Trailing space(s) detected at end of line." << L"\t[trailingSpaces]\n";
+                   << _(L"Trailing space(s) detected at end of line.") << L"\t[trailingSpaces]\n";
             }
 
         for (const auto& val : cpp.get_tabs())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << L"Tab detected in file; prefer using spaces." << L"\t[tabs]\n";
+                   << _(L"Tab detected in file; prefer using spaces.") << L"\t[tabs]\n";
             }
 
         for (const auto& val : cpp.get_wide_lines())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << replaceSpecialSpaces(val.m_string) << L"\"\t" << L"Line is "
-                   << val.m_usage.m_value << L" characters long." << L"\t[wideLine]\n";
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t" << _(L"Line length: ")
+                   << val.m_usage.m_value << L"\t[wideLine]\n";
             }
 
         for (const auto& val : cpp.get_comments_missing_space())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << L"Space should be inserted between comment tag and comment."
+                   << _(L"Space should be inserted between comment tag and comment.")
                    << L"\t[commentMissingSpace]\n";
             }
 

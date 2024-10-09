@@ -134,7 +134,7 @@ namespace i18n_check
             }
 
         // remove any fuzzy specifiers
-        const std::wstring_view FUZZY{ L"#, fuzzy" };
+        const std::wstring_view FUZZY{ _DT(L"#, fuzzy") };
         size_t foundPos = poFileText.find(FUZZY);
         while (foundPos != std::wstring::npos && foundPos > 0)
             {
@@ -148,7 +148,7 @@ namespace i18n_check
             // out section. In that case, skip over it.
             if (poFileText[lastChar] == L'"')
                 {
-                foundPos = poFileText.find(L"#, fuzzy", foundPos + FUZZY.length());
+                foundPos = poFileText.find(_DT(L"#, fuzzy"), foundPos + FUZZY.length());
                 continue;
                 }
             ++lastChar; // step forward to the first newline character
@@ -159,7 +159,7 @@ namespace i18n_check
                 }
             --nextChar; // step back to last newline
             poFileText.replace(lastChar, nextChar - lastChar, L"");
-            foundPos = poFileText.find(L"#, fuzzy", foundPos);
+            foundPos = poFileText.find(_DT(L"#, fuzzy"), foundPos);
             }
 
         // mark the file's encoding as UTF-8
@@ -323,7 +323,7 @@ namespace i18n_check
             ++i;
             }
 
-        // build the track prefix here so that we can take its length into
+        // build the tracking prefix here so that we can take its length into
         // account when increasing the width of the message later
         const std::wstring trackPrefix = [this]()
         {

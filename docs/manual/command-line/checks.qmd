@@ -8,7 +8,7 @@ Check for translatable strings that should not be (e.g., numbers, keywords, `pri
 
 - `suspectL10NUsage`
 
-Check for translatable strings being used in internal contexts (e.g., debugging functions).
+Check for translatable strings being used in internal contexts (e.g., debugging and console functions).
 
 - `urlInL10NString`
 

@@ -26,7 +26,7 @@ Run the following checks
 
 **Translatable strings that shouldn\'t be**: select this to check for translatable strings that should not be (e.g., numbers, keywords, `printf()` commands).
 
-**Translatable strings being used in debug functions**: select this to check for translatable strings being used in internal contexts (e.g., debugging functions).
+**Translatable strings being used in debug functions**: select this to check for translatable strings being used in internal contexts (e.g., debugging and console functions).
 
 **Translatable strings that contain URLs or email addresses**: select this to check for translatable strings that contain URLs or email addresses.
 It is recommended to dynamically format these into the string so that translators do not have to manage them.

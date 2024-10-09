@@ -621,7 +621,7 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
 
     m_activeProjectOptions = projDlg.GetAllOptions();
 
-    SetTitle(wxGetApp().GetAppName() + L" - Untitled");
+    SetTitle(wxGetApp().GetAppName() + _(L" - Untitled"));
 
     Process();
     }
@@ -710,7 +710,7 @@ void I18NFrame::SaveSourceFileIfNeeded()
             {
             std::wstring encoding{ L"utf-8" };
             const std::wstring fileText = m_editor->GetText().wc_string();
-            const std::wregex codePageRE{ LR"(#pragma code_page\(([0-9]+)\))" };
+            const std::wregex codePageRE{ _DT(LR"(#pragma code_page\(([0-9]+)\))") };
             std::wsmatch matchResults;
             if (std::regex_search(fileText.cbegin(), fileText.cend(), matchResults, codePageRE) &&
                 matchResults.size() >= 2)

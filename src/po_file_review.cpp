@@ -98,7 +98,7 @@ namespace i18n_check
                         pofs = po_format_string::cpp_format;
                         formatSpecFound = true;
                         }
-                    else if (!is_reviewing_fuzzy_translations() && formatFlag == L"fuzzy")
+                    else if (!is_reviewing_fuzzy_translations() && formatFlag == _DT(L"fuzzy"))
                         {
                         pofs = po_format_string::no_format;
                         formatSpecFound = true;
