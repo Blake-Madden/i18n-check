@@ -862,16 +862,11 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    void i18n_review::review_strings(analyze_callback_reset resetCallback,
-                                     analyze_callback callback)
+    void i18n_review::review_strings([[maybe_unused]] analyze_callback_reset resetCallback,
+                                     [[maybe_unused]] analyze_callback callback)
         {
-        resetCallback(7);
-        int currentStep{ 0 };
-
-        callback(++currentStep, std::wstring{});
         process_strings();
 
-        callback(++currentStep, std::wstring{});
         if (m_reviewStyles & check_l10n_contains_url)
             {
             std::wsmatch results;
@@ -884,7 +879,6 @@ namespace i18n_check
                 }
             }
 
-        callback(++currentStep, std::wstring{});
         if (m_reviewStyles & check_l10n_strings)
             {
             for (const auto& str : m_localizable_strings)
@@ -896,7 +890,6 @@ namespace i18n_check
                 }
             }
 
-        callback(++currentStep, std::wstring{});
         if (m_reviewStyles & check_malformed_strings)
             {
             const auto& classifyMalformedStrings = [this](const auto& strings)
@@ -920,7 +913,6 @@ namespace i18n_check
             classifyMalformedStrings(m_localizable_strings_in_internal_call);
             }
 
-        callback(++currentStep, std::wstring{});
         if (m_reviewStyles & check_unencoded_ext_ascii)
             {
             const auto& classifyUnencodedStrings = [this](const auto& strings)
@@ -947,7 +939,6 @@ namespace i18n_check
             classifyUnencodedStrings(m_localizable_strings_in_internal_call);
             }
 
-        callback(++currentStep, std::wstring{});
         if (m_reviewStyles & check_printf_single_number)
             {
             // only looking at integral values (i.e., no floating-point precision)
@@ -968,7 +959,6 @@ namespace i18n_check
             classifyPrintfIntStrings(m_localizable_strings_in_internal_call);
             }
 
-        callback(++currentStep, std::wstring{});
         // log any parsing errors
         run_diagnostics();
         }

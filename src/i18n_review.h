@@ -379,8 +379,8 @@ namespace i18n_check
                 Returning @c false indicates that the user cancelled the analysis.
             @note This should be called after you are finished processing all
                 of your files via `operator()`.*/
-        virtual void review_strings(analyze_callback_reset resetCallback,
-                                    analyze_callback callback);
+        virtual void review_strings([[maybe_unused]] analyze_callback_reset resetCallback,
+                                    [[maybe_unused]] analyze_callback callback);
 
         /// @returns The strings in the code that are set to be extracted as translatable.
         [[nodiscard]]
