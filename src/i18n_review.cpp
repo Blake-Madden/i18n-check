@@ -94,6 +94,9 @@ namespace i18n_check
     // common font faces that we would usually ignore (client can add to this)
     std::set<string_util::case_insensitive_wstring> i18n_review::m_font_names = { // NOLINT
         L"Arial",
+        L"Seaford",
+        L"Skeena",
+        L"Tenorite",
         L"Courier New",
         L"Garamond",
         L"Calibri",
@@ -429,6 +432,8 @@ namespace i18n_check
                 { L"WXUNUSED", _WXTRANS_WSTR(L"Use [[maybe_unused]] instead of WXUNUSED().") });
             }
 
+        m_translatable_regexes = { std::wregex(LR"(Q[0-9](F|A)Y)") };
+
         m_untranslatable_regexes = {
             // nothing but numbers, punctuation, or control characters?
             std::wregex(LR"(([[:digit:][:space:][:punct:][:cntrl:]]|\\[rnt])+)"),
@@ -593,7 +598,9 @@ namespace i18n_check
             std::wregex(LR"(Borland C\+\+ Builder( [0-9]+)?)"), std::wregex(LR"(Qt Creator)"),
             std::wregex(LR"((Microsoft )VS Code)"), std::wregex(LR"((Microsoft )?Visual Studio)"),
             std::wregex(LR"((Microsoft )?Visual C\+\+)"),
-            std::wregex(LR"((Microsoft )?Visual Basic)")
+            std::wregex(LR"((Microsoft )?Visual Basic)"),
+            // image formats
+            std::wregex(LR"(TARGA|PNG|JPEG|JPG|BMP|GIF)")
         };
 
         // functions/macros that indicate that a string will be localizable
@@ -679,7 +686,8 @@ namespace i18n_check
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo", L"Platform::DebugPrintf",
             L"wxGetCommandOutput", L"SetKeyWords", L"AddDeveloper", L"AddDocWriter", L"AddArtist",
             L"AddTranslator", L"SetCopyright", L"MarkerSetBackground", L"SetProperty",
-            L"SetAppName",
+            L"SetAppName", L"GetTextExtent" /*Usually only used for measuring "phantoms" like 'Aq'*/,
+            L"GetAttribute",
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern", L"qmlRegisterUncreatableMetaObject",
             L"addShaderFromSourceCode", L"QStandardPaths::findExecutable", L"QDateTime::fromString",
@@ -1746,6 +1754,22 @@ namespace i18n_check
             if (m_untranslatable_exceptions.find(str) != m_untranslatable_exceptions.cend())
                 {
                 return false;
+                }
+
+            // strings that may look like they should not be tranlatable, but are actually OK
+            for (const auto& reg : m_translatable_regexes)
+                {
+                if (std::regex_match(str, reg))
+                    {
+#ifndef NDEBUG
+                    if (str.length() > m_longest_internal_string.first.length())
+                        {
+                        m_longest_internal_string.first = str;
+                        m_longest_internal_string.second = reg;
+                        }
+#endif
+                    return false;
+                    }
                 }
 
             for (const auto& reg : m_untranslatable_regexes)
