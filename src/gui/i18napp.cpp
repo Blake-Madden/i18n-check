@@ -294,8 +294,10 @@ void I18NFrame::InitControls()
                                  wxTE_RICH2 | wxTE_READONLY | wxTE_MULTILINE | wxBORDER_THEME);
     if (wxSystemSettings::GetAppearance().IsDark())
         {
-        m_logWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSystemColour::wxSYS_COLOUR_BACKGROUND));
-        m_logWindow->SetForegroundColour(wxSystemSettings::GetColour(wxSystemColour::wxSYS_COLOUR_BTNTEXT));
+        m_logWindow->SetBackgroundColour(
+            wxSystemSettings::GetColour(wxSystemColour::wxSYS_COLOUR_BACKGROUND));
+        m_logWindow->SetForegroundColour(
+            wxSystemSettings::GetColour(wxSystemColour::wxSYS_COLOUR_BTNTEXT));
         }
 
     tabstrip->InsertPage(0, m_editor, _("Edit"));
@@ -823,39 +825,43 @@ void I18NFrame::Process()
     po.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
     po.review_fuzzy_translations(m_activeProjectOptions.m_fuzzyTranslations);
 
-    std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
-    std::vector<std::wstring> filesThatContainUTF8Signature;
+    wxProgressDialog* progressDlg{ nullptr };
 
-    wxProgressDialog progressDlg(
-        _(L"Analyzing Files"), _(L"Reviewing files for l10n/i18n issues..."), filesToAnalyze.size(),
-        this,
-        wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
-            wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
-    progressDlg.Centre();
+    i18n_check::batch_analyze analyzer(&cpp, &rc, &po);
 
     if (m_activeProjectOptions.m_pseudoTranslationMethod !=
         i18n_check::pseudo_translation_method::none)
         {
-        i18n_check::pseudo_translate(
+        analyzer.pseudo_translate(
             filesToAnalyze, m_activeProjectOptions.m_pseudoTranslationMethod,
             m_activeProjectOptions.m_addPseudoTransBrackets,
             m_activeProjectOptions.m_widthPseudoIncrease, m_activeProjectOptions.m_pseudoTrack,
-            [&progressDlg](const size_t currentFileIndex, const size_t fileCount,
-                           const std::wstring& file)
+            [&progressDlg, this](const size_t totalFiles)
             {
-                progressDlg.SetTitle(
-                    wxString::Format(_(L"Pseudo-translating %s of %s Files..."),
+                progressDlg = new wxProgressDialog(
+                    _(L"Pseudo-translating Files"), _(L"Pseudo-translating..."), totalFiles, this,
+                    wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
+                        wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
+                progressDlg->SetRange(totalFiles);
+                progressDlg->Centre();
+            },
+            [&progressDlg](const size_t currentFileIndex, const std::wstring& file)
+            {
+                progressDlg->SetTitle(
+                    wxString::Format(_(L"Pseudo-translating %s of %s..."),
                                      wxNumberFormatter::ToString(
                                          currentFileIndex, 0,
                                          wxNumberFormatter::Style::Style_NoTrailingZeroes |
                                              wxNumberFormatter::Style::Style_WithThousandsSep),
                                      wxNumberFormatter::ToString(
-                                         fileCount, 0,
+                                         progressDlg->GetRange(), 0,
                                          wxNumberFormatter::Style::Style_NoTrailingZeroes |
                                              wxNumberFormatter::Style::Style_WithThousandsSep)));
-                if (!progressDlg.Update(currentFileIndex,
-                                        wxString::Format(_(L"Pseudo-translating %s..."),
-                                                         wxFileName{ file }.GetFullName())))
+                if (!progressDlg->Update(currentFileIndex,
+                                         file.empty() ?
+                                             _(L"Processing...") :
+                                         wxString::Format(_(L"Pseudo-translating %s..."),
+                                                          wxFileName{ file }.GetFullName())))
                     {
                     return false;
                     }
@@ -863,31 +869,55 @@ void I18NFrame::Process()
             });
         }
 
-    i18n_check::analyze(
-        filesToAnalyze, cpp, rc, po, filesThatShouldBeConvertedToUTF8,
-        filesThatContainUTF8Signature,
-        [&progressDlg](const size_t currentFileIndex, const size_t fileCount,
-                       const std::wstring& file)
+    analyzer.analyze(
+        filesToAnalyze,
+        [&progressDlg, this](const size_t totalFiles)
         {
-            progressDlg.SetTitle(wxString::Format(
-                _(L"Processing %s of %s files..."),
-                wxNumberFormatter::ToString(currentFileIndex, 0,
-                                            wxNumberFormatter::Style::Style_NoTrailingZeroes |
-                                                wxNumberFormatter::Style::Style_WithThousandsSep),
-                wxNumberFormatter::ToString(fileCount, 0,
-                                            wxNumberFormatter::Style::Style_NoTrailingZeroes |
-                                                wxNumberFormatter::Style::Style_WithThousandsSep)));
-            if (!progressDlg.Update(
-                    currentFileIndex,
-                    wxString::Format(_(L"Reviewing %s..."), wxFileName{ file }.GetFullName())))
+            if (progressDlg != nullptr)
                 {
-                return false;
+                progressDlg->Destroy();
+                }
+            if (totalFiles > 0)
+                {
+                progressDlg = new wxProgressDialog(
+                    _(L"Analyzing Files"), _(L"Reviewing files for l10n/i18n issues..."),
+                    totalFiles, this,
+                    wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
+                        wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
+                progressDlg->Centre();
+                }
+            else
+                {
+                progressDlg = nullptr;
+                }
+        },
+        [&progressDlg](const size_t currentFileIndex, const std::wstring& file)
+        {
+            if (progressDlg != nullptr)
+                {
+                progressDlg->SetTitle(
+                    wxString::Format(_(L"Processing %s of %s..."),
+                                     wxNumberFormatter::ToString(
+                                         currentFileIndex, 0,
+                                         wxNumberFormatter::Style::Style_NoTrailingZeroes |
+                                             wxNumberFormatter::Style::Style_WithThousandsSep),
+                                     wxNumberFormatter::ToString(
+                                         progressDlg->GetRange(), 0,
+                                         wxNumberFormatter::Style::Style_NoTrailingZeroes |
+                                             wxNumberFormatter::Style::Style_WithThousandsSep)));
+                if (!progressDlg->Update(currentFileIndex,
+                                         file.empty() ?
+                                             _(L"Processing...") :
+                                             wxString::Format(_(L"Reviewing %s..."),
+                                                              wxFileName{ file }.GetFullName())))
+                    {
+                    return false;
+                    }
                 }
             return true;
         });
 
-    std::wstringstream report = format_results(cpp, rc, po, filesThatShouldBeConvertedToUTF8,
-                                               filesThatContainUTF8Signature, false);
+    std::wstringstream report = analyzer.format_results(false);
 
     std::wstring fileName, lineNo, columnNo, warningValue, explanation, warningId;
     std::wstring currentLine;
@@ -935,7 +965,9 @@ void I18NFrame::Process()
     m_editBar->EnableButton(XRCID("ID_EXPAND_ALL"), true);
     m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), true);
 
-    m_logWindow->AppendText(i18n_check::format_summary(cpp, rc, po).str());
+    m_logWindow->AppendText(analyzer.format_summary(false).str());
+    m_logWindow->AppendText(L"\n");
+    m_logWindow->AppendText(analyzer.get_log_report());
     m_logWindow->AppendText(L"\n");
     }
 

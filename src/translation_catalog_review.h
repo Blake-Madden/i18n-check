@@ -43,8 +43,14 @@ namespace i18n_check
             return m_catalog_entries;
             }
 
-        /// @brief Reviews the loaded translation catalog entries for issues.
-        void review_strings() override;
+        /** @brief Reviews the loaded translation catalog entries for issues.
+            @param resetCallback Callback function to tell the progress system in @c callback
+                how many items to expect to be processed.
+            @param callback Callback function to display the progress.
+                Takes the current file index, overall file count, and the name of the current file.
+                Returning @c false indicates that the user cancelled the analysis.*/
+        void review_strings(analyze_callback_reset resetCallback,
+                            analyze_callback callback) override;
 
       private:
         void operator()([[maybe_unused]] std::wstring_view,

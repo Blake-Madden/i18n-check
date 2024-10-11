@@ -375,24 +375,21 @@ int main(int argc, char* argv[])
         rc.set_style(static_cast<i18n_check::review_style>(rs));
         }
 
-    std::vector<std::wstring> filesThatShouldBeConvertedToUTF8;
-    std::vector<std::wstring> filesThatContainUTF8Signature;
-
-    i18n_check::analyze(
-        filesToAnalyze, cpp, rc, po, filesThatShouldBeConvertedToUTF8,
-        filesThatContainUTF8Signature,
-        readBoolOption("quiet", false) ?
-            [](const size_t, const size_t, const std::wstring&) { return true; } :
-            [](const size_t currentFileIndex, const size_t fileCount, const std::wstring& file)
-            {
-                std::wcout << L"Examining " << currentFileIndex << L" of " << fileCount
+    const bool isQuiet{ readBoolOption("quiet", false) };
+    i18n_check::batch_analyze analyzer(&cpp, &rc, &po);
+    analyzer.analyze(
+        filesToAnalyze, [](const size_t) {},
+        [&filesToAnalyze, isQuiet](const size_t currentFileIndex, const std::wstring& file)
+        {
+            if (!isQuiet)
+                {
+                std::wcout << L"Examining " << currentFileIndex << L" of " << filesToAnalyze.size()
                            << L" files (" << std::filesystem::path(file).filename() << L")\n";
-                return true;
-            });
+                }
+            return true;
+        });
 
-    const std::wstringstream report =
-        format_results(cpp, rc, po, filesThatShouldBeConvertedToUTF8, filesThatContainUTF8Signature,
-                       readBoolOption("verbose", false));
+    const std::wstringstream report = analyzer.format_results(readBoolOption("verbose", false));
 
     // write the output to file (if requested)
     if (result.count("output"))
@@ -439,7 +436,7 @@ int main(int argc, char* argv[])
                 << L" seconds.\n\n";
             }
 
-        std::wcout << format_summary(cpp, rc, po).str();
+        std::wcout << analyzer.format_summary(true).str();
         }
 
     return 0;

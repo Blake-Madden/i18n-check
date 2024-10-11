@@ -11,12 +11,20 @@
 namespace i18n_check
     {
     //------------------------------------------------
-    void translation_catalog_review::review_strings()
+    void translation_catalog_review::review_strings(analyze_callback_reset resetCallback,
+                                                    analyze_callback callback)
         {
         std::vector<std::wstring> printfStrings1, printfStrings2;
         std::wstring errorInfo;
+
+        resetCallback(m_catalog_entries.size());
+        size_t currentCatalogIndex{ 0 };
         for (auto& catEntry : m_catalog_entries)
             {
+            if (!callback(++currentCatalogIndex, std::wstring{}))
+                {
+                return;
+                }
             if (static_cast<bool>(m_reviewStyles & check_l10n_strings))
                 {
                 if (is_untranslatable_string(catEntry.second.m_source, false))

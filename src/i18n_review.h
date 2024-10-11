@@ -24,7 +24,6 @@
     #include <omp.h>
 #endif
 // for the GUI version, include gettext's translation loading support via wxWidgets
-// cppcheck-suppress-begin [preprocessorErrorDirective]
 #if __has_include(<wx/wx.h>)
     #include <wx/wx.h>
     #if wxCHECK_VERSION(3, 3, 0)
@@ -36,7 +35,6 @@
     #define _(s) (s)
     #define _WXTRANS_WSTR(s) (s)
 #endif
-// cppcheck-suppress-end [preprocessorErrorDirective]
 
 /// @brief Classes for checking source code for internationalization/localization issues.
 /// @details Refer to https://www.gnu.org/software/gettext/manual/gettext.html
@@ -231,6 +229,14 @@ namespace i18n_check
         size_t m_line{ std::wstring_view::npos };
         };
 
+    /// @brief Progress callback for analyze().
+    /// @detail This passes back the current counter and name of the file
+    /// currently being analyzed.
+    using analyze_callback = std::function<bool(const size_t, const std::wstring&)>;
+    /// @brief Can reset the progress mechanism that the associated analyze_callback is using.
+    /// @details This passes back the number of items that the progress callback should expect.
+    using analyze_callback_reset = std::function<void(const size_t)>;
+
     /** @brief Class to extract and review localizable/nonlocalizable
             text from source code.*/
     class i18n_review
@@ -363,12 +369,18 @@ namespace i18n_check
         virtual void operator()(std::wstring_view file_text,
                                 const std::wstring& file_name = L"") = 0;
 
-        /// @brief Finalizes the review process after all files have been loaded.
-        /// @details Reviews any strings that are available for translation that are suspect,
-        ///     cleans the strings, and logs any parsing issues.
-        /// @note This should be called after you are finished processing all
-        ///     of your files via `operator()`.
-        virtual void review_strings();
+        /** @brief Finalizes the review process after all files have been loaded.
+            @details Reviews any strings that are available for translation that are suspect,
+                cleans the strings, and logs any parsing issues.
+            @param resetCallback Callback function to tell the progress system in @c callback
+                how many items to expect to be processed.
+            @param callback Callback function to display the progress.
+                Takes the current file index, overall file count, and the name of the current file.
+                Returning @c false indicates that the user cancelled the analysis.
+            @note This should be called after you are finished processing all
+                of your files via `operator()`.*/
+        virtual void review_strings(analyze_callback_reset resetCallback,
+                                    analyze_callback callback);
 
         /// @returns The strings in the code that are set to be extracted as translatable.
         [[nodiscard]]

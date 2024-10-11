@@ -27,9 +27,6 @@
 
 namespace i18n_check
     {
-    /// @brief Progress callback for analyze().
-    using analyze_callback = std::function<bool(const size_t, const size_t, const std::wstring&)>;
-
     /// @private
     std::pair<bool, std::wstring> read_utf16_file(const std::filesystem::path& filePath);
     /// @private
@@ -37,67 +34,6 @@ namespace i18n_check
     /// @private
     std::pair<bool, std::wstring> read_utf8_file(const std::filesystem::path& filePath,
                                                  bool& startsWithBom);
-
-    /** @brief Runs all analyzers on a set of files.
-        @param filesToAnalyze The files to analyze.
-        @param[in,out] cpp The C++ analyzer that was used.
-        @param[in,out] rc The Windows RC file analyzer that was used.
-        @param[in,out] po The PO file analyzer that was used.
-        @param[out] filesThatShouldBeConvertedToUTF8 Files that should be converted to UTF-8.
-        @param[out] filesThatContainUTF8Signature UTF-8 files that contain a
-            Windows UTF-8 file signature.
-        @param callback Callback function to display the progress.
-            Takes the current file index, overall file count, and the name of the current file.
-            Returning @c false indicates that the user cancelled the analysis.*/
-    void analyze(const std::vector<std::wstring>& filesToAnalyze, i18n_check::cpp_i18n_review& cpp,
-                 i18n_check::rc_file_review& rc, i18n_check::po_file_review& po,
-                 std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,
-                 std::vector<std::wstring>& filesThatContainUTF8Signature,
-                 analyze_callback callback);
-
-    /** @brief Pseudo translates a set of files.
-        @details Copies of each file are made in the same folder with
-            'pseudo_' prepended to the file name.
-        @param filesToTranslate The files to translate.
-        @param pseudoMethod How to pseudo-translate the content.
-        @param widthIncrease How much width to increase the pseudo-translation from
-            the source string. This will pad the string with hyphens.
-        @param addTrackingIds @c true to add unique IDs in front the the strings.
-        @param addSurroundingBrackets @c true to add square brackets and bangs
-            around each translation.
-        @param callback Callback function to display the progress.
-            Takes the current file index, overall file count, and the name of the current file.
-            Returning @c false indicates that the user cancelled the analysis.*/
-    void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
-                          i18n_check::pseudo_translation_method pseudoMethod,
-                          bool addSurroundingBrackets, uint8_t widthIncrease,
-                          bool addTrackingIds,
-                          analyze_callback callback);
-
-    /** @returns A formatted summary of the results.
-        @param[in,out] cpp The C++ analyzer that was used.
-        @param[in,out] rc The Windows RC file analyzer that was used.
-        @param[in,out] po The PO file analyzer that was used.
-        @param[out] filesThatShouldBeConvertedToUTF8 Files that should be converted to UTF-8.
-        @param[out] filesThatContainUTF8Signature UTF-8 files that contain a
-            Windows UTF-8 file signature.
-        @param verbose @c true to include debug output.*/
-    [[nodiscard]]
-    std::wstringstream format_results(i18n_check::cpp_i18n_review& cpp,
-                                      i18n_check::rc_file_review& rc,
-                                      i18n_check::po_file_review& po,
-                                      std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,
-                                      std::vector<std::wstring>& filesThatContainUTF8Signature,
-                                      const bool verbose = false);
-
-    /** @returns A formatted summary of the options used.
-        @param cpp The C++ analyzer that was used.
-        @param rc The Windows RC file analyzer that was used.
-        @param po The PO file analyzer that was used.*/
-    [[nodiscard]]
-    std::wstringstream format_summary(const i18n_check::cpp_i18n_review& cpp,
-                                      const i18n_check::rc_file_review& rc,
-                                      const i18n_check::po_file_review& po);
 
     /// @brief Gets the file type of a file based on extension.
     /// @param file The file path.
@@ -120,6 +56,108 @@ namespace i18n_check
             return file_review_type::cpp;
             }
         }
+
+    /// @briefer Wrapper class to analyze and summarize a batch of files.
+    class batch_analyze
+        {
+      public:
+        /** @brief Constructor which loads the sub-analyzers to use against a batch of files.
+            @param[in,out] cpp The C++ analyzer that was used.
+            @param[in,out] rc The Windows RC file analyzer that was used.
+            @param[in,out] po The PO file analyzer that was used.*/
+        batch_analyze(i18n_check::cpp_i18n_review* cpp, i18n_check::rc_file_review* rc,
+                      i18n_check::po_file_review* po)
+            : m_cpp(cpp), m_rc(rc), m_po(po)
+            {
+            }
+
+        /// @private
+        batch_analyze(const batch_analyze&) = delete;
+        /// @private
+        batch_analyze& operator=(const batch_analyze&) = delete;
+
+        /** @brief Runs all analyzers on a set of files.
+            @param filesToAnalyze The files to analyze.
+            @param[out] filesThatShouldBeConvertedToUTF8 Files that should be converted to UTF-8.
+            @param[out] filesThatContainUTF8Signature UTF-8 files that contain a
+                Windows UTF-8 file signature.
+            @param resetCallback Callback function to tell the progress system in @c callback
+                how many items to expect to be processed.
+            @param callback Callback function to display the progress.
+                Takes the current file index, overall file count, and the name of the current file.
+                Returning @c false indicates that the user cancelled the analysis.*/
+        void analyze(const std::vector<std::wstring>& filesToAnalyze,
+                     analyze_callback_reset resetCallback, analyze_callback callback);
+
+        /** @brief Pseudo translates a set of files.
+            @details Copies of each file are made in the same folder with
+                'pseudo_' prepended to the file name.
+            @param filesToTranslate The files to translate.
+            @param pseudoMethod How to pseudo-translate the content.
+            @param widthIncrease How much width to increase the pseudo-translation from
+                the source string. This will pad the string with hyphens.
+            @param addTrackingIds @c true to add unique IDs in front the the strings.
+            @param addSurroundingBrackets @c true to add square brackets and bangs
+                around each translation.
+            @param resetCallback Callback function to tell the progress system in @c callback
+                how many items to expect to be processed.
+            @param callback Callback function to display the progress.
+                Takes the current file index, overall file count, and the name of the current file.
+                Returning @c false indicates that the user cancelled the analysis.*/
+        void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
+                              i18n_check::pseudo_translation_method pseudoMethod,
+                              bool addSurroundingBrackets, uint8_t widthIncrease,
+                              bool addTrackingIds, analyze_callback_reset resetCallback,
+                              analyze_callback callback);
+
+        /** @returns A formatted summary of the results.
+            @param[in,out] cpp The C++ analyzer that was used.
+            @param[in,out] rc The Windows RC file analyzer that was used.
+            @param[in,out] po The PO file analyzer that was used.
+            @param[out] filesThatShouldBeConvertedToUTF8 Files that should be converted to UTF-8.
+            @param[out] filesThatContainUTF8Signature UTF-8 files that contain a
+                Windows UTF-8 file signature.
+            @param verbose @c true to include debug output.*/
+        [[nodiscard]]
+        std::wstringstream format_results(const bool verbose = false);
+
+        /** @returns A formatted summary of the options used.
+            @param verbose Whether to include information about which checks
+                were performed in the summary.*/
+        [[nodiscard]]
+        std::wstringstream format_summary(const bool verbose = false);
+
+        /// @returns The files that should be converted to UTF-8 (from the last call to analyze()).
+        [[nodiscard]]
+        std::vector<std::wstring>& get_files_that_should_be_converted_to_utf() noexcept
+            {
+            return m_filesThatShouldBeConvertedToUTF8;
+            }
+
+        /// @returns The files that contain UTF-8 signatures (from the last call to analyze()).
+        [[nodiscard]]
+        std::vector<std::wstring>& get_files_that_contain_utf_signatures() noexcept
+            {
+            return m_filesThatContainUTF8Signature;
+            }
+
+        /// @returns Messages logged during previous analyzes and pseudo-translations.
+        [[nodiscard]]
+        std::wstring& get_log_report() noexcept
+            {
+            return m_logReport;
+            }
+
+      private:
+        i18n_check::cpp_i18n_review* m_cpp{ nullptr };
+        i18n_check::rc_file_review* m_rc{ nullptr };
+        i18n_check::po_file_review* m_po{ nullptr };
+
+        std::vector<std::wstring> m_filesThatShouldBeConvertedToUTF8;
+        std::vector<std::wstring> m_filesThatContainUTF8Signature;
+
+        std::wstring m_logReport;
+        };
     } // namespace i18n_check
 
 /** @}*/

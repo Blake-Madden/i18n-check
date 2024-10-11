@@ -108,14 +108,16 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
-                          i18n_check::pseudo_translation_method pseudoMethod,
-                          bool addSurroundingBrackets, uint8_t widthIncrease, bool addTrackingIds,
-                          analyze_callback callback)
+    void batch_analyze::pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
+                                         i18n_check::pseudo_translation_method pseudoMethod,
+                                         bool addSurroundingBrackets, uint8_t widthIncrease,
+                                         bool addTrackingIds, analyze_callback_reset resetCallback,
+                                         analyze_callback callback)
         {
         size_t currentFileIndex{ 0 };
 
-        const auto outputFile = [](const std::filesystem::path filePath, const std::wstring content)
+        const auto outputFile =
+            [this](const std::filesystem::path filePath, const std::wstring content)
         {
             std::u32string outBuffer;
             outBuffer.reserve(content.size());
@@ -129,6 +131,8 @@ namespace i18n_check
             if (out.is_open())
                 {
                 out.write(utfBuffer.c_str(), utfBuffer.size());
+                m_logReport.append(_WXTRANS_WSTR(L"\nPseudo-translation catalog generated at: "))
+                    .append(filePath);
                 }
         };
 
@@ -138,10 +142,11 @@ namespace i18n_check
         trans.increase_width(widthIncrease);
         trans.enable_tracking(addTrackingIds);
 
+        resetCallback(filesToTranslate.size());
         // load file content into analyzers
         for (const auto& file : filesToTranslate)
             {
-            if (!callback(++currentFileIndex, filesToTranslate.size(), file))
+            if (!callback(++currentFileIndex, file))
                 {
                 return;
                 }
@@ -198,27 +203,25 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    void analyze(const std::vector<std::wstring>& filesToAnalyze, i18n_check::cpp_i18n_review& cpp,
-                 i18n_check::rc_file_review& rc, i18n_check::po_file_review& po,
-                 std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,
-                 std::vector<std::wstring>& filesThatContainUTF8Signature,
-                 analyze_callback callback)
+    void batch_analyze::analyze(const std::vector<std::wstring>& filesToAnalyze,
+                                analyze_callback_reset resetCallback, analyze_callback callback)
         {
-        filesThatShouldBeConvertedToUTF8.clear();
-        filesThatContainUTF8Signature.clear();
-        cpp.clear_results();
-        cpp.reserve(filesToAnalyze.size() / 3);
-        rc.clear_results();
-        rc.reserve(filesToAnalyze.size() / 3);
-        po.clear_results();
-        po.reserve(filesToAnalyze.size() / 3);
+        m_filesThatShouldBeConvertedToUTF8.clear();
+        m_filesThatContainUTF8Signature.clear();
+        m_cpp->clear_results();
+        m_cpp->reserve(filesToAnalyze.size() / 3);
+        m_rc->clear_results();
+        m_rc->reserve(filesToAnalyze.size() / 3);
+        m_po->clear_results();
+        m_po->reserve(filesToAnalyze.size() / 3);
 
         size_t currentFileIndex{ 0 };
 
+        resetCallback(filesToAnalyze.size());
         // load file content into analyzers
         for (const auto& file : filesToAnalyze)
             {
-            if (!callback(++currentFileIndex, filesToAnalyze.size(), file))
+            if (!callback(++currentFileIndex, file))
                 {
                 return;
                 }
@@ -231,21 +234,21 @@ namespace i18n_check
                 if (const auto [readUtf8Ok, fileUtf8Text] = read_utf8_file(file, startsWithBom);
                     readUtf8Ok)
                     {
-                    if (startsWithBom && cpp.get_style() & check_utf8_with_signature)
+                    if (startsWithBom && m_cpp->get_style() & check_utf8_with_signature)
                         {
-                        filesThatContainUTF8Signature.push_back(file);
+                        m_filesThatContainUTF8Signature.push_back(file);
                         }
                     if (fileType == file_review_type::rc)
                         {
-                        rc(fileUtf8Text, file);
+                        (*m_rc)(fileUtf8Text, file);
                         }
                     else if (fileType == file_review_type::po)
                         {
-                        po(fileUtf8Text, file);
+                        (*m_po)(fileUtf8Text, file);
                         }
                     else
                         {
-                        cpp(fileUtf8Text, file);
+                        (*m_cpp)(fileUtf8Text, file);
                         }
                     }
                 else if (const auto [readUtf16Ok, fileUtf16Text] = read_utf16_file(file);
@@ -255,43 +258,43 @@ namespace i18n_check
                     // all platforms and compilers.
                     // RC files are usually encoded in ANSI given their age,
                     // so don't check those files.
-                    if (fileType != file_review_type::rc && cpp.get_style() & check_utf8_encoded)
+                    if (fileType != file_review_type::rc && m_cpp->get_style() & check_utf8_encoded)
                         {
-                        filesThatShouldBeConvertedToUTF8.push_back(file);
+                        m_filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
                     if (fileType == file_review_type::rc)
                         {
-                        rc(fileUtf16Text, file);
+                        (*m_rc)(fileUtf16Text, file);
                         }
                     else if (fileType == file_review_type::po)
                         {
-                        po(fileUtf16Text, file);
+                        (*m_po)(fileUtf16Text, file);
                         }
                     else
                         {
-                        cpp(fileUtf16Text, file);
+                        (*m_cpp)(fileUtf16Text, file);
                         }
                     }
                 else
                     {
-                    if (cpp.get_style() & check_utf8_encoded)
+                    if (m_cpp->get_style() & check_utf8_encoded)
                         {
-                        filesThatShouldBeConvertedToUTF8.push_back(file);
+                        m_filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
                     std::wifstream ifs(std::filesystem::path(file).string());
                     const std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                            std::istreambuf_iterator<wchar_t>());
                     if (fileType == file_review_type::rc)
                         {
-                        rc(str, file);
+                        (*m_rc)(str, file);
                         }
                     else if (fileType == file_review_type::po)
                         {
-                        po(str, file);
+                        (*m_po)(str, file);
                         }
                     else
                         {
-                        cpp(str, file);
+                        (*m_cpp)(str, file);
                         }
                     }
                 }
@@ -302,59 +305,60 @@ namespace i18n_check
             }
 
         // analyze the content
-        cpp.review_strings();
-        po.review_strings();
+        m_cpp->review_strings(resetCallback, callback);
+        m_po->review_strings(resetCallback, callback);
         }
 
     //------------------------------------------------------
-    std::wstringstream format_summary(const i18n_check::cpp_i18n_review& cpp,
-                                      const i18n_check::rc_file_review& rc,
-                                      const i18n_check::po_file_review& po)
+    std::wstringstream batch_analyze::format_summary(const bool verbose)
         {
         std::wstringstream report;
-        report << _(L"Checks Performed")
-               << L"\n###################################################\n"
-               << ((cpp.get_style() & check_l10n_strings) ? L"suspectL10NString\n" : L"")
-               << ((cpp.get_style() & check_suspect_l10n_string_usage) ? L"suspectL10NUsage\n" :
+        if (verbose)
+            {
+            report
+                << _(L"Checks Performed")
+                << L"\n###################################################\n"
+                << ((m_cpp->get_style() & check_l10n_strings) ? L"suspectL10NString\n" : L"")
+                << ((m_cpp->get_style() & check_suspect_l10n_string_usage) ? L"suspectL10NUsage\n" :
+                                                                             L"")
+                << ((m_cpp->get_style() & check_mismatching_printf_commands) ? L"printfMismatch\n" :
+                                                                               L"")
+                << ((m_cpp->get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
+                << ((m_cpp->get_style() & check_not_available_for_l10n) ? L"notL10NAvailable\n" :
+                                                                          L"")
+                << ((m_cpp->get_style() & check_deprecated_macros) ? L"deprecatedMacro\n" : L"")
+                << ((m_cpp->get_style() & check_utf8_encoded) ? L"nonUTF8File\n" : L"")
+                << ((m_cpp->get_style() & check_utf8_with_signature) ? L"UTF8FileWithBOM\n" : L"")
+                << ((m_cpp->get_style() & check_unencoded_ext_ascii) ? L"unencodedExtASCII\n" : L"")
+                << ((m_cpp->get_style() & check_printf_single_number) ? L"printfSingleNumber\n" :
+                                                                        L"")
+                << ((m_cpp->get_style() & check_number_assigned_to_id) ? L"numberAssignedToId\n" :
                                                                          L"")
-               << ((cpp.get_style() & check_mismatching_printf_commands) ? L"printfMismatch\n" :
-                                                                           L"")
-               << ((cpp.get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
-               << ((cpp.get_style() & check_not_available_for_l10n) ? L"notL10NAvailable\n" : L"")
-               << ((cpp.get_style() & check_deprecated_macros) ? L"deprecatedMacro\n" : L"")
-               << ((cpp.get_style() & check_utf8_encoded) ? L"nonUTF8File\n" : L"")
-               << ((cpp.get_style() & check_utf8_with_signature) ? L"UTF8FileWithBOM\n" : L"")
-               << ((cpp.get_style() & check_unencoded_ext_ascii) ? L"unencodedExtASCII\n" : L"")
-               << ((cpp.get_style() & check_printf_single_number) ? L"printfSingleNumber\n" : L"")
-               << ((cpp.get_style() & check_number_assigned_to_id) ? L"numberAssignedToId\n" : L"")
-               << ((cpp.get_style() & check_duplicate_value_assigned_to_ids) ?
-                       L"dupValAssignedToIds\n" :
-                       L"")
-               << ((cpp.get_style() & check_malformed_strings) ? L"malformedString\n" : L"")
-               << ((cpp.get_style() & check_fonts) ? L"fontIssue\n" : L"")
-               << ((cpp.get_style() & check_trailing_spaces) ? L"trailingSpaces\n" : L"")
-               << ((cpp.get_style() & check_tabs) ? L"tabs\n" : L"")
-               << ((cpp.get_style() & check_line_width) ? L"wideLine\n" : L"")
-               << ((cpp.get_style() & check_space_after_comment) ? L"commentMissingSpace\n" : L"")
-               << L"\n"
-               << _(L"Statistics") << L"\n###################################################\n"
+                << ((m_cpp->get_style() & check_duplicate_value_assigned_to_ids) ?
+                        L"dupValAssignedToIds\n" :
+                        L"")
+                << ((m_cpp->get_style() & check_malformed_strings) ? L"malformedString\n" : L"")
+                << ((m_cpp->get_style() & check_fonts) ? L"fontIssue\n" : L"")
+                << ((m_cpp->get_style() & check_trailing_spaces) ? L"trailingSpaces\n" : L"")
+                << ((m_cpp->get_style() & check_tabs) ? L"tabs\n" : L"")
+                << ((m_cpp->get_style() & check_line_width) ? L"wideLine\n" : L"")
+                << ((m_cpp->get_style() & check_space_after_comment) ? L"commentMissingSpace\n" :
+                                                                       L"")
+                << L"\n";
+            }
+        report << _(L"Statistics") << L"\n###################################################\n"
                << _(L"Strings available for translation within C/C++ source files: ")
-               << cpp.get_localizable_strings().size() << L"\n"
+               << m_cpp->get_localizable_strings().size() << L"\n"
                << _(L"String table entries within Windows resource files: ")
-               << rc.get_localizable_strings().size() << L"\n"
+               << m_rc->get_localizable_strings().size() << L"\n"
                << _(L"Translation entries within PO message catalog files: ")
-               << po.get_catalog_entries().size() << L"\n";
+               << m_po->get_catalog_entries().size() << L"\n";
 
         return report;
         }
 
     //------------------------------------------------------
-    std::wstringstream format_results(i18n_check::cpp_i18n_review& cpp,
-                                      i18n_check::rc_file_review& rc,
-                                      i18n_check::po_file_review& po,
-                                      std::vector<std::wstring>& filesThatShouldBeConvertedToUTF8,
-                                      std::vector<std::wstring>& filesThatContainUTF8Signature,
-                                      const bool verbose /*= false*/)
+    std::wstringstream batch_analyze::format_results(const bool verbose /*= false*/)
         {
         const auto replaceSpecialSpaces = [](const std::wstring& str)
         {
@@ -365,14 +369,11 @@ namespace i18n_check
             return newStr;
         };
 
-        /* Note: yes, I am aware of the irony of i18n bad practices here :)
-           Normally, you shouldn't piece strings together, should make them available for
-           translation, etc. However, I am just keeping this tool simple.*/
         std::wstringstream report;
         report << _("File\tLine\tColumn\tValue\tExplanation\tWarningID\n");
 
         // Windows resource file warnings
-        for (const auto& val : rc.get_unsafe_localizable_strings())
+        for (const auto& val : m_rc->get_unsafe_localizable_strings())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
@@ -380,7 +381,7 @@ namespace i18n_check
                    << L"\t[suspectL10NString]\n";
             }
 
-        for (const auto& val : rc.get_localizable_strings_with_urls())
+        for (const auto& val : m_rc->get_localizable_strings_with_urls())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
@@ -388,7 +389,7 @@ namespace i18n_check
                    << L"\t[urlInL10NString]\n";
             }
 
-        for (const auto& val : rc.get_bad_dialog_font_sizes())
+        for (const auto& val : m_rc->get_bad_dialog_font_sizes())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
                    << replaceSpecialSpaces(val.m_string)
@@ -397,7 +398,7 @@ namespace i18n_check
                    << replaceSpecialSpaces(val.m_usage.m_value) << L"\t[fontIssue]\n";
             }
 
-        for (const auto& val : rc.get_non_system_dialog_fonts())
+        for (const auto& val : m_rc->get_non_system_dialog_fonts())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
@@ -405,7 +406,7 @@ namespace i18n_check
             }
 
         // gettext catalogs
-        for (const auto& catEntry : po.get_catalog_entries())
+        for (const auto& catEntry : m_po->get_catalog_entries())
             {
             for (const auto& issue : catEntry.second.m_issues)
                 {
@@ -429,7 +430,7 @@ namespace i18n_check
             }
 
         // C/C++ warnings
-        for (const auto& val : cpp.get_unsafe_localizable_strings())
+        for (const auto& val : m_cpp->get_unsafe_localizable_strings())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
                    << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
@@ -455,7 +456,7 @@ namespace i18n_check
             report << L"[suspectL10NString]\n";
             }
 
-        for (const auto& val : cpp.get_localizable_strings_with_urls())
+        for (const auto& val : m_cpp->get_localizable_strings_with_urls())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
                    << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
@@ -481,7 +482,7 @@ namespace i18n_check
             report << L"[urlInL10NString]\n";
             }
 
-        for (const auto& val : cpp.get_localizable_strings_in_internal_call())
+        for (const auto& val : m_cpp->get_localizable_strings_in_internal_call())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
                    << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
@@ -498,12 +499,13 @@ namespace i18n_check
                 }
             else
                 {
-                report << _(L"Localizable string being assigned to: ") << val.m_usage.m_value << L"\t";
+                report << _(L"Localizable string being assigned to: ") << val.m_usage.m_value
+                       << L"\t";
                 }
             report << L"[suspectL10NUsage]\n";
             }
 
-        for (const auto& val : cpp.get_not_available_for_localization_strings())
+        for (const auto& val : m_cpp->get_not_available_for_localization_strings())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
                    << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
@@ -526,14 +528,14 @@ namespace i18n_check
             report << L"[notL10NAvailable]\n";
             }
 
-        for (const auto& val : cpp.get_deprecated_macros())
+        for (const auto& val : m_cpp->get_deprecated_macros())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
                    << replaceSpecialSpaces(val.m_string) << L"\t" << val.m_usage.m_value
                    << L"\t[deprecatedMacro]\n";
             }
 
-        for (const auto& val : cpp.get_printf_single_numbers())
+        for (const auto& val : m_cpp->get_printf_single_numbers())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
@@ -542,7 +544,7 @@ namespace i18n_check
                    << L"\t[printfSingleNumber]\n";
             }
 
-        for (const auto& val : cpp.get_duplicates_value_assigned_to_ids())
+        for (const auto& val : m_cpp->get_duplicates_value_assigned_to_ids())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t\t"
                    << replaceSpecialSpaces(val.m_string) << L"\t"
@@ -552,7 +554,7 @@ namespace i18n_check
                    << L"\t[dupValAssignedToIds]\n";
             }
 
-        for (const auto& val : cpp.get_ids_assigned_number())
+        for (const auto& val : m_cpp->get_ids_assigned_number())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t\t"
                    << replaceSpecialSpaces(val.m_string) << L"\t"
@@ -561,14 +563,14 @@ namespace i18n_check
                    << L"\t[numberAssignedToId]\n";
             }
 
-        for (const auto& val : cpp.get_malformed_strings())
+        for (const auto& val : m_cpp->get_malformed_strings())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
                    << _(L"Malformed syntax in string.") << L"\t[malformedString]\n";
             }
 
-        for (const auto& file : filesThatShouldBeConvertedToUTF8)
+        for (const auto& file : m_filesThatShouldBeConvertedToUTF8)
             {
             report << file << L"\t\t\t\t"
                    << _(L"File contains extended ASCII characters, "
@@ -576,7 +578,7 @@ namespace i18n_check
                    << L"\t[nonUTF8File]\n";
             }
 
-        for (const auto& file : filesThatContainUTF8Signature)
+        for (const auto& file : m_filesThatContainUTF8Signature)
             {
             report << file << L"\t\t\t\t"
                    << _(L"File contains UTF-8 signature; "
@@ -585,7 +587,7 @@ namespace i18n_check
                    << L"\t[UTF8FileWithBOM]\n";
             }
 
-        for (const auto& val : cpp.get_unencoded_ext_ascii_strings())
+        for (const auto& val : m_cpp->get_unencoded_ext_ascii_strings())
             {
             std::wstringstream encodingRecommendations;
             auto untabbedStr{ replaceSpecialSpaces(val.m_string) };
@@ -609,28 +611,28 @@ namespace i18n_check
                    << encodingRecommendations.str() << L"'\t[unencodedExtASCII]\n";
             }
 
-        for (const auto& val : cpp.get_trailing_spaces())
+        for (const auto& val : m_cpp->get_trailing_spaces())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
                    << _(L"Trailing space(s) detected at end of line.") << L"\t[trailingSpaces]\n";
             }
 
-        for (const auto& val : cpp.get_tabs())
+        for (const auto& val : m_cpp->get_tabs())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
                    << _(L"Tab detected in file; prefer using spaces.") << L"\t[tabs]\n";
             }
 
-        for (const auto& val : cpp.get_wide_lines())
+        for (const auto& val : m_cpp->get_wide_lines())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t" << _(L"Line length: ")
                    << val.m_usage.m_value << L"\t[wideLine]\n";
             }
 
-        for (const auto& val : cpp.get_comments_missing_space())
+        for (const auto& val : m_cpp->get_comments_missing_space())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
@@ -640,7 +642,7 @@ namespace i18n_check
 
         if (verbose)
             {
-            for (const auto& parseErr : cpp.get_error_log())
+            for (const auto& parseErr : m_cpp->get_error_log())
                 {
                 report << parseErr.m_file_name << L"\t";
                 if (parseErr.m_line != std::wstring::npos)

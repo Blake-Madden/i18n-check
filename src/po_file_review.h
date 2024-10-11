@@ -44,7 +44,17 @@ namespace i18n_check
             return m_reviewFuzzy;
             }
 
-        void review_strings() final { translation_catalog_review::review_strings(); }
+        /** @brief Finalizes the review process after all files have been loaded.
+            @details Reviews the catalogs in all loaded PO files.
+            @param resetCallback Callback function to tell the progress system in @c callback
+                how many items to expect to be processed.
+            @param callback Callback function to display the progress.
+                Takes the current file index, overall file count, and the name of the current file.
+                Returning @c false indicates that the user cancelled the analysis.*/
+        void review_strings(analyze_callback_reset resetCallback, analyze_callback callback) final
+            {
+            translation_catalog_review::review_strings(resetCallback, callback);
+            }
 
       private:
         bool m_reviewFuzzy{ false };
