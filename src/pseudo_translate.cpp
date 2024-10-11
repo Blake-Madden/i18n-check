@@ -127,7 +127,7 @@ namespace i18n_check
                 }
 
             // step to end of catalog entry and look for next one
-            currentPosition += entryContent.length() + altertedLenthDiff;
+            currentPosition += static_cast<size_t>(entryContent.length() + altertedLenthDiff);
             fileContent = std::wstring_view{ poFileText }.substr(currentPosition);
             std::tie(foundEntry, entryContent, entryPos) =
                 i18n_review::read_po_catalog_entry(fileContent);
@@ -219,7 +219,7 @@ namespace i18n_check
         // Do the same for the trailing spaces.
         const size_t endPos = [&msg]()
         {
-            int64_t i{ static_cast<int64_t>(msg.length() - 1) };
+            int32_t i{ static_cast<int32_t>(msg.length() - 1) };
             for (; i > 0; /* handled in loop*/)
                 {
                 if (msg[i] == L' ')
