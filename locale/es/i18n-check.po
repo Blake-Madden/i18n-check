@@ -1,0 +1,1197 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2024-10-12 06:37-0400\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Blake Madden\n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.3.2\n"
+"X-Poedit-Basepath: ../../src\n"
+"X-Poedit-KeywordsList: _;_WXTRANS_WSTR\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPath-1: gui\n"
+"X-Poedit-SearchPathExcluded-0: cxxopts\n"
+"X-Poedit-SearchPathExcluded-1: utfcpp\n"
+"X-Poedit-SearchPathExcluded-2: string_util.h\n"
+
+#: analyze.cpp:134
+msgid ""
+"\n"
+"Pseudo-translation catalog generated at: "
+msgstr ""
+
+#: analyze.cpp:319
+msgid "Checks Performed"
+msgstr ""
+
+#: analyze.cpp:349
+msgid "Statistics"
+msgstr ""
+
+#: analyze.cpp:350
+msgid "Strings available for translation within C/C++ source files: "
+msgstr ""
+
+#: analyze.cpp:352
+msgid "String table entries within Windows resource files: "
+msgstr ""
+
+#: analyze.cpp:354
+msgid "Translation entries within PO message catalog files: "
+msgstr ""
+
+#: analyze.cpp:373
+msgid "File\tLine\tColumn\tValue\tExplanation\tWarningID\n"
+msgstr ""
+
+#: analyze.cpp:380
+msgid "String available for translation that probably should not be."
+msgstr ""
+
+#: analyze.cpp:388
+msgid "String available for translation that contains an URL or email address."
+msgstr ""
+
+#: analyze.cpp:418
+msgid "Mismatching printf command between source and translation strings."
+msgstr ""
+
+#: analyze.cpp:425
+msgid ""
+"String available for translation that probably should not be, or contains a "
+"hard-coded URL or email address."
+msgstr ""
+
+#: analyze.cpp:439
+msgid ""
+"String available for translation that probably should not be in function "
+"call: "
+msgstr ""
+
+#: analyze.cpp:446
+msgid ""
+"String available for translation that probably should not be assigned to "
+"variable: "
+msgstr ""
+
+#: analyze.cpp:452
+msgid "String available for translation that probably should not be within "
+msgstr ""
+
+#: analyze.cpp:465
+msgid ""
+"String available for translation that contains an URL or email address in "
+"function call: "
+msgstr ""
+
+#: analyze.cpp:472
+msgid ""
+"String available for translation that contains an URL or email address "
+"assigned to variable: "
+msgstr ""
+
+#: analyze.cpp:478
+msgid ""
+"String available for translation that contains an URL or email address "
+"within "
+msgstr ""
+
+#: analyze.cpp:491
+msgid "Localizable string being used within non-user facing function call: "
+msgstr ""
+
+#: analyze.cpp:497
+msgid "Localizable string being assigned to non-user facing variable: "
+msgstr ""
+
+#: analyze.cpp:502
+msgid "Localizable string being assigned to: "
+msgstr ""
+
+#: analyze.cpp:514
+msgid "String not available for translation in function call: "
+msgstr ""
+
+#: analyze.cpp:520
+msgid "String not available for translation assigned to variable: "
+msgstr ""
+
+#: analyze.cpp:525
+msgid "String not available for translation assigned to "
+msgstr ""
+
+#: analyze.cpp:542
+msgid ""
+"Prefer using std::to_[w]string() instead of printf() to format a number."
+msgstr ""
+
+#: analyze.cpp:551
+msgid ""
+"Verify that duplicate assignment was intended. If correct, consider "
+"assigning the first ID variable by name to the second one to make this "
+"intention clear."
+msgstr ""
+
+#: analyze.cpp:561
+msgid ""
+"Prefer using ID constants provided by your framework when assigning values "
+"to an ID variable."
+msgstr ""
+
+#: analyze.cpp:570
+msgid "Malformed syntax in string."
+msgstr ""
+
+#: analyze.cpp:576
+msgid "File contains extended ASCII characters, but is not encoded as UTF-8."
+msgstr ""
+
+#: analyze.cpp:584
+msgid ""
+"File contains UTF-8 signature; It is recommended to save without the file "
+"signature for best compiler portability."
+msgstr ""
+
+#: analyze.cpp:609
+msgid ""
+"String contains extended ASCII characters that should be encoded. "
+"Recommended change: '"
+msgstr ""
+
+#: analyze.cpp:618
+msgid "Trailing space(s) detected at end of line."
+msgstr ""
+
+#: analyze.cpp:625
+msgid "Tab detected in file; prefer using spaces."
+msgstr ""
+
+#: analyze.cpp:631
+msgid "Line length: "
+msgstr ""
+
+#: analyze.cpp:639
+msgid "Space should be inserted between comment tag and comment."
+msgstr ""
+
+#: gui/app_options.cpp:68
+msgid "Error saving project file."
+msgstr ""
+
+#: gui/app_options.cpp:68 gui/app_options.cpp:78 gui/app_options.cpp:84
+msgid "Error"
+msgstr "Error"
+
+#: gui/app_options.cpp:78
+msgid "Error loading project file."
+msgstr ""
+
+#: gui/app_options.cpp:84
+msgid "Invalid project file."
+msgstr ""
+
+#: gui/i18napp.cpp:71
+msgid "Home"
+msgstr "Inicio"
+
+#: gui/i18napp.cpp:74 gui/i18napp.cpp:685
+msgid "Project"
+msgstr ""
+
+#: gui/i18napp.cpp:77
+msgid "New"
+msgstr "Nuevo"
+
+#: gui/i18napp.cpp:80
+msgid "Open"
+msgstr "Abrir"
+
+#: gui/i18napp.cpp:83
+msgid "Save"
+msgstr "Guardar"
+
+#: gui/i18napp.cpp:86
+msgid "Refresh"
+msgstr "Refrescar"
+
+#: gui/i18napp.cpp:89
+msgid "Ignore Selected File"
+msgstr ""
+
+#: gui/i18napp.cpp:96
+msgid "View"
+msgstr ""
+
+#: gui/i18napp.cpp:99
+msgid "Expand All"
+msgstr ""
+
+#: gui/i18napp.cpp:101
+msgid "Collapse All"
+msgstr ""
+
+#: gui/i18napp.cpp:107
+msgid "General"
+msgstr "General"
+
+#: gui/i18napp.cpp:110
+msgid "Settings"
+msgstr ""
+
+#: gui/i18napp.cpp:112
+msgid "About"
+msgstr "Acerca de"
+
+#: gui/i18napp.cpp:166
+msgid "Warning ID"
+msgstr ""
+
+#: gui/i18napp.cpp:172
+msgid "Value"
+msgstr "Valor"
+
+#: gui/i18napp.cpp:180
+msgid "Line"
+msgstr ""
+
+#: gui/i18napp.cpp:187
+msgid "Column"
+msgstr "Columna"
+
+#: gui/i18napp.cpp:193
+msgid "Summary"
+msgstr ""
+
+#: gui/i18napp.cpp:303
+msgid "Edit"
+msgstr "Editar"
+
+#: gui/i18napp.cpp:304
+msgid "Log"
+msgstr "Registro"
+
+#: gui/i18napp.cpp:577
+msgid "Default Settings"
+msgstr ""
+
+#: gui/i18napp.cpp:606
+#, c-format
+msgid "Edit Project - %s"
+msgstr ""
+
+#: gui/i18napp.cpp:642
+msgid " - Untitled"
+msgstr ""
+
+#: gui/i18napp.cpp:652
+msgid "Select Project to Open"
+msgstr ""
+
+#: gui/i18napp.cpp:653 gui/i18napp.cpp:687
+msgid "i18n-check Project Files (*.xml)|*.xml"
+msgstr ""
+
+#: gui/i18napp.cpp:686 gui/i18napp.cpp:710
+msgid "Save Project"
+msgstr ""
+
+#: gui/i18napp.cpp:710
+msgid "Do you wish to save changes to the project?"
+msgstr ""
+
+#: gui/i18napp.cpp:755
+#, c-format
+msgid "Do you wish to save changes to '%s'?"
+msgstr ""
+
+#: gui/i18napp.cpp:757
+msgid "Remove Test"
+msgstr ""
+
+#: gui/i18napp.cpp:759
+msgid "Always save without prompting"
+msgstr ""
+
+#: gui/i18napp.cpp:803
+msgid "Gathering files..."
+msgstr ""
+
+#: gui/i18napp.cpp:842
+msgid "Pseudo-translating Files"
+msgstr ""
+
+#: gui/i18napp.cpp:842
+msgid "Pseudo-translating..."
+msgstr ""
+
+#: gui/i18napp.cpp:851
+#, c-format
+msgid "Pseudo-translating %s of %s..."
+msgstr ""
+
+#: gui/i18napp.cpp:862 gui/i18napp.cpp:910
+msgid "Processing..."
+msgstr ""
+
+#: gui/i18napp.cpp:863
+#, c-format
+msgid "Pseudo-translating %s..."
+msgstr ""
+
+#: gui/i18napp.cpp:883
+msgid "Analyzing Files"
+msgstr ""
+
+#: gui/i18napp.cpp:883
+msgid "Reviewing files for l10n/i18n issues..."
+msgstr ""
+
+#: gui/i18napp.cpp:899
+#, c-format
+msgid "Processing %s of %s..."
+msgstr ""
+
+#: gui/i18napp.cpp:911
+#, c-format
+msgid "Reviewing %s..."
+msgstr ""
+
+#: gui/projectdlg.cpp:99
+msgid "Please select a valid file folder."
+msgstr ""
+
+#: gui/projectdlg.cpp:99
+msgid "Invalid Input"
+msgstr ""
+
+#: gui/projectdlg.cpp:195
+msgid "Select Folder to Analyze"
+msgstr ""
+
+#: gui/projectdlg.cpp:210
+msgid "Select Files to Analyze"
+msgstr ""
+
+#: gui/projectdlg.cpp:211 gui/projectdlg.cpp:261
+msgid "All Files (*.*)|*.*"
+msgstr "Todos los archivos (*.*)|*.*"
+
+#: gui/projectdlg.cpp:226
+msgid "Select Subfolders to Ignore"
+msgstr ""
+
+#: gui/projectdlg.cpp:260
+msgid "Select Files to Ignore"
+msgstr ""
+
+#: gui/projectdlg.cpp:333
+msgid "Folder/file to analyze"
+msgstr ""
+
+#: gui/projectdlg.cpp:361
+msgid "Subfolders/files to ignore"
+msgstr ""
+
+#: gui/projectdlg.cpp:387
+msgid "Run the following checks:"
+msgstr ""
+
+#: gui/projectdlg.cpp:393
+msgid "Strings not exposed for translation"
+msgstr ""
+
+#: gui/projectdlg.cpp:400
+msgid "Translatable strings that shouldn't be"
+msgstr ""
+
+#: gui/projectdlg.cpp:407
+msgid "Translatable strings being used in debug functions"
+msgstr ""
+
+#: gui/projectdlg.cpp:416
+msgid "Translatable strings that contain URLs or email addresses"
+msgstr ""
+
+#: gui/projectdlg.cpp:425
+msgid "Deprecated macros and functions"
+msgstr ""
+
+#: gui/projectdlg.cpp:432
+msgid "printf functions being used to just format a number"
+msgstr ""
+
+#: gui/projectdlg.cpp:441
+msgid "Malformed syntax in strings"
+msgstr ""
+
+#: gui/projectdlg.cpp:452
+msgid "Strings passed to logging functions can be translatable"
+msgstr ""
+
+#: gui/projectdlg.cpp:457
+msgid "Exception messages should be available for translation"
+msgstr ""
+
+#: gui/projectdlg.cpp:463
+msgid "Punctuation only strings can be translatable"
+msgstr ""
+
+#: gui/projectdlg.cpp:471
+msgid "Minimum words for a string to be considered translatable:"
+msgstr ""
+
+#: gui/projectdlg.cpp:488
+msgid "C++ standard when issuing deprecation warnings:"
+msgstr ""
+
+#: gui/projectdlg.cpp:506
+msgid "Source Code"
+msgstr ""
+
+#: gui/projectdlg.cpp:515
+msgid "Translation catalogs"
+msgstr ""
+
+#: gui/projectdlg.cpp:522
+msgid "Check for inconsistent printf format specifiers"
+msgstr ""
+
+#: gui/projectdlg.cpp:530
+msgid "Review fuzzy translations"
+msgstr ""
+
+#: gui/projectdlg.cpp:535
+msgid "Pseudo-translation"
+msgstr ""
+
+#: gui/projectdlg.cpp:540
+msgid "Method:"
+msgstr "Método:"
+
+#: gui/projectdlg.cpp:545
+msgid "None (do not generate anything)"
+msgstr ""
+
+#: gui/projectdlg.cpp:546
+msgid "UPPERCASE"
+msgstr ""
+
+#: gui/projectdlg.cpp:547
+msgid "European characters"
+msgstr ""
+
+#: gui/projectdlg.cpp:548
+msgid "Fill with 'X'es"
+msgstr ""
+
+#: gui/projectdlg.cpp:558
+msgid "Add surrounding brackets"
+msgstr ""
+
+#: gui/projectdlg.cpp:565
+msgid "Add tracking IDs"
+msgstr ""
+
+#: gui/projectdlg.cpp:574
+msgid "Increase width:"
+msgstr ""
+
+#: gui/projectdlg.cpp:598
+msgid "Windows RC files"
+msgstr ""
+
+#: gui/projectdlg.cpp:605
+msgid "Check for font issues"
+msgstr ""
+
+#: gui/projectdlg.cpp:619
+msgid "Note: additional checks will be performed on source messages."
+msgstr ""
+
+#: gui/projectdlg.cpp:623
+msgid "Resource Files"
+msgstr ""
+
+#: gui/projectdlg.cpp:632
+msgid "Formatting && encoding checks:"
+msgstr ""
+
+#: gui/projectdlg.cpp:639
+msgid "Non-UTF8 encoded files"
+msgstr ""
+
+#: gui/projectdlg.cpp:646
+msgid "BOM/UTF-8 signatures"
+msgstr ""
+
+#: gui/projectdlg.cpp:653
+msgid "Unencoded extended ASCII characters"
+msgstr ""
+
+#: gui/projectdlg.cpp:662
+msgid "Trailing spaces"
+msgstr ""
+
+#: gui/projectdlg.cpp:669
+msgid "Tabs"
+msgstr "Tabulaciones"
+
+#: gui/projectdlg.cpp:676
+msgid "Overly long lines"
+msgstr ""
+
+#: gui/projectdlg.cpp:683
+msgid "Comments not starting with a space"
+msgstr ""
+
+#: gui/projectdlg.cpp:695
+msgid "Code checks:"
+msgstr ""
+
+#: gui/projectdlg.cpp:702
+msgid "Hard-coded ID numbers"
+msgstr ""
+
+#: gui/projectdlg.cpp:710
+msgid "ID variables assigned the same value"
+msgstr ""
+
+#: gui/projectdlg.cpp:726
+msgid "Additional Checks"
+msgstr ""
+
+#: gui/projectdlg.h:48
+msgid "New Project"
+msgstr ""
+
+#: i18n_review.cpp:235
+msgid "wxT() macro can be removed."
+msgstr ""
+
+#: i18n_review.cpp:236
+msgid "wxT_2() macro can be removed."
+msgstr ""
+
+#: i18n_review.cpp:240
+msgid "_T() macro can be removed. Prefix with 'L' to make string wide."
+msgstr ""
+
+#: i18n_review.cpp:242
+msgid "__T() macro can be removed. Prefix with 'L' to make string wide."
+msgstr ""
+
+#: i18n_review.cpp:244
+msgid "TEXT() macro can be removed. Prefix with 'L' to make string wide."
+msgstr ""
+
+#: i18n_review.cpp:247
+msgid "_TEXT() macro can be removed. Prefix with 'L' to make string wide."
+msgstr ""
+
+#: i18n_review.cpp:250
+msgid "__TEXT() macro can be removed. Prefix with 'L' to make string wide."
+msgstr ""
+
+#: i18n_review.cpp:253
+msgid "_WIDE() macro can be removed. Prefix with 'L' to make string wide."
+msgstr ""
+
+#: i18n_review.cpp:261
+msgid "Use __wargv instead of __targv."
+msgstr ""
+
+#: i18n_review.cpp:262
+msgid "Use __wcserror() instead of __tcserror()."
+msgstr ""
+
+#: i18n_review.cpp:263
+msgid "Use __wcserror_s() instead of __tcserror_s()."
+msgstr ""
+
+#: i18n_review.cpp:264
+msgid "Use std::wcscat() instead of _tcscat()."
+msgstr ""
+
+#: i18n_review.cpp:265
+msgid "Use wcscat_s() instead of _tcscat_s()."
+msgstr ""
+
+#: i18n_review.cpp:266
+msgid "Use std::wcschr() instead of _tcschr()."
+msgstr ""
+
+#: i18n_review.cpp:267
+msgid "Use std::wcslen() instead of _tcsclen()."
+msgstr ""
+
+#: i18n_review.cpp:268
+msgid "Use std::wcscmp() instead of _tcscmp()."
+msgstr ""
+
+#: i18n_review.cpp:269
+msgid "Use std::wcsnlen() instead of _tcscnlen()."
+msgstr ""
+
+#: i18n_review.cpp:270
+msgid "Use std::wcscoll() instead of _tcscoll()."
+msgstr ""
+
+#: i18n_review.cpp:271
+msgid "Use _wcscoll_l() instead of _tcscoll_l()."
+msgstr ""
+
+#: i18n_review.cpp:272
+msgid "Use std::wcscpy() instead of _tcscpy()."
+msgstr ""
+
+#: i18n_review.cpp:273
+msgid "Use wcscpy_s() instead of _tcscpy_s()."
+msgstr ""
+
+#: i18n_review.cpp:274
+msgid "Use std::wcscspn() instead of _tcscspn()."
+msgstr ""
+
+#: i18n_review.cpp:275
+msgid "Use _wcsdup() instead of _tcsdup()."
+msgstr ""
+
+#: i18n_review.cpp:276
+msgid "Use _wcserror() instead of _tcserror()."
+msgstr ""
+
+#: i18n_review.cpp:277
+msgid "Use _wcserror_s() instead of _tcserror_s()."
+msgstr ""
+
+#: i18n_review.cpp:278
+msgid "Use _wcsicmp() instead of _tcsicmp()."
+msgstr ""
+
+#: i18n_review.cpp:279
+msgid "Use _wcsicmp_l() instead of _tcsicmp_l()."
+msgstr ""
+
+#: i18n_review.cpp:280
+msgid "Use _wcsicoll() instead of _tcsicoll()."
+msgstr ""
+
+#: i18n_review.cpp:281
+msgid "Use _wcsicoll_l() instead of _tcsicoll_l()."
+msgstr ""
+
+#: i18n_review.cpp:282
+msgid "Use std::wcslen() instead of _tcslen()."
+msgstr ""
+
+#: i18n_review.cpp:283
+msgid "Use std::wcsncat() instead of _tcsncat()."
+msgstr ""
+
+#: i18n_review.cpp:284
+msgid "Use _wcsncat_l() instead of _tcsncat_l()."
+msgstr ""
+
+#: i18n_review.cpp:285
+msgid "Use std::wcsncat_s() instead of _tcsncat_s()."
+msgstr ""
+
+#: i18n_review.cpp:286
+msgid "Use _wcsncat_s_l() instead of _tcsncat_s_l()."
+msgstr ""
+
+#: i18n_review.cpp:287
+msgid "Use std::wcsncmp() instead of _tcsnccmp()."
+msgstr ""
+
+#: i18n_review.cpp:288
+msgid "Use _wcsncoll() instead of _tcsnccoll()."
+msgstr ""
+
+#: i18n_review.cpp:289
+msgid "Use _wcsncoll_l() instead of _tcsnccoll_l()."
+msgstr ""
+
+#: i18n_review.cpp:290
+msgid "Use _wcsnicmp() instead of _tcsncicmp()."
+msgstr ""
+
+#: i18n_review.cpp:291
+msgid "Use _wcsnicmp_l() instead of _tcsncicmp_l()."
+msgstr ""
+
+#: i18n_review.cpp:292
+msgid "Use _wcsnicoll() instead of _tcsncicoll()."
+msgstr ""
+
+#: i18n_review.cpp:293
+msgid "Use _wcsnicoll_l() instead of _tcsncicoll_l()."
+msgstr ""
+
+#: i18n_review.cpp:294
+msgid "Use std::wcsncmp() instead of _tcsncmp()."
+msgstr ""
+
+#: i18n_review.cpp:295
+msgid "Use _wcsncoll() instead of _tcsncoll()."
+msgstr ""
+
+#: i18n_review.cpp:296
+msgid "Use _wcsncoll_l() instead of _tcsncoll_l()."
+msgstr ""
+
+#: i18n_review.cpp:297
+msgid "Use std::wcsncpy() instead of _tcsncpy()."
+msgstr ""
+
+#: i18n_review.cpp:298
+msgid "Use _wcsncpy_l() instead of _tcsncpy_l()."
+msgstr ""
+
+#: i18n_review.cpp:299
+msgid "Use wcsncpy_s() instead of _tcsncpy_s()."
+msgstr ""
+
+#: i18n_review.cpp:300
+msgid "Use _wcsncpy_s_l() instead of _tcsncpy_s_l()."
+msgstr ""
+
+#: i18n_review.cpp:301
+msgid "Use _wcsnicmp() instead of _tcsnicmp()."
+msgstr ""
+
+#: i18n_review.cpp:302
+msgid "Use _wcsnicmp_l() instead of _tcsnicmp_l()."
+msgstr ""
+
+#: i18n_review.cpp:303
+msgid "Use _wcsnicoll() instead of _tcsnicoll()."
+msgstr ""
+
+#: i18n_review.cpp:304
+msgid "Use _wcsnicoll_l() instead of _tcsnicoll_l()."
+msgstr ""
+
+#: i18n_review.cpp:305
+msgid "Use std::wcsnlen() instead of _tcsnlen()."
+msgstr ""
+
+#: i18n_review.cpp:306
+msgid "Use _wcsnset() instead of _tcsnset()."
+msgstr ""
+
+#: i18n_review.cpp:307
+msgid "Use _wcsnset_l() instead of _tcsnset_l()."
+msgstr ""
+
+#: i18n_review.cpp:308
+msgid "Use _wcsnset_s() instead of _tcsnset_s()."
+msgstr ""
+
+#: i18n_review.cpp:309
+msgid "Use _wcsnset_s_l() instead of _tcsnset_s_l()."
+msgstr ""
+
+#: i18n_review.cpp:310
+msgid "Use std::wcspbrk() instead of _tcspbrk()."
+msgstr ""
+
+#: i18n_review.cpp:311
+msgid "Use std::wcsrchr() instead of _tcsrchr()."
+msgstr ""
+
+#: i18n_review.cpp:312
+msgid "Use _wcsrev() instead of _tcsrev()."
+msgstr ""
+
+#: i18n_review.cpp:313
+msgid "Use _wcsset() instead of _tcsset()."
+msgstr ""
+
+#: i18n_review.cpp:314
+msgid "Use _wcsset_l() instead of _tcsset_l()."
+msgstr ""
+
+#: i18n_review.cpp:315
+msgid "Use _wcsset_s() instead of _tcsset_s()."
+msgstr ""
+
+#: i18n_review.cpp:316
+msgid "Use _wcsset_s_l() instead of _tcsset_s_l()."
+msgstr ""
+
+#: i18n_review.cpp:317
+msgid "Use std::wcsspn() instead of _tcsspn()."
+msgstr ""
+
+#: i18n_review.cpp:318
+msgid "Use std::wcsstr() instead of _tcsstr()."
+msgstr ""
+
+#: i18n_review.cpp:319
+msgid "Use std::wcstod() instead of _tcstod()."
+msgstr ""
+
+#: i18n_review.cpp:320
+msgid "Use std::wcstof() instead of _tcstof()."
+msgstr ""
+
+#: i18n_review.cpp:321
+msgid "Use std::wcstoimax() instead of _tcstoimax()."
+msgstr ""
+
+#: i18n_review.cpp:322
+msgid "Use _wcstok() instead of _tcstok()."
+msgstr ""
+
+#: i18n_review.cpp:323
+msgid "Use _wcstok_l() instead of _tcstok_l()."
+msgstr ""
+
+#: i18n_review.cpp:324
+msgid "Use wcstok_s() instead of _tcstok_s()."
+msgstr ""
+
+#: i18n_review.cpp:325
+msgid "Use _wcstok_s_l() instead of _tcstok_s_l()."
+msgstr ""
+
+#: i18n_review.cpp:326
+msgid "Use std::wcstol() instead of _tcstol()."
+msgstr ""
+
+#: i18n_review.cpp:327
+msgid "Use std::wcstold() instead of _tcstold()."
+msgstr ""
+
+#: i18n_review.cpp:328
+msgid "Use std::wcstoll() instead of _tcstoll()."
+msgstr ""
+
+#: i18n_review.cpp:329
+msgid "Use std::wcstoul() instead of _tcstoul()."
+msgstr ""
+
+#: i18n_review.cpp:330
+msgid "Use std::wcstoull() instead of _tcstoull()."
+msgstr ""
+
+#: i18n_review.cpp:331
+msgid "Use std::wcstoumax() instead of _tcstoumax()."
+msgstr ""
+
+#: i18n_review.cpp:332
+msgid "Use std::wcsxfrm() instead of _tcsxfrm()"
+msgstr ""
+
+#: i18n_review.cpp:333
+msgid "Use _wenviron() instead of _tenviron()."
+msgstr ""
+
+#: i18n_review.cpp:334
+msgid "Use wmain() instead of _tmain()."
+msgstr ""
+
+#: i18n_review.cpp:335
+msgid "Use wprintf() instead of _tprintf()."
+msgstr ""
+
+#: i18n_review.cpp:336
+msgid "Use _wprintf_l() instead of _tprintf_l()."
+msgstr ""
+
+#: i18n_review.cpp:337
+msgid "Use wprintf_s() instead of _tprintf_s()."
+msgstr ""
+
+#: i18n_review.cpp:338
+msgid "Use wWinMain() instead of _tWinMain()."
+msgstr ""
+
+#: i18n_review.cpp:339
+msgid "Use std::swprintf() instead of wsprintf()."
+msgstr ""
+
+#: i18n_review.cpp:340
+msgid "Use std::swprintf() instead of _stprintf()."
+msgstr ""
+
+#: i18n_review.cpp:341
+msgid "Use wchar_t instead of TCHAR."
+msgstr ""
+
+#: i18n_review.cpp:342
+msgid "Use wchar_t* instead of PTCHAR."
+msgstr ""
+
+#: i18n_review.cpp:343
+msgid "Use LPWSTR (or wchar_t*) instead of LPTSTR."
+msgstr ""
+
+#: i18n_review.cpp:344
+msgid "Use LPCWSTR (or const wchar_t*) instead of LPCTSTR."
+msgstr ""
+
+#: i18n_review.cpp:348
+msgid ""
+"Use std::wcslen() or (wrap in a std::wstring_view) instead of wxStrlen()."
+msgstr ""
+
+#: i18n_review.cpp:349
+msgid "Use std::wcsstr() instead of wxStrstr()."
+msgstr ""
+
+#: i18n_review.cpp:350
+msgid "Use std::wcschr() instead of wxStrchr()."
+msgstr ""
+
+#: i18n_review.cpp:351
+msgid "Use std::wcsdup() instead of wxStrdup()."
+msgstr ""
+
+#: i18n_review.cpp:353
+msgid ""
+"Use std::wcscpy() instead of wxStrcpy() (or prefer safer functions that "
+"process N number of characters)."
+msgstr ""
+
+#: i18n_review.cpp:356
+msgid "Use std::wcsncpy() (or wxStrlcpy) instead of wxStrncpy()."
+msgstr ""
+
+#: i18n_review.cpp:358
+msgid ""
+"Use std::wcscat() instead of wxStrcat() (or prefer safer functions that "
+"process N number of characters)."
+msgstr ""
+
+#: i18n_review.cpp:360
+msgid "Use std::wcsncat() instead of wxStrncat()."
+msgstr ""
+
+#: i18n_review.cpp:361
+msgid "Use std::wcstok() instead of wxStrtok()."
+msgstr ""
+
+#: i18n_review.cpp:362
+msgid "Use std::wcsrchr() instead of wxStrrchr()."
+msgstr ""
+
+#: i18n_review.cpp:363
+msgid "Use std::wcspbrk() instead of wxStrpbrk()."
+msgstr ""
+
+#: i18n_review.cpp:364
+msgid "Use std::wcsxfrm() instead of wxStrxfrm."
+msgstr ""
+
+#: i18n_review.cpp:366
+msgid "Use wxString's empty() member instead of wxIsEmpty()."
+msgstr ""
+
+#: i18n_review.cpp:367
+msgid "Use std::iswdigit() instead of wxIsdigit()."
+msgstr ""
+
+#: i18n_review.cpp:368
+msgid "Use std::iswalnum() instead of wxIsalnum()."
+msgstr ""
+
+#: i18n_review.cpp:369
+msgid "Use std::iswalpha() instead of wxIsalpha()."
+msgstr ""
+
+#: i18n_review.cpp:370
+msgid "Use std::iswctrl() instead of wxIsctrl()."
+msgstr ""
+
+#: i18n_review.cpp:371
+msgid "Use std::iswpunct() instead of wxIspunct()."
+msgstr ""
+
+#: i18n_review.cpp:372
+msgid "Use std::iswpspace() instead of wxIsspace()."
+msgstr ""
+
+#: i18n_review.cpp:373
+msgid "Use wchar_t instead of wxChar."
+msgstr ""
+
+#: i18n_review.cpp:374
+msgid "Use wchar_t instead of wxSChar."
+msgstr ""
+
+#: i18n_review.cpp:375
+msgid "Use wchar_t instead of wxUChar."
+msgstr ""
+
+#: i18n_review.cpp:377
+msgid "Use wxDateTime's formatting functions instead of wxStrftime()."
+msgstr ""
+
+#: i18n_review.cpp:378
+msgid "Use wxString::ToDouble() instead of wxStrtod."
+msgstr ""
+
+#: i18n_review.cpp:379
+msgid "Use wxString::ToLong() instead of wxStrtol."
+msgstr ""
+
+#: i18n_review.cpp:380
+msgid "wxW64 is obsolete; remove it."
+msgstr ""
+
+#: i18n_review.cpp:382
+msgid ""
+"Use __func__ or __WXFUNCTION_SIG__ (requires wxWidgets 3.3) instead of "
+"__WXFUNCTION__."
+msgstr ""
+
+#: i18n_review.cpp:385 i18n_review.cpp:388 i18n_review.cpp:391
+msgid "Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
+msgstr ""
+
+#: i18n_review.cpp:395
+msgid ""
+"Construct a wxFileName with wxPATH_UNIX and then use wxFileName::"
+"GetFullPath(wxPATH_DOS) instead of using wxUnix2DosFilename."
+msgstr ""
+
+#: i18n_review.cpp:399
+msgid "wxSplitPath is obsolete, please use wxFileName::SplitPath() instead."
+msgstr ""
+
+#: i18n_review.cpp:401
+msgid "Use std::min() instead of wxMin()."
+msgstr ""
+
+#: i18n_review.cpp:402
+msgid "Use std::max() instead of wxMax()."
+msgstr ""
+
+#: i18n_review.cpp:403
+msgid "Use std::lround() instead of wxRound()."
+msgstr ""
+
+#: i18n_review.cpp:404
+msgid "Use std::isnan() instead of wxIsNan()."
+msgstr ""
+
+#: i18n_review.cpp:405
+msgid "Use noexcept instead of wxNOEXCEPT."
+msgstr ""
+
+#: i18n_review.cpp:406
+msgid "Use __WXOSX__ instead of __WXMAC__."
+msgstr ""
+
+#: i18n_review.cpp:407
+msgid "Use '= delete' instead of wxMEMBER_DELETE."
+msgstr ""
+
+#: i18n_review.cpp:408
+msgid "Use override or final instead of wxOVERRIDE."
+msgstr ""
+
+#: i18n_review.cpp:410
+msgid ""
+"Delete the copy CTOR and assignment operator instead of "
+"wxDECLARE_NO_COPY_CLASS."
+msgstr ""
+
+#: i18n_review.cpp:413
+msgid ""
+"Delete the copy CTOR and assignment operator instead of "
+"DECLARE_NO_COPY_CLASS."
+msgstr ""
+
+#: i18n_review.cpp:416
+msgid ""
+"Call wxSizer::Add() with a wxSizerFlags object using Expand() instead of "
+"wxGROW."
+msgstr ""
+
+#: i18n_review.cpp:419
+msgid ""
+"Call wxSizer::Add() with a wxSizerFlags object using Expand() instead of "
+"wxEXPAND."
+msgstr ""
+
+#: i18n_review.cpp:426
+msgid "Use [[nodiscard]] instead of wxNODISCARD."
+msgstr ""
+
+#: i18n_review.cpp:428
+msgid "Use std::size() instead of WXSIZEOF()."
+msgstr ""
+
+#: i18n_review.cpp:430
+msgid "Use [[maybe_unused]] instead of wxUnusedVar."
+msgstr ""
+
+#: i18n_review.cpp:432
+msgid "Use [[maybe_unused]] instead of WXUNUSED()."
+msgstr ""
+
+#: i18n_review.cpp:1178
+#, c-format
+msgid ""
+"%s assigned to %s; value should be between 1 and 0x6FFF if this is an MFC "
+"project."
+msgstr ""
+
+#: i18n_review.cpp:1197
+#, c-format
+msgid ""
+"%s assigned to %s; value should be between 1 and 0x7FFF if this is an MFC "
+"project."
+msgstr ""
+
+#: i18n_review.cpp:1217
+#, c-format
+msgid ""
+"%s assigned to %s; value should be between 8 and 0xDFFF if this is an MFC "
+"project."
+msgstr ""
+
+#: i18n_review.cpp:1239
+#, c-format
+msgid "%s assigned to %s"
+msgstr ""
+
+#: i18n_review.cpp:1258
+#, c-format
+msgid "%s has been assigned to multiple ID variables."
+msgstr ""
+
+#: i18n_review.cpp:2256
+#, c-format
+msgid ""
+"('%s': positional argument provided more than once, but with different data "
+"types.)"
+msgstr ""
+
+#: i18n_review.cpp:2286
+msgid ""
+"(Positional and non-positional commands mixed in the same printf string.)"
+msgstr ""
+
+#: rc_file_review.cpp:182
+#, c-format
+msgid "Font size %s is non-standard (8 is recommended)."
+msgstr ""
+
+#: rc_file_review.cpp:200
+#, c-format
+msgid ""
+"Font '%s' may not map well on some systems (MS Shell Dlg is recommended)."
+msgstr ""
+
+#, fuzzy
+#~ msgid "tabs"
+#~ msgstr "Tabulaciones"
