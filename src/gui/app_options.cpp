@@ -22,8 +22,11 @@ void I18NOptions::Save(const wxString& filePath)
     auto* exclPathsNode = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"excluded-paths");
     for (const auto& exclFile : m_excludedPaths)
         {
-        auto* pathNode = new wxXmlNode(exclPathsNode, wxXML_ELEMENT_NODE, L"excluded-path");
-        pathNode->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, exclFile));
+        if (!exclFile.empty())
+            {
+            auto* pathNode = new wxXmlNode(exclPathsNode, wxXML_ELEMENT_NODE, L"excluded-path");
+            pathNode->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, exclFile));
+            }
         }
 
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"checks");
@@ -127,7 +130,10 @@ void I18NOptions::Load(const wxString& filePath)
             wxXmlNode* excludedChild = child->GetChildren();
             while (excludedChild != nullptr)
                 {
-                m_excludedPaths.push_back(excludedChild->GetNodeContent());
+                if (!excludedChild->GetNodeContent().empty())
+                    {
+                    m_excludedPaths.push_back(excludedChild->GetNodeContent());
+                    }
                 excludedChild = excludedChild->GetNext();
                 }
             }
