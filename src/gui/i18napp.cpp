@@ -834,6 +834,7 @@ void I18NFrame::Process()
                 if (progressDlg != nullptr)
                     {
                     progressDlg->Destroy();
+                    progressDlg = nullptr;
                     }
                 if (totalFiles > 0)
                     {
@@ -844,10 +845,6 @@ void I18NFrame::Process()
                             wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
                     progressDlg->SetRange(totalFiles);
                     progressDlg->Centre();
-                    }
-                else
-                    {
-                    progressDlg = nullptr;
                     }
             },
             [&progressDlg](const size_t currentFileIndex, const std::wstring& file)
@@ -868,6 +865,8 @@ void I18NFrame::Process()
                                              wxString::Format(_(L"Pseudo-translating %s..."),
                                                               wxFileName{ file }.GetFullName())))
                     {
+                    progressDlg->Destroy();
+                    progressDlg = nullptr;
                     return false;
                     }
                 return true;
@@ -881,6 +880,7 @@ void I18NFrame::Process()
             if (progressDlg != nullptr)
                 {
                 progressDlg->Destroy();
+                progressDlg = nullptr;
                 }
             if (totalFiles > 0)
                 {
@@ -890,10 +890,6 @@ void I18NFrame::Process()
                     wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
                         wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
                 progressDlg->Centre();
-                }
-            else
-                {
-                progressDlg = nullptr;
                 }
         },
         [&progressDlg](const size_t currentFileIndex, const std::wstring& file)
@@ -916,6 +912,8 @@ void I18NFrame::Process()
                                              wxString::Format(_(L"Reviewing %s..."),
                                                               wxFileName{ file }.GetFullName())))
                     {
+                    progressDlg->Destroy();
+                    progressDlg = nullptr;
                     return false;
                     }
                 }
