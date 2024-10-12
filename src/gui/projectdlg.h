@@ -18,6 +18,7 @@
 #include <wx/choice.h>
 #include <wx/combobox.h>
 #include <wx/dirdlg.h>
+#include <wx/editlbox.h>
 #include <wx/filename.h>
 #include <wx/gbsizer.h>
 #include <wx/listbook.h>
@@ -113,6 +114,10 @@ class NewProjectDialog final : public wxDialog
             {
             m_pseudoSliderPercentLabel->Enable(m_pseudoTranslationMethod != 0);
             }
+        if (m_exclusionList != nullptr)
+            {
+            m_exclusionList->SetStrings(m_excludedPaths);
+            }
         }
 
     /// @returns The path of the selected folder.
@@ -129,15 +134,9 @@ class NewProjectDialog final : public wxDialog
         }
 
     [[nodiscard]]
-    const wxString& GetExcludedPath() const noexcept
+    const wxArrayString& GetExcludedPath() const noexcept
         {
         return m_excludedPaths;
-        }
-
-    void SetExcludedPath(const wxString& path)
-        {
-        m_excludedPaths = path;
-        TransferDataToWindow();
         }
 
     [[nodiscard]]
@@ -269,7 +268,7 @@ class NewProjectDialog final : public wxDialog
     bool m_showFileOptions{ true };
 
     wxString m_filePath;
-    wxString m_excludedPaths;
+    wxArrayString m_excludedPaths;
     // options for all file types
     bool m_notL10NAvailable{ true };
     bool m_suspectL10NString{ true };
@@ -311,6 +310,7 @@ class NewProjectDialog final : public wxDialog
     wxStaticText* m_pseudoSliderLabel{ nullptr };
     wxStaticText* m_pseudoSliderPercentLabel{ nullptr };
     wxSlider* m_pseudoIncreaseSlider{ nullptr };
+    wxEditableListBox* m_exclusionList{ nullptr };
     };
 
     /** @}*/

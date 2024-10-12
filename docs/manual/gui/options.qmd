@@ -6,8 +6,7 @@ The following options are available for C/C++ source files.
 
 **Folder/file to analyze**: enter into here the folder or file to analyze.
 
-**Subfolders/files to ignore**: enter into here the folders and files to ignore.
-This can contain multiple values, separated by a semicolon (`;`).
+**Subfolders/files to ignore**: enter into this list the folders and files to ignore.
 
 ::: {.tipsection data-latex=""}
 Folder and file paths being ignored must be absolute or relative to the folder being analyzed.

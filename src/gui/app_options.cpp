@@ -19,8 +19,12 @@ void I18NOptions::Save(const wxString& filePath)
     wxXmlNode* node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"path");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_filePath));
 
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"excluded-paths");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_excludedPaths));
+    auto* exclPathsNode = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"excluded-paths");
+    for (const auto& exclFile : m_excludedPaths)
+        {
+        auto* pathNode = new wxXmlNode(exclPathsNode, wxXML_ELEMENT_NODE, L"excluded-path");
+        pathNode->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, exclFile));
+        }
 
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"checks");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_options)));
@@ -94,7 +98,12 @@ void I18NOptions::Load(const wxString& filePath)
             }
         else if (child->GetName() == L"excluded-paths")
             {
-            m_excludedPaths = child->GetNodeContent();
+            wxXmlNode* excludedChild = child->GetChildren();
+            while (excludedChild != nullptr)
+                {
+                m_excludedPaths.push_back(excludedChild->GetNodeContent());
+                excludedChild = excludedChild->GetNext();
+                }
             }
         else if (child->GetName() == L"checks")
             {

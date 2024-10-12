@@ -25,7 +25,7 @@ struct I18NOptions
     void Load(const wxString& filePath);
 
     wxString m_filePath;
-    wxString m_excludedPaths;
+    wxArrayString m_excludedPaths;
     int64_t m_options{ static_cast<int64_t>(
         i18n_check::review_style::check_l10n_strings |
         i18n_check::review_style::check_suspect_l10n_string_usage |

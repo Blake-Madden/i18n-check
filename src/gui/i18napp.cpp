@@ -557,9 +557,7 @@ void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
                     }
                 }
 
-            m_activeProjectOptions.m_excludedPaths +=
-                m_activeProjectOptions.m_excludedPaths.empty() ? node->m_fileName :
-                                                                 L"; " + node->m_fileName;
+            m_activeProjectOptions.m_excludedPaths.push_back(node->m_fileName.wc_str());
 
             m_resultsModel->Delete(selectedItem);
             m_resultsModel->Cleared();
@@ -787,14 +785,9 @@ void I18NFrame::Process()
     std::wstring inputFolder{ m_activeProjectOptions.m_filePath.c_str() };
 
     std::vector<std::wstring> excludedPaths;
-    wxStringTokenizer tokenizer(
-        m_activeProjectOptions.m_excludedPaths, L";",
-        wxStringTokenizerMode(wxTOKEN_STRTOK | wxTOKEN_RET_EMPTY | wxTOKEN_RET_EMPTY_ALL));
-    while (tokenizer.HasMoreTokens())
+    for (const auto& currentFile : m_activeProjectOptions.m_excludedPaths)
         {
-        std::wstring currentFolder{ tokenizer.GetNextToken().wc_str() };
-        string_util::trim(currentFolder);
-        excludedPaths.push_back(std::move(currentFolder));
+        excludedPaths.push_back(currentFile.wc_str());
         }
 
     // input folder
@@ -860,8 +853,8 @@ void I18NFrame::Process()
                 if (!progressDlg->Update(currentFileIndex,
                                          file.empty() ?
                                              _(L"Processing...") :
-                                         wxString::Format(_(L"Pseudo-translating %s..."),
-                                                          wxFileName{ file }.GetFullName())))
+                                             wxString::Format(_(L"Pseudo-translating %s..."),
+                                                              wxFileName{ file }.GetFullName())))
                     {
                     return false;
                     }

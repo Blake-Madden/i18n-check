@@ -232,24 +232,9 @@ void NewProjectDialog::OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEve
 
     wxArrayString paths;
     dirDlg.GetPaths(paths);
-    wxString allPaths;
-    for (const auto& path : paths)
-        {
-        allPaths += L"; " + path;
-        }
-    if (m_excludedPaths.empty())
-        {
-        if (allPaths.length() > 2)
-            {
-            allPaths.erase(0, 2);
-            }
-        m_excludedPaths = allPaths;
-        }
-    else
-        {
-        m_excludedPaths += allPaths;
-        }
-    TransferDataToWindow();
+    m_excludedPaths.insert(m_excludedPaths.cend(), paths.cbegin(), paths.cend());
+    m_exclusionList->SetStrings(m_excludedPaths);
+
     SetFocus();
     }
 
@@ -267,24 +252,9 @@ void NewProjectDialog::OnExcludedFileButtonClick([[maybe_unused]] wxCommandEvent
 
     wxArrayString paths;
     dialog.GetPaths(paths);
-    wxString allPaths;
-    for (const auto& path : paths)
-        {
-        allPaths += L"; " + path;
-        }
-    if (m_excludedPaths.empty())
-        {
-        if (allPaths.length() > 2)
-            {
-            allPaths.erase(0, 2);
-            }
-        m_excludedPaths = allPaths;
-        }
-    else
-        {
-        m_excludedPaths += allPaths;
-        }
-    TransferDataToWindow();
+    m_excludedPaths.insert(m_excludedPaths.cend(), paths.cbegin(), paths.cend());
+    m_exclusionList->SetStrings(m_excludedPaths);
+
     SetFocus();
     }
 
@@ -357,29 +327,23 @@ void NewProjectDialog::CreateControls()
 
                 // files/folders to ignore
                 {
-                wxStaticBoxSizer* fileBrowseBoxSizer = new wxStaticBoxSizer(
-                    wxHORIZONTAL, generalSettingsPage, _(L"Subfolders/files to ignore"));
+                wxBoxSizer* fileBrowseBoxSizer = new wxBoxSizer(wxHORIZONTAL);
 
                 mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags{ 1 }.Expand().Border());
 
-                wxTextCtrl* filePathEdit =
-                    new wxTextCtrl(fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{},
-                                   wxDefaultPosition, wxSize{ FromDIP(400), FromDIP(60) },
-                                   wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP,
-                                   wxGenericValidator(&m_excludedPaths));
-                filePathEdit->AutoCompleteFileNames();
-                filePathEdit->AutoCompleteDirectories();
-                fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
+                m_exclusionList = new wxEditableListBox(generalSettingsPage, wxID_ANY,
+                                                        _(L"Subfolders/files to ignore"));
+                fileBrowseBoxSizer->Add(m_exclusionList, wxSizerFlags{ 1 }.Expand());
 
                 wxBitmapButton* folderExcludeBrowseButton = new wxBitmapButton(
-                    fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
+                    generalSettingsPage, ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
                     wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
-                fileBrowseBoxSizer->Add(folderExcludeBrowseButton, wxSizerFlags{}.CenterVertical());
+                fileBrowseBoxSizer->Add(folderExcludeBrowseButton);
 
-                wxBitmapButton* fileExcludeBrowseButton = new wxBitmapButton(
-                    fileBrowseBoxSizer->GetStaticBox(), ID_EXCLUDED_FILES_BROWSE_BUTTON,
-                    wxArtProvider::GetBitmapBundle(wxART_NEW, wxART_BUTTON));
-                fileBrowseBoxSizer->Add(fileExcludeBrowseButton, wxSizerFlags{}.CenterVertical());
+                wxBitmapButton* fileExcludeBrowseButton =
+                    new wxBitmapButton(generalSettingsPage, ID_EXCLUDED_FILES_BROWSE_BUTTON,
+                                       wxArtProvider::GetBitmapBundle(wxART_NEW, wxART_BUTTON));
+                fileBrowseBoxSizer->Add(fileExcludeBrowseButton);
                 }
             }
 
