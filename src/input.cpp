@@ -18,6 +18,10 @@ namespace i18n_check
 
         for (const auto& excItem : excluded)
             {
+            if (excItem.empty())
+                {
+                continue;
+                }
             if (std::filesystem::exists(excItem))
                 {
                 if (std::filesystem::is_directory(excItem))
