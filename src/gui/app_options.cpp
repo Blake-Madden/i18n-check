@@ -76,6 +76,32 @@ void I18NOptions::Save(const wxString& filePath)
 //------------------------------------------------------
 void I18NOptions::Load(const wxString& filePath)
     {
+    // reset options
+    m_filePath.clear();
+    m_excludedPaths.clear();
+    m_options = static_cast<int64_t>(i18n_check::review_style::check_l10n_strings |
+                                     i18n_check::review_style::check_suspect_l10n_string_usage |
+                                     i18n_check::review_style::check_not_available_for_l10n |
+                                     i18n_check::review_style::check_deprecated_macros |
+                                     i18n_check::review_style::check_utf8_encoded |
+                                     i18n_check::review_style::check_printf_single_number |
+                                     i18n_check::review_style::check_l10n_contains_url |
+                                     i18n_check::review_style::check_malformed_strings |
+                                     i18n_check::review_style::check_fonts |
+                                     i18n_check::review_style::all_l10n_checks);
+    m_fuzzyTranslations = false;
+    i18n_check::pseudo_translation_method m_pseudoTranslationMethod{
+        i18n_check::pseudo_translation_method::none
+    };
+    m_addPseudoTransBrackets = false;
+    m_pseudoTrack = false;
+    m_logMessagesCanBeTranslated = true;
+    m_allowTranslatingPunctuationOnlyStrings = false;
+    m_exceptionsShouldBeTranslatable = true;
+    m_widthPseudoIncrease = 0;
+    m_minWordsForClassifyingUnavailableString = 2;
+    m_minCppVersion = 2014;
+
     wxXmlDocument xmlDoc;
     if (!xmlDoc.Load(filePath))
         {
