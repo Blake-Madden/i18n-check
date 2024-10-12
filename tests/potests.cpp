@@ -30,7 +30,7 @@ msgstr "Сервер не поддерживает команду PORT."
 msgid "The server doesn't support the PORT command %s."
 msgstr "Сервер не поддерживает команду PORT."")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -53,7 +53,7 @@ msgstr "Неправильный размер кадра (%u, %d) для frame #
 msgid "Incorrect frame size (%.5f, %s) for the frame #%u"
 msgstr "Неправильный размер кадра (%d, %s) для frame #%u")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -71,7 +71,7 @@ msgstr "Неправильный размер кадра (%d, %s) для frame #
 msgid "Incorrect frame size (%u, %s) for the frame #%u"
 msgstr "Неправильный размер кадра (%u, % s) для frame #%u")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -95,7 +95,7 @@ msgstr "Неправильный размер кадра (%u, %d) для frame #
 msgid "Incorrect frame size (%.5f, %s) for the frame #%u"
 msgstr "Неправильный размер кадра (%d, %s) для frame #%u")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -119,7 +119,7 @@ msgstr "Неправильный размер кадра (%u, %d) для frame #
 msgid "Incorrect frame size (%.5f, %s) for the frame #%u"
 msgstr "Неправильный размер кадра (%d, %s) для frame #%u")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -142,7 +142,7 @@ msgstr "Неправильный размер кадра (%u, %d) для frame #
 msgid "Incorrect frame size (%.5f, %s) for the frame #%u"
 msgstr "Неправильный размер кадра (%d, %s) для frame #%u")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -161,7 +161,7 @@ msgid "Volume %ld%%."
 msgstr "Bolumena: %%%ld")";
 
 	po(code, L"");
-	po.review_strings();
+	po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 	const auto issues = std::count_if(
 		po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -180,7 +180,7 @@ msgid "Volume %ld%%."
 msgstr "Bolumena: %%%d")";
 
 	po(code, L"");
-	po.review_strings();
+	po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 	const auto issues = std::count_if(
 		po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -199,7 +199,7 @@ msgid "%d/%d blocks at 0x%02x"
 msgstr "%d%d bloques en 0x%02x")";
 
 	po(code, L"");
-	po.review_strings();
+	po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 	const auto issues = std::count_if(
 		po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -219,7 +219,7 @@ TEST_CASE("Printf c-format positionals", "[po][l10n]")
 msgid "Incorrect frame size (%u, %s) for the value %.5f"
 msgstr "Неправильный размер кадра (%2$s, %1$u) для value %3$.5f")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -237,7 +237,7 @@ msgstr "Неправильный размер кадра (%2$s, %1$u) для val
 msgid "Incorrect frame size (%u, %s) for the value %.5f"
 msgstr "Неправильный %2$s размер кадра (%2$s, %1$u) для value %3$.5f %1$u")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -255,7 +255,7 @@ msgstr "Неправильный %2$s размер кадра (%2$s, %1$u) дл�
 msgid "Incorrect frame size (%u, %s) for the value %.5f"
 msgstr "Неправильный %2$s размер кадра (%2$d, %1$u) для value %3$.5f %1$u")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
@@ -273,7 +273,7 @@ msgstr "Неправильный %2$s размер кадра (%2$d, %1$u) дл�
 msgid "Incorrect frame size (%u, %s) value"
 msgstr "Неправильный %u %2$s")";
 		po(code, L"");
-		po.review_strings();
+		po.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
 
 		const auto issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
