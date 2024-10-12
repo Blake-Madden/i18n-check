@@ -831,12 +831,24 @@ void I18NFrame::Process()
             m_activeProjectOptions.m_widthPseudoIncrease, m_activeProjectOptions.m_pseudoTrack,
             [&progressDlg, this](const size_t totalFiles)
             {
-                progressDlg = new wxProgressDialog(
-                    _(L"Pseudo-translating Files"), _(L"Pseudo-translating..."), totalFiles, this,
-                    wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
-                        wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
-                progressDlg->SetRange(totalFiles);
-                progressDlg->Centre();
+                if (progressDlg != nullptr)
+                    {
+                    progressDlg->Destroy();
+                    }
+                if (totalFiles > 0)
+                    {
+                    progressDlg = new wxProgressDialog(
+                        _(L"Pseudo-translating Files"), _(L"Pseudo-translating..."), totalFiles,
+                        this,
+                        wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
+                            wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
+                    progressDlg->SetRange(totalFiles);
+                    progressDlg->Centre();
+                    }
+                else
+                    {
+                    progressDlg = nullptr;
+                    }
             },
             [&progressDlg](const size_t currentFileIndex, const std::wstring& file)
             {
