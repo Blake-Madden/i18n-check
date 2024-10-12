@@ -282,6 +282,7 @@ void NewProjectDialog::CreateControls()
     wxListbook* listBook = new wxListbook(this, wxID_ANY);
     const wxSize imageSize{ 32, 32 };
     wxBookCtrlBase::Images images;
+    images.push_back(wxArtProvider::GetBitmapBundle(wxART_FILE_OPEN, wxART_OTHER, imageSize));
     images.push_back(wxArtProvider::GetBitmapBundle(L"ID_CODE", wxART_OTHER, imageSize));
     images.push_back(wxArtProvider::GetBitmapBundle(L"ID_TRANSLATIONS", wxART_OTHER, imageSize));
     images.push_back(wxArtProvider::GetBitmapBundle(L"ID_CHECK", wxART_OTHER, imageSize));
@@ -289,63 +290,72 @@ void NewProjectDialog::CreateControls()
 
     wxBoxSizer* mainDlgSizer = new wxBoxSizer(wxVERTICAL);
 
+    // input options
+    if (m_showFileOptions)
+        {
+        wxPanel* inputPage =
+            new wxPanel(listBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
+
+        wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+
+            {
+            wxStaticBoxSizer* fileBrowseBoxSizer =
+                new wxStaticBoxSizer(wxHORIZONTAL, inputPage, _(L"Folder/file to analyze"));
+
+            mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags{}.Expand().Border());
+
+            wxTextCtrl* filePathEdit = new wxTextCtrl(
+                fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{}, wxDefaultPosition,
+                wxSize{ FromDIP(400), -1 }, wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
+                wxGenericValidator(&m_filePath));
+            filePathEdit->AutoCompleteFileNames();
+            filePathEdit->AutoCompleteDirectories();
+            fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
+
+            wxBitmapButton* folderBrowseButton =
+                new wxBitmapButton(fileBrowseBoxSizer->GetStaticBox(), ID_FOLDER_BROWSE_BUTTON,
+                                   wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
+            fileBrowseBoxSizer->Add(folderBrowseButton, wxSizerFlags{}.CenterVertical());
+
+            wxBitmapButton* fileBrowseButton =
+                new wxBitmapButton(fileBrowseBoxSizer->GetStaticBox(), ID_FILE_BROWSE_BUTTON,
+                                   wxArtProvider::GetBitmapBundle(wxART_NEW, wxART_BUTTON));
+            fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
+
+            filePathEdit->SetFocus();
+            }
+
+            // files/folders to ignore
+            {
+            wxBoxSizer* fileBrowseBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+
+            mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags{ 1 }.Expand().Border());
+
+            m_exclusionList =
+                new wxEditableListBox(inputPage, wxID_ANY, _(L"Subfolders/files to ignore"));
+            fileBrowseBoxSizer->Add(m_exclusionList, wxSizerFlags{ 1 }.Expand());
+
+            wxBitmapButton* folderExcludeBrowseButton =
+                new wxBitmapButton(inputPage, ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
+                                   wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
+            fileBrowseBoxSizer->Add(folderExcludeBrowseButton);
+
+            wxBitmapButton* fileExcludeBrowseButton =
+                new wxBitmapButton(inputPage, ID_EXCLUDED_FILES_BROWSE_BUTTON,
+                                   wxArtProvider::GetBitmapBundle(wxART_NEW, wxART_BUTTON));
+            fileBrowseBoxSizer->Add(fileExcludeBrowseButton);
+            }
+
+        inputPage->SetSizer(mainSizer);
+        listBook->AddPage(inputPage, _(L"Input"), true, 0);
+        }
+
         // source code options
         {
         wxPanel* generalSettingsPage =
             new wxPanel(listBook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
 
         wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-
-        if (m_showFileOptions)
-            {
-                {
-                wxStaticBoxSizer* fileBrowseBoxSizer = new wxStaticBoxSizer(
-                    wxHORIZONTAL, generalSettingsPage, _(L"Folder/file to analyze"));
-
-                mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags{}.Expand().Border());
-
-                wxTextCtrl* filePathEdit = new wxTextCtrl(
-                    fileBrowseBoxSizer->GetStaticBox(), wxID_ANY, wxString{}, wxDefaultPosition,
-                    wxSize{ FromDIP(400), -1 }, wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
-                    wxGenericValidator(&m_filePath));
-                filePathEdit->AutoCompleteFileNames();
-                filePathEdit->AutoCompleteDirectories();
-                fileBrowseBoxSizer->Add(filePathEdit, wxSizerFlags{ 1 }.Expand());
-
-                wxBitmapButton* folderBrowseButton = new wxBitmapButton(
-                    fileBrowseBoxSizer->GetStaticBox(), ID_FOLDER_BROWSE_BUTTON,
-                    wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
-                fileBrowseBoxSizer->Add(folderBrowseButton, wxSizerFlags{}.CenterVertical());
-
-                wxBitmapButton* fileBrowseButton =
-                    new wxBitmapButton(fileBrowseBoxSizer->GetStaticBox(), ID_FILE_BROWSE_BUTTON,
-                                       wxArtProvider::GetBitmapBundle(wxART_NEW, wxART_BUTTON));
-                fileBrowseBoxSizer->Add(fileBrowseButton, wxSizerFlags{}.CenterVertical());
-
-                filePathEdit->SetFocus();
-                }
-
-                // files/folders to ignore
-                {
-                wxBoxSizer* fileBrowseBoxSizer = new wxBoxSizer(wxHORIZONTAL);
-
-                mainSizer->Add(fileBrowseBoxSizer, wxSizerFlags{ 1 }.Expand().Border());
-
-                m_exclusionList = new wxEditableListBox(generalSettingsPage, wxID_ANY,
-                                                        _(L"Subfolders/files to ignore"));
-                fileBrowseBoxSizer->Add(m_exclusionList, wxSizerFlags{ 1 }.Expand());
-
-                wxBitmapButton* folderExcludeBrowseButton = new wxBitmapButton(
-                    generalSettingsPage, ID_EXCLUDED_FOLDERS_BROWSE_BUTTON,
-                    wxArtProvider::GetBitmapBundle(wxART_FOLDER_OPEN, wxART_BUTTON));
-                fileBrowseBoxSizer->Add(folderExcludeBrowseButton);
-
-                wxBitmapButton* fileExcludeBrowseButton =
-                    new wxBitmapButton(generalSettingsPage, ID_EXCLUDED_FILES_BROWSE_BUTTON,
-                                       wxArtProvider::GetBitmapBundle(wxART_NEW, wxART_BUTTON));
-                fileBrowseBoxSizer->Add(fileExcludeBrowseButton);
-                }
-            }
 
         wxStaticBoxSizer* checkOptionsSizer =
             new wxStaticBoxSizer(wxVERTICAL, generalSettingsPage, _(L"Run the following checks:"));
@@ -467,7 +477,7 @@ void NewProjectDialog::CreateControls()
         mainSizer->Add(cppVersionSizer, wxSizerFlags{}.Expand().Border());
 
         generalSettingsPage->SetSizer(mainSizer);
-        listBook->AddPage(generalSettingsPage, _(L"Source Code"), true, 0);
+        listBook->AddPage(generalSettingsPage, _(L"Source Code"), !m_showFileOptions, 1);
         }
 
         // resource files
@@ -584,7 +594,7 @@ void NewProjectDialog::CreateControls()
             wxSizerFlags{}.Expand().Border());
 
         transPage->SetSizer(mainSizer);
-        listBook->AddPage(transPage, _(L"Resource Files"), false, 1);
+        listBook->AddPage(transPage, _(L"Resource Files"), false, 2);
         }
 
         // extra checks
@@ -687,7 +697,7 @@ void NewProjectDialog::CreateControls()
         mainSizer->AddStretchSpacer();
 
         extraChecksPage->SetSizer(mainSizer);
-        listBook->AddPage(extraChecksPage, _(L"Additional Checks"), false, 2);
+        listBook->AddPage(extraChecksPage, _(L"Additional Checks"), false, 3);
         }
 
     mainDlgSizer->Add(listBook, wxSizerFlags{ 1 }.Expand().Border());

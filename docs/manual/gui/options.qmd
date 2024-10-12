@@ -1,8 +1,8 @@
 # Settings {#sec-gui-settings}
 
-## Source Files
+## Input
 
-The following options are available for C/C++ source files.
+The following options are available when creating or editing a project.
 
 **Folder/file to analyze**: enter into here the folder or file to analyze.
 
@@ -15,6 +15,10 @@ Folder and file paths being ignored must be absolute or relative to the folder b
 ::: {.notesection data-latex=""}
 The above options are only available when creating or editing a project.
 :::
+
+## Source Files
+
+The following options are available for C/C++ source files.
 
 :::: {.optionssection data-latex=""}
 ::: {.optionssectiontitle data-latex=""}
