@@ -686,7 +686,8 @@ namespace i18n_check
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo", L"Platform::DebugPrintf",
             L"wxGetCommandOutput", L"SetKeyWords", L"AddDeveloper", L"AddDocWriter", L"AddArtist",
             L"AddTranslator", L"SetCopyright", L"MarkerSetBackground", L"SetProperty",
-            L"SetAppName", L"GetTextExtent" /*Usually only used for measuring "phantoms" like 'Aq'*/,
+            L"SetAppName",
+            L"GetTextExtent" /*Usually only used for measuring "phantoms" like 'Aq'*/,
             L"GetAttribute",
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern", L"qmlRegisterUncreatableMetaObject",
@@ -752,7 +753,7 @@ namespace i18n_check
             L"RegisterClipboardFormat", L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue",
             L"CLSIDFromProgID", L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
             L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
-            L"SetRegistryKey", L"CreateDC",
+            L"HasProperty", L"SetRegistryKey", L"CreateDC",
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
@@ -800,7 +801,7 @@ namespace i18n_check
                                      L"foreground-set", L"background-set", L"weight-set",
                                      L"style-set", L"underline-set", L"size-set", L"charset",
                                      L"xml", L"gdiplus", L"Direct2D", L"DirectX", L"localhost",
-                                     L"32 bit", L"32-bit", L"64 bit", L"64-bit",
+                                     L"32 bit", L"32-bit", L"64 bit", L"64-bit", L"NULL",
                                      // build types
                                      L"DEBUG", L"NDEBUG",
                                      // RTF font families
