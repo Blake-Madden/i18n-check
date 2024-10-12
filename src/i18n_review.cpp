@@ -1746,7 +1746,7 @@ namespace i18n_check
                 return false;
                 }
 
-            // strings that may look like they should not be tranlatable, but are actually OK
+            // strings that may look like they should not be translatable, but are actually OK
             for (const auto& reg : m_translatable_regexes)
                 {
                 if (std::regex_match(str, reg))
