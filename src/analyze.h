@@ -57,7 +57,7 @@ namespace i18n_check
             }
         }
 
-    /// @briefer Wrapper class to analyze and summarize a batch of files.
+    /// @brief Wrapper class to analyze and summarize a batch of files.
     class batch_analyze
         {
       public:
