@@ -11,6 +11,8 @@ Internationalization & localization analysis system for C++ code, *gettext* cata
 various i18n and l10n issues. Additionally, the GUI version provides pseudo-translation support for
 *gettext* catalogs (\*.po files).
 
+Refer to the [manual](docs/manual/book/i18n-check.pdf) for full documentation.
+
 ## File Support
 
 `i18n-check` supports static analysis for the following:
@@ -43,7 +45,7 @@ Refer [here](Example.md) for example usage.
 
 ## Static Analysis
 
-<img src="docs/manual/images/options-dialog-source.png" />
+<img src="docs/manual/images/options-dialog-source.png" width="569"/>
 
 The command line and GUI versions provide the following checks:
 
@@ -91,7 +93,7 @@ Code formatting and other issues can also be checked for, such as:
 
 (available in the GUI version)
 
-<img src="docs/manual/images/options-dialog-resources.png" />
+<img src="docs/manual/images/options-dialog-resources.png" width="569"/>
 
 Pseudo-translation includes features such as:
 - Multiple methods for character replacement (e.g., replacing characters with accented variations or upper casing them).
