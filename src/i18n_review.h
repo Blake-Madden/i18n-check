@@ -230,7 +230,7 @@ namespace i18n_check
         };
 
     /// @brief Progress callback for analyze().
-    /// @detail This passes back the current counter and name of the file
+    /// @details This passes back the current counter and name of the file
     /// currently being analyzed.
     using analyze_callback = std::function<bool(const size_t, const std::wstring&)>;
     /// @brief Can reset the progress mechanism that the associated analyze_callback is using.

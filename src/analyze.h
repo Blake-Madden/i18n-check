@@ -78,9 +78,6 @@ namespace i18n_check
 
         /** @brief Runs all analyzers on a set of files.
             @param filesToAnalyze The files to analyze.
-            @param[out] filesThatShouldBeConvertedToUTF8 Files that should be converted to UTF-8.
-            @param[out] filesThatContainUTF8Signature UTF-8 files that contain a
-                Windows UTF-8 file signature.
             @param resetCallback Callback function to tell the progress system in @c callback
                 how many items to expect to be processed.
             @param callback Callback function to display the progress.
@@ -111,12 +108,6 @@ namespace i18n_check
                               analyze_callback callback);
 
         /** @returns A formatted summary of the results.
-            @param[in,out] cpp The C++ analyzer that was used.
-            @param[in,out] rc The Windows RC file analyzer that was used.
-            @param[in,out] po The PO file analyzer that was used.
-            @param[out] filesThatShouldBeConvertedToUTF8 Files that should be converted to UTF-8.
-            @param[out] filesThatContainUTF8Signature UTF-8 files that contain a
-                Windows UTF-8 file signature.
             @param verbose @c true to include debug output.*/
         [[nodiscard]]
         std::wstringstream format_results(const bool verbose = false);
