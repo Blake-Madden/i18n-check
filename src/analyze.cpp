@@ -132,7 +132,7 @@ namespace i18n_check
                 {
                 out.write(utfBuffer.c_str(), utfBuffer.size());
                 m_logReport.append(_WXTRANS_WSTR(L"\nPseudo-translation catalog generated at: "))
-                    .append(filePath);
+                    .append(filePath.wstring());
                 }
         };
 
