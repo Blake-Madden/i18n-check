@@ -8,23 +8,22 @@ source('../R/appdown.r')
 # Working with Projects
 
 To create a new project, click the `r keys("New")` button on the ribbon.
-The **New Project** dialog will appear:
+The [**New Project**](#input-settings) dialog will appear:
 
 ![](../images/options-dialog-input.png){width=60% fig-align="center"}
 
 First, select which folder (or file) you wish to analysis.
 If analyzing a folder, you can also optionally select subfolders and files that should be ignored.
 
-Next, select which source code checks to perform from the **Source Code** page.
-(Documentation for these options is available in ch. [-@sec-gui-settings].)
+Next, select which source code checks to perform from the [**Source Code**](#source-code) page.
 
 ![](../images/options-dialog-source.png){width=60% fig-align="center"}
 
-Next, options for performing checks on translation catalogs and creating pseudo-translated resources are avaible on the **Resource Files** page:
+Next, options for performing checks on translation catalogs and creating pseudo-translated resources are available on the [**Resource Files**](#resource-files) page:
 
 ![](../images/options-dialog-resources.png){width=60% fig-align="center"}
 
-Finally, the **Additional Checks** page provides checks unrelated to i18n or l10n, such as code formatting and file encoding issues:
+Finally, the [**Additional Checks**](#additional-checks) page provides checks unrelated to i18n or l10n, such as code formatting and file encoding issues:
 
 ![](../images/options-dialog-additional.png){width=60% fig-align="center"}
 

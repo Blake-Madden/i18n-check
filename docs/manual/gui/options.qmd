@@ -1,6 +1,6 @@
 # Settings {#sec-gui-settings}
 
-## Input
+## Input {#input-settings}
 
 The following options are available when creating or editing a project.
 
@@ -12,11 +12,9 @@ The following options are available when creating or editing a project.
 Folder and file paths being ignored must be absolute or relative to the folder being analyzed.
 :::
 
-::: {.notesection data-latex=""}
-The above options are only available when creating or editing a project.
-:::
+{{< pagebreak >}}
 
-## Source Files
+## Source Code
 
 The following options are available for C/C++ source files.
 
