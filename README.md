@@ -8,7 +8,9 @@ i18n-check
 Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows&reg; RC files.
 
 `i18n-check` is a command-line utility and graphical interface that scans source and resource files to check for
-various i18n and l10n issues. Additionally, the GUI version provides pseudo-translation support for
+various i18n and l10n issues.
+
+Additionally, the GUI version provides pseudo-translation support for
 *gettext* catalogs (\*.po files).
 
 Refer to the [manual](docs/manual/book/i18n-check.pdf) for full documentation.
@@ -45,7 +47,7 @@ Refer [here](Example.md) for example usage.
 
 ## Static Analysis
 
-<img src="docs/manual/images/options-dialog-source.png" width="569"/>
+![](docs/manual/images/options-dialog-source.png)
 
 The command line and GUI versions provide the following checks:
 
@@ -93,7 +95,7 @@ Code formatting and other issues can also be checked for, such as:
 
 (available in the GUI version)
 
-<img src="docs/manual/images/options-dialog-resources.png" width="569"/>
+![](docs/manual/images/options-dialog-resources.png)
 
 Pseudo-translation includes features such as:
 - Multiple methods for character replacement (e.g., replacing characters with accented variations or upper casing them).
@@ -249,7 +251,7 @@ After building, "i18n-check" will be available in the "bin" folder.
 
 # Building (GUI)
 
-<img src="docs/manual/images/main-window.png" />
+![](docs/manual/images/main-window.png)
 
 [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version `i18n-gui`.
 
