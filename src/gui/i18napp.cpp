@@ -18,6 +18,7 @@ I18NArtProvider::I18NArtProvider()
                     { wxART_NEW, L"images/document.svg" },
                     { wxART_REFRESH, L"images/reload.svg" },
                     { wxART_DELETE, L"images/delete.svg" },
+                    { wxART_HELP, L"images/help.svg" },
                     { L"ID_CODE", L"images/code.svg" },
                     { L"ID_TRANSLATIONS", L"images/translations.svg" },
                     { L"ID_CHECK", L"images/check.svg" },
@@ -109,6 +110,8 @@ void I18NFrame::InitControls()
         wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(helpPanel);
         toolbar->AddButton(XRCID("ID_SETTINGS"), _(L"Settings"),
                            wxArtProvider::GetBitmap(L"ID_SETTINGS", wxART_OTHER, wxSize{ 32, 32 }));
+        toolbar->AddButton(wxID_HELP, _(L"Help"),
+                           wxArtProvider::GetBitmap(wxART_HELP, wxART_OTHER, wxSize{ 32, 32 }));
         toolbar->AddButton(wxID_ABOUT, _(L"About"),
                            wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
         }
@@ -334,6 +337,7 @@ void I18NFrame::InitControls()
          XRCID("ID_IGNORE_SELECTED"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSettings, this, XRCID("ID_SETTINGS"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnHelp, this, wxID_HELP);
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -342,6 +346,14 @@ void I18NFrame::InitControls()
             OnSettings(event);
         },
         XRCID("ID_SETTINGS"));
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
+            wxRibbonButtonBarEvent event;
+            OnHelp(event);
+        },
+        wxID_HELP);
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -582,6 +594,13 @@ void I18NFrame::OnSettings([[maybe_unused]] wxCommandEvent&)
     }
 
 //------------------------------------------------------
+void I18NFrame::OnHelp([[maybe_unused]] wxCommandEvent&)
+    {
+    wxLaunchDefaultApplication(wxStandardPaths::Get().GetResourcesDir() +
+                               wxFileName::GetPathSeparator() + L"i18n-check.pdf");
+    }
+
+//------------------------------------------------------
 void I18NFrame::OnAbout([[maybe_unused]] wxCommandEvent&)
     {
     wxAboutDialogInfo aboutInfo;
@@ -816,7 +835,7 @@ void I18NFrame::Process()
             {
             cpp.add_variable_name_pattern_to_ignore(std::wregex{ pattern.wc_str() });
             }
-        catch(...)
+        catch (...)
             {
             wxLogWarning(_(L"Invalid regex pattern for ignored variable name: %s"), pattern);
             }

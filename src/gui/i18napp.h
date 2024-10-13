@@ -76,6 +76,7 @@ class I18NFrame : public wxFrame
     void OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&);
     void OnSettings([[maybe_unused]] wxCommandEvent&);
     void OnAbout([[maybe_unused]] wxCommandEvent&);
+    void OnHelp([[maybe_unused]] wxCommandEvent&);
 
   private:
     void Process();

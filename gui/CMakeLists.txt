@@ -200,6 +200,11 @@ endif()
 
 add_custom_command(TARGET ${PROJECT_NAME}
                    POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_CURRENT_SOURCE_DIR}/../docs/manual/book/i18n-check.pdf $<TARGET_FILE_DIR:${PROJECT_NAME}>${RESOURCE_FOLDER})
+
+add_custom_command(TARGET ${PROJECT_NAME}
+                   POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_CURRENT_SOURCE_DIR}/images $<TARGET_FILE_DIR:${PROJECT_NAME}>${RESOURCE_FOLDER}/images)
 
