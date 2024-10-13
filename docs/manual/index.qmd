@@ -32,9 +32,11 @@ Additionally, it offers specialized support for the following frameworks:
 - wxWidgets
 - Qt
 - KDE
-- GTK+
+- GTK^+^
 - Win32
 - MFC
+
+{{< pagebreak >}}
 
 ## Static Analysis
 
@@ -80,6 +82,8 @@ Code formatting and other issues can also be checked for, such as:
     (e.g., "wxID_HIGHEST + 1" being assigned to two menu ID constants).
   - Hard-coded numbers being assigned to ID variables.
   - Out-of-range values being assigned to MFC IDs [@mfc-ids].
+  
+{{< pagebreak >}}
 
 ## Pseudo-translation
 
@@ -96,7 +100,11 @@ When pseudo-translating, a copy of all string catalogs will be created and have 
 with mutations of their respective source strings.
 These files (which will have a "pseudo\_" prefix) can then be compiled and loaded by your application for integration testing.
 
-[^1]: Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/)[@gettext],
+::: {.notesection data-latex=""}
+After processing a folder, the **Log** tab of the bottom window will display a list of all pseudo-translated resource files that were generated.
+:::
+
+[^1]: Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),
 [wxWidgets](https://www.wxwidgets.org), [Qt](https://www.qt.io), or
 [KDE](https://develop.kde.org/docs/plasma/widget/translations-i18n) (ki18n) i18n functions.
 This includes functions and macros such as `gettext()`, `_()`, `tr()`, `translate()`,
