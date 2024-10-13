@@ -872,7 +872,8 @@ void I18NFrame::Process()
             }
         catch (...)
             {
-            wxLogWarning(_(L"Invalid regex pattern for ignored variable name: %s"), pattern);
+            m_logWindow->AppendText(wxString::Format(
+                _(L"\nInvalid regex pattern for ignored variable name: %s"), pattern));
             }
         }
     i18n_check::rc_file_review rc;
