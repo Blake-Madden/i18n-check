@@ -26,6 +26,7 @@ struct I18NOptions
 
     wxString m_filePath;
     wxArrayString m_excludedPaths;
+    wxArrayString m_varsToIgnore;
     int64_t m_options{ static_cast<int64_t>(
         i18n_check::review_style::check_l10n_strings |
         i18n_check::review_style::check_suspect_l10n_string_usage |

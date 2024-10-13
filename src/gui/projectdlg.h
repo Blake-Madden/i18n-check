@@ -62,6 +62,7 @@ class NewProjectDialog final : public wxDialog
         options.m_options = GetOptions();
         options.m_filePath = GetPath();
         options.m_excludedPaths = GetExcludedPath();
+        options.m_varsToIgnore = m_varsToIgnore;
         options.m_fuzzyTranslations = UseFuzzyTranslations();
         options.m_addPseudoTransBrackets = m_addPseudoTransBrackets;
         options.m_pseudoTrack = m_pseudoTrack;
@@ -82,6 +83,7 @@ class NewProjectDialog final : public wxDialog
         SetOptions(static_cast<i18n_check::review_style>(options.m_options));
         m_filePath = options.m_filePath;
         m_excludedPaths = options.m_excludedPaths;
+        m_varsToIgnore = options.m_varsToIgnore;
         m_fuzzyTranslations = options.m_fuzzyTranslations;
         m_widthPseudoIncrease = options.m_widthPseudoIncrease;
         m_addPseudoTransBrackets = options.m_addPseudoTransBrackets;
@@ -118,6 +120,10 @@ class NewProjectDialog final : public wxDialog
             {
             m_exclusionList->SetStrings(m_excludedPaths);
             }
+        if (m_ignoredVarsList != nullptr)
+            {
+            m_ignoredVarsList->SetStrings(m_varsToIgnore);
+            }
         }
 
     /// @returns The path of the selected folder.
@@ -137,6 +143,12 @@ class NewProjectDialog final : public wxDialog
     const wxArrayString& GetExcludedPath() const noexcept
         {
         return m_excludedPaths;
+        }
+    
+    [[nodiscard]]
+    const wxArrayString& GetIgnoreVariables() const noexcept
+        {
+        return m_varsToIgnore;
         }
 
     [[nodiscard]]
@@ -269,6 +281,7 @@ class NewProjectDialog final : public wxDialog
 
     wxString m_filePath;
     wxArrayString m_excludedPaths;
+    wxArrayString m_varsToIgnore;
     // options for all file types
     bool m_notL10NAvailable{ true };
     bool m_suspectL10NString{ true };
@@ -311,6 +324,7 @@ class NewProjectDialog final : public wxDialog
     wxStaticText* m_pseudoSliderPercentLabel{ nullptr };
     wxSlider* m_pseudoIncreaseSlider{ nullptr };
     wxEditableListBox* m_exclusionList{ nullptr };
+    wxEditableListBox* m_ignoredVarsList{ nullptr };
     };
 
     /** @}*/

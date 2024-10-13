@@ -810,6 +810,17 @@ void I18NFrame::Process()
     cpp.set_min_words_for_classifying_unavailable_string(
         m_activeProjectOptions.m_minWordsForClassifyingUnavailableString);
     cpp.set_min_cpp_version(m_activeProjectOptions.m_minCppVersion);
+    for (const auto& pattern : m_activeProjectOptions.m_varsToIgnore)
+        {
+        try
+            {
+            cpp.add_variable_name_pattern_to_ignore(std::wregex{ pattern.wc_str() });
+            }
+        catch(...)
+            {
+            wxLogWarning(_(L"Invalid regex pattern for ignored variable name: %s"), pattern);
+            }
+        }
     i18n_check::rc_file_review rc;
     rc.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
     rc.allow_translating_punctuation_only_strings(

@@ -178,6 +178,12 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
 
     m_minCppVersion = MinCppVersion();
 
+    if (m_exclusionList != nullptr)
+        {
+        m_exclusionList->GetStrings(m_excludedPaths);
+        }
+    m_ignoredVarsList->GetStrings(m_varsToIgnore);
+
     if (IsModal())
         {
         EndModal(wxID_OK);
@@ -369,6 +375,12 @@ void NewProjectDialog::CreateControls()
                      wxGBPosition(currentRow, 0), wxGBSpan{});
         gbSizer->Add(buildCodeLabel(L"notL10NAvailable", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+        m_ignoredVarsList = new wxEditableListBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                                  _(L"Ignore strings assigned to variables named:"),
+                                                  wxDefaultPosition, wxSize{ -1, FromDIP(100) });
+        gbSizer->Add(m_ignoredVarsList, wxGBPosition(currentRow++, 0), wxGBSpan{ 1, 2 },
+                     wxLEFT | wxEXPAND, wxSizerFlags::GetDefaultBorder() * 3);
 
         gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
                                     _(L"Translatable strings that shouldn't be"), wxDefaultPosition,

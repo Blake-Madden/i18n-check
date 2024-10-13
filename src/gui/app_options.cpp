@@ -29,6 +29,17 @@ void I18NOptions::Save(const wxString& filePath)
             }
         }
 
+    auto* ignoredVarsNode = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"ignored-variables");
+    for (const auto& ignoredVar : m_varsToIgnore)
+        {
+        if (!ignoredVar.empty())
+            {
+            auto* pathNode =
+                new wxXmlNode(ignoredVarsNode, wxXML_ELEMENT_NODE, L"ignored-variable");
+            pathNode->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, ignoredVar));
+            }
+        }
+
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"checks");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_options)));
 
@@ -82,6 +93,7 @@ void I18NOptions::Load(const wxString& filePath)
     // reset options
     m_filePath.clear();
     m_excludedPaths.clear();
+    m_varsToIgnore.clear();
     m_options = static_cast<int64_t>(i18n_check::review_style::check_l10n_strings |
                                      i18n_check::review_style::check_suspect_l10n_string_usage |
                                      i18n_check::review_style::check_not_available_for_l10n |
@@ -135,6 +147,18 @@ void I18NOptions::Load(const wxString& filePath)
                     m_excludedPaths.push_back(excludedChild->GetNodeContent());
                     }
                 excludedChild = excludedChild->GetNext();
+                }
+            }
+        else if (child->GetName() == L"ignored-variables")
+            {
+            wxXmlNode* ignoredVarChild = child->GetChildren();
+            while (ignoredVarChild != nullptr)
+                {
+                if (!ignoredVarChild->GetNodeContent().empty())
+                    {
+                    m_varsToIgnore.push_back(ignoredVarChild->GetNodeContent());
+                    }
+                ignoredVarChild = ignoredVarChild->GetNext();
                 }
             }
         else if (child->GetName() == L"checks")

@@ -27,6 +27,10 @@ Run the following checks
 
 **Strings not exposed for translation**: select this to check for strings not exposed for translation.
 
+**Ignore strings assigned to variables named:**: when finding strings not exposed for translation, strings can be ignored if assigned to variables from this list.
+For example, if a list of color names are assigned to a variable named `colorMode` that you wish to ignore, then add "colorMode" to this list.
+You can enter variable names (e.g., "colorMode") or regular expressions (e.g., "(RELEASE|DEBUG)check[0-9]?") here.
+
 **Translatable strings that shouldn\'t be**: select this to check for translatable strings that should not be (e.g., numbers, keywords, `printf()` commands).
 
 **Translatable strings being used in debug functions**: select this to check for translatable strings being used in internal contexts (e.g., debugging and console functions).
