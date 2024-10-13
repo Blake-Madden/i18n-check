@@ -741,7 +741,7 @@ namespace i18n_check
             // Unix calls
             L"popen", L"dlopen", L"dlsym", L"g_signal_connect", L"handle_system_error",
             // macOS calls
-            L"CFBundleCopyResourceURL",
+            L"CFBundleCopyResourceURL", L"sysctlbyname",
             // Windows/MFC calls
             L"OutputDebugString", L"OutputDebugStringA", L"OutputDebugStringW", L"QueryValue",
             L"ASSERT", L"_ASSERTE", L"TRACE", L"ATLTRACE", L"TRACE0", L"ATLTRACE2", L"ATLENSURE",
