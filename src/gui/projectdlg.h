@@ -144,7 +144,7 @@ class NewProjectDialog final : public wxDialog
         {
         return m_excludedPaths;
         }
-    
+
     [[nodiscard]]
     const wxArrayString& GetIgnoreVariables() const noexcept
         {
