@@ -238,7 +238,7 @@ void NewProjectDialog::OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEve
 
     wxArrayString paths;
     dirDlg.GetPaths(paths);
-    m_excludedPaths.insert(m_excludedPaths.cend(), paths.cbegin(), paths.cend());
+    m_excludedPaths.insert(m_excludedPaths.end(), paths.begin(), paths.end());
     m_exclusionList->SetStrings(m_excludedPaths);
 
     SetFocus();
@@ -258,7 +258,7 @@ void NewProjectDialog::OnExcludedFileButtonClick([[maybe_unused]] wxCommandEvent
 
     wxArrayString paths;
     dialog.GetPaths(paths);
-    m_excludedPaths.insert(m_excludedPaths.cend(), paths.cbegin(), paths.cend());
+    m_excludedPaths.insert(m_excludedPaths.end(), paths.begin(), paths.end());
     m_exclusionList->SetStrings(m_excludedPaths);
 
     SetFocus();

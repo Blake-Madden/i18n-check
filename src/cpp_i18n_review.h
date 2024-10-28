@@ -33,9 +33,6 @@ namespace i18n_check
         void operator()(std::wstring_view srcText, const std::wstring& fileName) final;
 
       private:
-#ifdef __UNITTEST
-      public:
-#endif
         /// @brief Strips off the trailing template and global accessor (i.e., "::")
         ///     information from a function/variable.
         void remove_decorations(std::wstring& str) const final;
@@ -43,6 +40,7 @@ namespace i18n_check
         /// @returns @c true if provided variable type is just a decorator after the real
         ///     variable type (e.g., const) and should be skipped.
         /// @param variableType The parsed variable type to review.
+        [[nodiscard]]
         bool is_variable_type_decorator(const std::wstring_view variableType) const final
             {
             return variableType == L"const";

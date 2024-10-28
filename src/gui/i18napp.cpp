@@ -779,7 +779,7 @@ void I18NFrame::SaveSourceFileIfNeeded()
         if (wxFileName{ m_activeSourceFile }.GetExt().CmpNoCase(L"rc") == 0)
             {
             std::wstring encoding{ L"utf-8" };
-            const std::wstring fileText = m_editor->GetText().wc_string();
+            const std::wstring fileText = m_editor->GetText().wc_str();
             const std::wregex codePageRE{ _DT(LR"(#pragma code_page\(([0-9]+)\))") };
             std::wsmatch matchResults;
             if (std::regex_search(fileText.cbegin(), fileText.cend(), matchResults, codePageRE) &&
