@@ -30,6 +30,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 message(STATUS "Build: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Generator: ${CMAKE_GENERATOR}")
 
 if(APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "" FORCE)
@@ -43,8 +44,9 @@ if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
         set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0 CACHE STRING "iOS Deployment Target")
     else()
-        set(CMAKE_OSX_DEPLOYMENT_TARGET 10.10 CACHE STRING "macOS Deployment Target")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE STRING "macOS Deployment Target")
     endif()
+    message(STATUS "macOS deployment target: ${CMAKE_OSX_DEPLOYMENT_TARGET}")
 endif()
 
 project(i18n-gui VERSION 2024.0.0.0 DESCRIPTION "i18n-check GUI")
@@ -84,7 +86,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
                "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
 
 # Build the documentation
-########################
+#########################
 find_package(Doxygen)
 if(TARGET doxygen-docs)
     if(NOT DOXYGEN_FOUND)
@@ -171,10 +173,16 @@ elseif(UNIX)
 endif()
 
 # Link required libraries to the executable
-if(WIN32)
+if(WIN32 OR APPLE)
+    # AppleClang dropped support for OpenMP
+    # Including TBB is not necessary for macOS and actually breaks hardened runtime
+    # because that library is not included by default with the OS (XCode installs it)
+    # and it is not signed.
     target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
 elseif(UNIX)
     # Add OpenMP for mutlithreading
+    # TBB is required for GCC linkage sometimes, although this app is not explicitly using it,
+    # so try to link it in.
     find_package(OpenMP)
     find_package(TBB)
     if(OpenMP_FOUND AND TBB_FOUND)
@@ -195,6 +203,9 @@ endif()
 if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         RESOURCE app-logo.icns
+        # call the app bundle i18n-check, but the binary inside of it i18n-gui
+        OUTPUT_NAME "i18n-check"
+        XCODE_ATTRIBUTE_EXECUTABLE_NAME ${PROJECT_NAME}
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in)
 endif()
 
