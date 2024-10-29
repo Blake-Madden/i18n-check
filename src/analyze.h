@@ -146,10 +146,10 @@ namespace i18n_check
             }
 
       private:
-        i18n_check::cpp_i18n_review* m_csharp{ nullptr };
+        i18n_check::cpp_i18n_review* m_cpp{ nullptr };
         i18n_check::rc_file_review* m_rc{ nullptr };
         i18n_check::po_file_review* m_po{ nullptr };
-        i18n_check::cpp_i18n_review* m_cpp{ nullptr };
+        i18n_check::cpp_i18n_review* m_csharp{ nullptr };
 
         std::vector<std::wstring> m_filesThatShouldBeConvertedToUTF8;
         std::vector<std::wstring> m_filesThatContainUTF8Signature;
