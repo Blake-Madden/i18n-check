@@ -209,11 +209,9 @@ namespace i18n_check
         m_filesThatShouldBeConvertedToUTF8.clear();
         m_filesThatContainUTF8Signature.clear();
         m_cpp->clear_results();
-        m_cpp->reserve(filesToAnalyze.size() / 3);
         m_rc->clear_results();
-        m_rc->reserve(filesToAnalyze.size() / 3);
         m_po->clear_results();
-        m_po->reserve(filesToAnalyze.size() / 3);
+        m_csharp->clear_results();
 
         size_t currentFileIndex{ 0 };
 
@@ -246,6 +244,10 @@ namespace i18n_check
                         {
                         (*m_po)(fileUtf8Text, file);
                         }
+                    else if (fileType == file_review_type::cs)
+                        {
+                        (*m_csharp)(fileUtf8Text, file);
+                        }
                     else
                         {
                         (*m_cpp)(fileUtf8Text, file);
@@ -270,6 +272,10 @@ namespace i18n_check
                         {
                         (*m_po)(fileUtf16Text, file);
                         }
+                    else if (fileType == file_review_type::cs)
+                        {
+                        (*m_csharp)(fileUtf16Text, file);
+                        }
                     else
                         {
                         (*m_cpp)(fileUtf16Text, file);
@@ -291,6 +297,10 @@ namespace i18n_check
                     else if (fileType == file_review_type::po)
                         {
                         (*m_po)(str, file);
+                        }
+                    else if (fileType == file_review_type::cs)
+                        {
+                        (*m_csharp)(str, file);
                         }
                     else
                         {
@@ -349,6 +359,8 @@ namespace i18n_check
         report << _(L"Statistics") << L"\n###################################################\n"
                << _(L"Strings available for translation within C/C++ source files: ")
                << m_cpp->get_localizable_strings().size() << L"\n"
+               << _(L"Strings available for translation within C# source files: ")
+               << m_csharp->get_localizable_strings().size() << L"\n"
                << _(L"String table entries within Windows resource files: ")
                << m_rc->get_localizable_strings().size() << L"\n"
                << _(L"Translation entries within PO message catalog files: ")
@@ -429,146 +441,232 @@ namespace i18n_check
                 }
             }
 
-        // C/C++ warnings
-        for (const auto& val : m_cpp->get_unsafe_localizable_strings())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
-            if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
+        // Source code warnings
+        const auto formatSourceFileWarnings =
+            [&replaceSpecialSpaces, &report, &verbose](const auto* sourceParser)
+        {
+            for (const auto& val : sourceParser->get_unsafe_localizable_strings())
                 {
-                report << _(L"String available for translation that probably "
-                            "should not be in function call: ")
-                       << val.m_usage.m_value << L"\t";
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
+                if (val.m_usage.m_type ==
+                    i18n_review::string_info::usage_info::usage_type::function)
+                    {
+                    report << _(L"String available for translation that probably "
+                                "should not be in function call: ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                else if (val.m_usage.m_type ==
+                         i18n_review::string_info::usage_info::usage_type::variable)
+                    {
+                    report << _(L"String available for translation that probably "
+                                "should not be assigned to variable: ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                else
+                    {
+                    report << _(L"String available for translation that probably "
+                                "should not be within ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                report << L"[suspectL10NString]\n";
                 }
-            else if (val.m_usage.m_type ==
-                     i18n_review::string_info::usage_info::usage_type::variable)
-                {
-                report << _(L"String available for translation that probably "
-                            "should not be assigned to variable: ")
-                       << val.m_usage.m_value << L"\t";
-                }
-            else
-                {
-                report << _(L"String available for translation that probably "
-                            "should not be within ")
-                       << val.m_usage.m_value << L"\t";
-                }
-            report << L"[suspectL10NString]\n";
-            }
 
-        for (const auto& val : m_cpp->get_localizable_strings_with_urls())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
-            if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
+            for (const auto& val : sourceParser->get_localizable_strings_with_urls())
                 {
-                report << _(L"String available for translation that contains an "
-                            "URL or email address in function call: ")
-                       << val.m_usage.m_value << L"\t";
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
+                if (val.m_usage.m_type ==
+                    i18n_review::string_info::usage_info::usage_type::function)
+                    {
+                    report << _(L"String available for translation that contains an "
+                                "URL or email address in function call: ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                else if (val.m_usage.m_type ==
+                         i18n_review::string_info::usage_info::usage_type::variable)
+                    {
+                    report << _(L"String available for translation that contains an "
+                                "URL or email address assigned to variable: ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                else
+                    {
+                    report << _(L"String available for translation that contains an "
+                                "URL or email address within ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                report << L"[urlInL10NString]\n";
                 }
-            else if (val.m_usage.m_type ==
-                     i18n_review::string_info::usage_info::usage_type::variable)
-                {
-                report << _(L"String available for translation that contains an "
-                            "URL or email address assigned to variable: ")
-                       << val.m_usage.m_value << L"\t";
-                }
-            else
-                {
-                report << _(L"String available for translation that contains an "
-                            "URL or email address within ")
-                       << val.m_usage.m_value << L"\t";
-                }
-            report << L"[urlInL10NString]\n";
-            }
 
-        for (const auto& val : m_cpp->get_localizable_strings_in_internal_call())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
-            if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
+            for (const auto& val : sourceParser->get_localizable_strings_in_internal_call())
                 {
-                report << _(L"Localizable string being used within non-user facing function call: ")
-                       << val.m_usage.m_value << L"\t";
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
+                if (val.m_usage.m_type ==
+                    i18n_review::string_info::usage_info::usage_type::function)
+                    {
+                    report << _(L"Localizable string being used within non-user facing function "
+                                L"call: ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                else if (val.m_usage.m_type ==
+                         i18n_review::string_info::usage_info::usage_type::variable)
+                    {
+                    report << _(L"Localizable string being assigned to non-user facing variable: ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                else
+                    {
+                    report << _(L"Localizable string being assigned to: ") << val.m_usage.m_value
+                           << L"\t";
+                    }
+                report << L"[suspectL10NUsage]\n";
                 }
-            else if (val.m_usage.m_type ==
-                     i18n_review::string_info::usage_info::usage_type::variable)
+
+            for (const auto& val : sourceParser->get_not_available_for_localization_strings())
                 {
-                report << _(L"Localizable string being assigned to non-user facing variable: ")
-                       << val.m_usage.m_value << L"\t";
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
+                if (val.m_usage.m_type ==
+                    i18n_review::string_info::usage_info::usage_type::function)
+                    {
+                    report << _(L"String not available for translation in function call: ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                else if (val.m_usage.m_type ==
+                         i18n_review::string_info::usage_info::usage_type::variable)
+                    {
+                    report << _(L"String not available for translation assigned to variable: ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                else
+                    {
+                    report << _(L"String not available for translation assigned to ")
+                           << val.m_usage.m_value << L"\t";
+                    }
+                report << L"[notL10NAvailable]\n";
                 }
-            else
+
+            for (const auto& val : sourceParser->get_deprecated_macros())
                 {
-                report << _(L"Localizable string being assigned to: ") << val.m_usage.m_value
-                       << L"\t";
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << replaceSpecialSpaces(val.m_string) << L"\t" << val.m_usage.m_value
+                       << L"\t[deprecatedMacro]\n";
                 }
-            report << L"[suspectL10NUsage]\n";
-            }
 
-        for (const auto& val : m_cpp->get_not_available_for_localization_strings())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
-            if (val.m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function)
+            for (const auto& val : sourceParser->get_printf_single_numbers())
                 {
-                report << _(L"String not available for translation in function call: ")
-                       << val.m_usage.m_value << L"\t";
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
+                       << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                       << _(L"Prefer using std::to_[w]string() instead of printf() to "
+                            "format a number.")
+                       << L"\t[printfSingleNumber]\n";
                 }
-            else if (val.m_usage.m_type ==
-                     i18n_review::string_info::usage_info::usage_type::variable)
+
+            for (const auto& val : sourceParser->get_duplicates_value_assigned_to_ids())
                 {
-                report << _(L"String not available for translation assigned to variable: ")
-                       << val.m_usage.m_value << L"\t";
+                report << val.m_file_name << L"\t" << val.m_line << L"\t\t"
+                       << replaceSpecialSpaces(val.m_string) << L"\t"
+                       << _(L"Verify that duplicate assignment was intended. "
+                            "If correct, consider assigning the first ID variable by name "
+                            "to the second one to make this intention clear.")
+                       << L"\t[dupValAssignedToIds]\n";
                 }
-            else
+
+            for (const auto& val : sourceParser->get_ids_assigned_number())
                 {
-                report << _(L"String not available for translation assigned to ")
-                       << val.m_usage.m_value << L"\t";
+                report << val.m_file_name << L"\t" << val.m_line << L"\t\t"
+                       << replaceSpecialSpaces(val.m_string) << L"\t"
+                       << _(L"Prefer using ID constants provided by your framework when "
+                            "assigning values to an ID variable.")
+                       << L"\t[numberAssignedToId]\n";
                 }
-            report << L"[notL10NAvailable]\n";
-            }
 
-        for (const auto& val : m_cpp->get_deprecated_macros())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << replaceSpecialSpaces(val.m_string) << L"\t" << val.m_usage.m_value
-                   << L"\t[deprecatedMacro]\n";
-            }
+            for (const auto& val : sourceParser->get_malformed_strings())
+                {
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
+                       << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                       << _(L"Malformed syntax in string.") << L"\t[malformedString]\n";
+                }
 
-        for (const auto& val : m_cpp->get_printf_single_numbers())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << _(L"Prefer using std::to_[w]string() instead of printf() to "
-                        "format a number.")
-                   << L"\t[printfSingleNumber]\n";
-            }
+            for (const auto& val : sourceParser->get_unencoded_ext_ascii_strings())
+                {
+                std::wstringstream encodingRecommendations;
+                auto untabbedStr{ replaceSpecialSpaces(val.m_string) };
+                for (const auto& ch : untabbedStr)
+                    {
+                    if (ch > 127)
+                        {
+                        encodingRecommendations << LR"(\U)" << std::setfill(L'0') << std::setw(8)
+                                                << std::uppercase << std::hex
+                                                << static_cast<int>(ch);
+                        }
+                    else
+                        {
+                        encodingRecommendations << ch;
+                        }
+                    }
 
-        for (const auto& val : m_cpp->get_duplicates_value_assigned_to_ids())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t\t"
-                   << replaceSpecialSpaces(val.m_string) << L"\t"
-                   << _(L"Verify that duplicate assignment was intended. "
-                        "If correct, consider assigning the first ID variable by name "
-                        "to the second one to make this intention clear.")
-                   << L"\t[dupValAssignedToIds]\n";
-            }
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                       << _(L"String contains extended ASCII characters that should be encoded. "
+                            "Recommended change: '")
+                       << encodingRecommendations.str() << L"'\t[unencodedExtASCII]\n";
+                }
 
-        for (const auto& val : m_cpp->get_ids_assigned_number())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t\t"
-                   << replaceSpecialSpaces(val.m_string) << L"\t"
-                   << _(L"Prefer using ID constants provided by your framework when "
-                        "assigning values to an ID variable.")
-                   << L"\t[numberAssignedToId]\n";
-            }
+            for (const auto& val : sourceParser->get_trailing_spaces())
+                {
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
+                       << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                       << _(L"Trailing space(s) detected at end of line.")
+                       << L"\t[trailingSpaces]\n";
+                }
 
-        for (const auto& val : m_cpp->get_malformed_strings())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << _(L"Malformed syntax in string.") << L"\t[malformedString]\n";
-            }
+            for (const auto& val : sourceParser->get_tabs())
+                {
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
+                       << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                       << _(L"Tab detected in file; prefer using spaces.") << L"\t[tabs]\n";
+                }
+
+            for (const auto& val : sourceParser->get_wide_lines())
+                {
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
+                       << replaceSpecialSpaces(val.m_string) << L"\"\t" << _(L"Line length: ")
+                       << val.m_usage.m_value << L"\t[wideLine]\n";
+                }
+
+            for (const auto& val : sourceParser->get_comments_missing_space())
+                {
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
+                       << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                       << _(L"Space should be inserted between comment tag and comment.")
+                       << L"\t[commentMissingSpace]\n";
+                }
+
+            if (verbose)
+                {
+                for (const auto& parseErr : sourceParser->get_error_log())
+                    {
+                    report << parseErr.m_file_name << L"\t";
+                    if (parseErr.m_line != std::wstring::npos)
+                        {
+                        report << parseErr.m_line;
+                        }
+                    report << L"\t";
+                    if (parseErr.m_column != std::wstring::npos)
+                        {
+                        report << parseErr.m_column;
+                        }
+                    report << L"\t" << parseErr.m_resourceString << L"\t" << parseErr.m_message
+                           << L"\t[debugParserInfo]\n";
+                    }
+                }
+        };
+
+        formatSourceFileWarnings(m_cpp);
+        formatSourceFileWarnings(m_csharp);
 
         for (const auto& file : m_filesThatShouldBeConvertedToUTF8)
             {
@@ -585,78 +683,6 @@ namespace i18n_check
                         "It is recommended to save without the file signature for "
                         "best compiler portability.")
                    << L"\t[UTF8FileWithBOM]\n";
-            }
-
-        for (const auto& val : m_cpp->get_unencoded_ext_ascii_strings())
-            {
-            std::wstringstream encodingRecommendations;
-            auto untabbedStr{ replaceSpecialSpaces(val.m_string) };
-            for (const auto& ch : untabbedStr)
-                {
-                if (ch > 127)
-                    {
-                    encodingRecommendations << LR"(\U)" << std::setfill(L'0') << std::setw(8)
-                                            << std::uppercase << std::hex << static_cast<int>(ch);
-                    }
-                else
-                    {
-                    encodingRecommendations << ch;
-                    }
-                }
-
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
-                   << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << _(L"String contains extended ASCII characters that should be encoded. "
-                        "Recommended change: '")
-                   << encodingRecommendations.str() << L"'\t[unencodedExtASCII]\n";
-            }
-
-        for (const auto& val : m_cpp->get_trailing_spaces())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << _(L"Trailing space(s) detected at end of line.") << L"\t[trailingSpaces]\n";
-            }
-
-        for (const auto& val : m_cpp->get_tabs())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << _(L"Tab detected in file; prefer using spaces.") << L"\t[tabs]\n";
-            }
-
-        for (const auto& val : m_cpp->get_wide_lines())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << replaceSpecialSpaces(val.m_string) << L"\"\t" << _(L"Line length: ")
-                   << val.m_usage.m_value << L"\t[wideLine]\n";
-            }
-
-        for (const auto& val : m_cpp->get_comments_missing_space())
-            {
-            report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t\""
-                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
-                   << _(L"Space should be inserted between comment tag and comment.")
-                   << L"\t[commentMissingSpace]\n";
-            }
-
-        if (verbose)
-            {
-            for (const auto& parseErr : m_cpp->get_error_log())
-                {
-                report << parseErr.m_file_name << L"\t";
-                if (parseErr.m_line != std::wstring::npos)
-                    {
-                    report << parseErr.m_line;
-                    }
-                report << L"\t";
-                if (parseErr.m_column != std::wstring::npos)
-                    {
-                    report << parseErr.m_column;
-                    }
-                report << L"\t" << parseErr.m_resourceString << L"\t" << parseErr.m_message
-                       << L"\t[debugParserInfo]\n";
-                }
             }
 
         return report;

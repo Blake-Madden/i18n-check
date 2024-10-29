@@ -217,6 +217,12 @@ namespace i18n_check
         L"std::wregex",
         L"regex",
         L"std::regex",
+        L"ifstream",
+        L"ofstream",
+        L"FileStream",
+        L"StreamWriter",
+        L"CultureInfo",
+        L"TagHelperAttribute",
         L"QRegularExpression",
         L"wxDataViewRenderer",
         L"wxDataViewBitmapRenderer",
@@ -599,6 +605,8 @@ namespace i18n_check
             std::wregex(LR"((Microsoft )VS Code)"), std::wregex(LR"((Microsoft )?Visual Studio)"),
             std::wregex(LR"((Microsoft )?Visual C\+\+)"),
             std::wregex(LR"((Microsoft )?Visual Basic)"),
+            // culture language tags
+            std::wregex(LR"([a-z]{2,3}[\-_][A-Z]{2,3})"),
             // image formats
             std::wregex(LR"(TARGA|PNG|JPEG|JPG|BMP|GIF)")
         };
@@ -652,7 +660,8 @@ namespace i18n_check
             L"std::u16string", L"std::u32string", L"std::pmr::basic_string", L"std::pmr::string",
             L"std::pmr::wstring", L"std::pmr::u8string", L"std::pmr::u16string",
             L"std::pmr::u32string", L"pmr::basic_string", L"pmr::string", L"pmr::wstring",
-            L"pmr::u8string", L"pmr::u16string", L"pmr::u32string",
+            L"pmr::u8string", L"pmr::u16string", L"pmr::u32string", L"std::ifstream",
+            L"std::ofstream",
             // MFC, ATL
             L"CString", L"_bstr_t",
             // Java
@@ -723,8 +732,6 @@ namespace i18n_check
             L"ASMJIT_DEPRECATED",
             // low-level printf functions
             L"wprintf", L"printf", L"sprintf", L"snprintf", L"fprintf", L"wxSnprintf",
-            // actual console printf (we will consider that most console apps are localized)
-            L"printf",
             // KDE
             L"getDocumentProperty", L"setDocumentProperty",
             // GTK
@@ -754,6 +761,10 @@ namespace i18n_check
             L"CLSIDFromProgID", L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
             L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
             L"HasProperty", L"SetRegistryKey", L"CreateDC",
+            // .NET
+            L"FindSystemTimeZoneById", L"CreateSpecificCulture", L"DebuggerDisplay", L"Debug.Fail",
+            L"DeriveKey", L"Assert.Fail", L"Debug.Assert", L"Debug.Print", L"Debug.WriteLine",
+            L"Debug.Write", L"Debug.WriteIf", L"Debug.WriteLineIf", L"Assert.Equal",
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
@@ -781,6 +792,12 @@ namespace i18n_check
             L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose", L"SDL_LogWarn",
             // GnuCash
             L"PERR", L"PWARN", L"PINFO", L"ENTER", L"LEAVE",
+            // actual console functions
+            // (we will consider that most console apps are not localized, or if being used
+            //  in a GUI then the message is meant for developers)
+            L"printf", L"Console.WriteLine",
+            // .NET
+            L"LoggerMessage",
             // other programs
             L"log_message", L"outLog"
         };
@@ -1789,24 +1806,28 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    std::wstring i18n_review::collapse_multipart_string(const std::wstring& str)
+    std::wstring i18n_review::collapse_multipart_string(std::wstring& str)
         {
-        // leave raw strings as-is
-        if (str.length() >= 2 && str.front() == L'(' && str.back() == L')')
+        // for strings that span multiple lines, remove the start/end quotes and newlines
+        // between them, combining this into one string
+        const std::wregex multilineRegex(LR"(([^\\])("[\s]+"))");
+        str = std::regex_replace(str, multilineRegex, L"$1");
+        // replace any doubled-up quotes with single
+        // (C# does this for raw strings)
+        if (m_collapse_double_quotes)
             {
-            return str;
+            string_util::replace_all<std::wstring>(str, LR"("")", LR"(")");
             }
-        const std::wregex reg(LR"(([^\\])("[\s]*"))");
-        return std::regex_replace(str, reg, L"$1");
+        return str;
         }
 
     //--------------------------------------------------
     void i18n_review::process_strings()
         {
-        const auto processStrings = [](auto& strings)
+        const auto processStrings = [this](auto& strings)
         {
             std::for_each(strings.begin(), strings.end(),
-                          [](auto& val)
+                          [this](auto& val)
                           { val.m_string = i18n_review::collapse_multipart_string(val.m_string); });
         };
         processStrings(m_localizable_strings);

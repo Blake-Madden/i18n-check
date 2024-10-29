@@ -136,9 +136,18 @@ namespace i18n_check
                 const wchar_t* startPos = std::prev(cppText, 1);
                 const wchar_t* functionVarNamePos{ nullptr };
                 bool isRawString{ false };
+                wchar_t currentRawStringMarker{ L'R' };
                 // if a raw string, step over 'R'
-                if (*startPos == L'R')
+                if (is_raw_string_marker(*startPos))
                     {
+                    currentRawStringMarker = *startPos;
+                    isRawString = true;
+                    std::advance(startPos, -1);
+                    }
+                // special case for triple quote (supported by languages like C#)
+                if (std::wcsncmp(cppText, LR"(""")", 3) == 0)
+                    {
+                    currentRawStringMarker = *cppText;
                     isRawString = true;
                     std::advance(startPos, -1);
                     }
@@ -181,7 +190,8 @@ namespace i18n_check
                 wchar_t* end = cppText;
                 if (isRawString)
                     {
-                    end = std::wcsstr(end, L")\"");
+                    cppText = raw_step_into_string(cppText, currentRawStringMarker);
+                    end = find_raw_string_end(cppText, currentRawStringMarker);
                     }
                 else
                     {
@@ -257,7 +267,8 @@ namespace i18n_check
                     {
                     process_quote(cppText, end, functionVarNamePos, variableName, functionName,
                                   variableType, deprecatedMacroEncountered, parameterPosition);
-                    cppText = std::next(end, (isRawString ? 2 : 1));
+                    cppText = std::next(
+                        end, (isRawString ? get_raw_step_size(currentRawStringMarker) + 1 : 1));
                     if (cppText >= endSentinel)
                         {
                         break;

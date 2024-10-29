@@ -855,27 +855,37 @@ void I18NFrame::Process()
                                                 excludedInfo.excludedFiles);
     }();
 
+    const auto setSourceParserInfo = [this](auto& parser)
+    {
+        parser.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
+        parser.log_messages_can_be_translatable(
+            m_activeProjectOptions.m_logMessagesCanBeTranslated);
+        parser.allow_translating_punctuation_only_strings(
+            m_activeProjectOptions.m_allowTranslatingPunctuationOnlyStrings);
+        parser.exceptions_should_be_translatable(
+            m_activeProjectOptions.m_exceptionsShouldBeTranslatable);
+        parser.set_min_words_for_classifying_unavailable_string(
+            m_activeProjectOptions.m_minWordsForClassifyingUnavailableString);
+        parser.set_min_cpp_version(m_activeProjectOptions.m_minCppVersion);
+        for (const auto& pattern : m_activeProjectOptions.m_varsToIgnore)
+            {
+            try
+                {
+                parser.add_variable_name_pattern_to_ignore(std::wregex{ pattern.wc_str() });
+                }
+            catch (...)
+                {
+                m_logWindow->AppendText(wxString::Format(
+                    _(L"\nInvalid regex pattern for ignored variable name: %s"), pattern));
+                }
+            }
+    };
+
     i18n_check::cpp_i18n_review cpp;
-    cpp.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
-    cpp.log_messages_can_be_translatable(m_activeProjectOptions.m_logMessagesCanBeTranslated);
-    cpp.allow_translating_punctuation_only_strings(
-        m_activeProjectOptions.m_allowTranslatingPunctuationOnlyStrings);
-    cpp.exceptions_should_be_translatable(m_activeProjectOptions.m_exceptionsShouldBeTranslatable);
-    cpp.set_min_words_for_classifying_unavailable_string(
-        m_activeProjectOptions.m_minWordsForClassifyingUnavailableString);
-    cpp.set_min_cpp_version(m_activeProjectOptions.m_minCppVersion);
-    for (const auto& pattern : m_activeProjectOptions.m_varsToIgnore)
-        {
-        try
-            {
-            cpp.add_variable_name_pattern_to_ignore(std::wregex{ pattern.wc_str() });
-            }
-        catch (...)
-            {
-            m_logWindow->AppendText(wxString::Format(
-                _(L"\nInvalid regex pattern for ignored variable name: %s"), pattern));
-            }
-        }
+    setSourceParserInfo(cpp);
+    i18n_check::csharp_i18n_review csharp;
+    setSourceParserInfo(csharp);
+
     i18n_check::rc_file_review rc;
     rc.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
     rc.allow_translating_punctuation_only_strings(
@@ -886,7 +896,7 @@ void I18NFrame::Process()
 
     wxProgressDialog* progressDlg{ nullptr };
 
-    i18n_check::batch_analyze analyzer(&cpp, &rc, &po);
+    i18n_check::batch_analyze analyzer(&cpp, &rc, &po, &csharp);
 
     if (m_activeProjectOptions.m_pseudoTranslationMethod !=
         i18n_check::pseudo_translation_method::none)

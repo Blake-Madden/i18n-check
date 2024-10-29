@@ -35,7 +35,7 @@ namespace i18n_check
       private:
         /// @brief Strips off the trailing template and global accessor (i.e., "::")
         ///     information from a function/variable.
-        void remove_decorations(std::wstring& str) const final;
+        void remove_decorations(std::wstring& str) const override;
 
         /// @returns @c true if provided variable type is just a decorator after the real
         ///     variable type (e.g., const) and should be skipped.
@@ -46,12 +46,51 @@ namespace i18n_check
             return variableType == L"const";
             }
 
+        /// @returns The end of a raw string.
+        /// @param text The current string to parse.
+        /// @param chr The tag indicating what type of raw string this is.
+        [[nodiscard]]
+        virtual wchar_t* find_raw_string_end(wchar_t* text,
+                                             [[maybe_unused]] const wchar_t chr) const
+            {
+            return std::wcsstr(text, L")\"");
+            }
+
+        /// @returns How many characters a to step into/out of a raw string.
+        ///     In other words, how many characters are inside of the string marking the
+        ///     sentinel boundaries of the raw content.
+        /// @param chr The tag indicating what type of raw string this is.
+        [[nodiscard]]
+        virtual size_t get_raw_step_size([[maybe_unused]] const wchar_t chr) const
+            {
+            return 1;
+            }
+
+        /// @return @c true if a character indicates a raw string.
+        /// @param chr The character in front of the string.
+        [[nodiscard]]
+        virtual bool is_raw_string_marker(const wchar_t chr) const
+            {
+            return chr == L'R';
+            }
+
+        /// @returns Assuming that we are at the first character of a raw string, return where the
+        ///     actual start of the text is.
+        /// @param text The current string to parse.
+        /// @param chr The tag indicating what type of raw string this is.
+        [[nodiscard]]
+        wchar_t* raw_step_into_string(wchar_t* text, const wchar_t chr) const
+            {
+            return std::next(text, get_raw_step_size(chr));
+            }
+
         /// @brief Parses and processes a preprocessor directive.
         /// @param directiveStart The start of the preprocessor section.
         /// @param directivePos The position in the overall text that the preprocessor block is at.
         /// @returns The end of the current preprocessor block.
         [[nodiscard]]
         wchar_t* process_preprocessor_directive(wchar_t* directiveStart, const size_t directivePos);
+
         /// @brief Skips a preprocessor define section.
         /// @details These will be debug preprocessor sections that we won't want to analyze.
         /// @param directiveStart The start of the preprocessor section.

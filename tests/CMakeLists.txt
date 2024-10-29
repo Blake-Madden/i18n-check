@@ -50,11 +50,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 add_executable(${CMAKE_PROJECT_NAME} ../src/i18n_string_util.cpp
 ../src/i18n_review.cpp ../src/cpp_i18n_review.cpp
+../src/csharp_i18n_review.cpp
 ../src/po_file_review.cpp
 ../src/rc_file_review.cpp
 ../src/translation_catalog_review.cpp
 ../src/pseudo_translate.cpp
-i18nstringtests.cpp stringutiltests.cpp cpptests.cpp
+i18nstringtests.cpp stringutiltests.cpp cpptests.cpp csharptests.cpp
 decodetests.cpp rctests.cpp potests.cpp testingmain.cpp)
 if(MSVC)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC __UNITTEST)

@@ -188,12 +188,14 @@ namespace i18n_check
     /// @brief File types that can be analyzed.
     enum class file_review_type
         {
-        /// @brief C/C++ files.
+        /// @brief C/C++ source files.
         cpp,
         /// @brief Microsoft Windows resource files.
         rc,
         /// @brief GNU gettext catalog files.
-        po
+        po,
+        /// @brief C# source files.
+        cs
         };
 
     /// @brief Types of printf languages that a PO file can contain.
@@ -945,7 +947,7 @@ namespace i18n_check
         /// @param str The string to collapse.
         /// @returns The collapsed string.
         [[nodiscard]]
-        static std::wstring collapse_multipart_string(const std::wstring& str);
+        std::wstring collapse_multipart_string(std::wstring& str);
 
         /// @brief Collapses non-raw strings that are multiline.
         void process_strings();
@@ -954,6 +956,7 @@ namespace i18n_check
 
         const wchar_t* m_file_start{ nullptr };
 
+        bool m_collapse_double_quotes{ false };
         bool m_allow_translating_punctuation_only_strings{ false };
         bool m_exceptions_should_be_translatable{ true };
         bool m_log_messages_are_translatable{ true };

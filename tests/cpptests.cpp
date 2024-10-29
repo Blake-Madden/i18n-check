@@ -136,6 +136,15 @@ TEST_CASE("C/C++ code", "[cpp][i18n]")
         cpp.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
         }
+    SECTION("Raw Strings")
+        {
+        cpp_i18n_review cpp;
+        const wchar_t* code = L"auto var = LR\"(Hello \"world!\")\");";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        REQUIRE(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Hello \"world!\"" });
+        }
     }
 
 TEST_CASE("QLabel", "[cpp][i18n][qt]")

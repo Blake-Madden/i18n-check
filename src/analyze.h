@@ -13,6 +13,7 @@
 #define __I18N_ANALYZE_H__
 
 #include "cpp_i18n_review.h"
+#include "csharp_i18n_review.h"
 #include "i18n_string_util.h"
 #include "po_file_review.h"
 #include "pseudo_translate.h"
@@ -51,6 +52,10 @@ namespace i18n_check
             {
             return file_review_type::po;
             }
+        else if (ext.compare(std::filesystem::path(L".cs")) == 0)
+            {
+            return file_review_type::cs;
+            }
         else
             {
             return file_review_type::cpp;
@@ -64,10 +69,11 @@ namespace i18n_check
         /** @brief Constructor which loads the sub-analyzers to use against a batch of files.
             @param[in,out] cpp The C++ analyzer that was used.
             @param[in,out] rc The Windows RC file analyzer that was used.
-            @param[in,out] po The PO file analyzer that was used.*/
+            @param[in,out] po The PO file analyzer that was used.
+            @param[in,out] csharp The C# file analyzer that was used.*/
         batch_analyze(i18n_check::cpp_i18n_review* cpp, i18n_check::rc_file_review* rc,
-                      i18n_check::po_file_review* po)
-            : m_cpp(cpp), m_rc(rc), m_po(po)
+                      i18n_check::po_file_review* po, i18n_check::cpp_i18n_review* csharp)
+            : m_cpp(cpp), m_rc(rc), m_po(po), m_csharp(csharp)
             {
             }
 
@@ -140,9 +146,10 @@ namespace i18n_check
             }
 
       private:
-        i18n_check::cpp_i18n_review* m_cpp{ nullptr };
+        i18n_check::cpp_i18n_review* m_csharp{ nullptr };
         i18n_check::rc_file_review* m_rc{ nullptr };
         i18n_check::po_file_review* m_po{ nullptr };
+        i18n_check::cpp_i18n_review* m_cpp{ nullptr };
 
         std::vector<std::wstring> m_filesThatShouldBeConvertedToUTF8;
         std::vector<std::wstring> m_filesThatContainUTF8Signature;
