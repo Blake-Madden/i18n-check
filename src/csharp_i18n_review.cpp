@@ -28,7 +28,8 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    wchar_t* csharp_i18n_review::find_raw_string_end(wchar_t* text, const wchar_t chr) const
+    wchar_t* csharp_i18n_review::find_raw_string_end(wchar_t* text,
+                                                     [[maybe_unused]] const wchar_t chr) const
         {
         while (*text != 0)
             {

@@ -30,7 +30,7 @@ namespace i18n_check
         /// @param text The current string to parse.
         /// @param chr The tag indicating what type of raw string this is.
         [[nodiscard]]
-        wchar_t* find_raw_string_end(wchar_t* text, const wchar_t chr) const final;
+        wchar_t* find_raw_string_end(wchar_t* text, [[maybe_unused]] const wchar_t chr) const final;
 
         /// @returns How many characters a to step into/out of a raw string.
         ///     In other words, how many characters are inside of the string marking the
