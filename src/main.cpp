@@ -155,12 +155,21 @@ int main(int argc, char* argv[])
     const auto filesToAnalyze = i18n_check::get_files_to_analyze(
         inputFolder, excludedInfo.excludedPaths, excludedInfo.excludedFiles);
 
+    const auto setSourceParserInfo = [&readBoolOption, &readIntOption](auto& parser)
+    {
+        parser.log_messages_can_be_translatable(readBoolOption("log-l10n-allowed", true));
+        parser.allow_translating_punctuation_only_strings(
+            readBoolOption("punct-l10n-allowed", false));
+        parser.exceptions_should_be_translatable(readBoolOption("exceptions-l10n-required", true));
+        parser.set_min_words_for_classifying_unavailable_string(
+            readIntOption("min-l10n-wordcount", 2));
+        parser.set_min_cpp_version(readIntOption("cpp-version", 2014));
+    };
+
     i18n_check::cpp_i18n_review cpp;
-    cpp.log_messages_can_be_translatable(readBoolOption("log-l10n-allowed", true));
-    cpp.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
-    cpp.exceptions_should_be_translatable(readBoolOption("exceptions-l10n-required", true));
-    cpp.set_min_words_for_classifying_unavailable_string(readIntOption("min-l10n-wordcount", 2));
-    cpp.set_min_cpp_version(readIntOption("cpp-version", 14));
+    setSourceParserInfo(cpp);
+    i18n_check::csharp_i18n_review csharp;
+    setSourceParserInfo(csharp);
 
     i18n_check::rc_file_review rc;
     rc.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
@@ -268,6 +277,7 @@ int main(int argc, char* argv[])
                 }
             }
         cpp.set_style(static_cast<i18n_check::review_style>(rs));
+        csharp.set_style(static_cast<i18n_check::review_style>(rs));
         po.set_style(static_cast<i18n_check::review_style>(rs));
         rc.set_style(static_cast<i18n_check::review_style>(rs));
         }
@@ -371,12 +381,13 @@ int main(int argc, char* argv[])
                 }
             }
         cpp.set_style(static_cast<i18n_check::review_style>(rs));
+        csharp.set_style(static_cast<i18n_check::review_style>(rs));
         po.set_style(static_cast<i18n_check::review_style>(rs));
         rc.set_style(static_cast<i18n_check::review_style>(rs));
         }
 
     const bool isQuiet{ readBoolOption("quiet", false) };
-    i18n_check::batch_analyze analyzer(&cpp, &rc, &po);
+    i18n_check::batch_analyze analyzer(&cpp, &rc, &po, &csharp);
     analyzer.analyze(
         filesToAnalyze, [](const size_t) {},
         [&filesToAnalyze, isQuiet](const size_t currentFileIndex, const std::wstring& file)

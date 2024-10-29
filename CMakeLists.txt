@@ -25,7 +25,8 @@ endif()
 
 set(FILES src/analyze.cpp src/main.cpp src/i18n_string_util.cpp src/i18n_review.cpp src/input.cpp
           src/translation_catalog_review.cpp src/pseudo_translate.cpp
-          src/cpp_i18n_review.cpp src/po_file_review.cpp src/rc_file_review.cpp)
+          src/cpp_i18n_review.cpp src/csharp_i18n_review.cpp
+          src/po_file_review.cpp src/rc_file_review.cpp)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 add_executable(i18n-check ${FILES})
@@ -39,7 +40,7 @@ else()
                          $<$<CONFIG:Debug>:-Og> $<$<CONFIG:Release>:-O2>)
 endif()
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
     # Add OpenMP for mutlithreading
     find_package(OpenMP)
     find_package(TBB)
