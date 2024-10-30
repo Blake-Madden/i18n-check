@@ -305,7 +305,7 @@ void I18NFrame::InitControls()
         }
 
     tabstrip->InsertPage(0, m_editor, _("Edit"));
-    tabstrip->InsertPage(1, m_logWindow, _("Log"), false);
+    tabstrip->InsertPage(1, m_logWindow, _("Analysis Log"), false);
 
     splitter->SplitHorizontally(m_resultsDataView, tabstrip, FromDIP(-300));
     mainSizer->Add(splitter, wxSizerFlags{ 1 }.Expand());
@@ -999,7 +999,6 @@ void I18NFrame::Process()
 
     std::wstringstream report = analyzer.format_results(false);
 
-    std::wstring fileName, lineNo, columnNo, warningValue, explanation, warningId;
     std::wstring currentLine;
     size_t readLines{ 0 };
 
