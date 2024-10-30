@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "i18napp.h"
+#include <wx/uilocale.h>
 
 wxIMPLEMENT_APP(I18NApp);
 
@@ -1073,6 +1074,9 @@ bool I18NApp::OnInit()
         {
         m_defaultOptions.Load(m_optionsFilePath);
         }
+
+    // set the locale (for number formatting, etc.) and load any translations
+    wxUILocale::UseDefault();
 
     wxTranslations* const translations{ new wxTranslations{} };
     wxTranslations::Set(translations);
