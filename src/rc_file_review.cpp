@@ -197,10 +197,11 @@ namespace i18n_check
                     m_nonSystemFontNames.push_back(string_info{
                         fontParts[1],
 #ifdef wxVERSION_NUMBER
-                        std::wstring{ wxString::Format(_(L"Font '%s' may not map well on some systems "
-                                           "(MS Shell Dlg is recommended)."),
-                                         fontParts[1])
-                            .wc_str() },
+                        string_info::usage_info{
+                            wxString::Format(_(L"Font '%s' may not map well on some systems "
+                                               "(MS Shell Dlg is recommended)."),
+                                             fontParts[1])
+                                .wc_str() },
 #else
                         string_info::usage_info{ _DT(L"Font '") + fontParts[1] +
                                                  _DT(L"' may not map well on some systems (MS "

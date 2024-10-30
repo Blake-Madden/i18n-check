@@ -63,7 +63,7 @@ class I18NArtProvider final : public wxArtProvider
 class I18NFrame : public wxFrame
     {
   public:
-    I18NFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {}
+    explicit I18NFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {}
 
     void InitControls();
 

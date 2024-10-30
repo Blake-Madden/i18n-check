@@ -20,20 +20,19 @@
 #include <string>
 #include <utility>
 #include <vector>
-#if __has_include(<omp.h>)
-    #include <omp.h>
-#endif
-// for the GUI version, include gettext's translation loading support via wxWidgets
-#if __has_include(<wx/wx.h>)
-    #include <wx/wx.h>
-    #if wxCHECK_VERSION(3, 3, 0)
-        #define _WXTRANS_WSTR(s) _(s).wc_string()
+#ifndef CPPCHECK_SKIP_SECTION
+    // for the GUI version, include gettext's translation loading support via wxWidgets
+    #if __has_include(<wx/wx.h>)
+        #include <wx/wx.h>
+        #if wxCHECK_VERSION(3, 3, 0)
+            #define _WXTRANS_WSTR(s) _(s).wc_string()
+        #else
+            #define _WXTRANS_WSTR(s) _(s).wc_str()
+        #endif
     #else
-        #define _WXTRANS_WSTR(s) _(s).wc_str()
+        #define _(s) (s)
+        #define _WXTRANS_WSTR(s) (s)
     #endif
-#else
-    #define _(s) (s)
-    #define _WXTRANS_WSTR(s) (s)
 #endif
 
 /// @brief Classes for checking source code for internationalization/localization issues.
@@ -270,7 +269,7 @@ namespace i18n_check
                     }
 
                 /// @private
-                usage_info(std::wstring val) : m_value(std::move(val)) {}
+                explicit usage_info(std::wstring val) : m_value(std::move(val)) {}
 
                 /// @private
                 usage_type m_type{ usage_type::function };

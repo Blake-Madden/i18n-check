@@ -105,9 +105,7 @@ void I18NOptions::Load(const wxString& filePath)
                                      i18n_check::review_style::check_fonts |
                                      i18n_check::review_style::all_l10n_checks);
     m_fuzzyTranslations = false;
-    i18n_check::pseudo_translation_method m_pseudoTranslationMethod{
-        i18n_check::pseudo_translation_method::none
-    };
+    m_pseudoTranslationMethod = i18n_check::pseudo_translation_method::none;
     m_addPseudoTransBrackets = false;
     m_pseudoTrack = false;
     m_logMessagesCanBeTranslated = true;
@@ -163,7 +161,9 @@ void I18NOptions::Load(const wxString& filePath)
             }
         else if (child->GetName() == L"checks")
             {
-            child->GetNodeContent().ToLongLong(&m_options);
+            wxLongLong_t longLongVal{ 0 };
+            child->GetNodeContent().ToLongLong(&longLongVal);
+            m_options = static_cast<decltype(m_options)>(longLongVal);
             }
         else if (child->GetName() == L"fuzzy-translations")
             {

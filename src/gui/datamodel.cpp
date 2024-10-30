@@ -199,7 +199,7 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
         variant = node->m_explaination;
         break;
     default:
-        wxLogError(L"I18NResultsTreeModel::GetValue(): wrong column %d", col);
+        wxLogError(L"I18NResultsTreeModel::GetValue(): wrong column %ud", col);
         }
     }
 

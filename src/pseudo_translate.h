@@ -14,8 +14,10 @@
 
 #include "i18n_review.h"
 #include <cmath>
-#if __has_include(<format>)
-    #include <format>
+#ifndef CPPCHECK_SKIP_SECTION
+    #if __has_include(<format>)
+        #include <format>
+    #endif
 #endif
 #include <map>
 #include <regex>

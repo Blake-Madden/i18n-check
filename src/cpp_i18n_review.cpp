@@ -456,7 +456,7 @@ namespace i18n_check
                     string_util::find_matching_close_tag(std::next(asmStart), L'(', L')', false);
                 if (end == nullptr)
                     {
-                    log_message(L"asm", L"Missing closing ')' in asm block.", (end - m_file_start));
+                    log_message(L"asm", L"Missing closing ')' in asm block.", (asmStart - m_file_start));
                     return std::next(asmStart, 1);
                     }
                 clear_section(originalStart, std::next(end));
@@ -486,7 +486,7 @@ namespace i18n_check
                 if (end == nullptr)
                     {
                     log_message(L"__asm", L"Missing closing '}' in __asm block.",
-                                (end - m_file_start));
+                                (asmStart - m_file_start));
                     return std::next(asmStart);
                     }
                 clear_section(originalStart, std::next(end));
@@ -649,8 +649,6 @@ namespace i18n_check
             return blockEnd;
             }
 
-        bool shouldClearSection{ true };
-
         // skip single-line directives
         if (std::wstring_view{ directiveStart }.starts_with(L"pragma") ||
             std::wstring_view{ directiveStart }.starts_with(L"include"))
@@ -702,6 +700,8 @@ namespace i18n_check
                     }
                 std::advance(end, 1);
                 }
+
+            bool shouldClearSection{ true };
             // special parsing logic for #define sections
             // (try to review strings in here as best we can)
             const std::wstring defineCommand{ L"define" };

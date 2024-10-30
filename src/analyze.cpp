@@ -44,7 +44,6 @@ namespace i18n_check
             return std::make_pair(false, std::wstring{});
             }
 
-        std::string line;
         std::string buffer;
         buffer.reserve(static_cast<size_t>(std::filesystem::file_size(filePath)));
 

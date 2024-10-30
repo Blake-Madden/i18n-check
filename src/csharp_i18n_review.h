@@ -37,7 +37,7 @@ namespace i18n_check
         ///     sentinel boundaries of the raw content.
         /// @param chr The tag indicating what type of raw string this is.
         [[nodiscard]]
-        size_t get_raw_step_size(const wchar_t chr) const
+        size_t get_raw_step_size(const wchar_t chr) const final
             {
             return (chr == L'\"') ? 2 : 0;
             }

@@ -45,10 +45,13 @@ class NewProjectDialog final : public wxDialog
         @param pos The screen position of the window.
         @param size The window size.
         @param style The window style (i.e., decorations and flags).*/
-    NewProjectDialog(wxWindow* parent, wxWindowID id = wxID_ANY,
-                     const wxString& caption = _(L"New Project"), const bool showFileOptions = true,
-                     const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
-                     long style = wxDEFAULT_DIALOG_STYLE | wxCLIP_CHILDREN | wxRESIZE_BORDER);
+    explicit NewProjectDialog(wxWindow* parent, wxWindowID id = wxID_ANY,
+                              const wxString& caption = _(L"New Project"),
+                              const bool showFileOptions = true,
+                              const wxPoint& pos = wxDefaultPosition,
+                              const wxSize& size = wxDefaultSize,
+                              long style = wxDEFAULT_DIALOG_STYLE | wxCLIP_CHILDREN |
+                                           wxRESIZE_BORDER);
     /// @private
     NewProjectDialog(const NewProjectDialog&) = delete;
     /// @private
