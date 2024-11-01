@@ -150,7 +150,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE ${FILES})
 if(MSVC)
     target_compile_definitions(${PROJECT_NAME} PUBLIC __WXMSW__ _UNICODE
     $<$<CONFIG:Debug>:__WXDEBUG__> $<$<CONFIG:Release>:NDEBUG>)
-    target_compile_options(${PROJECT_NAME} PUBLIC /Zc:__cplusplus /MP /W3 /WX /wd6211  /openmp
+    target_compile_options(${PROJECT_NAME} PUBLIC /Zc:__cplusplus /MP /W3 /WX /wd6211
                             $<$<CONFIG:Debug>:/Od>
                             $<$<CONFIG:Release>:/O2>)
 elseif(MINGW OR MSYS)
@@ -183,7 +183,6 @@ if(WIN32 OR APPLE)
 elseif(UNIX)
     # TBB is required for GCC linkage sometimes, although this app is not explicitly using it,
     # so try to link it in.
-    find_package(OpenMP)
     find_package(TBB)
     if(TBB_FOUND)
         message(STATUS "Intel Threading Building Blocks: ${TBB_VERSION}")
