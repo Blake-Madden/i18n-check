@@ -40,19 +40,18 @@ namespace i18n_check
     /// @param file The file path.
     /// @returns The file type, based on extension.
     [[nodiscard]]
-    inline file_review_type get_file_type(const std::wstring& file)
+    inline file_review_type get_file_type(const std::filesystem::path& file)
         {
-        const auto ext = std::filesystem::path{ file }.extension();
-        if (ext.compare(std::filesystem::path(L".rc")) == 0)
+        if (file.extension().compare(std::filesystem::path(L".rc")) == 0)
             {
             return file_review_type::rc;
             }
-        else if (ext.compare(std::filesystem::path(L".po")) == 0 ||
-                 ext.compare(std::filesystem::path(L".pot")) == 0)
+        else if (file.extension().compare(std::filesystem::path(L".po")) == 0 ||
+                 file.extension().compare(std::filesystem::path(L".pot")) == 0)
             {
             return file_review_type::po;
             }
-        else if (ext.compare(std::filesystem::path(L".cs")) == 0)
+        else if (file.extension().compare(std::filesystem::path(L".cs")) == 0)
             {
             return file_review_type::cs;
             }
@@ -89,7 +88,7 @@ namespace i18n_check
             @param callback Callback function to display the progress.
                 Takes the current file index, overall file count, and the name of the current file.
                 Returning @c false indicates that the user cancelled the analysis.*/
-        void analyze(const std::vector<std::wstring>& filesToAnalyze,
+        void analyze(const std::vector<std::filesystem::path>& filesToAnalyze,
                      analyze_callback_reset resetCallback, analyze_callback callback);
 
         /** @brief Pseudo translates a set of files.
@@ -107,7 +106,7 @@ namespace i18n_check
             @param callback Callback function to display the progress.
                 Takes the current file index, overall file count, and the name of the current file.
                 Returning @c false indicates that the user cancelled the analysis.*/
-        void pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
+        void pseudo_translate(const std::vector<std::filesystem::path>& filesToTranslate,
                               i18n_check::pseudo_translation_method pseudoMethod,
                               bool addSurroundingBrackets, uint8_t widthIncrease,
                               bool addTrackingIds, analyze_callback_reset resetCallback,
@@ -126,14 +125,14 @@ namespace i18n_check
 
         /// @returns The files that should be converted to UTF-8 (from the last call to analyze()).
         [[nodiscard]]
-        std::vector<std::wstring>& get_files_that_should_be_converted_to_utf() noexcept
+        std::vector<std::filesystem::path>& get_files_that_should_be_converted_to_utf() noexcept
             {
             return m_filesThatShouldBeConvertedToUTF8;
             }
 
         /// @returns The files that contain UTF-8 signatures (from the last call to analyze()).
         [[nodiscard]]
-        std::vector<std::wstring>& get_files_that_contain_utf_signatures() noexcept
+        std::vector<std::filesystem::path>& get_files_that_contain_utf_signatures() noexcept
             {
             return m_filesThatContainUTF8Signature;
             }
@@ -151,8 +150,8 @@ namespace i18n_check
         i18n_check::po_file_review* m_po{ nullptr };
         i18n_check::cpp_i18n_review* m_csharp{ nullptr };
 
-        std::vector<std::wstring> m_filesThatShouldBeConvertedToUTF8;
-        std::vector<std::wstring> m_filesThatContainUTF8Signature;
+        std::vector<std::filesystem::path> m_filesThatShouldBeConvertedToUTF8;
+        std::vector<std::filesystem::path> m_filesThatContainUTF8Signature;
 
         std::wstring m_logReport;
         };

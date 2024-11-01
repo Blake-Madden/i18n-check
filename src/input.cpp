@@ -12,7 +12,7 @@ namespace i18n_check
     {
     //------------------------------------------------------
     excluded_results get_paths_files_to_exclude(const std::filesystem::path& inputFolder,
-                                                const std::vector<std::wstring>& excluded)
+                                                const std::vector<std::filesystem::path>& excluded)
         {
         excluded_results excResults;
 
@@ -26,21 +26,21 @@ namespace i18n_check
                 {
                 if (std::filesystem::is_directory(excItem))
                     {
-                    excResults.excludedPaths.push_back(excItem);
-                    const auto folderToRecurse{ excResults.excludedPaths.back() };
+                    excResults.m_excludedPaths.push_back(excItem);
+                    const auto folderToRecurse{ excResults.m_excludedPaths.back() };
                     // add subdirectories
                     for (const auto& p :
                          std::filesystem::recursive_directory_iterator(folderToRecurse))
                         {
                         if (std::filesystem::exists(p) && p.is_directory())
                             {
-                            excResults.excludedPaths.push_back(p.path().wstring());
+                            excResults.m_excludedPaths.push_back(p.path());
                             }
                         }
                     }
                 else
                     {
-                    excResults.excludedFiles.push_back(excItem);
+                    excResults.m_excludedFiles.push_back(excItem);
                     }
                 }
             // if not a full path, just a subdirectory path
@@ -49,21 +49,21 @@ namespace i18n_check
                 {
                 if (std::filesystem::is_directory(relPath))
                     {
-                    excResults.excludedPaths.push_back(relPath.wstring());
-                    const auto folderToRecurse{ excResults.excludedPaths.back() };
+                    excResults.m_excludedPaths.push_back(relPath);
+                    const auto folderToRecurse{ excResults.m_excludedPaths.back() };
                     // add subdirectories
                     for (const auto& p :
                          std::filesystem::recursive_directory_iterator(folderToRecurse))
                         {
                         if (std::filesystem::exists(p) && p.is_directory())
                             {
-                            excResults.excludedPaths.push_back(p.path().wstring());
+                            excResults.m_excludedPaths.push_back(p.path());
                             }
                         }
                     }
                 else
                     {
-                    excResults.excludedFiles.push_back(relPath.wstring());
+                    excResults.m_excludedFiles.push_back(relPath);
                     }
                 }
             else
@@ -76,19 +76,16 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    std::vector<std::wstring> get_files_to_analyze(const std::filesystem::path& inputFolder,
-                                                   const std::vector<std::wstring>& excludedPaths,
-                                                   const std::vector<std::wstring>& excludedFiles)
+    std::vector<std::filesystem::path>
+    get_files_to_analyze(const std::filesystem::path& inputFolder,
+                         const std::vector<std::filesystem::path>& excludedPaths,
+                         const std::vector<std::filesystem::path>& excludedFiles)
         {
-        std::vector<std::wstring> filesToAnalyze;
+        std::vector<std::filesystem::path> filesToAnalyze;
 
         if (std::filesystem::is_regular_file(inputFolder) && std::filesystem::exists(inputFolder))
             {
-            if (!inputFolder.filename().wstring().starts_with(L"pseudo_") &&
-                inputFolder.filename().wstring() != L"catch.hpp")
-                {
-                filesToAnalyze.push_back(inputFolder.wstring());
-                }
+            filesToAnalyze.push_back(inputFolder);
             }
         else if (std::filesystem::is_directory(inputFolder) && std::filesystem::exists(inputFolder))
             {
@@ -135,9 +132,10 @@ namespace i18n_check
                     // main catch2 file
                     p.path().filename().compare(L"catch.hpp") != 0 &&
                     // ignore pseudo-translated message catalogs what we previously generated
-                    !p.path().filename().wstring().starts_with(L"pseudo_"))
+                    /// @todo use wstring() with GCC 12.2.1 and above
+                    !p.path().filename().string().starts_with("pseudo_"))
                     {
-                    filesToAnalyze.push_back(p.path().wstring());
+                    filesToAnalyze.push_back(p.path());
                     }
                 }
             }

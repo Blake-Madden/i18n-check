@@ -28,7 +28,7 @@ namespace i18n_check
         /// @returns All loaded catalog entries (and any detected errors connected to them).\n
         ///     The first key is the filepath, and the second is all catalog entries in that file.
         [[nodiscard]]
-        const std::vector<std::pair<std::wstring, translation_catalog_entry>>&
+        const std::vector<std::pair<std::filesystem::path, translation_catalog_entry>>&
         get_catalog_entries() const noexcept
             {
             return m_catalog_entries;
@@ -37,7 +37,7 @@ namespace i18n_check
         /// @returns All loaded catalog entries (and any detected errors connected to them).\n
         ///     The first key is the filepath, and the second is all catalog entries in that file.
         [[nodiscard]]
-        std::vector<std::pair<std::wstring, translation_catalog_entry>>&
+        std::vector<std::pair<std::filesystem::path, translation_catalog_entry>>&
         get_catalog_entries() noexcept
             {
             return m_catalog_entries;
@@ -54,11 +54,11 @@ namespace i18n_check
 
       private:
         void operator()([[maybe_unused]] std::wstring_view,
-                        [[maybe_unused]] const std::wstring&) override
+                        [[maybe_unused]] const std::filesystem::path&) override
             {
             }
 
-        std::vector<std::pair<std::wstring, translation_catalog_entry>> m_catalog_entries;
+        std::vector<std::pair<std::filesystem::path, translation_catalog_entry>> m_catalog_entries;
         };
     } // namespace i18n_check
 

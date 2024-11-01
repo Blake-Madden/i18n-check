@@ -107,7 +107,7 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    void batch_analyze::pseudo_translate(const std::vector<std::wstring>& filesToTranslate,
+    void batch_analyze::pseudo_translate(const std::vector<std::filesystem::path>& filesToTranslate,
                                          i18n_check::pseudo_translation_method pseudoMethod,
                                          bool addSurroundingBrackets, uint8_t widthIncrease,
                                          bool addTrackingIds, analyze_callback_reset resetCallback,
@@ -131,7 +131,7 @@ namespace i18n_check
                 {
                 out.write(utfBuffer.c_str(), utfBuffer.size());
                 m_logReport.append(_WXTRANS_WSTR(L"\nPseudo-translation catalog generated at: "))
-                    .append(filePath.wstring());
+                    .append(filePath);
                 }
         };
 
@@ -202,7 +202,7 @@ namespace i18n_check
         }
 
     //------------------------------------------------------
-    void batch_analyze::analyze(const std::vector<std::wstring>& filesToAnalyze,
+    void batch_analyze::analyze(const std::vector<std::filesystem::path>& filesToAnalyze,
                                 analyze_callback_reset resetCallback, analyze_callback callback)
         {
         m_filesThatShouldBeConvertedToUTF8.clear();

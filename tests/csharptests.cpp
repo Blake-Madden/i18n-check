@@ -19,7 +19,7 @@ TEST_CASE("C# code", "[csharp][i18n]")
         csharp_i18n_review cs;
         const wchar_t* code = LR"(string val = @"This is your last ""chance""!"""; int level;)";
         cs(code, L"");
-        cs.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
+        cs.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         REQUIRE(cs.get_not_available_for_localization_strings().size() == 1);
         CHECK(cs.get_not_available_for_localization_strings()[0].m_string == std::wstring{ LR"(This is your last "chance"!)" });
 
@@ -27,7 +27,7 @@ TEST_CASE("C# code", "[csharp][i18n]")
 
         code = LR"(string cs = @"This is your last chance!"; int level;)";
         cs(code, L"");
-        cs.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
+        cs.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         REQUIRE(cs.get_not_available_for_localization_strings().size() == 1);
         CHECK(cs.get_not_available_for_localization_strings()[0].m_string == std::wstring{ LR"(This is your last chance!)" });
 
@@ -35,7 +35,7 @@ TEST_CASE("C# code", "[csharp][i18n]")
 
         code = LR"(string val = """This is your last ""chance""!"""; int level;)";
         cs(code, L"");
-        cs.review_strings([](size_t){}, [](size_t, const std::wstring&){ return true; });
+        cs.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         REQUIRE(cs.get_not_available_for_localization_strings().size() == 1);
         CHECK(cs.get_not_available_for_localization_strings()[0].m_string == std::wstring{ LR"(This is your last "chance"!)" });
         }

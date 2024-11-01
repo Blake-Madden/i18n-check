@@ -52,8 +52,7 @@ namespace i18n_string_util
         const size_t firstSlash = text.find(L'/');
         if (firstSlash != std::wstring_view::npos)
             {
-            const size_t lastDotPos =
-                text.find_last_of(L'.', firstSlash);
+            const size_t lastDotPos = text.find_last_of(L'.', firstSlash);
             if (lastDotPos != std::wstring_view::npos && (lastDotPos + 4 == firstSlash) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 1])) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 2])) &&

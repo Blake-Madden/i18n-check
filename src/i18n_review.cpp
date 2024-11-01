@@ -1031,7 +1031,7 @@ namespace i18n_check
 
     //--------------------------------------------------
     void i18n_review::load_deprecated_functions(const std::wstring_view fileText,
-                                                const std::wstring& fileName)
+                                                const std::filesystem::path& fileName)
         {
         if (!static_cast<bool>(m_reviewStyles & check_deprecated_macros))
             {
@@ -1063,7 +1063,7 @@ namespace i18n_check
 
     //--------------------------------------------------
     void i18n_review::load_id_assignments(const std::wstring_view fileText,
-                                          const std::wstring& fileName)
+                                          const std::filesystem::path& fileName)
         {
         if (!(static_cast<bool>(m_reviewStyles & check_duplicate_value_assigned_to_ids) ||
               static_cast<bool>(m_reviewStyles & check_number_assigned_to_id)))

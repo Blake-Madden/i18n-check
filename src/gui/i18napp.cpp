@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "i18napp.h"
+#include <iostream>
 #include <wx/uilocale.h>
 
 wxIMPLEMENT_APP(I18NApp);
@@ -837,23 +838,23 @@ void I18NFrame::Process()
     m_activeSourceFile.clear();
     m_editor->SetText(wxString{});
 
-    std::wstring inputFolder{ m_activeProjectOptions.m_filePath.c_str() };
+    std::filesystem::path inputFolder{ m_activeProjectOptions.m_filePath.wc_str() };
 
-    std::vector<std::wstring> excludedPaths;
+    std::vector<std::filesystem::path> excludedPaths;
     for (const auto& currentFile : m_activeProjectOptions.m_excludedPaths)
         {
-        excludedPaths.push_back(currentFile.wc_str());
+        excludedPaths.push_back(std::filesystem::path{ currentFile.wc_str() });
         }
 
     // input folder
-    const std::vector<std::wstring> filesToAnalyze = [&excludedPaths, &inputFolder]()
+    const std::vector<std::filesystem::path> filesToAnalyze = [&excludedPaths, &inputFolder]()
     {
         wxBusyInfo bi{ wxBusyInfoFlags{}.Text(_(L"Gathering files...")) };
         // paths being ignored
         const i18n_check::excluded_results excludedInfo =
             i18n_check::get_paths_files_to_exclude(inputFolder, excludedPaths);
-        return i18n_check::get_files_to_analyze(inputFolder, excludedInfo.excludedPaths,
-                                                excludedInfo.excludedFiles);
+        return i18n_check::get_files_to_analyze(inputFolder, excludedInfo.m_excludedPaths,
+                                                excludedInfo.m_excludedFiles);
     }();
 
     const auto setSourceParserInfo = [this](auto& parser)
@@ -924,7 +925,7 @@ void I18NFrame::Process()
                     progressDlg->Centre();
                     }
             },
-            [&progressDlg](const size_t currentFileIndex, const std::wstring& file)
+            [&progressDlg](const size_t currentFileIndex, const std::filesystem::path& file)
             {
                 progressDlg->SetTitle(
                     wxString::Format(_(L"Pseudo-translating %s of %s..."),
@@ -936,11 +937,16 @@ void I18NFrame::Process()
                                          progressDlg->GetRange(), 0,
                                          wxNumberFormatter::Style::Style_NoTrailingZeroes |
                                              wxNumberFormatter::Style::Style_WithThousandsSep)));
-                if (!progressDlg->Update(currentFileIndex,
-                                         file.empty() ?
-                                             _(L"Processing...") :
-                                             wxString::Format(_(L"Pseudo-translating %s..."),
-                                                              wxFileName{ file }.GetFullName())))
+#ifndef NDEBUG
+                std::wcout << L"Pseudo-translating " << file << L"\n";
+#endif
+                if (!progressDlg->Update(
+                        currentFileIndex,
+                        file.empty() ?
+                            _(L"Processing...") :
+                            wxString::Format(_(L"Pseudo-translating %s..."),
+                                             /// @todo use wstring() with GCC 12.2.1 and above
+                                             file.filename().string())))
                     {
                     progressDlg->Destroy();
                     progressDlg = nullptr;
@@ -969,7 +975,7 @@ void I18NFrame::Process()
                 progressDlg->Centre();
                 }
         },
-        [&progressDlg](const size_t currentFileIndex, const std::wstring& file)
+        [&progressDlg](const size_t currentFileIndex, const std::filesystem::path& file)
         {
             if (progressDlg != nullptr)
                 {
@@ -983,11 +989,16 @@ void I18NFrame::Process()
                                          progressDlg->GetRange(), 0,
                                          wxNumberFormatter::Style::Style_NoTrailingZeroes |
                                              wxNumberFormatter::Style::Style_WithThousandsSep)));
-                if (!progressDlg->Update(currentFileIndex,
-                                         file.empty() ?
-                                             _(L"Processing...") :
-                                             wxString::Format(_(L"Reviewing %s..."),
-                                                              wxFileName{ file }.GetFullName())))
+#ifndef NDEBUG
+                std::wcout << L"Analyzing " << file << L"\n";
+#endif
+                if (!progressDlg->Update(
+                        currentFileIndex,
+                        file.empty() ?
+                            _(L"Processing...") :
+                            wxString::Format(_(L"Reviewing %s..."),
+                                             /// @todo use wstring() with GCC 12.2.1 and above
+                                             file.filename().string())))
                     {
                     progressDlg->Destroy();
                     progressDlg = nullptr;

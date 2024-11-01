@@ -11,7 +11,8 @@
 namespace i18n_check
     {
     //------------------------------------------------
-    void po_file_review::operator()(std::wstring_view poFileText, const std::wstring& fileName)
+    void po_file_review::operator()(std::wstring_view poFileText,
+                                    const std::filesystem::path& fileName)
         {
         m_file_name = fileName;
 

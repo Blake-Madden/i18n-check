@@ -11,7 +11,8 @@
 namespace i18n_check
     {
     //--------------------------------------------------
-    void cpp_i18n_review::operator()(std::wstring_view srcText, const std::wstring& fileName)
+    void cpp_i18n_review::operator()(std::wstring_view srcText,
+                                     const std::filesystem::path& fileName)
         {
         m_file_name = fileName;
         m_file_start = nullptr;
@@ -456,7 +457,8 @@ namespace i18n_check
                     string_util::find_matching_close_tag(std::next(asmStart), L'(', L')', false);
                 if (end == nullptr)
                     {
-                    log_message(L"asm", L"Missing closing ')' in asm block.", (asmStart - m_file_start));
+                    log_message(L"asm", L"Missing closing ')' in asm block.",
+                                (asmStart - m_file_start));
                     return std::next(asmStart, 1);
                     }
                 clear_section(originalStart, std::next(end));

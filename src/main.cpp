@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
                                          std::vector<std::string>{}
     };
 
-    std::vector<std::wstring> providedIgnoredPathsWidened;
+    std::vector<fs::path> providedIgnoredPathsWidened;
     for (const auto& iPath : providedIgnoredPaths)
         {
         providedIgnoredPathsWidened.push_back(i18n_string_util::lazy_string_to_wstring(iPath));
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 
     // input folder
     const auto filesToAnalyze = i18n_check::get_files_to_analyze(
-        inputFolder, excludedInfo.excludedPaths, excludedInfo.excludedFiles);
+        inputFolder, excludedInfo.m_excludedPaths, excludedInfo.m_excludedFiles);
 
     const auto setSourceParserInfo = [&readBoolOption, &readIntOption](auto& parser)
     {
@@ -390,12 +390,12 @@ int main(int argc, char* argv[])
     i18n_check::batch_analyze analyzer(&cpp, &rc, &po, &csharp);
     analyzer.analyze(
         filesToAnalyze, [](const size_t) {},
-        [&filesToAnalyze, isQuiet](const size_t currentFileIndex, const std::wstring& file)
+        [&filesToAnalyze, isQuiet](const size_t currentFileIndex, const fs::path& file)
         {
             if (!isQuiet)
                 {
                 std::wcout << L"Examining " << currentFileIndex << L" of " << filesToAnalyze.size()
-                           << L" files (" << std::filesystem::path(file).filename() << L")\n";
+                           << L" files (" << file.filename() << L")\n";
                 }
             return true;
         });

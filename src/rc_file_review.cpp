@@ -11,7 +11,7 @@
 namespace i18n_check
     {
     void rc_file_review::operator()(const std::wstring_view rcFileText,
-                                    const std::wstring& fileName)
+                                    const std::filesystem::path& fileName)
         {
         m_file_name = fileName;
 

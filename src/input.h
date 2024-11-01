@@ -20,8 +20,8 @@ namespace i18n_check
     {
     struct excluded_results
         {
-        std::vector<std::wstring> excludedPaths;
-        std::vector<std::wstring> excludedFiles;
+        std::vector<std::filesystem::path> m_excludedPaths;
+        std::vector<std::filesystem::path> m_excludedFiles;
         };
 
     /** @brief Returns a list of excluded folders and files from a list of patterns.
@@ -31,7 +31,7 @@ namespace i18n_check
         @returns The fully-expanded paths for folders and files to exclude.*/
     [[nodiscard]]
     excluded_results get_paths_files_to_exclude(const std::filesystem::path& inputFolder,
-                                                const std::vector<std::wstring>& excluded);
+                                                const std::vector<std::filesystem::path>& excluded);
 
     /** @brief Retrieves a list of files to analyze from a root folder, excluding any files and
        paths that were requested to be ignored.
@@ -42,9 +42,10 @@ namespace i18n_check
        filenames.
         @returns A list of files that can be analyzed.*/
     [[nodiscard]]
-    std::vector<std::wstring> get_files_to_analyze(const std::filesystem::path& inputFolder,
-                                                   const std::vector<std::wstring>& excludedPaths,
-                                                   const std::vector<std::wstring>& excludedFiles);
+    std::vector<std::filesystem::path>
+    get_files_to_analyze(const std::filesystem::path& inputFolder,
+                         const std::vector<std::filesystem::path>& excludedPaths,
+                         const std::vector<std::filesystem::path>& excludedFiles);
     } // namespace i18n_check
 
 /** @}*/

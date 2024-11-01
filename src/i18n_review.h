@@ -14,6 +14,7 @@
 
 #include "donttranslate.h"
 #include "i18n_string_util.h"
+#include <filesystem>
 #include <map>
 #include <optional>
 #include <set>
@@ -233,7 +234,7 @@ namespace i18n_check
     /// @brief Progress callback for analyze().
     /// @details This passes back the current counter and name of the file
     /// currently being analyzed.
-    using analyze_callback = std::function<bool(const size_t, const std::wstring&)>;
+    using analyze_callback = std::function<bool(const size_t, const std::filesystem::path&)>;
     /// @brief Can reset the progress mechanism that the associated analyze_callback is using.
     /// @details This passes back the number of items that the progress callback should expect.
     using analyze_callback_reset = std::function<void(const size_t)>;
@@ -284,7 +285,7 @@ namespace i18n_check
                 @param usage What the string is being used for.
                 @param fileName The filename.
                 @param lineAndColumn The line and column number.*/
-            string_info(std::wstring str, usage_info usage, std::wstring fileName,
+            string_info(std::wstring str, usage_info usage, std::filesystem::path fileName,
                         const std::pair<size_t, size_t> lineAndColumn)
                 : m_string(std::move(str)), m_usage(std::move(usage)),
                   m_file_name(std::move(fileName)), m_line(lineAndColumn.first),
@@ -299,7 +300,7 @@ namespace i18n_check
             /// @brief What the string is being used for.
             usage_info m_usage;
             /// @brief The filename.
-            std::wstring m_file_name;
+            std::filesystem::path m_file_name;
             /// @brief The line number.
             size_t m_line{ 0 };
             /// @brief The column number.
@@ -314,8 +315,9 @@ namespace i18n_check
                 @param positionInFile The line and column position in the file.
                 @param str The string resource.
                 @param message Diagnostic message.*/
-            parse_messages(std::wstring filename, const std::pair<size_t, size_t> positionInFile,
-                           std::wstring str, std::wstring message)
+            parse_messages(std::filesystem::path filename,
+                           const std::pair<size_t, size_t> positionInFile, std::wstring str,
+                           std::wstring message)
                 : m_file_name(std::move(filename)), m_resourceString(std::move(str)),
                   m_message(std::move(message)), m_line(positionInFile.first),
                   m_column(positionInFile.second)
@@ -323,7 +325,7 @@ namespace i18n_check
                 }
 
             /// @brief The filepath.
-            std::wstring m_file_name;
+            std::filesystem::path m_file_name;
             /// @brief The string resource.
             std::wstring m_resourceString;
             /// @brief Diagnostic message.
@@ -367,8 +369,9 @@ namespace i18n_check
         /** @brief Main interface for extracting resource text from C++ source code.
             @param file_text The text to review.
             @param file_name The (optional) name of source file being analyzed.*/
-        virtual void operator()(std::wstring_view file_text,
-                                const std::wstring& file_name = L"") = 0;
+        virtual void
+        operator()(std::wstring_view file_text,
+                   const std::filesystem::path& file_name = std::filesystem::path{}) = 0;
 
         /** @brief Finalizes the review process after all files have been loaded.
             @details Reviews any strings that are available for translation that are suspect,
@@ -824,12 +827,13 @@ namespace i18n_check
                 hard-coded numbers or duplicated assignments.
             @param fileText The source file's text to analyze.
             @param fileName The file name being analyzed.*/
-        void load_id_assignments(const std::wstring_view fileText, const std::wstring& fileName);
+        void load_id_assignments(const std::wstring_view fileText,
+                                 const std::filesystem::path& fileName);
         /** @brief Loads any deprecated functions found in the text.
             @param fileText The source file's text to analyze.
             @param fileName The file name being analyzed.*/
         void load_deprecated_functions(const std::wstring_view fileText,
-                                       const std::wstring& fileName);
+                                       const std::filesystem::path& fileName);
 #ifdef __UNITTEST
       public:
 #endif
@@ -1008,7 +1012,7 @@ namespace i18n_check
         std::vector<string_info> m_wide_lines;
         std::vector<string_info> m_comments_missing_space;
 
-        std::wstring m_file_name;
+        std::filesystem::path m_file_name;
 
         static const std::wregex m_url_email_regex;
         static const std::wregex m_html_regex;

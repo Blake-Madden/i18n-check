@@ -28,7 +28,7 @@ namespace i18n_check
         /** @brief Main interface for extracting resource text from C++ source code.
             @param poFileText The PO file's text to analyze.
             @param fileName The (optional) name of source file being analyzed.*/
-        void operator()(std::wstring_view poFileText, const std::wstring& fileName) final;
+        void operator()(std::wstring_view poFileText, const std::filesystem::path& fileName) final;
 
         /// @brief Whether fuzzy translations should be reviewed.
         /// @param enable @c true to review fuzzy translation entries; @c false to ignore them.
