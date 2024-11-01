@@ -1629,6 +1629,13 @@ namespace i18n_check
     bool i18n_review::is_untranslatable_string(const std::wstring& strToReview,
                                                const bool limitWordCount) const
         {
+        // if no spaces but lengthy, then this is probably some sort of GUID
+        if (strToReview.find(L' ') == std::wstring::npos &&
+            strToReview.length() > 100)
+            {
+            return true;
+            }
+
         std::wstring str{ strToReview };
         static const std::wregex oneWordRE{ LR"((\b[a-zA-Z&'\-]+([\.\-\/:]*[\w'\-]*)*))" };
         static const std::wregex loremIpsum(L"Lorem ipsum.*");
