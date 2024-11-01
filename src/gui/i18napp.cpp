@@ -599,7 +599,7 @@ void I18NFrame::OnSettings([[maybe_unused]] wxCommandEvent&)
 void I18NFrame::OnHelp([[maybe_unused]] wxCommandEvent&)
     {
     wxLaunchDefaultApplication(wxStandardPaths::Get().GetResourcesDir() +
-                               wxFileName::GetPathSeparator() + L"i18n-check.pdf");
+                               wxFileName::GetPathSeparator() + L"cuneiform.pdf");
     }
 
 //------------------------------------------------------
@@ -703,9 +703,10 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
     {
     SaveProjectIfNeeded();
 
-    wxFileDialog dialog(this, _(L"Select Project to Open"), wxString{}, wxString{},
-                        _(L"i18n-check Project Files (*.xml)|*.xml"),
-                        wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_PREVIEW);
+    wxFileDialog dialog(
+        this, _(L"Select Project to Open"), wxString{}, wxString{},
+        wxString::Format(_(L"%s Project Files (*.xml)|*.xml"), wxGetApp().GetAppName()),
+        wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_PREVIEW);
     if (dialog.ShowModal() != wxID_OK)
         {
         return;
@@ -737,9 +738,10 @@ void I18NFrame::OnSave([[maybe_unused]] wxCommandEvent&)
         const wxFileName projectName{ m_activeProjectOptions.m_filePath };
         const wxString lastFolder =
             projectName.GetName().empty() ? wxString{ _(L"Project") } : projectName.GetName();
-        wxFileDialog dialog(nullptr, _(L"Save Project"), wxString{}, lastFolder + L".xml",
-                            _(L"i18n-check Project Files (*.xml)|*.xml"),
-                            wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
+        wxFileDialog dialog(
+            nullptr, _(L"Save Project"), wxString{}, lastFolder + L".xml",
+            wxString::Format(_(L"%s Project Files (*.xml)|*.xml"), wxGetApp().GetAppName()),
+            wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
         if (dialog.ShowModal() != wxID_OK)
             {
             return;
@@ -1069,7 +1071,7 @@ bool I18NApp::OnInit()
         return false;
         }
 
-    SetAppName(L"i18n-check");
+    SetAppName(L"Cuneiform");
 
     wxArtProvider::Push(new I18NArtProvider);
 

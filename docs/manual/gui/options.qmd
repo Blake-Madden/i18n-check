@@ -40,7 +40,7 @@ It is recommended to dynamically format these into the string so that translator
 This will detect the usage of functions that are no longer relevant, and provide a suggested replacement.
 
 For example, the `TCHAR` functions and macros used in Win32 programming (e.g., `_TEXT`, `_tcscmp`) to help target Windows 98 and NT are no longer necessary.
-`i18n-check` will recommend how to remove or replace these.
+`Cuneiform` will recommend how to remove or replace these.
 
 **printf functions being used to just format a number**: select this to check for `printf()`-like functions being used to just format a number.
 In these situations, it is recommended to use the more modern `std::to_[w]string()` function.

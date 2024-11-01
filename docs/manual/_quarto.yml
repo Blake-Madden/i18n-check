@@ -11,12 +11,13 @@ pdf-cover-author-color: "0, 0, 0"
 pdf-cover-font-color: "255, 255, 255"
 pdf-cover-color: "111, 144, 132"
 book:
-  title: "i18n-check"
+  title: "Cuneiform"
   subtitle: "User Manual"
   description: "Internationalization & localization analysis system"
   author: "Blake Madden"
   date: today
   date-format: "YYYY"
+  output-file: "cuneiform"
   language: en
   chapters:
     - index.qmd

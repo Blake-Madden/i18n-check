@@ -13,7 +13,7 @@ void I18NOptions::Save(const wxString& filePath)
     {
     wxXmlDocument xmlDoc;
 
-    wxXmlNode* root = new wxXmlNode(nullptr, wxXML_ELEMENT_NODE, L"i18n-check-settings");
+    wxXmlNode* root = new wxXmlNode(nullptr, wxXML_ELEMENT_NODE, L"cuneiform-settings");
     xmlDoc.SetRoot(root);
 
     wxXmlNode* node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"path");
@@ -122,7 +122,7 @@ void I18NOptions::Load(const wxString& filePath)
         return;
         }
 
-    if (xmlDoc.GetRoot()->GetName() != "i18n-check-settings")
+    if (xmlDoc.GetRoot()->GetName() != "cuneiform-settings")
         {
         wxMessageBox(_(L"Invalid project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
         return;

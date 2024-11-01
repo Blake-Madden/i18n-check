@@ -2,14 +2,14 @@
 
 ## Code Blocks
 
-Warnings can be suppressed for blocks of source code by placing `i18n-check-suppress-begin` and `i18n-check-suppress-end` comments around them.
+Warnings can be suppressed for blocks of source code by placing `cuneiform-suppress-begin` and `cuneiform-suppress-end` comments around them.
 For example:
 
 ``` {.cpp}
-// i18n-check-suppress-begin
+// cuneiform-suppress-begin
 if (_debug && allocFailed)
     AfxMessageBox("Allocation failed!");
-// i18n-check-suppress-end
+// cuneiform-suppress-end
 ```
 
 This will prevent a warning from being emitted about "Allocation failed" not being available for localization.
@@ -68,6 +68,6 @@ auto command = _DT("open ") + fileName;
 ```
 
 ::: {.notesection data-latex=""}
-`_DT()` and `DONTTRANSLATE()` do not have any effect on the code and would normally be compiled out. Their purpose is only to inform `i18n-check`
+`_DT()` and `DONTTRANSLATE()` do not have any effect on the code and would normally be compiled out. Their purpose is only to inform `Cuneiform`
 that their arguments should not be translatable.
 :::

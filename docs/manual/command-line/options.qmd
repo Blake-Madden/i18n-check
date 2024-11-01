@@ -1,6 +1,6 @@
 # Options
 
-`i18n-check` accepts the following arguments:
+`Cuneiform` accepts the following arguments:
 
 ## [input] {-}
 

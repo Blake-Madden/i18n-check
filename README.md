@@ -1,23 +1,23 @@
 <img src="app-logo.svg" width="150" />
 
-i18n-check
+Cuneiform
 =============================
 
-<a href="docs/manual/book/i18n-check.pdf"><img alt="Manual" src="docs/manual/images/cover-thumnail.png" width="200" align="right"/></a>
+<a href="docs/manual/book/cuneiform.pdf"><img alt="Manual" src="docs/manual/images/cover-thumnail.png" width="200" align="right"/></a>
 
 Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows&reg; RC files.
 
-`i18n-check` is a command-line utility and graphical interface that scans source and resource files to check for
+`Cuneiform` is a command-line utility and graphical interface that scans source and resource files to check for
 various i18n and l10n issues.
 
 Additionally, the GUI version provides pseudo-translation support for
 *gettext* catalogs (\*.po files).
 
-Refer to the [manual](docs/manual/book/i18n-check.pdf) for full documentation.
+Refer to the [manual](docs/manual/book/cuneiform.pdf) for full documentation.
 
 ## File Support
 
-`i18n-check` supports static analysis for the following:
+`Cuneiform` supports static analysis for the following:
 
 - C code
 - C++ code ('98 and modern C++)
@@ -125,7 +125,7 @@ loaded by your application for integration testing.
 
 # Usage
 
-`i18n-check` accepts the following arguments:
+`Cuneiform` accepts the following arguments:
 
 ```shellscript
 [input]: The folder to analyze.
@@ -216,27 +216,27 @@ suspect translatable strings, and then send the output to "results.txt"
 in the current working directory. 
 
 ```shellscript
-i18n-check C:\src\wxWidgets\src -i expat -i zlib --enable=suspectL10NString -o results.txt
+cuneiform C:\src\wxWidgets\src -i expat -i zlib --enable=suspectL10NString -o results.txt
 ```
 
 This example will only check for `suspectL10NUsage` and `suspectL10NString` and not show
 any progress messages.
 
 ```shellscript
-i18n-check C:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
+cuneiform C:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
 ```
 
 This example will ignore multiple folders (and files) and output the results to "WDVResults.txt."
 
 ```shellscript
-i18n-check C:\src\Wisteria-dataviz\src --ignore=import,i18n-check,wxsimplejson,wxStartPage,math,easyexif,debug,utfcpp,CRCpp,base/colors.cpp,base/colors.h -o WDVresults.txt
+cuneiform C:\src\Wisteria-dataviz\src --ignore=import,wxsimplejson,wxStartPage,math,easyexif,debug,utfcpp,CRCpp,base/colors.cpp,base/colors.h -o WDVresults.txt
 ```
 
 Refer [here](Example.md) for more examples.
 
 # Building (command line tool)
 
-`i18n-check` can be configured and built with *Cmake*.
+`Cuneiform` can be configured and built with *Cmake*.
 
 On Unix:
 
@@ -247,15 +247,15 @@ cmake --build . --target all -j $(nproc)
 
 On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
 
-After building, "i18n-check" will be available in the "bin" folder.
+After building, "cuneiform" will be available in the "bin" folder.
 
 # Building (GUI)
 
 ![](docs/manual/images/main-window.png)
 
-[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version `i18n-gui`.
+[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version.
 
-Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as `i18n-check`.
+Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as this project.
 After building wxWidgets, `i18n-gui` can be configured and built with *Cmake*.
 
 On Unix:
@@ -283,8 +283,8 @@ After building, "i18n-gui" will be available in the "bin" folder.
 
 # GitHub Action
 
-You can also create an `i18n-check` GitHub action to make it part of your CI.
-For example, create a new workflow called "i18n-check.yml" and enter the following:
+You can also create a `cuneiform` GitHub action to make it part of your CI.
+For example, create a new workflow called "cuneiform.yml" and enter the following:
 
 ```shellscript
 name: i18n-check
@@ -307,10 +307,10 @@ jobs:
 
       - name: analyze
         run: |
-             # Ignore i18n-check's own folder.
+             # Ignore Cuneiform's own folder.
              # You can ignore other folders by adding a comma and the folder name
              # after "--ignore=i18n-check".
-             ./i18n-check/bin/i18n-check ./ --ignore=i18n-check -q -o i18nresults.txt
+             ./i18n-check/bin/cuneiform ./ --ignore=i18n-check -q -o i18nresults.txt
 
       - name: review results
         run: |

@@ -29,7 +29,7 @@ This will detect the usage of functions that are no longer relevant, and provide
 
 For example, the `TCHAR` functions and macros [@win32-strings; @win32-strings-guide] used in Win32 programming
 (e.g., `_TEXT`, `_tcscmp`) to help target Windows 98 and NT are no longer necessary.
-`i18n-check` will recommend how to remove or replace these.
+`Cuneiform` will recommend how to remove or replace these.
 
 - `nonUTF8File`
 

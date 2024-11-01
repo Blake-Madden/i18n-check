@@ -1,6 +1,6 @@
 #############################################################################
 # Name:        CMakeListst.txt
-# Purpose:     i18n-check
+# Purpose:     Cuneiform
 # Author:      Blake Madden
 # Created:     2023-03-12
 # Copyright:   (c) 2024 Blake Madden
@@ -10,7 +10,7 @@
 cmake_minimum_required(VERSION 3.12)
 set(CMAKE_CXX_STANDARD 20)
 
-project(i18n-check)
+project(cuneiform)
 
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
@@ -29,7 +29,7 @@ set(FILES src/analyze.cpp src/main.cpp src/i18n_string_util.cpp src/i18n_review.
           src/po_file_review.cpp src/rc_file_review.cpp)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-add_executable(i18n-check ${FILES})
+add_executable(cuneiform ${FILES})
 
 # set up compiler flags
 if(MSVC)

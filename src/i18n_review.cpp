@@ -854,8 +854,8 @@ namespace i18n_check
     //--------------------------------------------------
     std::pair<bool, size_t> i18n_review::is_block_suppressed(std::wstring_view commentBlock)
         {
-        const std::wstring_view SUPPRESS_BEGIN{ L"i18n-check-suppress-begin" };
-        const std::wstring_view SUPPRESS_END{ L"i18n-check-suppress-end" };
+        const std::wstring_view SUPPRESS_BEGIN{ L"cuneiform-suppress-begin" };
+        const std::wstring_view SUPPRESS_END{ L"cuneiform-suppress-end" };
 
         const size_t firstNonSpace = commentBlock.find_first_not_of(L" \t\n\r");
         if (firstNonSpace == std::wstring_view::npos)

@@ -50,8 +50,8 @@ WXICON_AAA              ICON                    "app-logo.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION _I18NGUI_FILE_VERSION_RC
- PRODUCTVERSION _I18NGUI_PRODUCUCT_VERSION_RC
+ FILEVERSION _CUNEIFORM_FILE_VERSION_RC
+ PRODUCTVERSION _CUNEIFORM_PRODUCUCT_VERSION_RC
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -66,14 +66,14 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", _I18NGUI_PUBLISHER
-            VALUE "FileDescription", _I18NGUI_DESCRIPTION
-            VALUE "FileVersion", _I18NGUI_PROGRAM_VERSION_RC
-            VALUE "InternalName", _I18NGUI_DESCRIPTION
-            VALUE "LegalCopyright", _I18NGUI_COPYRIGHT_RC
-            VALUE "OriginalFilename", _I18NGUI_BINARY_NAME
-            VALUE "ProductName", _I18NGUI_DESCRIPTION
-            VALUE "ProductVersion", _I18NGUI_PROGRAM_VERSION_RC
+            VALUE "CompanyName", _CUNEIFORM_PUBLISHER
+            VALUE "FileDescription", _CUNEIFORM_DESCRIPTION
+            VALUE "FileVersion", _CUNEIFORM_PROGRAM_VERSION_RC
+            VALUE "InternalName", _CUNEIFORM_DESCRIPTION
+            VALUE "LegalCopyright", _CUNEIFORM_COPYRIGHT_RC
+            VALUE "OriginalFilename", _CUNEIFORM_BINARY_NAME
+            VALUE "ProductName", _CUNEIFORM_DESCRIPTION
+            VALUE "ProductVersion", _CUNEIFORM_PROGRAM_VERSION_RC
         END
     END
     BLOCK "VarFileInfo"
