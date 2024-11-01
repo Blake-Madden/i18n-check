@@ -1,6 +1,6 @@
 #############################################################################
 # Name:        CMakeLists.txt
-# Purpose:     Build script for Cuneiform GUI
+# Purpose:     Build script for Cuneiform (GUI version)
 # Author:      Blake Madden
 # Created:     2024-08-17
 # Copyright:   (c) 2021-2024 Blake Madden
@@ -92,7 +92,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../docs/manual/_quarto.yml.in"
 find_package(Doxygen)
 if(TARGET doxygen-docs)
     if(NOT DOXYGEN_FOUND)
-        message(STATUS "Doxygen not found. API documentation cannot be generated.")
+        message(STATUS "Doxygen not found. API documentation will not be generated.")
     endif()
 endif()
 
@@ -141,7 +141,7 @@ if(WIN32)
     list(APPEND FILES ${CMAKE_CURRENT_SOURCE_DIR}/cuneiform.rc)
     list(APPEND FILES "${wxWidgets_BASEDIR}/include/wx/msw/wx_dpi_aware.manifest")
 elseif(APPLE)
-    # Add an icon for the apple .app file
+    # Add an icon for the Apple .app file
     list(APPEND FILES ${CMAKE_SOURCE_DIR}/app-logo.icns)
 endif()
 
@@ -197,7 +197,7 @@ endif()
 if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         RESOURCE app-logo.icns
-        # call the app bundle Cuneiform (uppercase)
+        # Name the app bundle "Cuneiform"" (uppercase)
         OUTPUT_NAME "Cuneiform"
         XCODE_ATTRIBUTE_EXECUTABLE_NAME ${PROJECT_NAME}
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in)
