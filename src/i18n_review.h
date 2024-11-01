@@ -39,8 +39,9 @@
 ///@brief Checks which version of GCC we are building with
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
     #define CHECK_GCC_VERSION(major, minor, patch)                                  \
-        ((__GNUC__ > (major)) || (__GNUC__ == (major) && __GNUC_MINOR__ > (minor))) \
-        || (__GNUC__ == (major) && __GNUC_MINOR__ == (minor) && __GNUC_PATCHLEVEL__ >= (patch)))
+        ((__GNUC__ > (major)) || \
+         (__GNUC__ == (major) && __GNUC_MINOR__ > (minor)) || \
+         (__GNUC__ == (major) && __GNUC_MINOR__ == (minor) && __GNUC_PATCHLEVEL__ >= (patch)))
 #else
     // if not compiling with GCC, then treat anything as true
     #define CHECK_GCC_VERSION(major, minor, patch) 1
