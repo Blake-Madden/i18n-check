@@ -52,7 +52,7 @@ endif()
 project(cuneiform VERSION 2024.0.0.0 DESCRIPTION "Cuneiform")
 set(PROGRAM_NUMBERED_VERSION 1.0)
 set(PROGRAM_AUTHOR "Blake Madden")
-set(PROGRAM_COMMENTS "Internationalization/localization analysis")
+set(PROGRAM_COMMENTS "Internationalization & localization analysis system")
 set(PROGRAM_RDNS_IDENTIFIER "org.cuneiform.cuneiform")
 set(PROGRAM_LICENSE "BSD-3-Clause")
 
@@ -84,6 +84,8 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/resource.h.in"
                "${CMAKE_CURRENT_SOURCE_DIR}/resource.h")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
                "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../docs/manual/_quarto.yml.in"
+               "${CMAKE_CURRENT_SOURCE_DIR}/../docs/manual/_quarto.yml")
 
 # Build the documentation
 #########################
