@@ -58,10 +58,10 @@ set(PROGRAM_LICENSE "BSD-3-Clause")
 
 # Build a displayable version string that only includes the necessary parts
 set(FULL_DISPLAY_VERSION ${cuneiform_VERSION_MAJOR})
-if(NOT ${cuneiform_VERSION_MINOR} EQUAL 0)
+if(NOT ${cuneiform_VERSION_MINOR} EQUAL 0 OR NOT ${cuneiform_VERSION_PATCH} EQUAL 0 OR NOT ${cuneiform_VERSION_TWEAK} EQUAL 0)
     string(APPEND FULL_DISPLAY_VERSION ".${cuneiform_VERSION_MINOR}")
 endif()
-if(NOT ${cuneiform_VERSION_PATCH} EQUAL 0)
+if(NOT ${cuneiform_VERSION_PATCH} EQUAL 0 OR NOT ${cuneiform_VERSION_TWEAK} EQUAL 0)
     string(APPEND FULL_DISPLAY_VERSION ".${cuneiform_VERSION_PATCH}")
 endif()
 if(NOT ${cuneiform_VERSION_TWEAK} EQUAL 0)
