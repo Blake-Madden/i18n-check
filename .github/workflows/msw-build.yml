@@ -27,4 +27,4 @@ jobs:
              cmake ./
       - name: Build Solution (windows)
         run: |
-          msbuild i18n-check.sln
+          msbuild cuneiform.sln
