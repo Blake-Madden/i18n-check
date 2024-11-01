@@ -942,13 +942,15 @@ void I18NFrame::Process()
 #ifndef NDEBUG
                 std::wcout << L"Pseudo-translating " << file << L"\n";
 #endif
-                if (!progressDlg->Update(
-                        currentFileIndex,
-                        file.empty() ?
-                            _(L"Processing...") :
-                            wxString::Format(_(L"Pseudo-translating %s..."),
-                                             /// @todo use wstring() with GCC 12.2.1 and above
-                                             file.filename().string())))
+                if (!progressDlg->Update(currentFileIndex,
+                                         file.empty() ?
+                                             _(L"Processing...") :
+                                             wxString::Format(_(L"Pseudo-translating %s..."),
+#if CHECK_GCC_VERSION(12, 2, 1)
+                                                              file.filename().wstring())))
+#else
+                                                              file.filename().string())))
+#endif
                     {
                     progressDlg->Destroy();
                     progressDlg = nullptr;
@@ -994,13 +996,15 @@ void I18NFrame::Process()
 #ifndef NDEBUG
                 std::wcout << L"Analyzing " << file << L"\n";
 #endif
-                if (!progressDlg->Update(
-                        currentFileIndex,
-                        file.empty() ?
-                            _(L"Processing...") :
-                            wxString::Format(_(L"Reviewing %s..."),
-                                             /// @todo use wstring() with GCC 12.2.1 and above
-                                             file.filename().string())))
+                if (!progressDlg->Update(currentFileIndex,
+                                         file.empty() ?
+                                             _(L"Processing...") :
+                                             wxString::Format(_(L"Reviewing %s..."),
+#if CHECK_GCC_VERSION(12, 2, 1)
+                                                              file.filename().wstring())))
+#else
+                                                              file.filename().string())))
+#endif
                     {
                     progressDlg->Destroy();
                     progressDlg = nullptr;

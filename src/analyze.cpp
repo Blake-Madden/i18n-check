@@ -130,8 +130,10 @@ namespace i18n_check
             if (out.is_open())
                 {
                 out.write(utfBuffer.c_str(), utfBuffer.size());
+#if CHECK_GCC_VERSION(12, 2, 1)
                 m_logReport.append(_WXTRANS_WSTR(L"\nPseudo-translation catalog generated at: "))
-                    .append(filePath);
+                    .append( filePath.wstring());
+#endif
                 }
         };
 
@@ -153,7 +155,11 @@ namespace i18n_check
             const file_review_type fileType = get_file_type(file);
 
             std::filesystem::path outPath = std::filesystem::path{ file };
-            outPath.replace_filename(L"pseudo_" + outPath.filename().generic_wstring());
+#if CHECK_GCC_VERSION(12, 2, 1)
+            outPath.replace_filename(L"pseudo_" + outPath.filename().wstring());
+#else
+            outPath.replace_filename("pseudo_" + outPath.filename().string());
+#endif
 
             // change copy of PO template files to PO files
             if (outPath.extension().compare(L".pot") == 0)

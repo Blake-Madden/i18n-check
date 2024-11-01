@@ -36,6 +36,16 @@
     #endif
 #endif
 
+///@brief Checks which version of GCC we are building with
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+    #define CHECK_GCC_VERSION(major, minor, patch)                                  \
+        ((__GNUC__ > (major)) || (__GNUC__ == (major) && __GNUC_MINOR__ > (minor))) \
+        || (__GNUC__ == (major) && __GNUC_MINOR__ == (minor) && __GNUC_PATCHLEVEL__ >= (patch)))
+#else
+    // if not compiling with GCC, then treat anything as true
+    #define CHECK_GCC_VERSION(major, minor, patch) 1
+#endif
+
 /// @brief Classes for checking source code for internationalization/localization issues.
 /// @details Refer to https://www.gnu.org/software/gettext/manual/gettext.html
 ///     for i18n best practices, which this library attempts to enforce.\n

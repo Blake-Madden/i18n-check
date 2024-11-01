@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "input.h"
+#include "i18n_review.h"
 
 namespace i18n_check
     {
@@ -131,9 +132,12 @@ namespace i18n_check
                     p.path().filename().compare(L"CMakeCCompilerId.c") != 0 &&
                     // main catch2 file
                     p.path().filename().compare(L"catch.hpp") != 0 &&
-                    // ignore pseudo-translated message catalogs what we previously generated
-                    /// @todo use wstring() with GCC 12.2.1 and above
+                // ignore pseudo-translated message catalogs what we previously generated
+#if CHECK_GCC_VERSION(12, 2, 1)
+                    !p.path().filename().wstring().starts_with(L"pseudo_"))
+#else
                     !p.path().filename().string().starts_with("pseudo_"))
+#endif
                     {
                     filesToAnalyze.push_back(p.path());
                     }
