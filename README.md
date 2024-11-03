@@ -7,7 +7,7 @@ Cuneiform
 
 Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows&reg; RC files.
 
-`Cuneiform` is a command-line utility and graphical interface that scans source and resource files to check for
+`Cuneiform` is a command-line utility and graphical user interface that scans source and resource files to check for
 various i18n and l10n issues.
 
 Additionally, the GUI version provides pseudo-translation support for
@@ -242,7 +242,7 @@ On Unix:
 
 ```shellscript
 cmake . -DCMAKE_BUILD_TYPE=Release
-cmake --build . --target all -j $(nproc)
+cmake --build . --target all -j $(nproc) --config Release
 ```
 
 On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
@@ -256,7 +256,7 @@ After building, "cuneiform" will be available in the "bin" folder.
 [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version.
 
 Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as this project.
-After building wxWidgets, `i18n-gui` can be configured and built with *Cmake*.
+After building wxWidgets, *Cuneiform* can be configured and built with *Cmake*.
 
 On Unix:
 
@@ -266,11 +266,11 @@ git clone https://github.com/wxWidgets/wxWidgets.git --recurse-submodules
 cd wxWidgets
 cmake . -DCMAKE_INSTALL_PREFIX=./wxlib -DwxBUILD_SHARED=OFF \
       -D"CMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
-cmake --build . --target install -j $(nproc)
+cmake --build . --target install -j $(nproc) --config Release
 cd ..
 cd i18n-check/gui
 cmake . -DCMAKE_BUILD_TYPE=Release
-cmake --build . --target all -j $(nproc)
+cmake --build . --target all -j $(nproc) --config Release
 ```
 
 On Windows with Visual Studio, build wxWidgets with the defaults, except `wxBUILD_SHARED` should be set to "OFF"
@@ -278,8 +278,7 @@ On Windows with Visual Studio, build wxWidgets with the defaults, except `wxBUIL
 
 Open "gui/CMakeLists.txt" in Visual Studio, setting the *CMake* setting's configuration type to "Release" for a release build.
 
-After building, "i18n-gui" will be available in the "bin" folder.
-
+After building, "cuneiform" will be available in the "bin" folder.
 
 # GitHub Action
 

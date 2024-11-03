@@ -11,7 +11,7 @@ This book is licensed under the [Creative Commons Attribution-NonCommercial-NoDe
 
 # Overview
 
-`Cuneiform` is a command-line utility and graphical interface that scans source and resource files to check for
+`Cuneiform` is a command-line utility and graphical user interface that scans source and resource files to check for
 various i18n and l10n issues. Additionally, the GUI version provides pseudo-translation support for
 *gettext* catalogs (\*.po files).
 

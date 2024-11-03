@@ -27,7 +27,7 @@ book:
       - command-line/options.qmd
       - command-line/examples.qmd
       - command-line/reviewing-output.qmd
-    - part: "Graphical Interface"
+    - part: "User Interface"
       chapters:
       - gui/new-project.qmd
       - gui/reviewing-output.qmd

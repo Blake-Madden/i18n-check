@@ -13,9 +13,8 @@ For the GUI version, [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or 
 On Unix:
 
 ``` {.bash filename="Terminal"}
-# assuming we are in the 'i18n-check' folder currently
 cmake . -DCMAKE_BUILD_TYPE=Release
-cmake --build . --target all -j $(nproc)
+cmake --build . --target all -j $(nproc) --config Release
 ```
 
 On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
@@ -28,25 +27,25 @@ After building, "cuneiform" will be available in the "bin" folder.
 
 [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version.
 
-Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as `i18n-check`.
-After building wxWidgets, `Cuneiform` can be configured and built with *Cmake*.
+Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as this project.
+After building *wxWidgets*, *Cuneiform* can be configured and built with *Cmake*.
 
 On Unix:
 
 ``` {.bash filename="Terminal"}
-# assuming we are in the 'i18n-check' folder currently,
 # download and build wxWidgets one folder above
 cd ..
 git clone https://github.com/wxWidgets/wxWidgets.git --recurse-submodules
 cd wxWidgets
 cmake . -DCMAKE_INSTALL_PREFIX=./wxlib -DwxBUILD_SHARED=OFF \
       -D"CMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
-cmake --build . --target install -j $(nproc)
-# go back into 'i18n-check' and build the GUI version
+cmake --build . --target install -j $(nproc) --config Release
+
+# go back into the project folder and build the GUI version
 cd ..
 cd i18n-check/gui
 cmake . -DCMAKE_BUILD_TYPE=Release
-cmake --build . --target all -j $(nproc)
+cmake --build . --target all -j $(nproc) --config Release
 ```
 
 ::: {.notesection data-latex=""}
@@ -58,4 +57,4 @@ On Windows with Visual Studio, build wxWidgets with the defaults, except `wxBUIL
 
 Open "gui/CMakeLists.txt" in Visual Studio, setting the *CMake* setting's configuration type to "Release" for a release build.
 
-After building, "i18n-gui" will be available in the "bin" folder.
+After building, "cuneiform" will be available in the "bin" folder.
