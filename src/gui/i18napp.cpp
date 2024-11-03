@@ -1077,6 +1077,19 @@ void I18NFrame::Process()
 
     ExpandAll();
 
+    if (m_resultsDataView->GetColumn(0) != nullptr)
+        {
+        m_resultsDataView->GetColumn(0)->SetWidth(m_resultsDataView->GetBestColumnWidth(0));
+        }
+    if (m_resultsDataView->GetColumn(2) != nullptr)
+        {
+        m_resultsDataView->GetColumn(2)->SetWidth(m_resultsDataView->GetBestColumnWidth(2));
+        }
+    if (m_resultsDataView->GetColumn(3) != nullptr)
+        {
+        m_resultsDataView->GetColumn(3)->SetWidth(m_resultsDataView->GetBestColumnWidth(3));
+        }
+
     m_hasOpenProject = true;
     m_projectBar->EnableButton(wxID_SAVE, true);
     m_projectBar->EnableButton(wxID_REFRESH, true);
