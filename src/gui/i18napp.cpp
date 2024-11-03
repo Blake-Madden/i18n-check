@@ -213,13 +213,18 @@ void I18NFrame::InitControls()
     m_editor->SetProperty(L"fold", L"1");
     m_editor->SetProperty(L"fold.comment", L"1");
     m_editor->SetProperty(L"fold.compact", L"1");
-    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_DOTDOTDOT, *wxBLACK, *wxBLACK);
-    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN, *wxBLACK, *wxBLACK);
-    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY, *wxBLACK, *wxBLACK);
-    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_DOTDOTDOT, *wxBLACK, *wxWHITE);
-    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN, *wxBLACK, *wxWHITE);
-    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY, *wxBLACK, *wxBLACK);
-    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY, *wxBLACK, *wxBLACK);
+    const wxColour markerColor{ wxSystemSettings::SelectLightDark(*wxWHITE, *wxBLACK) };
+    const wxColour markerContrastColor{ wxSystemSettings::SelectLightDark(*wxBLACK, *wxWHITE) };
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_DOTDOTDOT, markerColor, markerColor);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN, markerColor,
+                           markerColor);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY, markerColor, markerColor);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_DOTDOTDOT, markerColor,
+                           markerContrastColor);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN, markerColor,
+                           markerContrastColor);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY, markerColor, markerColor);
+    m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY, markerColor, markerColor);
     // margin settings
     m_editor->SetMarginType(0, wxSTC_MARGIN_NUMBER);
     m_editor->SetMarginType(1, wxSTC_MARGIN_SYMBOL);
@@ -246,7 +251,7 @@ void I18NFrame::InitControls()
     // turn on annotations
     m_editor->AnnotationSetVisible(wxSTC_ANNOTATION_BOXED);
 
-    const wxColor grey(100, 100, 100);
+    const wxColour grey(100, 100, 100);
     m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_ARROW);
     m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDER, grey);
     m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDER, grey);
@@ -261,11 +266,11 @@ void I18NFrame::InitControls()
 
     m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_ARROW);
     m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND, grey);
-    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND, L"WHITE");
+    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND, markerContrastColor);
 
     m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN);
     m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, grey);
-    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID, "WHITE");
+    m_editor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID, markerContrastColor);
 
     m_editor->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY);
     m_editor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL, grey);
@@ -277,18 +282,23 @@ void I18NFrame::InitControls()
 
     m_editor->SetWrapMode(wxSTC_WRAP_NONE);
 
-    m_editor->StyleSetForeground(wxSTC_C_STRING, wxColour(150, 0, 0));
+    m_editor->StyleSetForeground(wxSTC_C_STRING, wxSystemSettings::SelectLightDark(
+                                                     wxColour(150, 0, 0), wxColour(L"#FFA089")));
     m_editor->StyleSetForeground(wxSTC_C_PREPROCESSOR, wxColour(165, 105, 0));
-    m_editor->StyleSetForeground(wxSTC_C_IDENTIFIER, wxColour(40, 0, 60));
-    m_editor->StyleSetForeground(wxSTC_C_NUMBER, wxColour(0, 150, 0));
-    m_editor->StyleSetForeground(wxSTC_C_CHARACTER, wxColour(150, 0, 0));
-    m_editor->StyleSetForeground(wxSTC_C_WORD, wxColour(0, 0, 150));
-    m_editor->StyleSetForeground(wxSTC_C_WORD2, wxColour(0, 150, 0));
-    m_editor->StyleSetForeground(wxSTC_C_COMMENT, wxColour(150, 150, 150));
-    m_editor->StyleSetForeground(wxSTC_C_COMMENTLINE, wxColour(150, 150, 150));
-    m_editor->StyleSetForeground(wxSTC_C_COMMENTDOC, wxColour(150, 150, 150));
-    m_editor->StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORD, wxColour(0, 0, 200));
-    m_editor->StyleSetForeground(wxSTC_C_COMMENTDOCKEYWORDERROR, wxColour(0, 0, 200));
+    m_editor->StyleSetForeground(
+        wxSTC_C_IDENTIFIER,
+        wxSystemSettings::SelectLightDark(wxColour(40, 0, 60), wxColour(L"#CB99C9")));
+    m_editor->StyleSetForeground(wxSTC_C_NUMBER, wxSystemSettings::SelectLightDark(
+                                                     wxColour(0, 150, 0), wxColour(L"#00CC99")));
+    m_editor->StyleSetForeground(wxSTC_C_CHARACTER, wxSystemSettings::SelectLightDark(
+                                                        wxColour(150, 0, 0), wxColour(L"#FFA089")));
+    m_editor->StyleSetForeground(
+        wxSTC_C_WORD, wxSystemSettings::SelectLightDark(wxColour(0, 0, 150), wxColour(L"#0095B6")));
+    m_editor->StyleSetForeground(wxSTC_C_WORD2, wxSystemSettings::SelectLightDark(
+                                                    wxColour(0, 150, 0), wxColour(L"#00CC99")));
+    m_editor->StyleSetForeground(wxSTC_C_COMMENT, wxColour(L"#53A64A"));
+    m_editor->StyleSetForeground(wxSTC_C_COMMENTLINE, wxColour(L"#53A64A"));
+    m_editor->StyleSetForeground(wxSTC_C_COMMENTDOC, wxColour(L"#53A64A"));
     m_editor->StyleSetBold(wxSTC_C_WORD, true);
     m_editor->StyleSetBold(wxSTC_C_WORD2, true);
     m_editor->StyleSetBold(wxSTC_C_COMMENTDOCKEYWORD, true);
