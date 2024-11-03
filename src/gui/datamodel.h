@@ -101,7 +101,7 @@ class I18NResultsTreeModel : public wxDataViewModel
 
     // helper methods to change the model
 
-    wxDataViewItem GetRoot() { return wxDataViewItem(m_root); }
+    wxDataViewItem GetRoot() { return wxDataViewItem(reinterpret_cast<void*>(m_root)); }
 
     void Delete(const wxDataViewItem& item);
     void Clear();

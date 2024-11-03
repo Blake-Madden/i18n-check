@@ -10,7 +10,7 @@
 
 //------------------------------------------------------
 I18NResultsTreeModel::I18NResultsTreeModel()
-    : m_root(new I18NResultsTreeModelNode(nullptr, wxString{}))
+    : m_root(new I18NResultsTreeModelNode(nullptr, _(L"Files")))
     {
     }
 
@@ -36,26 +36,40 @@ void I18NResultsTreeModel::AddRow(wxString fileName, wxString warningId, wxStrin
     };
 
     fileName = unquote(fileName);
+
+    const auto notifyControl = [this](auto parent, auto child)
+    {
+        wxASSERT(reinterpret_cast<void*>(parent));
+        wxASSERT(reinterpret_cast<void*>(child));
+        wxDataViewItem parentNode(reinterpret_cast<void*>(parent));
+        wxDataViewItem childNode(reinterpret_cast<void*>(child));
+
+        ItemAdded(parentNode, childNode);
+    };
+
+    // if file is already in the model, then append to that...
     for (auto& currentNode : m_root->GetChildren())
         {
         if (*currentNode == fileName)
             {
-            I18NResultsTreeModelNode* childNode = new I18NResultsTreeModelNode(
-                currentNode.get(), fileName, unquote(warningId), unquote(issue),
-                unquote(explanation), line, column);
+            I18NResultsTreeModelNode* childNode =
+                new I18NResultsTreeModelNode(currentNode.get(), fileName, unquote(warningId),
+                                             unquote(issue), unquote(explanation), line, column);
             currentNode->Append(childNode);
-
+            notifyControl(currentNode.get(), childNode);
             return;
             }
         }
 
+    // ...otherwise, we are adding a new file and a new node under that
     auto newFile = new I18NResultsTreeModelNode(m_root, fileName);
     m_root->Append(newFile);
+    notifyControl(m_root, newFile);
 
-    I18NResultsTreeModelNode* childNode =
-        new I18NResultsTreeModelNode(newFile, fileName, unquote(warningId), unquote(issue),
-                                     unquote(explanation), line, column);
+    I18NResultsTreeModelNode* childNode = new I18NResultsTreeModelNode(
+        newFile, fileName, unquote(warningId), unquote(issue), unquote(explanation), line, column);
     newFile->Append(childNode);
+    notifyControl(newFile, childNode);
     }
 
 //------------------------------------------------------
@@ -273,9 +287,10 @@ unsigned int I18NResultsTreeModel::GetChildren(const wxDataViewItem& parent,
                                                wxDataViewItemArray& array) const
     {
     I18NResultsTreeModelNode* node = reinterpret_cast<I18NResultsTreeModelNode*>(parent.GetID());
-    if (!node)
+    if (node == nullptr)
         {
-        return GetChildren(wxDataViewItem(m_root), array);
+        array.Add(wxDataViewItem(reinterpret_cast<void*>(m_root)));
+        return 1;
         }
 
     if (node->GetChildCount() == 0)
