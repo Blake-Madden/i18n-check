@@ -87,7 +87,7 @@ class I18NResultsTreeModelNode
     bool m_container{ true };
 
   private:
-    I18NResultsTreeModelNode* m_parent;
+    I18NResultsTreeModelNode* m_parent{ nullptr };
     I18NResultsTreeModelNodePtrArray m_children;
     };
 

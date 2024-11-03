@@ -1048,16 +1048,7 @@ void I18NFrame::Process()
             wxStringTokenizerMode(wxTOKEN_STRTOK | wxTOKEN_RET_EMPTY | wxTOKEN_RET_EMPTY_ALL));
         while (tokenizer.HasMoreTokens())
             {
-            wxString fileName = tokenizer.GetNextToken();
-            // strip quotes
-            if (fileName.starts_with(L'\"'))
-                {
-                fileName.erase(0, 1);
-                }
-            if (fileName.ends_with(L'\"'))
-                {
-                fileName.erase(fileName.length() - 1);
-                }
+            const wxString fileName = tokenizer.GetNextToken();
             const wxString lineNo = tokenizer.GetNextToken();
             const wxString columnNo = tokenizer.GetNextToken();
             const wxString warningValue = tokenizer.GetNextToken();

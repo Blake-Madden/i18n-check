@@ -35,12 +35,13 @@ void I18NResultsTreeModel::AddRow(wxString fileName, wxString warningId, wxStrin
         return strVal;
     };
 
+    fileName = unquote(fileName);
     for (auto& currentNode : m_root->GetChildren())
         {
         if (*currentNode == fileName)
             {
             I18NResultsTreeModelNode* childNode = new I18NResultsTreeModelNode(
-                currentNode.get(), unquote(fileName), unquote(warningId), unquote(issue),
+                currentNode.get(), fileName, unquote(warningId), unquote(issue),
                 unquote(explanation), line, column);
             currentNode->Append(childNode);
 
@@ -52,7 +53,7 @@ void I18NResultsTreeModel::AddRow(wxString fileName, wxString warningId, wxStrin
     m_root->Append(newFile);
 
     I18NResultsTreeModelNode* childNode =
-        new I18NResultsTreeModelNode(newFile, unquote(fileName), unquote(warningId), unquote(issue),
+        new I18NResultsTreeModelNode(newFile, fileName, unquote(warningId), unquote(issue),
                                      unquote(explanation), line, column);
     newFile->Append(childNode);
     }
