@@ -296,9 +296,13 @@ void I18NFrame::InitControls()
         wxSTC_C_WORD, wxSystemSettings::SelectLightDark(wxColour(0, 0, 150), wxColour(L"#0095B6")));
     m_editor->StyleSetForeground(wxSTC_C_WORD2, wxSystemSettings::SelectLightDark(
                                                     wxColour(0, 150, 0), wxColour(L"#00CC99")));
-    m_editor->StyleSetForeground(wxSTC_C_COMMENT, wxColour(L"#53A64A"));
-    m_editor->StyleSetForeground(wxSTC_C_COMMENTLINE, wxColour(L"#53A64A"));
-    m_editor->StyleSetForeground(wxSTC_C_COMMENTDOC, wxColour(L"#53A64A"));
+
+    const wxColour commentColor{ wxSystemSettings::SelectLightDark(wxColour{ L"#499141" },
+                                                                   wxColour{ L"#53A64A" }) };
+
+    m_editor->StyleSetForeground(wxSTC_C_COMMENT, commentColor);
+    m_editor->StyleSetForeground(wxSTC_C_COMMENTLINE, commentColor);
+    m_editor->StyleSetForeground(wxSTC_C_COMMENTDOC, commentColor);
     m_editor->StyleSetBold(wxSTC_C_WORD, true);
     m_editor->StyleSetBold(wxSTC_C_WORD2, true);
     m_editor->StyleSetBold(wxSTC_C_COMMENTDOCKEYWORD, true);
