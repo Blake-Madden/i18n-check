@@ -963,7 +963,7 @@ namespace i18n_check
         /// @param str The string to collapse.
         /// @returns The collapsed string.
         [[nodiscard]]
-        std::wstring collapse_multipart_string(std::wstring& str);
+        std::wstring collapse_multipart_string(std::wstring& str) const;
 
         /// @brief Collapses non-raw strings that are multiline.
         void process_strings();

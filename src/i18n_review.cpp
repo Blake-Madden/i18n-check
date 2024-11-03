@@ -1813,7 +1813,7 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    std::wstring i18n_review::collapse_multipart_string(std::wstring& str)
+    std::wstring i18n_review::collapse_multipart_string(std::wstring& str) const
         {
         // for strings that span multiple lines, remove the start/end quotes and newlines
         // between them, combining this into one string
