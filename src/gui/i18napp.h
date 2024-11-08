@@ -71,8 +71,6 @@ class I18NFrame : public wxFrame
     void OnOpen([[maybe_unused]] wxCommandEvent&);
     void OnSave([[maybe_unused]] wxCommandEvent&);
     void OnRefresh([[maybe_unused]] wxCommandEvent&);
-    void OnExpandAll([[maybe_unused]] wxCommandEvent&);
-    void OnCollapseAll([[maybe_unused]] wxCommandEvent&);
     void OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&);
     void OnSettings([[maybe_unused]] wxCommandEvent&);
     void OnAbout([[maybe_unused]] wxCommandEvent&);
@@ -118,7 +116,6 @@ class I18NFrame : public wxFrame
     wxObjectDataPtr<I18NResultsTreeModel> m_resultsModel;
     wxDataViewCtrl* m_resultsDataView{ nullptr };
     wxRibbonButtonBar* m_projectBar{ nullptr };
-    wxRibbonButtonBar* m_editBar{ nullptr };
     wxStyledTextCtrl* m_editor{ nullptr };
     wxTextCtrl* m_logWindow{ nullptr };
     wxString m_activeSourceFile;

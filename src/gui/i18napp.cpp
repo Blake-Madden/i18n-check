@@ -95,17 +95,6 @@ void I18NFrame::InitControls()
         m_projectBar->EnableButton(wxID_REFRESH, false);
         m_projectBar->EnableButton(XRCID("ID_IGNORE_SELECTED"), false);
 
-        wxRibbonPanel* viewPanel =
-            new wxRibbonPanel(homePage, wxID_ANY, _(L"View"), wxNullBitmap, wxDefaultPosition,
-                              wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
-        m_editBar = new wxRibbonButtonBar(viewPanel);
-        m_editBar->AddButton(XRCID("ID_EXPAND_ALL"), _(L"Expand All"),
-                             wxArtProvider::GetBitmap(wxART_MINUS, wxART_OTHER, wxSize{ 32, 32 }));
-        m_editBar->AddButton(XRCID("ID_COLLAPSE_ALL"), _(L"Collapse All"),
-                             wxArtProvider::GetBitmap(wxART_PLUS, wxART_OTHER, wxSize{ 32, 32 }));
-        m_editBar->EnableButton(XRCID("ID_EXPAND_ALL"), false);
-        m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), false);
-
         wxRibbonPanel* helpPanel =
             new wxRibbonPanel(homePage, wxID_ANY, _(L"General"), wxNullBitmap, wxDefaultPosition,
                               wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
@@ -347,8 +336,6 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnOpen, this, wxID_OPEN);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSave, this, wxID_SAVE);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnRefresh, this, wxID_REFRESH);
-    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnExpandAll, this, XRCID("ID_EXPAND_ALL"));
-    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnCollapseAll, this, XRCID("ID_COLLAPSE_ALL"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnIgnoreSelectedFile, this,
          XRCID("ID_IGNORE_SELECTED"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSettings, this, XRCID("ID_SETTINGS"));
@@ -386,22 +373,6 @@ void I18NFrame::InitControls()
             OnIgnoreSelectedFile(event);
         },
         XRCID("ID_IGNORE_SELECTED"));
-    Bind(
-        wxEVT_MENU,
-        [this]([[maybe_unused]] wxCommandEvent&)
-        {
-            wxRibbonButtonBarEvent event;
-            OnExpandAll(event);
-        },
-        XRCID("ID_COLLAPSE_ALL"));
-    Bind(
-        wxEVT_MENU,
-        [this]([[maybe_unused]] wxCommandEvent&)
-        {
-            wxRibbonButtonBarEvent event;
-            OnExpandAll(event);
-        },
-        XRCID("ID_EXPAND_ALL"));
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -536,7 +507,6 @@ void I18NFrame::InitControls()
                          {
                          m_editor->SetScrollWidth(widthAnn);
                          }
-                     m_editor->SetFocus();
                      }
                  }
              else
@@ -547,12 +517,6 @@ void I18NFrame::InitControls()
                  }
          });
     }
-
-//------------------------------------------------------
-void I18NFrame::OnExpandAll([[maybe_unused]] wxCommandEvent&) { ExpandAll(); }
-
-//------------------------------------------------------
-void I18NFrame::OnCollapseAll([[maybe_unused]] wxCommandEvent&) { Collapse(); }
 
 //------------------------------------------------------
 void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
@@ -1085,8 +1049,6 @@ void I18NFrame::Process()
     m_projectBar->EnableButton(wxID_SAVE, true);
     m_projectBar->EnableButton(wxID_REFRESH, true);
     m_projectBar->EnableButton(XRCID("ID_IGNORE_SELECTED"), true);
-    m_editBar->EnableButton(XRCID("ID_EXPAND_ALL"), true);
-    m_editBar->EnableButton(XRCID("ID_COLLAPSE_ALL"), true);
 
     m_logWindow->AppendText(analyzer.format_summary(false).str());
     m_logWindow->AppendText(L"\n");
