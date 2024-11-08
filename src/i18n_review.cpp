@@ -118,6 +118,7 @@ namespace i18n_check
         L"Lucida Grande",
         L"Helvetica Neue",
         L"Liberation Serif",
+        L"Sans Serif",
         L"Luxi Serif",
         L"Ms Shell Dlg",
         L"Ms Shell Dlg 2",
@@ -478,6 +479,8 @@ namespace i18n_check
             // CSS
             std::wregex(
                 LR"([\s\S]*(\{[[:space:]]*[a-zA-Z\-]+[[:space:]]*[:][[:space:]]*[0-9a-zA-Z\- \(\);\:%#'",]+[[:space:]]*\})+[\s\S]*)"),
+            std::wregex(
+                LR"((margin[-](top|bottom|left|right)|text[-]indent)[:][[:space:]]*[[:alnum:]%]+;)"),
             // JS
             std::wregex(LR"(class[[:space:]]*=[[:space:]]*['"][A-Za-z0-9\- _]*['"])"),
             // An opening HTML element
@@ -510,6 +513,8 @@ namespace i18n_check
             std::wregex(L"charset[[:space:]]*=.*", std::regex_constants::icase),
             // all 'X'es, spaces, and commas are usually a placeholder of some sort
             std::wregex(LR"((([\+\-]?[xX\.]+)[ ,]*)+)"),
+            // placeholders
+            std::wregex(LR"(asdfs.*)"),
             // program version string
             std::wregex(LR"([a-zA-Z\-]+ v(ersion)?[ ]?[0-9\.]+)"),
             // bash command (e.g., "lpstat -p") and system variables
@@ -644,7 +649,7 @@ namespace i18n_check
         //  function/variable assignment to the left of these).
         m_ctors_to_ignore = {
             // Win32 text macros that should be skipped over
-            L"_T", L"TEXT", L"_TEXT", L"__TEXT", L"_WIDE",
+            L"_T", L"TEXT", L"_TEXT", L"__TEXT", L"_WIDE", L"W",
             // macOS
             L"CFSTR", L"CFStringRef",
             // similar macros from other libraries
@@ -695,7 +700,7 @@ namespace i18n_check
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo", L"Platform::DebugPrintf",
             L"wxGetCommandOutput", L"SetKeyWords", L"AddDeveloper", L"AddDocWriter", L"AddArtist",
             L"AddTranslator", L"SetCopyright", L"MarkerSetBackground", L"SetProperty",
-            L"SetAppName",
+            L"SetAppName", L"SetPrintToFile",
             L"GetTextExtent" /*Usually only used for measuring "phantoms" like 'Aq'*/,
             L"GetAttribute",
             // Qt
@@ -738,6 +743,8 @@ namespace i18n_check
             L"gtk_assert_dialog_append_text_column", L"gtk_assert_dialog_add_button_to",
             L"gtk_assert_dialog_add_button", L"g_object_set_property", L"gdk_atom_intern",
             L"g_object_class_override_property", L"g_object_get", L"g_assert_cmpstr",
+            L"gtk_rc_parse_string", L"g_param_spec_enum", L"g_error_new",
+            L"g_dbus_method_invocation_return_error", L"GTKApplyCssStyle",
             // TCL
             L"Tcl_PkgRequire", L"Tcl_PkgRequireEx",
             // debugging functions from various open-source projects
@@ -799,7 +806,7 @@ namespace i18n_check
             // .NET
             L"LoggerMessage",
             // other programs
-            L"log_message", L"outLog"
+            L"log_message", L"outLog", L"LOG", L"LogSpew"
         };
 
         m_exceptions = {
@@ -810,7 +817,9 @@ namespace i18n_check
             L"underflow_error", L"std::underflow_error", L"range_error", L"std::range_error",
             L"invalid_argument", L"std::invalid_argument", L"exception", L"std::exception",
             // MFC
-            L"AfxThrowOleDispatchException"
+            L"AfxThrowOleDispatchException",
+            // Qt
+            L"QException"
         };
 
         // known strings to ignore
@@ -1630,8 +1639,7 @@ namespace i18n_check
                                                const bool limitWordCount) const
         {
         // if no spaces but lengthy, then this is probably some sort of GUID
-        if (strToReview.find(L' ') == std::wstring::npos &&
-            strToReview.length() > 100)
+        if (strToReview.find(L' ') == std::wstring::npos && strToReview.length() > 100)
             {
             return true;
             }
