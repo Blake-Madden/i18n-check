@@ -132,7 +132,7 @@ namespace i18n_check
                 out.write(utfBuffer.c_str(), utfBuffer.size());
 #if CHECK_GCC_VERSION(12, 2, 1)
                 m_logReport.append(_WXTRANS_WSTR(L"\nPseudo-translation catalog generated at: "))
-                    .append( filePath.wstring());
+                    .append(filePath.wstring());
 #else
                 m_logReport.append(_WXTRANS_WSTR(L"\nPseudo-translation catalog generated"));
 #endif
@@ -290,7 +290,7 @@ namespace i18n_check
                     }
                 else
                     {
-                    if (m_cpp->get_style() & check_utf8_encoded)
+                    if (fileType != file_review_type::rc && m_cpp->get_style() & check_utf8_encoded)
                         {
                         m_filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
