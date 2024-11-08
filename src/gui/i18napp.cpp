@@ -310,6 +310,7 @@ void I18NFrame::InitControls()
 
     tabstrip->InsertPage(0, m_editor, _("Edit"));
     tabstrip->InsertPage(1, m_logWindow, _("Analysis Log"), false);
+    tabstrip->SetMinSize(wxSize{ FromDIP(300), FromDIP(300) });
 
     splitter->SplitHorizontally(m_resultsDataView, tabstrip, FromDIP(-300));
     mainSizer->Add(splitter, wxSizerFlags{ 1 }.Expand());
@@ -340,6 +341,7 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSettings, this, XRCID("ID_SETTINGS"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnHelp, this, wxID_HELP);
+    Bind(wxEVT_CLOSE_WINDOW, &I18NFrame::OnClose, this);
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -1227,6 +1229,13 @@ void I18NFrame::Process()
     }
 
 //------------------------------------------------------
+void I18NFrame::OnClose(wxCloseEvent& event)
+    {
+    wxGetApp().m_defaultOptions.m_windowMaximized = IsMaximized();
+    event.Skip();
+    }
+
+//------------------------------------------------------
 bool I18NApp::OnInit()
     {
     if (!wxApp::OnInit())
@@ -1270,8 +1279,12 @@ bool I18NApp::OnInit()
 
     // create the main application window
     I18NFrame* frame = new I18NFrame(GetAppName());
-    frame->InitControls();
+    if (m_defaultOptions.m_windowMaximized)
+        {
+        frame->Maximize();
+        }
     frame->SetSize(frame->FromDIP(wxSize{ 1200, 1000 }));
+    frame->InitControls();
     frame->CenterOnScreen();
     frame->Show(true);
 

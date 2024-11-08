@@ -79,6 +79,8 @@ class I18NFrame : public wxFrame
     void OnAbout([[maybe_unused]] wxCommandEvent&);
     void OnHelp([[maybe_unused]] wxCommandEvent&);
 
+    void OnClose(wxCloseEvent& event);
+
   private:
     void Process();
 

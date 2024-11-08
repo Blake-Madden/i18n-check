@@ -49,6 +49,8 @@ struct I18NOptions
     int m_widthPseudoIncrease{ 0 };
     int m_minWordsForClassifyingUnavailableString{ 2 };
     int m_minCppVersion{ 2014 };
+
+    bool m_windowMaximized{ false };
     };
 
     /** @}*/
