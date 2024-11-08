@@ -549,7 +549,7 @@ void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
                     }
                 }
 
-            m_activeProjectOptions.m_excludedPaths.push_back(node->m_fileName.wc_str());
+            m_activeProjectOptions.m_excludedPaths.push_back(node->m_fileName);
 
             m_resultsModel->Delete(selectedItem);
             m_resultsModel->Cleared();
@@ -1012,7 +1012,9 @@ void I18NFrame::Process()
             wxStringTokenizerMode(wxTOKEN_STRTOK | wxTOKEN_RET_EMPTY | wxTOKEN_RET_EMPTY_ALL));
         while (tokenizer.HasMoreTokens())
             {
-            const wxString fileName = tokenizer.GetNextToken();
+            wxString fileName = tokenizer.GetNextToken();
+            // normalize paths, as filesystem::path may store Windows separators as "\\"
+            fileName.Replace(LR"(\\)", LR"(\)", true);
             const wxString lineNo = tokenizer.GetNextToken();
             const wxString columnNo = tokenizer.GetNextToken();
             const wxString warningValue = tokenizer.GetNextToken();
