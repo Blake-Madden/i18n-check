@@ -552,7 +552,6 @@ void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
             m_activeProjectOptions.m_excludedPaths.push_back(node->m_fileName);
 
             m_resultsModel->Delete(selectedItem);
-            m_resultsModel->Cleared();
 
             m_projectDirty = true;
 
