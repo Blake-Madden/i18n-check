@@ -700,9 +700,7 @@ namespace i18n_check
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo", L"Platform::DebugPrintf",
             L"wxGetCommandOutput", L"SetKeyWords", L"AddDeveloper", L"AddDocWriter", L"AddArtist",
             L"AddTranslator", L"SetCopyright", L"MarkerSetBackground", L"SetProperty",
-            L"SetAppName", L"SetPrintToFile",
-            L"GetTextExtent" /*Usually only used for measuring "phantoms" like 'Aq'*/,
-            L"GetAttribute",
+            L"SetAppName", L"SetPrintToFile", L"GetAttribute",
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern", L"qmlRegisterUncreatableMetaObject",
             L"addShaderFromSourceCode", L"QStandardPaths::findExecutable", L"QDateTime::fromString",
@@ -767,7 +765,9 @@ namespace i18n_check
             L"RegisterClipboardFormat", L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue",
             L"CLSIDFromProgID", L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
             L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
-            L"HasProperty", L"SetRegistryKey", L"CreateDC",
+            L"HasProperty", L"SetRegistryKey", L"CreateDC", L"GetModuleFileName",
+            L"GetModuleFileNameEx", L"GetProcessImageFileName", L"GetMappedFileName",
+            L"GetDeviceDriverFileName", L"GetDeviceDriverBaseName",
             // .NET
             L"FindSystemTimeZoneById", L"CreateSpecificCulture", L"DebuggerDisplay", L"Debug.Fail",
             L"DeriveKey", L"Assert.Fail", L"Debug.Assert", L"Debug.Print", L"Debug.WriteLine",
