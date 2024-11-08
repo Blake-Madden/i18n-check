@@ -71,23 +71,16 @@ class I18NFrame : public wxFrame
     void OnOpen([[maybe_unused]] wxCommandEvent&);
     void OnSave([[maybe_unused]] wxCommandEvent&);
     void OnRefresh([[maybe_unused]] wxCommandEvent&);
+    void OnOpenSelectedFile([[maybe_unused]] wxCommandEvent&);
+    void OnIgnore(wxRibbonButtonBarEvent& event);
     void OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&);
+    void OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&);
     void OnSettings([[maybe_unused]] wxCommandEvent&);
     void OnAbout([[maybe_unused]] wxCommandEvent&);
     void OnHelp([[maybe_unused]] wxCommandEvent&);
 
   private:
     void Process();
-
-    void Collapse()
-        {
-        wxDataViewItemArray array;
-        m_resultsModel->GetChildren(m_resultsModel->GetRoot(), array);
-        for (const auto& item : array)
-            {
-            m_resultsDataView->Collapse(item);
-            }
-        }
 
     void ExpandAll()
         {
@@ -102,11 +95,10 @@ class I18NFrame : public wxFrame
     void SetTitleDirty()
         {
         wxString title{ GetTitle() };
-        if (title.ends_with(L"*"))
+        if (!title.ends_with(L"*"))
             {
-            title.erase(title.length() - 1);
+            title.append(L"*");
             }
-        title.append(L"*");
         SetTitle(std::move(title));
         }
 

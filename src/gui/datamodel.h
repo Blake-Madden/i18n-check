@@ -55,8 +55,6 @@ class I18NResultsTreeModelNode
 
     I18NResultsTreeModelNodePtrArray& GetChildren() { return m_children; }
 
-    I18NResultsTreeModelNode* GetNthChild(unsigned int n) { return m_children.at(n).get(); }
-
     void Insert(I18NResultsTreeModelNode* child, unsigned int n)
         {
         m_children.insert(m_children.begin() + n, I18NResultsTreeModelNodePtr(child));
@@ -104,6 +102,7 @@ class I18NResultsTreeModel : public wxDataViewModel
     wxDataViewItem GetRoot() { return wxDataViewItem(reinterpret_cast<void*>(m_root)); }
 
     void Delete(const wxDataViewItem& item);
+    void DeleteWarning(const wxString& warningId);
     void Clear();
 
     void AddRow(wxString fileName, wxString warningId, wxString issue, wxString explanation,

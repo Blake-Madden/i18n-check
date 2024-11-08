@@ -88,12 +88,12 @@ void I18NFrame::InitControls()
         m_projectBar->AddButton(
             wxID_REFRESH, _(L"Refresh"),
             wxArtProvider::GetBitmap(wxART_REFRESH, wxART_OTHER, wxSize{ 32, 32 }));
-        m_projectBar->AddButton(
-            XRCID("ID_IGNORE_SELECTED"), _(L"Ignore Selected File"),
+        m_projectBar->AddDropdownButton(
+            XRCID("ID_IGNORE"), _(L"Ignore"),
             wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 32, 32 }));
         m_projectBar->EnableButton(wxID_SAVE, false);
         m_projectBar->EnableButton(wxID_REFRESH, false);
-        m_projectBar->EnableButton(XRCID("ID_IGNORE_SELECTED"), false);
+        m_projectBar->EnableButton(XRCID("ID_IGNORE"), false);
 
         wxRibbonPanel* helpPanel =
             new wxRibbonPanel(homePage, wxID_ANY, _(L"General"), wxNullBitmap, wxDefaultPosition,
@@ -336,8 +336,7 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnOpen, this, wxID_OPEN);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSave, this, wxID_SAVE);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnRefresh, this, wxID_REFRESH);
-    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnIgnoreSelectedFile, this,
-         XRCID("ID_IGNORE_SELECTED"));
+    Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnIgnore, this, XRCID("ID_IGNORE"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSettings, this, XRCID("ID_SETTINGS"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnHelp, this, wxID_HELP);
@@ -370,9 +369,25 @@ void I18NFrame::InitControls()
         [this]([[maybe_unused]] wxCommandEvent&)
         {
             wxRibbonButtonBarEvent event;
+            OnOpenSelectedFile(event);
+        },
+        XRCID("ID_OPEN_SELECTED"));
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
+            wxRibbonButtonBarEvent event;
             OnIgnoreSelectedFile(event);
         },
-        XRCID("ID_IGNORE_SELECTED"));
+        XRCID("ID_IGNORE_SELECTED_FILE"));
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
+            wxRibbonButtonBarEvent event;
+            OnIgnoreSelectedWarning(event);
+        },
+        XRCID("ID_IGNORE_SELECTED_WARNING"));
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -405,14 +420,44 @@ void I18NFrame::InitControls()
             OnRefresh(event);
         },
         wxID_REFRESH);
-    Bind(wxEVT_DATAVIEW_ITEM_ACTIVATED,
+    Bind(wxEVT_DATAVIEW_ITEM_CONTEXT_MENU,
          [this](wxDataViewEvent& event)
          {
+             if (event.GetItem() == m_resultsModel->GetRoot())
+                 {
+                 return;
+                 }
+
              I18NResultsTreeModelNode* node =
                  reinterpret_cast<I18NResultsTreeModelNode*>(event.GetItem().GetID());
              if (node != nullptr)
                  {
-                 wxLaunchDefaultApplication(node->m_fileName);
+                 wxMenu menu;
+                 auto* menuItem =
+                     menu.Append(XRCID("ID_OPEN_SELECTED"),
+                                 wxString::Format(_(L"Open \"%s\""),
+                                                  wxFileName{ node->m_fileName }.GetFullName()));
+                 menuItem->SetBitmap(
+                     wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_OTHER, wxSize{ 16, 16 }));
+                 menu.AppendSeparator();
+
+                 menuItem =
+                     menu.Append(XRCID("ID_IGNORE_SELECTED_FILE"),
+                                 wxString::Format(_(L"Ignore \"%s\""),
+                                                  wxFileName{ node->m_fileName }.GetFullName()));
+                 menuItem->SetBitmap(
+                     wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 16, 16 }));
+
+                 if (node->m_warningId != node->m_fileName)
+                     {
+                     menuItem = menu.Append(
+                         XRCID("ID_IGNORE_SELECTED_WARNING"),
+                         wxString::Format(_(L"Ignore '%s' Warnings"), node->m_warningId));
+                     menuItem->SetBitmap(
+                         wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 16, 16 }));
+                 }
+
+                 m_resultsDataView->PopupMenu(&menu);
                  }
          });
     Bind(wxEVT_DATAVIEW_SELECTION_CHANGED,
@@ -519,9 +564,133 @@ void I18NFrame::InitControls()
     }
 
 //------------------------------------------------------
+void I18NFrame::OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&)
+    {
+    wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
+
+    if (selectedItem.IsOk())
+        {
+        I18NResultsTreeModelNode* node =
+            reinterpret_cast<I18NResultsTreeModelNode*>(selectedItem.GetID());
+
+        if (node != nullptr)
+            {
+            // file node selected, so no warning is selected
+            if (node->m_fileName == node->m_warningId)
+                {
+                return;
+                }
+
+            SaveSourceFileIfNeeded();
+            m_activeSourceFile.clear();
+            m_editor->SetText(wxString{});
+
+            // excludes a flag if the provided value matches the node's warning
+            const auto excludeFlag = [this, &node](const wxString& value, const auto flag)
+            {
+                if (node->m_warningId == value)
+                    {
+                    m_activeProjectOptions.m_options = m_activeProjectOptions.m_options & ~flag;
+                    }
+            };
+
+            excludeFlag(L"[notL10NAvailable]",
+                        i18n_check::review_style::check_not_available_for_l10n);
+            excludeFlag(L"[suspectL10NString]", i18n_check::review_style::check_l10n_strings);
+            excludeFlag(L"[suspectL10NUsage]",
+                        i18n_check::review_style::check_suspect_l10n_string_usage);
+            excludeFlag(L"[printfMismatch]",
+                        i18n_check::review_style::check_mismatching_printf_commands);
+            excludeFlag(L"[urlInL10NString]", i18n_check::review_style::check_l10n_contains_url);
+            excludeFlag(L"[deprecatedMacro]", i18n_check::review_style::check_deprecated_macros);
+            excludeFlag(L"[nonUTF8File]", i18n_check::review_style::check_utf8_encoded);
+            excludeFlag(L"[UTF8FileWithBOM]", i18n_check::review_style::check_utf8_with_signature);
+            excludeFlag(L"[unencodedExtASCII]",
+                        i18n_check::review_style::check_unencoded_ext_ascii);
+            excludeFlag(L"[printfSingleNumber]",
+                        i18n_check::review_style::check_printf_single_number);
+            excludeFlag(L"[numberAssignedToId]",
+                        i18n_check::review_style::check_number_assigned_to_id);
+            excludeFlag(L"[dupValAssignedToIds]",
+                        i18n_check::review_style::check_duplicate_value_assigned_to_ids);
+            excludeFlag(L"[malformedString]", i18n_check::review_style::check_malformed_strings);
+            excludeFlag(L"[trailingSpaces]", i18n_check::review_style::check_trailing_spaces);
+            excludeFlag(L"[fontIssue]", i18n_check::review_style::check_fonts);
+            excludeFlag(L"[tabs]", i18n_check::review_style::check_tabs);
+            excludeFlag(L"[wideLine]", i18n_check::review_style::check_line_width);
+            excludeFlag(L"[commentMissingSpace]",
+                        i18n_check::review_style::check_space_after_comment);
+
+            m_resultsModel->DeleteWarning(node->m_warningId);
+
+            m_projectDirty = true;
+
+            SetTitleDirty();
+            }
+        }
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnOpenSelectedFile([[maybe_unused]] wxCommandEvent&)
+    {
+    wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
+
+    if (selectedItem.IsOk())
+        {
+        I18NResultsTreeModelNode* node =
+            reinterpret_cast<I18NResultsTreeModelNode*>(selectedItem.GetID());
+        if (node != nullptr)
+            {
+            wxLaunchDefaultApplication(node->m_fileName);
+            }
+        }
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnIgnore(wxRibbonButtonBarEvent& event)
+    {
+    wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
+    if (selectedItem == m_resultsModel->GetRoot())
+        {
+        return;
+        }
+
+    if (selectedItem.IsOk())
+        {
+        I18NResultsTreeModelNode* node =
+            reinterpret_cast<I18NResultsTreeModelNode*>(selectedItem.GetID());
+        if (node != nullptr)
+            {
+            wxMenu menu;
+            auto* menuItem =
+                menu.Append(XRCID("ID_IGNORE_SELECTED_FILE"),
+                            wxString::Format(_(L"Ignore \"%s\""),
+                                             wxFileName{ node->m_fileName }.GetFullName()));
+            menuItem->SetBitmap(
+                wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 16, 16 }));
+
+            if (node->m_warningId != node->m_fileName)
+                {
+                menuItem =
+                    menu.Append(XRCID("ID_IGNORE_SELECTED_WARNING"),
+                                wxString::Format(_(L"Ignore '%s' Warnings"), node->m_warningId));
+                menuItem->SetBitmap(
+                    wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 16, 16 }));
+                }
+
+            event.PopupMenu(&menu);
+            }
+        }
+    }
+
+//------------------------------------------------------
 void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
     {
     wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
+    if (selectedItem == m_resultsModel->GetRoot())
+        {
+        return;
+        }
 
     if (selectedItem.IsOk())
         {
@@ -1049,7 +1218,7 @@ void I18NFrame::Process()
     m_hasOpenProject = true;
     m_projectBar->EnableButton(wxID_SAVE, true);
     m_projectBar->EnableButton(wxID_REFRESH, true);
-    m_projectBar->EnableButton(XRCID("ID_IGNORE_SELECTED"), true);
+    m_projectBar->EnableButton(XRCID("ID_IGNORE"), true);
 
     m_logWindow->AppendText(analyzer.format_summary(false).str());
     m_logWindow->AppendText(L"\n");

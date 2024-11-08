@@ -15,3 +15,18 @@ The line where the issue was detected will be scrolled to, along with the warnin
 From here, you can edit the file in this window to correct any issues.
 Once you are finished editing, either select another file's warning in the top window or click the `r keys("Save")` button on the ribbon.
 (The latter will also save the project if it has unsaved changes.)
+
+## Ignoring Output
+
+Specific warnings and files can be ignored from the project window.
+
+To ignore a file, select it in the top window and click the `r keys("Ignore")` button on the ribbon.
+From the menu that appears, select the **Ignore \"*fileName*\"** option (where *fileName* is the file name) and this file will be removed from the project.
+
+To ignore a class of warnings, select a warning for any file in top window and click the `r keys("Ignore")` button on the ribbon.
+From the menu that appears, select the **Ignore \'*warningId*\'** option (where *warningId* is the warning, such as "[notL10NAvailable]").
+All instances of this warning will be removed from all files. Also, this check will no longer be performed when you re-run the analysis.
+
+::: {.notesection data-latex=""}
+These options are also available by right clicking any warning and selecting them from the popup menu.
+:::

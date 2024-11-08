@@ -305,3 +305,39 @@ unsigned int I18NResultsTreeModel::GetChildren(const wxDataViewItem& parent,
 
     return array.size();
     }
+
+//------------------------------------------------------
+void I18NResultsTreeModel::DeleteWarning(const wxString& warningId)
+    {
+    // remove all nodes with the provided warning
+    wxDataViewItemArray deleteQueue;
+    for (const auto& fileChild : m_root->GetChildren())
+        {
+        for (const auto& child : fileChild->GetChildren())
+            {
+            if (child->m_warningId == warningId)
+                {
+                deleteQueue.Add(wxDataViewItem(child.get()));
+                }
+            }
+        }
+
+    for (auto& child : deleteQueue)
+        {
+        Delete(child);
+        }
+
+    // remove files that no longer have any warnings now
+    deleteQueue.clear();
+    for (const auto& fileChild : m_root->GetChildren())
+        {
+        if (fileChild->GetChildCount() == 0)
+            {
+            deleteQueue.Add(wxDataViewItem(fileChild.get()));
+            }
+        }
+    for (auto& child : deleteQueue)
+        {
+        Delete(child);
+        }
+    }
