@@ -457,7 +457,7 @@ void I18NFrame::InitControls()
                          wxString::Format(_(L"Ignore '%s' Warnings"), node->m_warningId));
                      menuItem->SetBitmap(
                          wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 16, 16 }));
-                 }
+                     }
 
                  m_resultsDataView->PopupMenu(&menu);
                  }
@@ -1297,7 +1297,7 @@ bool I18NApp::OnInit()
     for (const auto& fn : fontNames)
         {
         // don't ignore font names that might also be real words
-        if (fn.CmpNoCase(_DT(L"Symbol")) == 0)
+        if (fn.CmpNoCase(_DT(L"Symbol")) == 0 || fn.CmpNoCase(_DT(L"Modern")) == 0)
             {
             continue;
             }
