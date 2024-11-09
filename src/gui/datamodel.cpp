@@ -161,6 +161,7 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
             bmps = wxArtProvider::GetBitmapBundle(wxART_NEW, wxART_BUTTON);
             }
         else if (node->m_warningId == L"[printfMismatch]" ||
+                 node->m_warningId == L"[acceleratorMismatch]" ||
                  node->m_warningId == L"[suspectL10NString]" ||
                  node->m_warningId == L"[suspectL10NUsage]" ||
                  node->m_warningId == L"[urlInL10NString]" ||

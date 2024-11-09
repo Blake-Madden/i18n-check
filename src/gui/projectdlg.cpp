@@ -69,6 +69,7 @@ void NewProjectDialog::SetOptions(const i18n_check::review_style style)
     m_suspectL10NString = (m_options & i18n_check::review_style::check_l10n_strings);
     m_suspectL10NUsage = (m_options & i18n_check::review_style::check_suspect_l10n_string_usage);
     m_printfMismatch = (m_options & i18n_check::review_style::check_mismatching_printf_commands);
+    m_acceleratorMismatch = (m_options & i18n_check::review_style::check_accelerators);
     m_urlInL10NString = (m_options & i18n_check::review_style::check_l10n_contains_url);
     m_spacesAroundL10NString =
         (m_options & i18n_check::review_style::check_l10n_has_surrounding_spaces);
@@ -120,6 +121,10 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
     if (m_printfMismatch)
         {
         m_options |= i18n_check::review_style::check_mismatching_printf_commands;
+        }
+    if (m_acceleratorMismatch)
+        {
+        m_options |= i18n_check::review_style::check_accelerators;
         }
     if (m_urlInL10NString)
         {
@@ -524,6 +529,14 @@ void NewProjectDialog::CreateControls()
                                         wxGenericValidator(&m_printfMismatch)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
             gbSizer->Add(buildCodeLabel(L"printfMismatch", poOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+            gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Check for inconsistent keyboard accelerators"),
+                                        wxDefaultPosition, wxDefaultSize, 0,
+                                        wxGenericValidator(&m_acceleratorMismatch)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"acceleratorMismatch", poOptionsSizer->GetStaticBox()),
                          wxGBPosition(currentRow++, 1), wxGBSpan{});
 
             gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,

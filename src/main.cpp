@@ -28,9 +28,9 @@ int main(int argc, char* argv[])
          "Which checks to perform (any combination of: "
          "allI18N, allL10N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
          "rlInL10NString, notL10NAvailable, deprecatedMacro, nonUTF8File, "
-         "UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber,"
+         "UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber, spacesAroundL10NString, "
          "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue, printfMismatch, "
-         "trailingSpaces, tabs, wideLine, commentMissingSpace)",
+         "acceleratorMismatch, trailingSpaces, tabs, wideLine, commentMissingSpace)",
          cxxopts::value<std::vector<std::string>>())
         ("disable", "Which checks to not perform (same as the options for --enable)",
          cxxopts::value<std::vector<std::string>>())
@@ -208,6 +208,10 @@ int main(int argc, char* argv[])
                 {
                 rs |= i18n_check::review_style::check_mismatching_printf_commands;
                 }
+            else if (r == "acceleratorMismatch")
+                {
+                rs |= i18n_check::review_style::check_accelerators;
+                }
             else if (r == "urlInL10NString")
                 {
                 rs |= i18n_check::review_style::check_l10n_contains_url;
@@ -315,6 +319,10 @@ int main(int argc, char* argv[])
             else if (r == "printfMismatch")
                 {
                 rs = rs & ~i18n_check::review_style::check_mismatching_printf_commands;
+                }
+            else if (r == "acceleratorMismatch")
+                {
+                rs = rs & ~i18n_check::review_style::check_accelerators;
                 }
             else if (r == "urlInL10NString")
                 {

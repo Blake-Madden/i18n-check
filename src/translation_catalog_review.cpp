@@ -87,6 +87,47 @@ namespace i18n_check
                         }
                     }
                 }
+
+            if (static_cast<bool>(m_reviewStyles & check_accelerators))
+                {
+                const std::wregex keyboardAcceleratorRegex{ L"&[[:alnum:]]" };
+
+                if (!catEntry.second.m_translation.empty())
+                    {
+                    std::wsmatch srcMatches, transMatches;
+                    std::regex_search(catEntry.second.m_source, srcMatches,
+                                      keyboardAcceleratorRegex);
+                    std::regex_search(catEntry.second.m_translation, transMatches,
+                                      keyboardAcceleratorRegex);
+
+                    if ((srcMatches.size() == 1 && transMatches.size() != 1) ||
+                        (srcMatches.size() != 1 && transMatches.size() == 1))
+                        {
+                        catEntry.second.m_issues.emplace_back(
+                            translation_issue::accelerator_issue,
+                            L"\"" + catEntry.second.m_source + L"\" vs. \"" +
+                                catEntry.second.m_translation + L"\"" + errorInfo);
+                        }
+                    }
+
+                if (!catEntry.second.m_translation_plural.empty())
+                    {
+                    std::wsmatch srcMatches, transMatches;
+                    std::regex_search(catEntry.second.m_source_plural, srcMatches,
+                                      keyboardAcceleratorRegex);
+                    std::regex_search(catEntry.second.m_translation_plural, transMatches,
+                                      keyboardAcceleratorRegex);
+
+                    if ((srcMatches.size() == 1 && transMatches.size() != 1) ||
+                        (srcMatches.size() != 1 && transMatches.size() == 1))
+                        {
+                        catEntry.second.m_issues.emplace_back(
+                            translation_issue::accelerator_issue,
+                            L"\"" + catEntry.second.m_source_plural + L"\" vs. \"" +
+                                catEntry.second.m_translation_plural + L"\"" + errorInfo);
+                        }
+                    }
+                }
             }
         }
     } // namespace i18n_check

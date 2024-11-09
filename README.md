@@ -168,6 +168,7 @@ loaded by your application for integration testing.
   commentMissingSpace:    Check that there is a space at the start of a comment.
                           This is a code formatting check and is not enabled by default.
   printfMismatch:         Check for mismatching printf() commands between source and translation strings.
+  acceleratorMismatch:    Check for mismatching keyboard accelerators between source and translation strings.
 
 --disable: Which checks to not perform. (Refer to options available above.)
            This will override any options passed to "--enable".

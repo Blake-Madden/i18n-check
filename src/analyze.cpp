@@ -340,7 +340,12 @@ namespace i18n_check
                                                                              L"")
                 << ((m_cpp->get_style() & check_mismatching_printf_commands) ? L"printfMismatch\n" :
                                                                                L"")
+                << ((m_cpp->get_style() & check_accelerators) ? L"acceleratorMismatch\n" :
+                                                                               L"")
                 << ((m_cpp->get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
+                << ((m_cpp->get_style() & check_l10n_has_surrounding_spaces) ?
+                        L"spacesAroundL10NString\n" :
+                        L"")
                 << ((m_cpp->get_style() & check_not_available_for_l10n) ? L"notL10NAvailable\n" :
                                                                           L"")
                 << ((m_cpp->get_style() & check_deprecated_macros) ? L"deprecatedMacro\n" : L"")
@@ -453,6 +458,14 @@ namespace i18n_check
                            << _(L"String available for translation that probably should not be, or "
                                 "contains a hard-coded URL or email address.")
                            << "\t[suspectL10NString]\n";
+                    }
+                else if (issue.first == translation_issue::accelerator_issue)
+                    {
+                    report
+                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
+                        << issue.second << L"\t"
+                        << _(L"Mismatching keyboard accelerators between source and translation strings.")
+                        << "\t[acceleratorMismatch]\n";
                     }
                 }
             }

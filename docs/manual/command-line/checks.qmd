@@ -118,6 +118,13 @@ their source counterpart exactly. For example, "*%lu*" vs. "*%l*" will emit a wa
 Questionable commands such as "*% s*" (space is only meant for numeric formatting) will also emit a warning.
 :::
 
+- `acceleratorMismatch`
+
+Check for mismatching keyboard accelerators between source and translation strings.
+This is performed by checking that both strings contain one '&' followed by an alphanumeric character.
+
+This is performed on *gettext* \*.po files.
+
 - `allCodeFormatting`
 
 Check all code formatting issues (see below).

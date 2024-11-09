@@ -153,8 +153,8 @@ namespace i18n_check
         /// @brief Check for mismatching printf commands between source strings and their
         ///     respective translations.
         check_mismatching_printf_commands = (static_cast<int64_t>(1) << 30),
-        /// @private
-        l10n_reserved1 = (static_cast<int64_t>(1) << 31),
+        /// @brief Check mismatching keyboard accelerators between the source and target strings.
+        check_accelerators = (static_cast<int64_t>(1) << 31),
         /// @private
         l10n_reserved2 = (static_cast<int64_t>(1) << 32),
         /// @private
@@ -177,7 +177,7 @@ namespace i18n_check
         l10n_reserved18 = (static_cast<int64_t>(1) << 48),
         l10n_reserved19 = (static_cast<int64_t>(1) << 49),
         /// @brief Perform all aforementioned localization checks.
-        all_l10n_checks = (check_mismatching_printf_commands),
+        all_l10n_checks = (check_mismatching_printf_commands | check_accelerators),
 
         /// @brief Check for trailing spaces at the end of each line.
         check_trailing_spaces = (static_cast<int64_t>(1) << 50),
@@ -195,10 +195,12 @@ namespace i18n_check
     /// @brief Types of translation (i.e., l10n) issues.
     enum class translation_issue
         {
-        /// @brief Inconsistent inconsistent printf format specifiers.
+        /// @brief Inconsistent printf format specifiers.
         printf_issue,
         /// @brief Suspect string exposed for translation in the catalog.
-        suspect_source_issue
+        suspect_source_issue,
+        /// @brief Inconsistent keyboard accelerators.
+        accelerator_issue
         };
 
     /// @brief File types that can be analyzed.
