@@ -1607,11 +1607,21 @@ namespace i18n_check
     void i18n_review::clear_results() noexcept
         {
         m_localizable_strings.clear();
+        m_localizable_strings_in_internal_call.clear();
         m_not_available_for_localization_strings.clear();
         m_marked_as_non_localizable_strings.clear();
         m_internal_strings.clear();
         m_unsafe_localizable_strings.clear();
         m_deprecated_macros.clear();
+        m_unencoded_strings.clear();
+        m_printf_single_numbers.clear();
+        m_ids_assigned_number.clear();
+        m_duplicates_value_assigned_to_ids.clear();
+        m_malformed_strings.clear();
+        m_trailing_spaces.clear();
+        m_tabs.clear();
+        m_wide_lines.clear();
+        m_comments_missing_space.clear();
         }
 
     //--------------------------------------------------

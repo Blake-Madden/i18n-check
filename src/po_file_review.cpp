@@ -30,7 +30,7 @@ namespace i18n_check
         static const std::wstring_view MSGSTR1{ L"msgstr[1] \"" };
         // type of printf formatting the string uses
         static const std::wregex entryLineRegEx{ LR"(^#, ([,a-z \-]+)+$)",
-        // MSVC doesn't have the std::regex::multiline, but behaves multiline implicitly.
+        // MSVC doesn't have the std::regex::multiline flag, but behaves like multiline implicitly.
         // GCC and Clang require this flag though.
 #ifdef _MSC_VER
                                                  std::regex::ECMAScript };
