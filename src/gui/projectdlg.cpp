@@ -70,6 +70,8 @@ void NewProjectDialog::SetOptions(const i18n_check::review_style style)
     m_suspectL10NUsage = (m_options & i18n_check::review_style::check_suspect_l10n_string_usage);
     m_printfMismatch = (m_options & i18n_check::review_style::check_mismatching_printf_commands);
     m_urlInL10NString = (m_options & i18n_check::review_style::check_l10n_contains_url);
+    m_spacesAroundL10NString =
+        (m_options & i18n_check::review_style::check_l10n_has_surrounding_spaces);
     m_deprecatedMacro = (m_options & i18n_check::review_style::check_deprecated_macros);
     m_nonUTF8File = (m_options & i18n_check::review_style::check_utf8_encoded);
     m_UTF8FileWithBOM = (m_options & i18n_check::review_style::check_utf8_with_signature);
@@ -122,6 +124,10 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
     if (m_urlInL10NString)
         {
         m_options |= i18n_check::review_style::check_l10n_contains_url;
+        }
+    if (m_spacesAroundL10NString)
+        {
+        m_options |= i18n_check::review_style::check_l10n_has_surrounding_spaces;
         }
     if (m_deprecatedMacro)
         {
@@ -405,6 +411,14 @@ void NewProjectDialog::CreateControls()
                                     wxGenericValidator(&m_urlInL10NString)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
         gbSizer->Add(buildCodeLabel(L"urlInL10NString", checkOptionsSizer->GetStaticBox()),
+                     wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                    _(L"Translatable strings that are surrounded by spaces"),
+                                    wxDefaultPosition, wxDefaultSize, 0,
+                                    wxGenericValidator(&m_spacesAroundL10NString)),
+                     wxGBPosition(currentRow, 0), wxGBSpan{});
+        gbSizer->Add(buildCodeLabel(L"spacesAroundL10NString", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
         gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,

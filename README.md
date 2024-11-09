@@ -131,41 +131,43 @@ loaded by your application for integration testing.
 [input]: The folder to analyze.
 
 --enable: Which checks to perform. Can be any combination of:
-  allI18N:             Perform all internationalization checks (the default).
-  allL10N:             Perform all localization checks (the default).
-  allCodeFormatting:   Check all code formatting issues.
-                       These are not enabled by default.
-  suspectL10NString:   Check for translatable strings that shouldn't be
-                       (e.g., numbers, keywords, printf() commands).
-  suspectL10NUsage:    Check for translatable strings being used in internal contexts
-                       (e.g., debugging functions).
-  urlInL10NString:     Check for translatable strings that contain URLs or email addresses.
-                       It is recommended to dynamically format these into the string so that
-                       translators don't have to manage them.
-  notL10NAvailable:    Check for strings not exposed for translation.
-  deprecatedMacro:     Check for deprecated text macros (e.g., wxT()).
-  nonUTF8File:         Check that files containing extended ASCII characters are UTF-8 encoded.
-  UTF8FileWithBOM:     Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
-                       It is recommended to save without the file signature for
-                       best compiler portability.
-  unencodedExtASCII:   Check for strings containing extended ASCII characters that are not encoded.
-  printfSingleNumber:  Check for printf()-like functions being used to just format a number.
-  dupValAssignedToIds: Check for the same value being assigned to different ID variables.
-  numberAssignedToId:  Check for ID variables being assigned a hard-coded number.
-                       It may be preferred to assign framework-defined constants to IDs.
-  malformedString:     Check for malformed syntax in strings (e.g., malformed HTML tags).
-  fontIssue:           Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
-                       or using unusual font sizes).
-  trailingSpaces:      Check for trailing spaces at the end of each line.
-                       This is a code formatting check and is not enabled by default.
-  tabs:                Check for tabs.
-                       (Spaces are recommended as tabs may appear differently between editors.)
-                       This is a code formatting check and is not enabled by default.
-  wideLine:            Check for overly long lines.
-                       This is a code formatting check and is not enabled by default.
-  commentMissingSpace: Check that there is a space at the start of a comment.
-                       This is a code formatting check and is not enabled by default.
-  printfMismatch:      Check for mismatching printf() commands between source and translation strings.
+  allI18N:                Perform all internationalization checks (the default).
+  allL10N:                Perform all localization checks (the default).
+  allCodeFormatting:      Check all code formatting issues.
+                          These are not enabled by default.
+  suspectL10NString:      Check for translatable strings that shouldn't be
+                          (e.g., numbers, keywords, printf() commands).
+  suspectL10NUsage:       Check for translatable strings being used in internal contexts
+                          (e.g., debugging functions).
+  urlInL10NString:        Check for translatable strings that contain URLs or email addresses.
+                          It is recommended to dynamically format these into the string so that
+                          translators don't have to manage them.
+  spacesAroundL10NString: Check for strings that start or end with spaces.
+                          These may be strings that are concatenated at runtime.
+  notL10NAvailable:       Check for strings not exposed for translation.
+  deprecatedMacro:        Check for deprecated text macros (e.g., wxT()).
+  nonUTF8File:            Check that files containing extended ASCII characters are UTF-8 encoded.
+  UTF8FileWithBOM:        Check for UTF-8 encoded files which start with a BOM/UTF-8 signature.
+                          It is recommended to save without the file signature for
+                          best compiler portability.
+  unencodedExtASCII:      Check for strings containing extended ASCII characters that are not encoded.
+  printfSingleNumber:     Check for printf()-like functions being used to just format a number.
+  dupValAssignedToIds:    Check for the same value being assigned to different ID variables.
+  numberAssignedToId:     Check for ID variables being assigned a hard-coded number.
+                          It may be preferred to assign framework-defined constants to IDs.
+  malformedString:        Check for malformed syntax in strings (e.g., malformed HTML tags).
+  fontIssue:              Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
+                          or using unusual font sizes).
+  trailingSpaces:         Check for trailing spaces at the end of each line.
+                          This is a code formatting check and is not enabled by default.
+  tabs:                   Check for tabs.
+                          (Spaces are recommended as tabs may appear differently between editors.)
+                          This is a code formatting check and is not enabled by default.
+  wideLine:               Check for overly long lines.
+                          This is a code formatting check and is not enabled by default.
+  commentMissingSpace:    Check that there is a space at the start of a comment.
+                          This is a code formatting check and is not enabled by default.
+  printfMismatch:         Check for mismatching printf() commands between source and translation strings.
 
 --disable: Which checks to not perform. (Refer to options available above.)
            This will override any options passed to "--enable".

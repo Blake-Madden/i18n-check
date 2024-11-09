@@ -17,6 +17,19 @@ Check for translatable strings that contain URLs or email addresses.
 It is recommended to dynamically format these into the string so that translators
 do not have to manage them.
 
+- `spacesAroundL10NString`
+
+Check for strings that start or end with spaces. (This is limited to actual space characters, and does not include tabs or newlines.)
+
+These may be strings that are concatenated at runtime, which does not follow best i18n practices.
+It is recommended to format separate values into a single string via a `printf` formatting function, rather than
+piecing them together.
+
+::: {.notesection data-latex=""}
+An exception is made for strings ending with ": "; here, it is assumed that this is formatting tabular data, rather than
+piecing a message together.
+:::
+
 - `notL10NAvailable`
 
 Check for strings not exposed for translation.

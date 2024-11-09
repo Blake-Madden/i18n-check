@@ -604,6 +604,8 @@ void I18NFrame::OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&)
             excludeFlag(L"[printfMismatch]",
                         i18n_check::review_style::check_mismatching_printf_commands);
             excludeFlag(L"[urlInL10NString]", i18n_check::review_style::check_l10n_contains_url);
+            excludeFlag(L"[spacesAroundL10NString]",
+                        i18n_check::review_style::check_l10n_has_surrounding_spaces);
             excludeFlag(L"[deprecatedMacro]", i18n_check::review_style::check_deprecated_macros);
             excludeFlag(L"[nonUTF8File]", i18n_check::review_style::check_utf8_encoded);
             excludeFlag(L"[UTF8FileWithBOM]", i18n_check::review_style::check_utf8_with_signature);

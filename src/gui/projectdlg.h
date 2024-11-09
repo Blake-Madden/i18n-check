@@ -291,6 +291,7 @@ class NewProjectDialog final : public wxDialog
     bool m_suspectL10NUsage{ true };
     bool m_printfMismatch{ true };
     bool m_urlInL10NString{ true };
+    bool m_spacesAroundL10NString{ false };
     bool m_deprecatedMacro{ true };
     bool m_printfSingleNumber{ true };
     bool m_malformedString{ true };

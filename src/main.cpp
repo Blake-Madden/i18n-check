@@ -212,6 +212,10 @@ int main(int argc, char* argv[])
                 {
                 rs |= i18n_check::review_style::check_l10n_contains_url;
                 }
+            else if (r == "spacesAroundL10NString")
+                {
+                rs |= i18n_check::review_style::check_l10n_has_surrounding_spaces;
+                }
             else if (r == "notL10NAvailable")
                 {
                 rs |= i18n_check::review_style::check_not_available_for_l10n;
@@ -315,6 +319,10 @@ int main(int argc, char* argv[])
             else if (r == "urlInL10NString")
                 {
                 rs = rs & ~i18n_check::review_style::check_l10n_contains_url;
+                }
+            else if (r == "spacesAroundL10NString")
+                {
+                rs = rs & ~i18n_check::review_style::check_l10n_has_surrounding_spaces;
                 }
             else if (r == "notL10NAvailable")
                 {

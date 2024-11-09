@@ -408,6 +408,15 @@ namespace i18n_check
                    << L"\t[urlInL10NString]\n";
             }
 
+        for (const auto& val : m_rc->get_localizable_strings_with_surrounding_spaces())
+            {
+            report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t"
+                   << _(L"String available for translation that is surrounded by spaces. "
+                         "This string may be getting concatenated at runtime instead of using a formatting function.")
+                   << L"\t[spacesAroundL10NString]\n";
+            }
+
         for (const auto& val : m_rc->get_bad_dialog_font_sizes())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
@@ -506,6 +515,20 @@ namespace i18n_check
                 report << L"[urlInL10NString]\n";
                 }
 
+            for (const auto& val : sourceParser->get_localizable_strings_with_surrounding_spaces())
+                {
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
+                if (val.m_usage.m_type ==
+                    i18n_review::string_info::usage_info::usage_type::function)
+                    {
+                    report << _(L"String available for translation that is surrounded by spaces. "
+                                "This string may be getting concatenated at runtime instead of "
+                                "using a formatting function.") << L"\t";
+                    }
+                report << L"[spacesAroundL10NString]\n";
+                }
+
             for (const auto& val : sourceParser->get_localizable_strings_in_internal_call())
                 {
                 report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
@@ -513,8 +536,8 @@ namespace i18n_check
                 if (val.m_usage.m_type ==
                     i18n_review::string_info::usage_info::usage_type::function)
                     {
-                    report << _(L"Localizable string being used within non-user facing function "
-                                L"call: ")
+                    report << _(L"Localizable string being used within non-user"
+                                L" facing function call: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 else if (val.m_usage.m_type ==
@@ -549,7 +572,7 @@ namespace i18n_check
                     }
                 else
                     {
-                    report << _(L"String not available for translation assigned to ")
+                    report << _(L"String not available for translation assigned to: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 report << L"[notL10NAvailable]\n";

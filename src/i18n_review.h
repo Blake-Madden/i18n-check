@@ -106,8 +106,11 @@ namespace i18n_check
         /// @brief Check for font issues (e.g., Windows *.RC dialogs not using MS Shell Dlg
         ///     or using unusual font sizes).
         check_fonts = (static_cast<int64_t>(1) << 12),
-        /// @private
-        i18n_reserved1 = (static_cast<int64_t>(1) << 13),
+        /// @brief Check for localizable strings that begin or end with a space.
+        /// @details This may indicate that the string is being concatenated at runtime with
+        ///     another value, rather than being format via a `printf` function.
+        /// @note This only checks for the space character, not tabs or newlines.
+        check_l10n_has_surrounding_spaces = (static_cast<int64_t>(1) << 13),
         /// @private
         i18n_reserved2 = (static_cast<int64_t>(1) << 14),
         /// @private
@@ -459,6 +462,15 @@ namespace i18n_check
             return m_localizable_strings_with_urls;
             }
 
+        /// @returns The strings that are being extracted as localizable,
+        ///     but are surrounded by spaces.
+        [[nodiscard]]
+        const std::vector<string_info>&
+        get_localizable_strings_with_surrounding_spaces() const noexcept
+            {
+            return m_localizable_strings_with_surrounding_spaces;
+            }
+
         /// @returns The strings that contain extended ASCII characters, but are not encoded.
         [[nodiscard]]
         const std::vector<string_info>& get_unencoded_ext_ascii_strings() const noexcept
@@ -743,6 +755,25 @@ namespace i18n_check
             size_t m_previousBlockEnd{ 0 };
             };
 
+        /// @returns @c true if a string starts or ends with spaces.
+        ///     (Not tabs or newlines, but actual spaces.)
+        /// @param str The string to review.
+        [[nodiscard]]
+        static bool has_surrounding_spaces(const std::wstring& str)
+            {
+            if (str.starts_with(L' '))
+                {
+                return true;
+                }
+            // ending with ": " is usually OK, as this is more about formatting
+            // tabular data, rather than piecing strings together
+            if (str.ends_with(L' ') && !str.ends_with(L": "))
+                {
+                return true;
+                }
+            return false;
+            }
+
         /** @brief Processes a quote after its positions and respective
                 function/variable assignment has been found.
             @param[in,out] currentTextPos The current position into the text buffer.\n
@@ -963,7 +994,7 @@ namespace i18n_check
         /// @param str The string to collapse.
         /// @returns The collapsed string.
         [[nodiscard]]
-        std::wstring collapse_multipart_string(std::wstring& str) const;
+        std::wstring collapse_multipart_string(std::wstring str) const;
 
         /// @brief Collapses non-raw strings that are multiline.
         void process_strings();
@@ -1013,6 +1044,7 @@ namespace i18n_check
         std::vector<string_info> m_unsafe_localizable_strings;
         std::vector<string_info> m_localizable_strings_with_urls;
         std::vector<string_info> m_localizable_strings_in_internal_call;
+        std::vector<string_info> m_localizable_strings_with_surrounding_spaces;
         std::vector<string_info> m_not_available_for_localization_strings;
         std::vector<string_info> m_deprecated_macros;
         std::vector<string_info> m_unencoded_strings;

@@ -590,6 +590,8 @@ namespace i18n_check
             // URL
             std::wregex(
                 LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"),
+            // HTTP requests
+            std::wregex(LR"(Sec[-]Fetch[-]Mode|User[-]Agent)"),
             // email address
             std::wregex(
                 LR"(^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$)"),
@@ -894,27 +896,26 @@ namespace i18n_check
         {
         process_strings();
 
-        if (m_reviewStyles & check_l10n_contains_url)
+        std::wsmatch results;
+        for (const auto& str : m_localizable_strings)
             {
-            std::wsmatch results;
-            for (const auto& str : m_localizable_strings)
+            if ((m_reviewStyles & check_l10n_strings) && str.m_string.length() &&
+                is_untranslatable_string(str.m_string, false))
                 {
-                if (std::regex_search(str.m_string, results, m_url_email_regex))
-                    {
-                    m_localizable_strings_with_urls.push_back(str);
-                    }
+                m_unsafe_localizable_strings.push_back(str);
                 }
-            }
-
-        if (m_reviewStyles & check_l10n_strings)
-            {
-            for (const auto& str : m_localizable_strings)
+            if ((m_reviewStyles & check_l10n_contains_url) &&
+                std::regex_search(str.m_string, results, m_url_email_regex))
                 {
-                if (str.m_string.length() && is_untranslatable_string(str.m_string, false))
-                    {
-                    m_unsafe_localizable_strings.push_back(str);
-                    }
+                m_localizable_strings_with_urls.push_back(str);
                 }
+#if __cplusplus >= 202002L
+            if ((m_reviewStyles & check_l10n_has_surrounding_spaces) &&
+                has_surrounding_spaces(str.m_string))
+                {
+                m_localizable_strings_with_surrounding_spaces.push_back(str);
+                }
+#endif
             }
 
         if (m_reviewStyles & check_malformed_strings)
@@ -938,6 +939,7 @@ namespace i18n_check
             classifyMalformedStrings(m_unsafe_localizable_strings);
             classifyMalformedStrings(m_localizable_strings_with_urls);
             classifyMalformedStrings(m_localizable_strings_in_internal_call);
+            classifyMalformedStrings(m_localizable_strings_with_surrounding_spaces);
             }
 
         if (m_reviewStyles & check_unencoded_ext_ascii)
@@ -964,6 +966,7 @@ namespace i18n_check
             classifyUnencodedStrings(m_unsafe_localizable_strings);
             classifyUnencodedStrings(m_localizable_strings_with_urls);
             classifyUnencodedStrings(m_localizable_strings_in_internal_call);
+            classifyUnencodedStrings(m_localizable_strings_with_surrounding_spaces);
             }
 
         if (m_reviewStyles & check_printf_single_number)
@@ -1607,7 +1610,9 @@ namespace i18n_check
     void i18n_review::clear_results() noexcept
         {
         m_localizable_strings.clear();
+        m_localizable_strings_with_urls.clear();
         m_localizable_strings_in_internal_call.clear();
+        m_localizable_strings_with_surrounding_spaces.clear();
         m_not_available_for_localization_strings.clear();
         m_marked_as_non_localizable_strings.clear();
         m_internal_strings.clear();
@@ -1831,7 +1836,7 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    std::wstring i18n_review::collapse_multipart_string(std::wstring& str) const
+    std::wstring i18n_review::collapse_multipart_string(std::wstring str) const
         {
         // for strings that span multiple lines, remove the start/end quotes and newlines
         // between them, combining this into one string
