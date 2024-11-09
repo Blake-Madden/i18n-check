@@ -1064,7 +1064,10 @@ void I18NFrame::Process()
             {
                 if (progressDlg != nullptr)
                     {
-                    progressDlg->Destroy();
+                    if (!progressDlg->IsBeingDeleted())
+                        {
+                        progressDlg->Destroy();
+                        }
                     progressDlg = nullptr;
                     }
                 if (totalFiles > 0)
@@ -1074,7 +1077,6 @@ void I18NFrame::Process()
                         this,
                         wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
                             wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
-                    progressDlg->SetRange(totalFiles);
                     progressDlg->Centre();
                     }
             },
@@ -1117,7 +1119,10 @@ void I18NFrame::Process()
         {
             if (progressDlg != nullptr)
                 {
-                progressDlg->Destroy();
+                if (!progressDlg->IsBeingDeleted())
+                    {
+                    progressDlg->Destroy();
+                    }
                 progressDlg = nullptr;
                 }
             if (totalFiles > 0)
@@ -1164,6 +1169,13 @@ void I18NFrame::Process()
                 }
             return true;
         });
+
+    // in case it wasn't pulsed enough times to autohide
+    if (progressDlg != nullptr && !progressDlg->IsBeingDeleted())
+        {
+        progressDlg->Destroy();
+        progressDlg = nullptr;
+        }
 
     std::wstringstream report = analyzer.format_results(false);
 
