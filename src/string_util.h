@@ -1,12 +1,18 @@
+/********************************************************************************
+ * Copyright (c) 2005-2024 Blake Madden
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Blake Madden - initial implementation
+ ********************************************************************************/
+
 /** @addtogroup Utilities
     @brief Utility classes.
-    @date 2021-2024
-    @copyright Blake Madden
-    @author Blake Madden
-    @details This program is free software; you can redistribute it and/or modify
-     it under the terms of the 3-Clause BSD License.
-
-     SPDX-License-Identifier: BSD-3-Clause
 @{*/
 
 #ifndef __STRING_UTIL_H__
@@ -1687,9 +1693,9 @@ namespace string_util
             }
         }
 
-    /** Strips extraneous spaces/tabs/carriage returns from a block of text so
-        that there isn't more than one space consecutively.
-        @param[in,out] Text the text to remove extra spaces from.
+    /** @brief Strips extraneous spaces/tabs/carriage returns from a block of text so
+            that there isn't more than one space consecutively.
+        @param[in,out] Text The text to remove extra spaces from.
         @returns The number of removed spaces.*/
     template<typename string_typeT>
     size_t remove_extra_spaces(string_typeT& Text)

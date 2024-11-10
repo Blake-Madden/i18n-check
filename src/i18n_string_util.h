@@ -1,12 +1,18 @@
+/********************************************************************************
+ * Copyright (c) 2021-2024 Blake Madden
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Blake Madden - initial implementation
+ ********************************************************************************/
+
 /** @addtogroup Internationalization
     @brief i18n classes.
-    @date 2021-2024
-    @copyright Blake Madden
-    @author Blake Madden
-    @details This program is free software; you can redistribute it and/or modify
-     it under the terms of the 3-Clause BSD License.
-
-     SPDX-License-Identifier: BSD-3-Clause
 @{*/
 
 #ifndef __I18N_EXTRACT_H__

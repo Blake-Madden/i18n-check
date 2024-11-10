@@ -1,10 +1,15 @@
-//////////////////////////////////////////////////////////////////////////////
-// Name:        analyze.cpp
-// Author:      Blake Madden
-// Copyright:   (c) 2021-2024 Blake Madden
-// License:     3-Clause BSD license
-// SPDX-License-Identifier: BSD-3-Clause
-///////////////////////////////////////////////////////////////////////////////
+/********************************************************************************
+ * Copyright (c) 2021-2024 Blake Madden
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Blake Madden - initial implementation
+ ********************************************************************************/
 
 #include "analyze.h"
 #include <iostream>
