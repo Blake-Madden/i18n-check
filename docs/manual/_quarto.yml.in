@@ -35,7 +35,8 @@ book:
     - part: "Additional Features"
       chapters:
       - suppression.qmd
-    - cites.qmd
+  appendices:
+    - acknowledgements.qmd
 format:
   pdf:
     documentclass: book

@@ -1,0 +1,27 @@
+## Open-Source Libraries {-}
+
+The 3^rd^ party, open-source libraries that *Cuneiform* includes (or links with) are listed below (along with their respective licenses).
+
+### cxxopts {-}
+
+C++11 library for parsing command line options.
+
+Copyright (c) 2014 Jarryd Beck
+
+MIT License
+
+### UTF8-CPP {-}
+
+UTF-8 with C++ in a portable way.
+
+Copyright 2006 Nemanja Trifunovic
+
+Boost Software License 1.0
+
+### wxWidgets {-}
+
+A stable and powerful open source framework for developing native cross-platform GUI applications in C++.
+
+Copyright (c) 1998-2005 Julian Smart, Robert Roebling et al
+
+wxWindows Library Licence, Version 3.1
