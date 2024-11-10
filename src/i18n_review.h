@@ -211,7 +211,9 @@ namespace i18n_check
         /// @brief Inconsistent keyboard accelerators.
         accelerator_issue,
         /// @brief Inconsistent trailing punctuation or newlines.
-        consistency_issue
+        consistency_issue,
+        /// @brief Localizable strings that begin or end with a space.
+        source_surrounding_spaces_issue
         };
 
     /// @brief File types that can be analyzed.

@@ -465,6 +465,15 @@ namespace i18n_check
                                 "contains a hard-coded URL or email address.")
                            << "\t[suspectL10NString]\n";
                     }
+                else if (issue.first == translation_issue::source_surrounding_spaces_issue)
+                    {
+                    report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
+                           << issue.second << L"\t"
+                           << _(L"String available for translation that is surrounded by spaces. "
+                                "This string may be getting concatenated at runtime instead of "
+                                "using a formatting function.")
+                           << "\t[spacesAroundL10NString]\n";
+                    }
                 else if (issue.first == translation_issue::accelerator_issue)
                     {
                     report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"

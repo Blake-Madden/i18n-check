@@ -60,6 +60,22 @@ namespace i18n_check
                                                           catEntry.second.m_source_plural);
                     }
                 }
+            if (static_cast<bool>(m_reviewStyles & check_l10n_has_surrounding_spaces))
+                {
+                if (has_surrounding_spaces(catEntry.second.m_source))
+                    {
+                    catEntry.second.m_issues.emplace_back(
+                        translation_issue::source_surrounding_spaces_issue,
+                        catEntry.second.m_source);
+                    }
+                if (!catEntry.second.m_source_plural.empty() &&
+                    has_surrounding_spaces(catEntry.second.m_source_plural))
+                    {
+                    catEntry.second.m_issues.emplace_back(
+                        translation_issue::source_surrounding_spaces_issue,
+                        catEntry.second.m_source_plural);
+                    }
+                }
             if (static_cast<bool>(m_reviewStyles & check_mismatching_printf_commands))
                 {
                 if (catEntry.second.m_po_format == po_format_string::cpp_format)
