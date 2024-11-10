@@ -345,8 +345,8 @@ namespace i18n_check
                                                                              L"")
                 << ((m_cpp->get_style() & check_mismatching_printf_commands) ? L"printfMismatch\n" :
                                                                                L"")
-                << ((m_cpp->get_style() & check_accelerators) ? L"acceleratorMismatch\n" :
-                                                                               L"")
+                << ((m_cpp->get_style() & check_accelerators) ? L"acceleratorMismatch\n" : L"")
+                << ((m_cpp->get_style() & check_consistency) ? L"transInconsistency\n" : L"")
                 << ((m_cpp->get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
                 << ((m_cpp->get_style() & check_l10n_has_surrounding_spaces) ?
                         L"spacesAroundL10NString\n" :
@@ -423,7 +423,8 @@ namespace i18n_check
             report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
                    << replaceSpecialSpaces(val.m_string) << L"\"\t"
                    << _(L"String available for translation that is surrounded by spaces. "
-                         "This string may be getting concatenated at runtime instead of using a formatting function.")
+                        "This string may be getting concatenated at runtime instead of using a "
+                        "formatting function.")
                    << L"\t[spacesAroundL10NString]\n";
             }
 
@@ -466,11 +467,20 @@ namespace i18n_check
                     }
                 else if (issue.first == translation_issue::accelerator_issue)
                     {
-                    report
-                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
-                        << issue.second << L"\t"
-                        << _(L"Mismatching keyboard accelerators between source and translation strings.")
-                        << "\t[acceleratorMismatch]\n";
+                    report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
+                           << issue.second << L"\t"
+                           << _(L"Mismatching keyboard accelerators between source "
+                                "and translation strings.")
+                           << "\t[acceleratorMismatch]\n";
+                    }
+                else if (issue.first == translation_issue::consistency_issue)
+                    {
+                    report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
+                           << issue.second << L"\t"
+                           << _(L"Mismatching trailing punctuation, spaces, or newlines between "
+                                L"source "
+                                L"and translation strings.")
+                           << "\t[transInconsistency]\n";
                     }
                 }
             }
@@ -542,7 +552,8 @@ namespace i18n_check
                     {
                     report << _(L"String available for translation that is surrounded by spaces. "
                                 "This string may be getting concatenated at runtime instead of "
-                                "using a formatting function.") << L"\t";
+                                "using a formatting function.")
+                           << L"\t";
                     }
                 report << L"[spacesAroundL10NString]\n";
                 }

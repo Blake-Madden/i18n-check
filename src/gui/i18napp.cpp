@@ -609,6 +609,7 @@ void I18NFrame::OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&)
             excludeFlag(L"[printfMismatch]",
                         i18n_check::review_style::check_mismatching_printf_commands);
             excludeFlag(L"[acceleratorMismatch]", i18n_check::review_style::check_accelerators);
+            excludeFlag(L"[transInconsistency]", i18n_check::review_style::check_consistency);
             excludeFlag(L"[urlInL10NString]", i18n_check::review_style::check_l10n_contains_url);
             excludeFlag(L"[spacesAroundL10NString]",
                         i18n_check::review_style::check_l10n_has_surrounding_spaces);

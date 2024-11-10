@@ -159,10 +159,12 @@ namespace i18n_check
         /// @brief Check for mismatching printf commands between source strings and their
         ///     respective translations.
         check_mismatching_printf_commands = (static_cast<int64_t>(1) << 30),
-        /// @brief Check mismatching keyboard accelerators between the source and target strings.
+        /// @brief Check for mismatching keyboard accelerators between the
+        ///     source and target strings.
         check_accelerators = (static_cast<int64_t>(1) << 31),
-        /// @private
-        l10n_reserved2 = (static_cast<int64_t>(1) << 32),
+        /// @brief Check for mismatching trailing newlines or punctuation
+        ///     between the source and target strings.
+        check_consistency = (static_cast<int64_t>(1) << 32),
         /// @private
         l10n_reserved3 = (static_cast<int64_t>(1) << 33),
         /// @private
@@ -183,7 +185,8 @@ namespace i18n_check
         l10n_reserved18 = (static_cast<int64_t>(1) << 48),
         l10n_reserved19 = (static_cast<int64_t>(1) << 49),
         /// @brief Perform all aforementioned localization checks.
-        all_l10n_checks = (check_mismatching_printf_commands | check_accelerators),
+        all_l10n_checks =
+        (check_mismatching_printf_commands | check_accelerators | check_consistency),
 
         /// @brief Check for trailing spaces at the end of each line.
         check_trailing_spaces = (static_cast<int64_t>(1) << 50),
@@ -206,7 +209,9 @@ namespace i18n_check
         /// @brief Suspect string exposed for translation in the catalog.
         suspect_source_issue,
         /// @brief Inconsistent keyboard accelerators.
-        accelerator_issue
+        accelerator_issue,
+        /// @brief Inconsistent trailing punctuation or newlines.
+        consistency_issue
         };
 
     /// @brief File types that can be analyzed.

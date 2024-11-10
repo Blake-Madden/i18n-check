@@ -125,6 +125,12 @@ This is performed by checking that both strings contain one '&' followed by an a
 
 This is performed on *gettext* \*.po files.
 
+- `transInconsistency`
+
+Check for inconsistent trailing punctuation, spaces, or newlines between source and translation strings.
+
+This is performed on *gettext* \*.po files.
+
 - `allCodeFormatting`
 
 Check all code formatting issues (see below).

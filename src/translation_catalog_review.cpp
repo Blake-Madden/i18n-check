@@ -37,8 +37,14 @@ namespace i18n_check
                     catEntry.second.m_issues.emplace_back(translation_issue::suspect_source_issue,
                                                           catEntry.second.m_source);
                     }
+                if (!catEntry.second.m_source_plural.empty() &&
+                    is_untranslatable_string(catEntry.second.m_source_plural, false))
+                    {
+                    catEntry.second.m_issues.emplace_back(translation_issue::suspect_source_issue,
+                                                          catEntry.second.m_source_plural);
+                    }
                 }
-            if (m_reviewStyles & check_l10n_contains_url)
+            if (static_cast<bool>(m_reviewStyles & check_l10n_contains_url))
                 {
                 std::wsmatch results;
 
@@ -46,6 +52,12 @@ namespace i18n_check
                     {
                     catEntry.second.m_issues.emplace_back(translation_issue::suspect_source_issue,
                                                           catEntry.second.m_source);
+                    }
+                if (!catEntry.second.m_source_plural.empty() &&
+                    std::regex_search(catEntry.second.m_source_plural, results, m_url_email_regex))
+                    {
+                    catEntry.second.m_issues.emplace_back(translation_issue::suspect_source_issue,
+                                                          catEntry.second.m_source_plural);
                     }
                 }
             if (static_cast<bool>(m_reviewStyles & check_mismatching_printf_commands))
@@ -66,8 +78,8 @@ namespace i18n_check
                                 {
                                 catEntry.second.m_issues.emplace_back(
                                     translation_issue::printf_issue,
-                                    L"\"" + catEntry.second.m_source + L"\" vs. \"" +
-                                        catEntry.second.m_translation + L"\"" + errorInfo);
+                                    L"'" + catEntry.second.m_source + L"' vs. '" +
+                                        catEntry.second.m_translation + L"'" + errorInfo);
                                 }
                             }
                         }
@@ -85,8 +97,8 @@ namespace i18n_check
                                 {
                                 catEntry.second.m_issues.emplace_back(
                                     translation_issue::printf_issue,
-                                    L"\"" + catEntry.second.m_source_plural + L"\" vs. \"" +
-                                        catEntry.second.m_translation_plural + L"\"" + errorInfo);
+                                    L"'" + catEntry.second.m_source_plural + L"' vs. '" +
+                                        catEntry.second.m_translation_plural + L"'" + errorInfo);
                                 }
                             }
                         }
@@ -110,8 +122,8 @@ namespace i18n_check
                         {
                         catEntry.second.m_issues.emplace_back(
                             translation_issue::accelerator_issue,
-                            L"\"" + catEntry.second.m_source + L"\" vs. \"" +
-                                catEntry.second.m_translation + L"\"" + errorInfo);
+                            L"'" + catEntry.second.m_source + L"' vs. '" +
+                                catEntry.second.m_translation + L"'" + errorInfo);
                         }
                     }
 
@@ -128,8 +140,44 @@ namespace i18n_check
                         {
                         catEntry.second.m_issues.emplace_back(
                             translation_issue::accelerator_issue,
-                            L"\"" + catEntry.second.m_source_plural + L"\" vs. \"" +
-                                catEntry.second.m_translation_plural + L"\"" + errorInfo);
+                            L"'" + catEntry.second.m_source_plural + L"' vs. '" +
+                                catEntry.second.m_translation_plural + L"'" + errorInfo);
+                        }
+                    }
+                }
+
+            if (static_cast<bool>(m_reviewStyles & check_consistency))
+                {
+                const std::wregex keyboardAcceleratorRegex{ L"&[[:alnum:]]" };
+
+                if (!catEntry.second.m_source.empty() && !catEntry.second.m_translation.empty())
+                    {
+                    const wchar_t lastSrcChar{ catEntry.second.m_source.back() };
+                    const wchar_t lastTransChar{ catEntry.second.m_translation.back() };
+
+                    const bool srcIsStop{ i18n_string_util::is_period(lastSrcChar) ||
+                                          i18n_string_util::is_exclamation(lastSrcChar) ||
+                                          i18n_string_util::is_question(lastSrcChar) };
+                    const bool transIsStop{ i18n_string_util::is_period(lastTransChar) ||
+                                            i18n_string_util::is_exclamation(lastTransChar) ||
+                                            i18n_string_util::is_question(lastTransChar) };
+
+                    if ((std::iswspace(lastSrcChar) && !std::iswspace(lastTransChar)) ||
+                        (!std::iswspace(lastSrcChar) && std::iswspace(lastTransChar)) ||
+                        // not that it is allowable for source to not have full stop, but for
+                        // translation too
+                        (srcIsStop && !transIsStop))
+                        {
+                        // if source is an exclamation and the translation is not, then that is OK
+                        if (!(i18n_string_util::is_exclamation(lastSrcChar) && !transIsStop) &&
+                            // translation ending with ')' is OK also if source has a full stop
+                            !(srcIsStop && i18n_string_util::is_close_parenthesis(lastTransChar)))
+                            {
+                            catEntry.second.m_issues.emplace_back(
+                                translation_issue::consistency_issue,
+                                L"'" + catEntry.second.m_source + L"' vs. '" +
+                                    catEntry.second.m_translation + L"'" + errorInfo);
+                            }
                         }
                     }
                 }

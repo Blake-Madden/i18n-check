@@ -75,11 +75,71 @@ namespace i18n_string_util
     constexpr static bool is_apostrophe(const wchar_t ch) noexcept
         {
         // clang-format off
-        return (ch == 39) ?         // '
+        return (ch == L'\'') ?       // '
             true : (ch == 146) ?    // apostrophe
             true : (ch == 180) ?    // apostrophe
             true : (ch == 0xFF07) ? // full-width apostrophe
             true : (ch == 0x2019) ? // right single apostrophe
+            true : false;
+        // clang-format on
+        }
+
+    /** @returns @c true if a character is a period.
+        @param ch The letter to be reviewed.*/
+    [[nodiscard]]
+    constexpr static bool is_period(const wchar_t ch) noexcept
+        {
+        // clang-format off
+        return (ch == L'.') ?       // .
+            true : (ch == 0x2024) ? // one dot leader
+            true : (ch == 0x3002) ? // Japanese full stop
+            true : (ch == 0xFF61) ? // halfwidth full stop
+            true : (ch == 0xFF0E) ? // fullwidth full stop
+            true : (ch == 0xFE12) ? // vertical full stop
+            true : (ch == 0x06D4) ? // Arabic full stop
+            true : (ch == 0x2026) ? // ellipsis
+            true : false;
+        // clang-format on
+        }
+
+    /** @returns @c true if a character is an exclamation mark.
+        @param ch The letter to be reviewed.*/
+    [[nodiscard]]
+    constexpr static bool is_exclamation(const wchar_t ch) noexcept
+        {
+        // clang-format off
+        return (ch == L'!') ?       // !
+            true : (ch == 0xFE15) ? // presentation
+            true : (ch == 0xFE57) ? // small
+            true : (ch == 0x00A1) ? // inverted
+            true : (ch == 0xFF01) ? // fullwidth
+            true : (ch == 0xFE57) ? // small
+            true : (ch == 0xFE15) ? // presentation
+            true : false;
+        // clang-format on
+        }
+
+    /** @returns @c true if a character is an question mark.
+        @param ch The letter to be reviewed.*/
+    [[nodiscard]]
+    constexpr static bool is_question(const wchar_t ch) noexcept
+        {
+        // clang-format off
+        return (ch == L'?') ?       // !
+            true : (ch == 0x061F) ? // Arabic
+            true : (ch == 0xFF1F) ? // fullwidth
+            true : false;
+        // clang-format on
+        }
+
+    /** @returns @c true if a character is a closing parenthesis.
+        @param ch The letter to be reviewed.*/
+    [[nodiscard]]
+    constexpr static bool is_close_parenthesis(const wchar_t ch) noexcept
+        {
+        // clang-format off
+        return (ch == L')') ?       // )
+            true : (ch == 0xFF09) ? // fullwidth
             true : false;
         // clang-format on
         }

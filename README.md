@@ -169,6 +169,7 @@ loaded by your application for integration testing.
                           This is a code formatting check and is not enabled by default.
   printfMismatch:         Check for mismatching printf() commands between source and translation strings.
   acceleratorMismatch:    Check for mismatching keyboard accelerators between source and translation strings.
+  transInconsistency:     Check for inconsistent trailing punctuation, spaces, or newlines.
 
 --disable: Which checks to not perform. (Refer to options available above.)
            This will override any options passed to "--enable".

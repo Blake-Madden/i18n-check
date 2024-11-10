@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
         ("enable",
          "Which checks to perform (any combination of: "
          "allI18N, allL10N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
-         "rlInL10NString, notL10NAvailable, deprecatedMacro, nonUTF8File, "
+         "rlInL10NString, notL10NAvailable, deprecatedMacro, nonUTF8File, transInconsistency, "
          "UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber, spacesAroundL10NString, "
          "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue, printfMismatch, "
          "acceleratorMismatch, trailingSpaces, tabs, wideLine, commentMissingSpace)",
@@ -217,6 +217,10 @@ int main(int argc, char* argv[])
                 {
                 rs |= i18n_check::review_style::check_accelerators;
                 }
+            else if (r == "transInconsistency")
+                {
+                rs |= i18n_check::review_style::check_consistency;
+                }
             else if (r == "urlInL10NString")
                 {
                 rs |= i18n_check::review_style::check_l10n_contains_url;
@@ -328,6 +332,10 @@ int main(int argc, char* argv[])
             else if (r == "acceleratorMismatch")
                 {
                 rs = rs & ~i18n_check::review_style::check_accelerators;
+                }
+            else if (r == "transInconsistency")
+                {
+                rs = rs & ~i18n_check::review_style::check_consistency;
                 }
             else if (r == "urlInL10NString")
                 {
