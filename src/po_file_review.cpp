@@ -89,6 +89,7 @@ namespace i18n_check
 
             po_format_string pofs{ po_format_string::no_format };
             bool formatSpecFound{ false };
+            bool isFuzzy{ false };
             for (const auto& entryLine : entryLines)
                 {
                 formatFlags.clear();
@@ -107,6 +108,7 @@ namespace i18n_check
                         {
                         pofs = po_format_string::no_format;
                         formatSpecFound = true;
+                        isFuzzy = true;
                         break;
                         }
                     }
@@ -129,6 +131,11 @@ namespace i18n_check
             auto [msgStrFound, msgStr, msgStrPos, msgStrLen] = read_po_msg(entry, MSGSTR);
             auto [msgStr0Found, msg0Str, msgStr0Pos, msgStr0Len] = read_po_msg(entry, MSGSTR0);
             auto [msgStr1Found, msg1Str, msgStr1Pos, msgStr1Len] = read_po_msg(entry, MSGSTR1);
+
+            if (!is_reviewing_fuzzy_translations() && isFuzzy)
+                {
+                continue;
+                }
 
             get_catalog_entries().push_back(std::make_pair(
                 fileName,
