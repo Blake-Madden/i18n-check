@@ -158,7 +158,7 @@ TEST_CASE("Printf c-format percentage", "[po][l10n]")
 #: ../src/common/file.cpp:604
 #, c-format
 msgid "Volume %ld%%."
-msgstr "Bolumena: %%%ld")";
+msgstr "Bolumena: %%%ld.")";
 
 	po(code, L"");
 	po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });

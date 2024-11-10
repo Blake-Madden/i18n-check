@@ -10,7 +10,7 @@
  * Contributors:
  *   Blake Madden - initial implementation
  ********************************************************************************/
- 
+
 /** @addtogroup Internationalization
     @brief i18n classes.
 @{*/
