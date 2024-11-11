@@ -223,6 +223,7 @@ namespace i18n_check
         L"std::wregex",
         L"regex",
         L"std::regex",
+        L"Regex",
         L"ifstream",
         L"ofstream",
         L"FileStream",
@@ -679,7 +680,7 @@ namespace i18n_check
             // Java
             L"Locale",
             // formatting functions (not actually a CTOR) that should be skipped over
-            L"wxString::Format"
+            L"wxString::Format", L"string.Format"
         };
 
         // Debugging & system call functions that should never have
@@ -706,8 +707,8 @@ namespace i18n_check
             L"wxIconHandler", L"wxBitmapHandler", L"OutputDumpLine", L"wxFileTypeInfo",
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo", L"Platform::DebugPrintf",
             L"wxGetCommandOutput", L"SetKeyWords", L"AddDeveloper", L"AddDocWriter", L"AddArtist",
-            L"AddTranslator", L"SetCopyright", L"MarkerSetBackground", L"SetProperty",
-            L"SetAppName", L"SetPrintToFile", L"GetAttribute",
+            L"AddTranslator", L"MarkerSetBackground", L"SetProperty", L"SetAppName",
+            L"SetPrintToFile", L"GetAttribute",
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern", L"qmlRegisterUncreatableMetaObject",
             L"addShaderFromSourceCode", L"QStandardPaths::findExecutable", L"QDateTime::fromString",
@@ -778,7 +779,8 @@ namespace i18n_check
             // .NET
             L"FindSystemTimeZoneById", L"CreateSpecificCulture", L"DebuggerDisplay", L"Debug.Fail",
             L"DeriveKey", L"Assert.Fail", L"Debug.Assert", L"Debug.Print", L"Debug.WriteLine",
-            L"Debug.Write", L"Debug.WriteIf", L"Debug.WriteLineIf", L"Assert.Equal",
+            L"Debug.Write", L"Debug.WriteIf", L"Debug.WriteLineIf", L"Assert.Equal", L"DEBUGARG",
+            L"noway_assert", L"DISASM_DUMP", L"NO_WAY", L"printfAlloc",
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
@@ -806,14 +808,15 @@ namespace i18n_check
             L"SDL_LogMessage", L"SDL_LogMessageV", L"SDL_LogVerbose", L"SDL_LogWarn",
             // GnuCash
             L"PERR", L"PWARN", L"PINFO", L"ENTER", L"LEAVE",
-            // actual console functions
+            // actual console (or file) functions
             // (we will consider that most console apps are not localized, or if being used
             //  in a GUI then the message is meant for developers)
-            L"printf", L"Console.WriteLine",
+            L"printf", L"Console.WriteLine", L"dprintf",
             // .NET
-            L"LoggerMessage",
+            L"LoggerMessage", L"JITDUMP", L"LOG", L"LogSpew", L"LOG_HANDLE_OBJECT_CLASS",
+            L"LOG_HANDLE_OBJECT", L"CorDisToolsLogERROR",
             // other programs
-            L"log_message", L"outLog", L"LOG", L"LogSpew"
+            L"log_message", L"outLog"
         };
 
         m_exceptions = {
@@ -826,7 +829,10 @@ namespace i18n_check
             // MFC
             L"AfxThrowOleDispatchException",
             // Qt
-            L"QException"
+            L"QException",
+            // .NET
+            L"NotImplementedException", L"ArgumentException", L"InvalidOperationException",
+            L"OptionException", L"NotSupportedException", L"Exception"
         };
 
         // known strings to ignore
