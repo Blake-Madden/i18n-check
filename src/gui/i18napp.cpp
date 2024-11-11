@@ -82,20 +82,26 @@ void I18NFrame::InitControls()
             new wxRibbonPanel(homePage, wxID_ANY, _(L"Project"), wxNullBitmap, wxDefaultPosition,
                               wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
         m_projectBar = new wxRibbonButtonBar(projectPanel);
-        m_projectBar->AddButton(wxID_NEW, _(L"New"),
-                                wxArtProvider::GetBitmap(wxART_NEW, wxART_OTHER, wxSize{ 32, 32 }));
+        m_projectBar->AddButton(
+            wxID_NEW, _(L"New"),
+            wxArtProvider::GetBitmap(wxART_NEW, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                .ConvertToImage());
         m_projectBar->AddButton(
             wxID_OPEN, _(L"Open"),
-            wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_OTHER, wxSize{ 32, 32 }));
+            wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                .ConvertToImage());
         m_projectBar->AddButton(
             wxID_SAVE, _(L"Save"),
-            wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_OTHER, wxSize{ 32, 32 }));
+            wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                .ConvertToImage());
         m_projectBar->AddButton(
             wxID_REFRESH, _(L"Refresh"),
-            wxArtProvider::GetBitmap(wxART_REFRESH, wxART_OTHER, wxSize{ 32, 32 }));
+            wxArtProvider::GetBitmap(wxART_REFRESH, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                .ConvertToImage());
         m_projectBar->AddDropdownButton(
             XRCID("ID_IGNORE"), _(L"Ignore"),
-            wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 32, 32 }));
+            wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                .ConvertToImage());
         m_projectBar->EnableButton(wxID_SAVE, false);
         m_projectBar->EnableButton(wxID_REFRESH, false);
         m_projectBar->EnableButton(XRCID("ID_IGNORE"), false);
@@ -104,12 +110,18 @@ void I18NFrame::InitControls()
             new wxRibbonPanel(homePage, wxID_ANY, _(L"General"), wxNullBitmap, wxDefaultPosition,
                               wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
         wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(helpPanel);
-        toolbar->AddButton(XRCID("ID_SETTINGS"), _(L"Settings"),
-                           wxArtProvider::GetBitmap(L"ID_SETTINGS", wxART_OTHER, wxSize{ 32, 32 }));
-        toolbar->AddButton(wxID_HELP, _(L"Help"),
-                           wxArtProvider::GetBitmap(wxART_HELP, wxART_OTHER, wxSize{ 32, 32 }));
-        toolbar->AddButton(wxID_ABOUT, _(L"About"),
-                           wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
+        toolbar->AddButton(
+            XRCID("ID_SETTINGS"), _(L"Settings"),
+            wxArtProvider::GetBitmap(L"ID_SETTINGS", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                .ConvertToImage());
+        toolbar->AddButton(
+            wxID_HELP, _(L"Help"),
+            wxArtProvider::GetBitmap(wxART_HELP, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                .ConvertToImage());
+        toolbar->AddButton(
+            wxID_ABOUT, _(L"About"),
+            wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                .ConvertToImage());
         }
 
     if (wxSystemSettings::GetAppearance().IsDark())
@@ -440,28 +452,31 @@ void I18NFrame::InitControls()
              if (node != nullptr)
                  {
                  wxMenu menu;
-                 auto* menuItem =
-                     menu.Append(XRCID("ID_OPEN_SELECTED"),
-                                 wxString::Format(_(L"Open \"%s\""),
-                                                  wxFileName{ node->m_fileName }.GetFullName()));
-                 menuItem->SetBitmap(
-                     wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_OTHER, wxSize{ 16, 16 }));
+                 wxMenuItem* menuItem =
+                     new wxMenuItem(&menu, XRCID("ID_OPEN_SELECTED"),
+                                    wxString::Format(_(L"Open \"%s\""),
+                                                     wxFileName{ node->m_fileName }.GetFullName()));
+                 menuItem->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_OTHER,
+                                                              FromDIP(wxSize{ 16, 16 })));
+                 menu.Append(menuItem);
                  menu.AppendSeparator();
 
                  menuItem =
-                     menu.Append(XRCID("ID_IGNORE_SELECTED_FILE"),
-                                 wxString::Format(_(L"Ignore \"%s\""),
-                                                  wxFileName{ node->m_fileName }.GetFullName()));
-                 menuItem->SetBitmap(
-                     wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 16, 16 }));
+                     new wxMenuItem(&menu, XRCID("ID_IGNORE_SELECTED_FILE"),
+                                    wxString::Format(_(L"Ignore \"%s\""),
+                                                     wxFileName{ node->m_fileName }.GetFullName()));
+                 menuItem->SetBitmap(wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER,
+                                                              FromDIP(wxSize{ 16, 16 })));
+                 menu.Append(menuItem);
 
                  if (node->m_warningId != node->m_fileName)
                      {
-                     menuItem = menu.Append(
-                         XRCID("ID_IGNORE_SELECTED_WARNING"),
+                     menuItem = new wxMenuItem(
+                         &menu, XRCID("ID_IGNORE_SELECTED_WARNING"),
                          wxString::Format(_(L"Ignore '%s' Warnings"), node->m_warningId));
-                     menuItem->SetBitmap(
-                         wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 16, 16 }));
+                     menuItem->SetBitmap(wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER,
+                                                                  FromDIP(wxSize{ 16, 16 })));
+                     menu.Append(menuItem);
                      }
 
                  m_resultsDataView->PopupMenu(&menu);
@@ -673,20 +688,22 @@ void I18NFrame::OnIgnore(wxRibbonButtonBarEvent& event)
         if (node != nullptr)
             {
             wxMenu menu;
-            auto* menuItem =
-                menu.Append(XRCID("ID_IGNORE_SELECTED_FILE"),
-                            wxString::Format(_(L"Ignore \"%s\""),
-                                             wxFileName{ node->m_fileName }.GetFullName()));
+            wxMenuItem* menuItem =
+                new wxMenuItem(&menu, XRCID("ID_IGNORE_SELECTED_FILE"),
+                               wxString::Format(_(L"Ignore \"%s\""),
+                                                wxFileName{ node->m_fileName }.GetFullName()));
             menuItem->SetBitmap(
-                wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 16, 16 }));
+                wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
+            menu.Append(menuItem);
 
             if (node->m_warningId != node->m_fileName)
                 {
                 menuItem =
-                    menu.Append(XRCID("ID_IGNORE_SELECTED_WARNING"),
-                                wxString::Format(_(L"Ignore '%s' Warnings"), node->m_warningId));
+                    new wxMenuItem(&menu, XRCID("ID_IGNORE_SELECTED_WARNING"),
+                                   wxString::Format(_(L"Ignore '%s' Warnings"), node->m_warningId));
                 menuItem->SetBitmap(
-                    wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, wxSize{ 16, 16 }));
+                    wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
+                menu.Append(menuItem);
                 }
 
             event.PopupMenu(&menu);
@@ -772,7 +789,8 @@ void I18NFrame::OnAbout([[maybe_unused]] wxCommandEvent&)
         wxString::Format(_(L"Copyright \U000000A92021-%d %s. All rights reserved."),
                          buildDate.GetYear(), L"Blake Madden"));
     wxIcon appIcon;
-    appIcon.CopyFromBitmap(wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
+    appIcon.CopyFromBitmap(
+        wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxWindow::FromDIP(wxSize{ 32, 32 })));
     aboutInfo.SetIcon(appIcon);
     wxAboutBox(aboutInfo, this);
     }
@@ -822,7 +840,8 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
 
     m_activeProjectOptions = projDlg.GetAllOptions();
 
-    SetTitle(wxGetApp().GetAppName() + _(L" - Untitled"));
+    SetTitle(wxString::Format(
+        /*TRANSLATOR: %s is app name*/ L"%s - Untitled", wxGetApp().GetAppName()));
 
     Process();
     }
@@ -1282,7 +1301,8 @@ bool I18NApp::OnInit()
     frame->Show(true);
 
     wxIcon appIcon;
-    appIcon.CopyFromBitmap(wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, wxSize{ 32, 32 }));
+    appIcon.CopyFromBitmap(
+        wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, frame->FromDIP(wxSize{ 32, 32 })));
     frame->SetIcon(appIcon);
 
     wxFontEnumerator fe;

@@ -395,13 +395,13 @@ namespace i18n_check
                             "instead of __WXFUNCTION__.") },
             { L"wxTrace",
               _WXTRANS_WSTR(L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
-                            L"functions instead of wxTrace.") },
+                            "functions instead of wxTrace.") },
             { L"WXTRACE",
               _WXTRANS_WSTR(L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
-                            L"functions instead of WXTRACE.") },
+                            "functions instead of WXTRACE.") },
             { L"wxTraceLevel",
               _WXTRANS_WSTR(L"Use one of the wxLogTrace() functions or one of the wxVLogTrace() "
-                            L"functions instead of wxTraceLevel.") },
+                            "functions instead of wxTraceLevel.") },
             { L"wxUnix2DosFilename",
               _WXTRANS_WSTR(
                   L"Construct a wxFileName with wxPATH_UNIX and then use "

@@ -487,8 +487,7 @@ namespace i18n_check
                     report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
                            << issue.second << L"\t"
                            << _(L"Mismatching trailing punctuation, spaces, or newlines between "
-                                L"source "
-                                L"and translation strings.")
+                                 "source and translation strings.")
                            << "\t[transInconsistency]\n";
                     }
                 }
@@ -513,13 +512,13 @@ namespace i18n_check
                          i18n_review::string_info::usage_info::usage_type::variable)
                     {
                     report << _(L"String available for translation that probably "
-                                "should not be assigned to variable: ")
+                                 "should not be assigned to variable: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 else
                     {
                     report << _(L"String available for translation that probably "
-                                "should not be within ")
+                                 "should not be within: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 report << L"[suspectL10NString]\n";
@@ -546,7 +545,7 @@ namespace i18n_check
                 else
                     {
                     report << _(L"String available for translation that contains an "
-                                "URL or email address within ")
+                                 "URL or email address within: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 report << L"[urlInL10NString]\n";
@@ -575,7 +574,7 @@ namespace i18n_check
                     i18n_review::string_info::usage_info::usage_type::function)
                     {
                     report << _(L"Localizable string being used within non-user"
-                                L" facing function call: ")
+                                 " facing function call: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 else if (val.m_usage.m_type ==
