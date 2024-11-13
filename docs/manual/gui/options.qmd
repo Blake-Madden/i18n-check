@@ -36,6 +36,19 @@ You can enter variable names (e.g., "`colorMode`") or regular expressions (e.g.,
 **Translatable strings that contain URLs or email addresses**: select this to check for translatable strings that contain URLs or email addresses.
 It is recommended to dynamically format these into the string so that translators do not have to manage them.
 
+**Translatable strings that are surrounded by spaces**: select this to check for translatable strings that start or begin with spaces.
+(This is limited to actual space characters, and does not include tabs or newlines.)
+
+These may be strings that are concatenated at runtime, which does not follow best i18n practices.
+It is recommended to format separate values into a single string via a `printf` formatting function, rather than
+piecing them together.
+
+::: {.notesection data-latex=""}
+An exception is made for strings that end with a colon followed by a space (": ").
+It is assumed that this part of tabular data being concatenated and will be ignored.
+:::
+
+
 **Deprecated macros and functions**: select this to check for deprecated text macros and functions.
 This will detect the usage of functions that are no longer relevant, and provide a suggested replacement.
 
@@ -85,8 +98,24 @@ their source counterpart exactly. For example, "*%lu*" vs. "*%l*" will emit a wa
 Questionable commands such as "*% s*" (space is only meant for numeric formatting) will also emit a warning.
 :::
 
+**Check for inconsistent keyboard accelerators**: select this to check for mismatching keyboard accelerators between source and translation strings.
+This is performed by checking that both strings contain one '&' followed by an alphanumeric character.
+
+**Check for inconsistent trailing punctuation, spaces, or newlines**: select this to check for mismatching trailing punctuation, spaces, or newlines between source and translation strings.
+
+In regards to punctuation, terminating characters such as periods, exclamation points, and question marks are reviewed. For these, warnings will only be emitted if the source string
+has a terminating mark and the translation does not have either a terminating mark or closing parenthesis. All types of terminating marks are treated interchangeably, as not all languages
+commonly use question and exclamation marks as much as English.
+
 **Review fuzzy translations**: select this to review fuzzy translations. This should only be selected if you intend to review translations
 that still require approval and are likely unfinished.
+
+::::
+
+:::: {.optionssection data-latex=""}
+::: {.optionssectiontitle data-latex=""}
+Translation catalogs (*continued...*)
+:::
 
 **Pseudo-translation**
 

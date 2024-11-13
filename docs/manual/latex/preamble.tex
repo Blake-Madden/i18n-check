@@ -69,34 +69,6 @@
 \fancyhead[RE]{\nouppercase{\rightmark}}
 \fancyhead[LE,RO]{\thepage}
 
-% draws an image with a shadow
-\usetikzlibrary{shadows,calc,scopes,backgrounds}
-\usepackage{tikzpagenodes}
-
-% code adapted from https://tex.stackexchange.com/a/11483/3954
-
-% some parameters for customization
-\def\shadowshift{5pt,-5pt}
-\def\shadowradius{10pt}
-
-\colorlet{innershadowcolor}{black!60}
-\colorlet{outershadowcolor}{gray!05}
-
-% this draws a shadow under a rectangle node
-\newcommand\drawshadow[1]{
-    \begin{pgfonlayer}{background}
-        \shade[outershadowcolor,inner color=innershadowcolor,outer color=outershadowcolor] ($(#1.south west)+(\shadowshift)+(\shadowradius/2,\shadowradius/2)$) circle (\shadowradius);
-        \shade[outershadowcolor,inner color=innershadowcolor,outer color=outershadowcolor] ($(#1.north west)+(\shadowshift)+(\shadowradius/2,-\shadowradius/2)$) circle (\shadowradius);
-        \shade[outershadowcolor,inner color=innershadowcolor,outer color=outershadowcolor] ($(#1.south east)+(\shadowshift)+(-\shadowradius/2,\shadowradius/2)$) circle (\shadowradius);
-        \shade[outershadowcolor,inner color=innershadowcolor,outer color=outershadowcolor] ($(#1.north east)+(\shadowshift)+(-\shadowradius/2,-\shadowradius/2)$) circle (\shadowradius);
-        \shade[top color=innershadowcolor,bottom color=outershadowcolor] ($(#1.south west)+(\shadowshift)+(\shadowradius/2,-\shadowradius/2)$) rectangle ($(#1.south east)+(\shadowshift)+(-\shadowradius/2,\shadowradius/2)$);
-        \shade[left color=innershadowcolor,right color=outershadowcolor] ($(#1.south east)+(\shadowshift)+(-\shadowradius/2,\shadowradius/2)$) rectangle ($(#1.north east)+(\shadowshift)+(\shadowradius/2,-\shadowradius/2)$);
-        \shade[bottom color=innershadowcolor,top color=outershadowcolor] ($(#1.north west)+(\shadowshift)+(\shadowradius/2,-\shadowradius/2)$) rectangle ($(#1.north east)+(\shadowshift)+(-\shadowradius/2,\shadowradius/2)$);
-        \shade[outershadowcolor,right color=innershadowcolor,left color=outershadowcolor] ($(#1.south west)+(\shadowshift)+(-\shadowradius/2,\shadowradius/2)$) rectangle ($(#1.north west)+(\shadowshift)+(\shadowradius/2,-\shadowradius/2)$);
-        \filldraw ($(#1.south west)+(\shadowshift)+(\shadowradius/2,\shadowradius/2)$) rectangle ($(#1.north east)+(\shadowshift)-(\shadowradius/2,\shadowradius/2)$);
-    \end{pgfonlayer}
-}
-
 % color box that displays a quote in fancy format
 % https://tex.stackexchange.com/questions/16964/block-quote-with-big-quotation-marks
 \makeatletter

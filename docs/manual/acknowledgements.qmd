@@ -1,3 +1,5 @@
+# Acknowledgements
+
 ## Open-Source Libraries {-}
 
 The 3^rd^ party, open-source libraries that *Cuneiform* includes (or links with) are listed below (along with their respective licenses).
@@ -25,3 +27,9 @@ A stable and powerful open source framework for developing native cross-platform
 Copyright (c) 1998-2005 Julian Smart, Robert Roebling et al
 
 wxWindows Library Licence, Version 3.1
+
+## Artwork {-}
+
+Photo by [Riccardo Trimeloni](https://unsplash.com/@trime?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash) on [Unsplash](https://unsplash.com/photos/woman-in-green-floral-top-igWvpOE_CPw?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash)
+
+Photo by [Fionn Große](https://unsplash.com/@fionngrosse?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash) on [Unsplash](https://unsplash.com/photos/white-and-black-street-sign-p3FHp5mqW5o?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash)
