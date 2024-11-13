@@ -164,8 +164,6 @@ namespace i18n_check
 
             if (static_cast<bool>(m_reviewStyles & check_consistency))
                 {
-                const std::wregex keyboardAcceleratorRegex{ L"&[[:alnum:]]" };
-
                 if (!catEntry.second.m_source.empty() && !catEntry.second.m_translation.empty())
                     {
                     const wchar_t lastSrcChar{ catEntry.second.m_source.back() };
