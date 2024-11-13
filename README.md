@@ -272,7 +272,7 @@ cmake . -DCMAKE_INSTALL_PREFIX=./wxlib -DwxBUILD_SHARED=OFF \
       -D"CMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target install -j $(nproc) --config Release
 cd ..
-cd i18n-check/gui
+cd Cuneiform/gui
 cmake . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target all -j $(nproc) --config Release
 ```
@@ -290,20 +290,20 @@ You can also create a `cuneiform` GitHub action to make it part of your CI.
 For example, create a new workflow called "cuneiform.yml" and enter the following:
 
 ```shellscript
-name: i18n-check
+name: Cuneiform
 on: [push]
 
 jobs:
   build:
-    name: i18n-check
+    name: Cuneiform
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: install i18n-check
+      - name: install Cuneiform
         run: |
-             git clone https://github.com/Blake-Madden/i18n-check.git --recurse-submodules
-             cd i18n-check
+             git clone https://github.com/Blake-Madden/Cuneiform.git --recurse-submodules
+             cd Cuneiform
              cmake ./
              make -j4
              cd ..
@@ -312,8 +312,8 @@ jobs:
         run: |
              # Ignore Cuneiform's own folder.
              # You can ignore other folders by adding a comma and the folder name
-             # after "--ignore=i18n-check".
-             ./i18n-check/bin/cuneiform ./ --ignore=i18n-check -q -o i18nresults.txt
+             # after "--ignore=Cuneiform".
+             ./iCuneiform/bin/cuneiform ./ --ignore=Cuneiform -q -o i18nresults.txt
 
       - name: review results
         run: |
