@@ -910,7 +910,7 @@ namespace i18n_check
         std::wsmatch results;
         for (const auto& str : m_localizable_strings)
             {
-            if ((m_reviewStyles & check_l10n_strings) && str.m_string.length() &&
+            if ((m_reviewStyles & check_l10n_strings) && str.m_string.length() > 0 &&
                 is_untranslatable_string(str.m_string, false))
                 {
                 m_unsafe_localizable_strings.push_back(str);
