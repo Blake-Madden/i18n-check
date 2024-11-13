@@ -327,9 +327,9 @@ void I18NFrame::InitControls()
 
     tabstrip->InsertPage(0, m_editor, _("Edit"));
     tabstrip->InsertPage(1, m_logWindow, _("Analysis Log"), false);
-    tabstrip->SetMinSize(wxSize{ FromDIP(300), FromDIP(300) });
+    tabstrip->SetMinSize(FromDIP(wxSize{ 200, 200 }));
 
-    splitter->SplitHorizontally(m_resultsDataView, tabstrip, FromDIP(-300));
+    splitter->SplitHorizontally(m_resultsDataView, tabstrip, FromDIP(-200));
     mainSizer->Add(splitter, wxSizerFlags{ 1 }.Expand());
 
     SetSizer(mainSizer);
