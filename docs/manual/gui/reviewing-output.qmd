@@ -21,7 +21,7 @@ Once you are finished editing, either select another file's warning in the top w
 Specific warnings and files can be ignored from the project window.
 
 To ignore a file, select it in the top window and click the `r keys("Ignore")` button on the ribbon.
-From the menu that appears, select the **Ignore \"*fileName*\"** option (where *fileName* is the file name) and this file will be removed from the project.
+From the menu that appears, select the **Ignore \'*fileName*\'** option (where *fileName* is the file name) and this file will be removed from the project.
 
 To ignore a class of warnings, select a warning for any file in top window and click the `r keys("Ignore")` button on the ribbon.
 From the menu that appears, select the **Ignore \'*warningId*\'** option (where *warningId* is the warning, such as "[notL10NAvailable]").
