@@ -581,6 +581,12 @@ $endif$
 \end{tcolorbox}
 };
 
+$if(pdf-logo)$
+\begin{tikzpicture}[overlay, remember picture]
+    \node (centerimage) at (current page.south west)[anchor=south west] {\includegraphics[width=3cm]{$pdf-logo$}};
+\end{tikzpicture}
+$endif$
+
 \clearpage{\thispagestyle{empty}\cleardoublepage}
 \restoregeometry
 $endif$

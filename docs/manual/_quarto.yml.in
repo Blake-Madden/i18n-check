@@ -7,6 +7,7 @@ link-citations: true
 nocite: '@*'
 csl: modern-language-association.csl
 pdf-cover: "images/cover.png"
+pdf-logo: "images/app-logo.png"
 pdf-cover-author-color: "0, 0, 0"
 pdf-cover-font-color: "255, 255, 255"
 pdf-cover-color: "111, 144, 132"
