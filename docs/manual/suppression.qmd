@@ -32,7 +32,7 @@ else
     WriteMessage(_DT("No memory issues"));
 ```
 
-You can either include the file "donttranslate.h" into your project to add these functions, or you can define your own:
+You can either include the file "donttranslate.h" into your project to add these functions, or you can define your own macro:
 
 ``` {.cpp}
 #define DONTTRANSLATE(x) (x)
