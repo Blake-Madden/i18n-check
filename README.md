@@ -107,21 +107,21 @@ When pseudo-translating, a copy of all *gettext* \*.po and \*.pot files will be 
 with mutations of the respective source strings. These files (which will have a "pseudo_" prefix) can then be compiled into \*.mo files and
 loaded by your application for integration testing.
 
-[![Linux Build](https://github.com/Blake-Madden/i18n-check/actions/workflows/linux-build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/linux-build.yml)
-[![macOS build](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macOS%20build.yml)
-[![Windows build](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-build.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-build.yml)
+[![Linux Build](https://github.com/Blake-Madden/Cuneiform/actions/workflows/linux-build.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/linux-build.yml)
+[![macOS build](https://github.com/Blake-Madden/Cuneiform/actions/workflows/macOS%20build.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/macOS%20build.yml)
+[![Windows build](https://github.com/Blake-Madden/Cuneiform/actions/workflows/msw-build.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/msw-build.yml)
 
-[![unit-tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/unit-tests.yml)
-[![macOS unit tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/macos-unit-test.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/macos-unit-test.yml)
-[![Windows unit tests](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msw-unit-tests.yml)
+[![unit-tests](https://github.com/Blake-Madden/Cuneiform/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/unit-tests.yml)
+[![macOS unit tests](https://github.com/Blake-Madden/Cuneiform/actions/workflows/macos-unit-test.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/macos-unit-test.yml)
+[![Windows unit tests](https://github.com/Blake-Madden/Cuneiform/actions/workflows/msw-unit-tests.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/msw-unit-tests.yml)
 
-[![cppcheck](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/cppcheck.yml)
-[![CodeQL](https://github.com/Blake-Madden/i18n-check/actions/workflows/codeql.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/codeql.yml)
-[![Microsoft C++ Code Analysis](https://github.com/Blake-Madden/i18n-check/actions/workflows/msvc.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/msvc.yml)
+[![cppcheck](https://github.com/Blake-Madden/Cuneiform/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/cppcheck.yml)
+[![CodeQL](https://github.com/Blake-Madden/Cuneiform/actions/workflows/codeql.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/codeql.yml)
+[![Microsoft C++ Code Analysis](https://github.com/Blake-Madden/Cuneiform/actions/workflows/msvc.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/msvc.yml)
 
-[![doxygen](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/doxygen.yml)
-[![Check Spelling](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/spell-check.yml)
-[![i18n-check](https://github.com/Blake-Madden/i18n-check/actions/workflows/i18n-check.yml/badge.svg)](https://github.com/Blake-Madden/i18n-check/actions/workflows/i18n-check.yml)
+[![doxygen](https://github.com/Blake-Madden/Cuneiform/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/doxygen.yml)
+[![Check Spelling](https://github.com/Blake-Madden/Cuneiform/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/spell-check.yml)
+[![Cuneiform](https://github.com/Blake-Madden/Cuneiform/actions/workflows/Cuneiform.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/Cuneiform.yml)
 
 # Usage
 
@@ -287,7 +287,7 @@ After building, "cuneiform" will be available in the "bin" folder.
 
 # GitHub Action
 
-You can also create a `cuneiform` GitHub action to make it part of your CI.
+You can also create a `Cuneiform` GitHub action to make it part of your CI.
 For example, create a new workflow called "cuneiform.yml" and enter the following:
 
 ```shellscript
@@ -314,7 +314,7 @@ jobs:
              # Ignore Cuneiform's own folder.
              # You can ignore other folders by adding a comma and the folder name
              # after "--ignore=Cuneiform".
-             ./iCuneiform/bin/cuneiform ./ --ignore=Cuneiform -q -o i18nresults.txt
+             ./Cuneiform/bin/cuneiform ./ --ignore=Cuneiform -q -o i18nresults.txt
 
       - name: review results
         run: |
