@@ -32,7 +32,7 @@ namespace i18n_check
         static const std::wstring_view MSGSTR{ L"msgstr \"" };
         static const std::wstring_view MSGSTR0{ L"msgstr[0] \"" };
         static const std::wstring_view MSGSTR1{ L"msgstr[1] \"" };
-        // type of printf formatting the string uses
+        // type of printf formatting the string uses, and its fuzzy status
         static const std::wregex entryLineRegEx{ LR"(^#, ([,a-z \-]+)+$)",
         // MSVC doesn't have the std::regex::multiline flag, but behaves like multiline implicitly.
         // GCC and Clang require this flag though.
@@ -41,12 +41,15 @@ namespace i18n_check
 #else
                                                  std::regex::ECMAScript | std::regex::multiline };
 #endif
+        // translator comments, where they go to the end of the line
+        static const std::wregex commentLineRegEx{ LR"(^#[.] ([^\n\r]+)+$)" };
 
         // captures the "no-" prefix (in case it's in there) so that we know
         // to ignore this entry later
         static const std::wregex printfResourceRegEx{ LR"(\b([a-zA-Z\-])+\b)" };
 
         std::vector<std::wstring> entryLines;
+        std::vector<std::wstring> commentLines;
         std::vector<std::wstring> formatFlags;
 
         size_t currentPos{ 0 };
@@ -81,6 +84,7 @@ namespace i18n_check
             // update the position in the original text of where this entry is
             currentPos += entryPos + entry.length();
 
+            // load information about the string's fuzzy status and its printf format
             entryLines.clear();
             std::copy(std::regex_token_iterator<decltype(entry)::const_iterator>(
                           entry.cbegin(), entry.cend(), entryLineRegEx, 1),
@@ -119,6 +123,25 @@ namespace i18n_check
                     }
                 }
 
+            // Load any translator comments.
+            // If a comment is multiline in the source code, then it gets separate "#." entries
+            // in the PO file. These need to be pieced back together into one string.
+            commentLines.clear();
+            std::copy(std::regex_token_iterator<decltype(entry)::const_iterator>(
+                          entry.cbegin(), entry.cend(), commentLineRegEx, 1),
+                      std::regex_token_iterator<decltype(entry)::const_iterator>{},
+                      std::back_inserter(commentLines));
+            const std::wstring comment = [&commentLines]()
+            {
+                std::wstring comment;
+                for (const auto& str : commentLines)
+                    {
+                    comment.append(str).append(L" ");
+                    }
+                string_util::trim(comment);
+                return comment;
+            }();
+
             // read section from catalog entry
             auto [msgIdFound, msgId, msgPos, msgLen] = read_po_msg(entry, MSGID);
             if (!msgIdFound)
@@ -145,7 +168,7 @@ namespace i18n_check
                     // singular and plural translations are kept
                     msgStr.empty() ? std::move(msg0Str) : std::move(msgStr), std::move(msg1Str),
                     pofs, std::vector<std::pair<translation_issue, std::wstring>>{},
-                    get_line_and_column(currentPos, originalPoFileText).first }));
+                    get_line_and_column(currentPos, originalPoFileText).first, comment }));
             }
         }
     } // namespace i18n_check

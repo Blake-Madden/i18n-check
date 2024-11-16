@@ -213,7 +213,9 @@ namespace i18n_check
         /// @brief Inconsistent trailing punctuation or newlines.
         consistency_issue,
         /// @brief Localizable strings that begin or end with a space.
-        source_surrounding_spaces_issue
+        source_surrounding_spaces_issue,
+        /// @brief Ambiguous source string that is lacking contextual information.
+        source_needing_context_issue
         };
 
     /// @brief File types that can be analyzed.
@@ -260,6 +262,9 @@ namespace i18n_check
         std::vector<std::pair<translation_issue, std::wstring>> m_issues;
         /// @brief The position in the file.
         size_t m_line{ std::wstring_view::npos };
+        /// @brief The comment for the translator to provide context for
+        ///     how to tanslate the string.
+        std::wstring m_comment;
         };
 
     /// @brief Progress callback for analyze().
