@@ -1354,8 +1354,17 @@ namespace i18n_check
                 {
                 return true;
                 }
-            // Single word with multiple punctuations marks?
-            // (Slashes and hyphens are ignored though, as that can be part of a compound word.)
+            // trim punctuation from string that we would like to ignore
+            // before a final review
+            if ((str.starts_with(L'\'') && str.ends_with(L'\'')) ||
+                (str.starts_with(L'"') && str.ends_with(L'"')) ||
+                (str.starts_with(L'<') && str.ends_with(L'>')) ||
+                (str.starts_with(L'(') && str.ends_with(L')')) ||
+                (str.starts_with(L'[') && str.ends_with(L']')))
+                {
+                str.remove_prefix(1);
+                str.remove_suffix(1);
+                }
             if (str.ends_with(L"..."))
                 {
                 str.remove_suffix(3);
@@ -1373,11 +1382,12 @@ namespace i18n_check
                 {
                 return false;
                 }
+            // Single word with multiple punctuations marks?
             const size_t punctCount = std::count_if(str.cbegin(), str.cend(),
                                                     [](const auto chr) {
                                                         return std::iswpunct(chr) && chr != L'-' &&
                                                                chr != L'/' && chr != L'\\' &&
-                                                               chr != L'&';
+                                                               chr != L'&' && chr != L'.';
                                                     });
             if (punctCount > 1)
                 {

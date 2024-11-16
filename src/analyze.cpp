@@ -475,7 +475,7 @@ namespace i18n_check
                                 "using a formatting function.")
                            << "\t[spacesAroundL10NString]\n";
                     }
-                else if (issue.first == translation_issue::source_needing_context)
+                else if (issue.first == translation_issue::source_needing_context_issue)
                     {
                     report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
                            << issue.second << L"\t"

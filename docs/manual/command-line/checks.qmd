@@ -52,7 +52,7 @@ Strings are considered to be ambiguous if they meet any of the following criteri
 - A single word that is uppercased (e.g., "FACTOR_VAR")
   - Punctuation is ignored for this check
 - A single word that contains more than one punctuation mark (e.g., "$Print$")
-  - Note that hyphens, slashes, and ampersands are ignored for this check
+  - Note that hyphens, slashes, periods, and ampersands are ignored for this check
 - Contains three or more `printf` commands
 - Contains at least one `printf` command and is less than 16 characters
 
