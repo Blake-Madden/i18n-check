@@ -57,6 +57,7 @@ struct I18NOptions
     int m_minCppVersion{ 2014 };
 
     bool m_windowMaximized{ false };
+    int m_editorHeight{ 200 };
     };
 
     /** @}*/

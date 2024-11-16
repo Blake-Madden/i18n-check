@@ -89,6 +89,9 @@ void I18NOptions::Save(const wxString& filePath)
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"window-maximized");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_windowMaximized ? L"true" : L"false"));
 
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"editor-height");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_editorHeight)));
+
     if (!xmlDoc.Save(filePath))
         {
         wxMessageBox(_(L"Error saving project file."), _(L"Error"), wxOK | wxICON_EXCLAMATION);
@@ -218,6 +221,10 @@ void I18NOptions::Load(const wxString& filePath)
         else if (child->GetName() == L"window-maximized")
             {
             m_windowMaximized = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"editor-height")
+            {
+            child->GetNodeContent().ToInt(&m_editorHeight);
             }
 
         child = child->GetNext();

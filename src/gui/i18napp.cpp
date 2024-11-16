@@ -327,9 +327,10 @@ void I18NFrame::InitControls()
 
     tabstrip->InsertPage(0, m_editor, _("Edit"));
     tabstrip->InsertPage(1, m_logWindow, _("Analysis Log"), false);
-    tabstrip->SetMinSize(FromDIP(wxSize{ 200, 200 }));
+    tabstrip->SetMinSize(FromDIP(wxSize{ 100, 100 }));
 
-    splitter->SplitHorizontally(m_resultsDataView, tabstrip, FromDIP(-200));
+    splitter->SplitHorizontally(m_resultsDataView, tabstrip,
+                                FromDIP(-wxGetApp().m_defaultOptions.m_editorHeight));
     mainSizer->Add(splitter, wxSizerFlags{ 1 }.Expand());
 
     SetSizer(mainSizer);
@@ -625,7 +626,8 @@ void I18NFrame::OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&)
                         i18n_check::review_style::check_mismatching_printf_commands);
             excludeFlag(L"[acceleratorMismatch]", i18n_check::review_style::check_accelerators);
             excludeFlag(L"[transInconsistency]", i18n_check::review_style::check_consistency);
-            excludeFlag(L"[L10NStringNeedsContext]", i18n_check::review_style::check_needing_context);
+            excludeFlag(L"[L10NStringNeedsContext]",
+                        i18n_check::review_style::check_needing_context);
             excludeFlag(L"[urlInL10NString]", i18n_check::review_style::check_l10n_contains_url);
             excludeFlag(L"[spacesAroundL10NString]",
                         i18n_check::review_style::check_l10n_has_surrounding_spaces);
@@ -1245,6 +1247,7 @@ void I18NFrame::Process()
 void I18NFrame::OnClose(wxCloseEvent& event)
     {
     wxGetApp().m_defaultOptions.m_windowMaximized = IsMaximized();
+    wxGetApp().m_defaultOptions.m_editorHeight = m_editor->GetSize().GetHeight();
     event.Skip();
     }
 
