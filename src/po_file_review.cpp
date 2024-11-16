@@ -133,13 +133,13 @@ namespace i18n_check
                       std::back_inserter(commentLines));
             const std::wstring comment = [&commentLines]()
             {
-                std::wstring comment;
+                std::wstring fullComment;
                 for (const auto& str : commentLines)
                     {
-                    comment.append(str).append(L" ");
+                    fullComment.append(str).append(L" ");
                     }
-                string_util::trim(comment);
-                return comment;
+                string_util::trim(fullComment);
+                return fullComment;
             }();
 
             // read section from catalog entry
