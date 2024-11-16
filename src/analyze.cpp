@@ -495,8 +495,8 @@ namespace i18n_check
                     {
                     report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
                            << issue.second << L"\t"
-                           << _(L"Mismatching trailing punctuation, spaces, or newlines between "
-                                "source and translation strings.")
+                           << _(L"Mismatching first character casing or trailing punctuation, spaces, "
+                                "or newlines between source and translation strings.")
                            << "\t[transInconsistency]\n";
                     }
                 }

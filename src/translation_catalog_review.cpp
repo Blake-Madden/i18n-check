@@ -203,6 +203,14 @@ namespace i18n_check
                                     catEntry.second.m_translation + L"'" + errorInfo);
                             }
                         }
+                    else if (std::iswupper(catEntry.second.m_source.front()) &&
+                             std::iswlower(catEntry.second.m_translation.front()))
+                        {
+                        catEntry.second.m_issues.emplace_back(
+                            translation_issue::consistency_issue,
+                            L"'" + catEntry.second.m_source + L"' vs. '" +
+                                catEntry.second.m_translation + L"'" + errorInfo);
+                        }
                     }
                 }
             }

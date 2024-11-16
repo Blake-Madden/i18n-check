@@ -441,9 +441,10 @@ void NewProjectDialog::CreateControls()
         gbSizer->Add(buildCodeLabel(L"spacesAroundL10NString", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
-                                    _(L"Check for ambiguous strings that lack a translator comment"),
-                                    wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_needsContext)),
+        gbSizer->Add(new wxCheckBox(
+                         checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                         _(L"Check for ambiguous strings that lack a translator comment"),
+                         wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_needsContext)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
         gbSizer->Add(buildCodeLabel(L"L10NStringNeedsContext", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
@@ -561,11 +562,11 @@ void NewProjectDialog::CreateControls()
             gbSizer->Add(buildCodeLabel(L"acceleratorMismatch", poOptionsSizer->GetStaticBox()),
                          wxGBPosition(currentRow++, 1), wxGBSpan{});
 
-            gbSizer->Add(new wxCheckBox(
-                             poOptionsSizer->GetStaticBox(), wxID_ANY,
-                             _(L"Check for inconsistent trailing punctuation, spaces, or newlines"),
-                             wxDefaultPosition, wxDefaultSize, 0,
-                             wxGenericValidator(&m_transConsistency)),
+            gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Check for inconsistent casing or trailing punctuation, "
+                                          "spaces, or newlines"),
+                                        wxDefaultPosition, wxDefaultSize, 0,
+                                        wxGenericValidator(&m_transConsistency)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
             gbSizer->Add(buildCodeLabel(L"transInconsistency", poOptionsSizer->GetStaticBox()),
                          wxGBPosition(currentRow++, 1), wxGBSpan{});

@@ -153,7 +153,7 @@ This is performed on *gettext* \*.po files.
 
 - `transInconsistency`
 
-Check for inconsistent trailing punctuation, spaces, or newlines between source and translation strings.
+Check for inconsistent casing or trailing punctuation, spaces, or newlines between source and translation strings.
 
 This is performed on *gettext* \*.po files.
 
