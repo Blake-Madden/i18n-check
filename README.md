@@ -121,7 +121,7 @@ loaded by your application for integration testing.
 
 [![doxygen](https://github.com/Blake-Madden/Cuneiform/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/doxygen.yml)
 [![Check Spelling](https://github.com/Blake-Madden/Cuneiform/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/spell-check.yml)
-[![Cuneiform](https://github.com/Blake-Madden/Cuneiform/actions/workflows/Cuneiform.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/Cuneiform.yml)
+[![Cuneiform](https://github.com/Blake-Madden/Cuneiform/actions/workflows/i18n-check.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/i18n-check.yml)
 
 # Usage
 
