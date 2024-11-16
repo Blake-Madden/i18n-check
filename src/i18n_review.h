@@ -496,7 +496,7 @@ namespace i18n_check
         ///     but are ambiguous and lack a translator comment.
         [[nodiscard]]
         const std::vector<string_info>&
-        get_localizable_strings_ambiguos_needing_context() const noexcept
+        get_localizable_strings_ambiguous_needing_context() const noexcept
             {
             return m_localizable_strings_ambiguous_needing_context;
             }

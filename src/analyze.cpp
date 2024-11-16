@@ -560,7 +560,8 @@ namespace i18n_check
                 report << L"[urlInL10NString]\n";
                 }
 
-            for (const auto& val : sourceParser->get_localizable_strings_ambiguos_needing_context())
+            for (const auto& val :
+                 sourceParser->get_localizable_strings_ambiguous_needing_context())
                 {
                 report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
                        << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";

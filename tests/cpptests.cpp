@@ -2712,7 +2712,7 @@ TEST_CASE("Context", "[cpp][i18n]")
         /* TRANSLATORS: %s is app name */ _(L"UNTITLED"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().empty());
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().empty());
         cpp.clear_results();
 
         code = LR"(SetTitle(wxString::Format(
@@ -2720,7 +2720,7 @@ TEST_CASE("Context", "[cpp][i18n]")
         _(L"UNTITLED"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().empty());
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().empty());
         cpp.clear_results();
 
         // comments are in the wrong place
@@ -2729,14 +2729,14 @@ TEST_CASE("Context", "[cpp][i18n]")
         _(L"UNTITLED"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().size() == 1);
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().size() == 1);
         cpp.clear_results();
 
         code = LR"(/* TRANSLATORS: %s is app name */
          SetTitle(wxString::Format( _(L"UNTITLED"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().size() == 1);
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().size() == 1);
         }
 
     SECTION("Ambiguous CAPPED")
@@ -2747,14 +2747,14 @@ TEST_CASE("Context", "[cpp][i18n]")
         _(L"FACTOR_VAR"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().size() == 1);
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().size() == 1);
         cpp.clear_results();
 
         code = LR"(SetTitle(wxString::Format(
         _(L"Untitled"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().empty());
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().empty());
         cpp.clear_results();
         }
 
@@ -2767,14 +2767,14 @@ TEST_CASE("Context", "[cpp][i18n]")
         _(L"&Print$"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().size() == 1);
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().size() == 1);
         cpp.clear_results();
 
         code = LR"(SetTitle(wxString::Format(
         _(L"&Print"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().empty());
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().empty());
         cpp.clear_results();
 
         // ignore ellipsis
@@ -2782,7 +2782,7 @@ TEST_CASE("Context", "[cpp][i18n]")
         _(L"Printing..."), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().empty());
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().empty());
         cpp.clear_results();
         }
 
@@ -2795,7 +2795,7 @@ TEST_CASE("Context", "[cpp][i18n]")
         _(L"File\tPath\tThis\tIs\tA\tHearder"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings_ambiguos_missing_context().size() == 1);
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().size() == 1);
         cpp.clear_results();
         }
     }
