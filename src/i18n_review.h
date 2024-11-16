@@ -263,7 +263,7 @@ namespace i18n_check
         /// @brief The position in the file.
         size_t m_line{ std::wstring_view::npos };
         /// @brief The comment for the translator to provide context for
-        ///     how to tanslate the string.
+        ///     how to translate the string.
         std::wstring m_comment;
         };
 
