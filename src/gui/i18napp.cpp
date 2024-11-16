@@ -842,7 +842,7 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     m_activeProjectOptions = projDlg.GetAllOptions();
 
     SetTitle(wxString::Format(
-        /*TRANSLATOR: %s is app name*/ L"%s - Untitled", wxGetApp().GetAppName()));
+        /* TRANSLATORS: %s is app name */ _(L"%s - Untitled"), wxGetApp().GetAppName()));
 
     Process();
     }
