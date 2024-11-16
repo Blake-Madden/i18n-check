@@ -347,7 +347,7 @@ namespace i18n_check
                                                                                L"")
                 << ((m_cpp->get_style() & check_accelerators) ? L"acceleratorMismatch\n" : L"")
                 << ((m_cpp->get_style() & check_consistency) ? L"transInconsistency\n" : L"")
-                << ((m_cpp->get_style() & check_missing_context) ? L"missingContext\n" : L"")
+                << ((m_cpp->get_style() & check_needing_context) ? L"L10NStringNeedsContext\n" : L"")
                 << ((m_cpp->get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
                 << ((m_cpp->get_style() & check_l10n_has_surrounding_spaces) ?
                         L"spacesAroundL10NString\n" :
@@ -552,14 +552,14 @@ namespace i18n_check
                 report << L"[urlInL10NString]\n";
                 }
 
-            for (const auto& val : sourceParser->get_localizable_strings_ambiguos_missing_context())
+            for (const auto& val : sourceParser->get_localizable_strings_ambiguos_needing_context())
                 {
                 report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
                        << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
                 report << _(L"Ambiguous string available for translation that is "
                             "lacking a translator comment.")
                        << L"\t";
-                report << L"[missingContext]\n";
+                report << L"[L10NStringNeedsContext]\n";
                 }
 
             for (const auto& val : sourceParser->get_localizable_strings_with_surrounding_spaces())

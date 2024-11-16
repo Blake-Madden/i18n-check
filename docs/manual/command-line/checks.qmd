@@ -30,7 +30,7 @@ An exception is made for strings ending with ": "; here, it is assumed that this
 piecing a message together.
 :::
 
-- `missingContext`
+- `L10NStringNeedsContext`
 
 Check for ambiguous strings that lack a translator comment.
 

@@ -76,7 +76,7 @@ void NewProjectDialog::SetOptions(const i18n_check::review_style style)
     m_printfMismatch = (m_options & i18n_check::review_style::check_mismatching_printf_commands);
     m_acceleratorMismatch = (m_options & i18n_check::review_style::check_accelerators);
     m_transConsistency = (m_options & i18n_check::review_style::check_consistency);
-    m_missingContext = (m_options & i18n_check::review_style::check_missing_context);
+    m_needsContext = (m_options & i18n_check::review_style::check_needing_context);
     m_urlInL10NString = (m_options & i18n_check::review_style::check_l10n_contains_url);
     m_spacesAroundL10NString =
         (m_options & i18n_check::review_style::check_l10n_has_surrounding_spaces);
@@ -137,9 +137,9 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
         {
         m_options |= i18n_check::review_style::check_consistency;
         }
-    if (m_missingContext)
+    if (m_needsContext)
         {
-        m_options |= i18n_check::review_style::check_missing_context;
+        m_options |= i18n_check::review_style::check_needing_context;
         }
     if (m_urlInL10NString)
         {
@@ -443,10 +443,9 @@ void NewProjectDialog::CreateControls()
 
         gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
                                     _(L"Check for ambiguous strings that lack a translator comment"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                         wxGenericValidator(&m_missingContext)),
+                                    wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_needsContext)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
-        gbSizer->Add(buildCodeLabel(L"missingContext", checkOptionsSizer->GetStaticBox()),
+        gbSizer->Add(buildCodeLabel(L"L10NStringNeedsContext", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
         gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,

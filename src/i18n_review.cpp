@@ -943,10 +943,10 @@ namespace i18n_check
                 {
                 m_localizable_strings_with_urls.push_back(str);
                 }
-            if ((m_reviewStyles & check_missing_context) && !str.m_usage.m_hasContext &&
+            if ((m_reviewStyles & check_needing_context) && !str.m_usage.m_hasContext &&
                 is_string_ambiguous(str.m_string))
                 {
-                m_localizable_strings_ambiguous_missing_context.push_back(str);
+                m_localizable_strings_ambiguous_needing_context.push_back(str);
                 }
 #if __cplusplus >= 202002L
             if ((m_reviewStyles & check_l10n_has_surrounding_spaces) &&
@@ -977,7 +977,7 @@ namespace i18n_check
             classifyMalformedStrings(m_not_available_for_localization_strings);
             classifyMalformedStrings(m_unsafe_localizable_strings);
             classifyMalformedStrings(m_localizable_strings_with_urls);
-            classifyMalformedStrings(m_localizable_strings_ambiguous_missing_context);
+            classifyMalformedStrings(m_localizable_strings_ambiguous_needing_context);
             classifyMalformedStrings(m_localizable_strings_in_internal_call);
             classifyMalformedStrings(m_localizable_strings_with_surrounding_spaces);
             }
@@ -1005,7 +1005,7 @@ namespace i18n_check
             classifyUnencodedStrings(m_not_available_for_localization_strings);
             classifyUnencodedStrings(m_unsafe_localizable_strings);
             classifyUnencodedStrings(m_localizable_strings_with_urls);
-            classifyUnencodedStrings(m_localizable_strings_ambiguous_missing_context);
+            classifyUnencodedStrings(m_localizable_strings_ambiguous_needing_context);
             classifyUnencodedStrings(m_localizable_strings_in_internal_call);
             classifyUnencodedStrings(m_localizable_strings_with_surrounding_spaces);
             }
@@ -1719,7 +1719,7 @@ namespace i18n_check
         {
         m_localizable_strings.clear();
         m_localizable_strings_with_urls.clear();
-        m_localizable_strings_ambiguous_missing_context.clear();
+        m_localizable_strings_ambiguous_needing_context.clear();
         m_localizable_strings_in_internal_call.clear();
         m_localizable_strings_with_surrounding_spaces.clear();
         m_not_available_for_localization_strings.clear();

@@ -144,7 +144,7 @@ loaded by your application for integration testing.
                           translators don't have to manage them.
   spacesAroundL10NString: Check for strings that start or end with spaces.
                           These may be strings that are concatenated at runtime.
-  missingContext          Check for possibly ambiguous strings that lack a translator comment.
+  L10NStringNeedsContext: Check for possibly ambiguous strings that lack a translator comment.
   notL10NAvailable:       Check for strings not exposed for translation.
   deprecatedMacro:        Check for deprecated text macros (e.g., wxT()).
   nonUTF8File:            Check that files containing extended ASCII characters are UTF-8 encoded.

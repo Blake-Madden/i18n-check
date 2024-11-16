@@ -118,7 +118,7 @@ namespace i18n_check
         /// @note This only checks for the space character, not tabs or newlines.
         check_l10n_has_surrounding_spaces = (static_cast<int64_t>(1) << 13),
         /// @brief Check for ambiguous source strings that are lacking contextual information.
-        check_missing_context = (static_cast<int64_t>(1) << 14),
+        check_needing_context = (static_cast<int64_t>(1) << 14),
         /// @private
         i18n_reserved3 = (static_cast<int64_t>(1) << 15),
         /// @private
@@ -491,9 +491,9 @@ namespace i18n_check
         ///     but are ambiguous and lack a translator comment.
         [[nodiscard]]
         const std::vector<string_info>&
-        get_localizable_strings_ambiguos_missing_context() const noexcept
+        get_localizable_strings_ambiguos_needing_context() const noexcept
             {
-            return m_localizable_strings_ambiguous_missing_context;
+            return m_localizable_strings_ambiguous_needing_context;
             }
 
         /// @returns The strings that are being extracted as localizable,
@@ -1101,7 +1101,7 @@ namespace i18n_check
         // results that are probably issues
         std::vector<string_info> m_unsafe_localizable_strings;
         std::vector<string_info> m_localizable_strings_with_urls;
-        std::vector<string_info> m_localizable_strings_ambiguous_missing_context;
+        std::vector<string_info> m_localizable_strings_ambiguous_needing_context;
         std::vector<string_info> m_localizable_strings_in_internal_call;
         std::vector<string_info> m_localizable_strings_with_surrounding_spaces;
         std::vector<string_info> m_not_available_for_localization_strings;

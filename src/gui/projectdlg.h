@@ -298,7 +298,7 @@ class NewProjectDialog final : public wxDialog
     bool m_printfMismatch{ true };
     bool m_acceleratorMismatch{ true };
     bool m_transConsistency{ true };
-    bool m_missingContext{ false };
+    bool m_needsContext{ false };
     bool m_urlInL10NString{ true };
     bool m_spacesAroundL10NString{ false };
     bool m_deprecatedMacro{ true };

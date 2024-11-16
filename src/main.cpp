@@ -221,9 +221,9 @@ int main(int argc, char* argv[])
                 {
                 rs |= i18n_check::review_style::check_consistency;
                 }
-            else if (r == "missingContext")
+            else if (r == "L10NStringNeedsContext")
                 {
-                rs |= i18n_check::review_style::check_missing_context;
+                rs |= i18n_check::review_style::check_needing_context;
                 }
             else if (r == "urlInL10NString")
                 {
@@ -341,9 +341,9 @@ int main(int argc, char* argv[])
                 {
                 rs = rs & ~i18n_check::review_style::check_consistency;
                 }
-            else if (r == "missingContext")
+            else if (r == "L10NStringNeedsContext")
                 {
-                rs = rs & ~i18n_check::review_style::check_missing_context;
+                rs = rs & ~i18n_check::review_style::check_needing_context;
                 }
             else if (r == "urlInL10NString")
                 {

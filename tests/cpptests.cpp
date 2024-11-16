@@ -2707,7 +2707,7 @@ TEST_CASE("Context", "[cpp][i18n]")
     SECTION("Comment")
         {
         cpp_i18n_review cpp;
-        cpp.set_style(check_missing_context);
+        cpp.set_style(check_needing_context);
         const wchar_t* code = LR"(SetTitle(wxString::Format(
         /* TRANSLATORS: %s is app name */ _(L"UNTITLED"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
@@ -2742,7 +2742,7 @@ TEST_CASE("Context", "[cpp][i18n]")
     SECTION("Ambiguous CAPPED")
         {
         cpp_i18n_review cpp;
-        cpp.set_style(check_missing_context);
+        cpp.set_style(check_needing_context);
         const wchar_t* code = LR"(SetTitle(wxString::Format(
         _(L"FACTOR_VAR"), wxGetApp().GetAppName()));)";
         cpp(code, L"");
@@ -2761,7 +2761,7 @@ TEST_CASE("Context", "[cpp][i18n]")
     SECTION("Ambiguous Punct")
         {
         cpp_i18n_review cpp;
-        cpp.set_style(check_missing_context);
+        cpp.set_style(check_needing_context);
         // weird $ at the end makes this ambiguous
         const wchar_t* code = LR"(SetTitle(wxString::Format(
         _(L"&Print$"), wxGetApp().GetAppName()));)";
@@ -2789,7 +2789,7 @@ TEST_CASE("Context", "[cpp][i18n]")
     SECTION("Ambiguous Long Word")
         {
         cpp_i18n_review cpp;
-        cpp.set_style(check_missing_context);
+        cpp.set_style(check_needing_context);
         // weird $ at the end makes this ambiguous
         const wchar_t* code = LR"(SetTitle(wxString::Format(
         _(L"File\tPath\tThis\tIs\tA\tHearder"), wxGetApp().GetAppName()));)";
