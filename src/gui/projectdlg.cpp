@@ -28,6 +28,8 @@ NewProjectDialog::NewProjectDialog(
     Centre();
 
     // bind events
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &NewProjectDialog::OnHelpClicked, this, wxID_HELP);
+    Bind(wxEVT_HELP, &NewProjectDialog::OnContextHelp, this);
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnFolderButtonClick, this,
          NewProjectDialog::ID_FOLDER_BROWSE_BUTTON);
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnFileButtonClick, this,

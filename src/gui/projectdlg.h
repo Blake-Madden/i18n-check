@@ -31,6 +31,7 @@
 #include <wx/slider.h>
 #include <wx/spinctrl.h>
 #include <wx/statline.h>
+#include <wx/stdpaths.h>
 #include <wx/string.h>
 #include <wx/tokenzr.h>
 #include <wx/valgen.h>
@@ -279,6 +280,18 @@ class NewProjectDialog final : public wxDialog
     void OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEvent&);
     void OnExcludedFileButtonClick([[maybe_unused]] wxCommandEvent&);
     void OnOK([[maybe_unused]] wxCommandEvent&);
+
+    void OnHelpClicked([[maybe_unused]] wxCommandEvent& event)
+        {
+        wxLaunchDefaultApplication(wxStandardPaths::Get().GetResourcesDir() +
+                                   wxFileName::GetPathSeparator() + L"cuneiform.pdf");
+        }
+
+    void OnContextHelp([[maybe_unused]] wxHelpEvent& event)
+        {
+        wxCommandEvent cmd;
+        OnHelpClicked(cmd);
+        }
 
     constexpr static int ID_FOLDER_BROWSE_BUTTON = wxID_HIGHEST;
     constexpr static int ID_FILE_BROWSE_BUTTON = wxID_HIGHEST + 1;
