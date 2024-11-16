@@ -48,6 +48,7 @@ An exception is made for strings that end with a colon followed by a space (": "
 It is assumed that this part of tabular data being concatenated and will be ignored.
 :::
 
+**Check for ambiguous strings that lack a translator comment**: select this to check for possibly ambiguous strings that lack a translator comment.
 
 **Deprecated macros and functions**: select this to check for deprecated text macros and functions.
 This will detect the usage of functions that are no longer relevant, and provide a suggested replacement.

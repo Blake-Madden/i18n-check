@@ -347,6 +347,7 @@ namespace i18n_check
                                                                                L"")
                 << ((m_cpp->get_style() & check_accelerators) ? L"acceleratorMismatch\n" : L"")
                 << ((m_cpp->get_style() & check_consistency) ? L"transInconsistency\n" : L"")
+                << ((m_cpp->get_style() & check_missing_context) ? L"missingContext\n" : L"")
                 << ((m_cpp->get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
                 << ((m_cpp->get_style() & check_l10n_has_surrounding_spaces) ?
                         L"spacesAroundL10NString\n" :
@@ -487,7 +488,7 @@ namespace i18n_check
                     report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
                            << issue.second << L"\t"
                            << _(L"Mismatching trailing punctuation, spaces, or newlines between "
-                                 "source and translation strings.")
+                                "source and translation strings.")
                            << "\t[transInconsistency]\n";
                     }
                 }
@@ -512,13 +513,13 @@ namespace i18n_check
                          i18n_review::string_info::usage_info::usage_type::variable)
                     {
                     report << _(L"String available for translation that probably "
-                                 "should not be assigned to variable: ")
+                                "should not be assigned to variable: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 else
                     {
                     report << _(L"String available for translation that probably "
-                                 "should not be within: ")
+                                "should not be within: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 report << L"[suspectL10NString]\n";
@@ -545,24 +546,30 @@ namespace i18n_check
                 else
                     {
                     report << _(L"String available for translation that contains an "
-                                 "URL or email address within: ")
+                                "URL or email address within: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 report << L"[urlInL10NString]\n";
+                }
+
+            for (const auto& val : sourceParser->get_localizable_strings_ambiguos_missing_context())
+                {
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
+                report << _(L"Ambiguous string available for translation that is "
+                            "lacking a translator comment.")
+                       << L"\t";
+                report << L"[missingContext]\n";
                 }
 
             for (const auto& val : sourceParser->get_localizable_strings_with_surrounding_spaces())
                 {
                 report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
                        << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t";
-                if (val.m_usage.m_type ==
-                    i18n_review::string_info::usage_info::usage_type::function)
-                    {
-                    report << _(L"String available for translation that is surrounded by spaces. "
-                                "This string may be getting concatenated at runtime instead of "
-                                "using a formatting function.")
-                           << L"\t";
-                    }
+                report << _(L"String available for translation that is surrounded by spaces. "
+                            "This string may be getting concatenated at runtime instead of "
+                            "using a formatting function.")
+                       << L"\t";
                 report << L"[spacesAroundL10NString]\n";
                 }
 
@@ -574,7 +581,7 @@ namespace i18n_check
                     i18n_review::string_info::usage_info::usage_type::function)
                     {
                     report << _(L"Localizable string being used within non-user"
-                                 " facing function call: ")
+                                " facing function call: ")
                            << val.m_usage.m_value << L"\t";
                     }
                 else if (val.m_usage.m_type ==

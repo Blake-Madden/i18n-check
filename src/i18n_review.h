@@ -117,8 +117,8 @@ namespace i18n_check
         ///     another value, rather than being format via a `printf` function.
         /// @note This only checks for the space character, not tabs or newlines.
         check_l10n_has_surrounding_spaces = (static_cast<int64_t>(1) << 13),
-        /// @private
-        i18n_reserved2 = (static_cast<int64_t>(1) << 14),
+        /// @brief Check for ambiguous source strings that are lacking contextual information.
+        check_missing_context = (static_cast<int64_t>(1) << 14),
         /// @private
         i18n_reserved3 = (static_cast<int64_t>(1) << 15),
         /// @private
@@ -301,6 +301,14 @@ namespace i18n_check
                     }
 
                 /// @private
+                usage_info(const usage_type& type, std::wstring val, std::wstring varType,
+                           bool hasContext)
+                    : m_type(type), m_value(std::move(val)), m_variableType(std::move(varType)),
+                      m_hasContext(hasContext)
+                    {
+                    }
+
+                /// @private
                 explicit usage_info(std::wstring val) : m_value(std::move(val)) {}
 
                 /// @private
@@ -309,6 +317,8 @@ namespace i18n_check
                 std::wstring m_value;
                 /// @private
                 std::wstring m_variableType;
+                /// @private
+                bool m_hasContext{ false };
                 };
 
             /** @brief Constructor.
@@ -475,6 +485,15 @@ namespace i18n_check
         const std::vector<string_info>& get_localizable_strings_with_urls() const noexcept
             {
             return m_localizable_strings_with_urls;
+            }
+
+        /// @returns The strings that are being extracted as localizable,
+        ///     but are ambiguous and lack a translator comment.
+        [[nodiscard]]
+        const std::vector<string_info>&
+        get_localizable_strings_ambiguos_missing_context() const noexcept
+            {
+            return m_localizable_strings_ambiguous_missing_context;
             }
 
         /// @returns The strings that are being extracted as localizable,
@@ -753,6 +772,10 @@ namespace i18n_check
         /// @param commentBlock The comment to review (should be after the starting comment tag).
         static std::pair<bool, size_t> is_block_suppressed(std::wstring_view commentBlock);
 
+        /// @returns @c true if a strings starts with a translator attention strings.
+        /// @param commentBlock The comment to review (should be after the starting comment tag).
+        static bool is_translator_comment(std::wstring_view commentBlock);
+
         // traditionally, 80 chars is the recommended line width,
         // but 120 is a bit more reasonable
         constexpr static auto m_max_line_length{ 120 };
@@ -774,7 +797,7 @@ namespace i18n_check
         ///     (Not tabs or newlines, but actual spaces.)
         /// @param str The string to review.
         [[nodiscard]]
-        static bool has_surrounding_spaces(const std::wstring& str)
+        static bool has_surrounding_spaces(std::wstring_view str)
             {
             if (str.starts_with(L' '))
                 {
@@ -788,6 +811,12 @@ namespace i18n_check
                 }
             return false;
             }
+
+        /// @returns @c true if a string could be confusing for translators if
+        ///     no context is provided.
+        /// @param str The string to review.
+        [[nodiscard]]
+        static bool is_string_ambiguous(std::wstring_view str);
 
         /** @brief Processes a quote after its positions and respective
                 function/variable assignment has been found.
@@ -822,22 +851,35 @@ namespace i18n_check
         /// @note This assumes that the functions trailing parentheses and template
         ///     specifications have already been removed.
         [[nodiscard]]
-        std::wstring_view extract_base_function(const std::wstring_view str) const;
+        std::wstring_view extract_base_function(std::wstring_view str) const;
 
         /// @returns @c true if a function name is a translation extraction function.
         /// @param functionName The function name to review.
         [[nodiscard]]
-        bool is_i18n_function(const std::wstring_view functionName) const
+        bool is_i18n_function(std::wstring_view functionName) const
             {
             return m_localization_functions.find(functionName) != m_localization_functions.cend() ||
                    m_localization_functions.find(extract_base_function(functionName)) !=
                        m_localization_functions.cend();
             }
 
+        /// @returns @c true if a function name is a translation extraction function that takes an
+        /// argument
+        ///     for providing a context for the source string.
+        /// @param functionName The function name to review.
+        [[nodiscard]]
+        bool is_i18n_with_context_function(std::wstring_view functionName) const
+            {
+            return m_localization_with_context_functions.find(functionName) !=
+                       m_localization_with_context_functions.cend() ||
+                   m_localization_with_context_functions.find(extract_base_function(
+                       functionName)) != m_localization_with_context_functions.cend();
+            }
+
         /// @returns @c true if a function name is a translation noop function.
         /// @param functionName The function name to review.
         [[nodiscard]]
-        bool is_non_i18n_function(const std::wstring_view& functionName) const
+        bool is_non_i18n_function(std::wstring_view functionName) const
             {
             return m_non_localizable_functions.find(functionName) !=
                        m_non_localizable_functions.cend() ||
@@ -850,7 +892,7 @@ namespace i18n_check
         ///     not intrinsic types (e.g., float, int).
         /// @param str The string to review.
         [[nodiscard]]
-        bool is_keyword(const std::wstring& str) const
+        bool is_keyword(std::wstring_view str) const
             {
             return m_keywords.find(str) != m_keywords.cend();
             }
@@ -868,7 +910,7 @@ namespace i18n_check
 
              https://learn.microsoft.com/en-us/cpp/c-runtime-library/printf-p-positional-parameters?view=msvc-170*/
         [[nodiscard]]
-        static std::vector<std::wstring> load_cpp_printf_commands(const std::wstring& resource,
+        static std::vector<std::wstring> load_cpp_printf_commands(std::wstring_view resource,
                                                                   std::wstring& errorInfo);
 
         /** @brief Logs a debug message.
@@ -1035,6 +1077,7 @@ namespace i18n_check
 
         // once these are set (by our CTOR and/or by client), they shouldn't be reset
         std::set<std::wstring_view> m_localization_functions;
+        std::set<std::wstring_view> m_localization_with_context_functions;
         std::set<std::wstring_view> m_non_localizable_functions;
         std::set<std::wstring_view> m_internal_functions;
         std::set<std::wstring_view> m_log_functions;
@@ -1058,6 +1101,7 @@ namespace i18n_check
         // results that are probably issues
         std::vector<string_info> m_unsafe_localizable_strings;
         std::vector<string_info> m_localizable_strings_with_urls;
+        std::vector<string_info> m_localizable_strings_ambiguous_missing_context;
         std::vector<string_info> m_localizable_strings_in_internal_call;
         std::vector<string_info> m_localizable_strings_with_surrounding_spaces;
         std::vector<string_info> m_not_available_for_localization_strings;
@@ -1071,6 +1115,8 @@ namespace i18n_check
         std::vector<string_info> m_tabs;
         std::vector<string_info> m_wide_lines;
         std::vector<string_info> m_comments_missing_space;
+
+        bool m_contextCommentActive{ false };
 
         std::filesystem::path m_file_name;
 

@@ -30,6 +30,32 @@ An exception is made for strings ending with ": "; here, it is assumed that this
 piecing a message together.
 :::
 
+- `missingContext`
+
+Check for ambiguous strings that lack a translator comment.
+
+Translator comments can be added to *gettext* functions by either inserting a tagged comment in front of them or by using
+a variant with a context parameter (e.g., `wxTRANSLATE_IN_CONTEXT()`). For example:
+
+``` {.cpp}
+ListFiles(wxString::Format(
+        /* TRANSLATORS: %s is folder name */ _(L"Searching %s"),
+        get_selected_dir()));
+```
+
+By default, *gettext* will extract comments beginning with "TRANSLATORS:" in front of a resource function as
+a comment for the translator.
+
+Strings are considered to be ambiguous if they meet any of the following criteria:
+
+- A single word that contains 32 characters or more
+- A single word that is uppercased (e.g., "FACTOR_VAR")
+  - Punctuation is ignored for this check
+- A single word that contains more than one punctuation mark (e.g., "$Print$")
+  - Note that hyphens, slashes, and ampersands are ignored for this check
+- Contains three or more `printf` commands
+- Contains at least one `printf` command and is less than 16 characters
+
 - `notL10NAvailable`
 
 Check for strings not exposed for translation.

@@ -644,6 +644,14 @@ namespace i18n_check
             L"_WXTRANS_WSTR"
         };
 
+        m_localization_with_context_functions = {
+            _DT(L"translate"), L"QApplication::translate", L"QApplication::tr",
+            L"QApplication::trUtf8", L"QCoreApplication::translate", L"QCoreApplication::tr",
+            L"QCoreApplication::trUtf8", L"tr", L"trUtf8", L"QT_TRANSLATE_NOOP",
+            L"wxTRANSLATE_IN_CONTEXT", L"wxGETTEXT_IN_CONTEXT_PLURAL", L"wxGETTEXT_IN_CONTEXT",
+            L"wxGetTranslation"
+        };
+
         // functions that indicate that a string is explicitly marked to not be translatable
         m_non_localizable_functions = {
             L"_DT", L"DONTTRANSLATE",
@@ -874,6 +882,21 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
+    bool i18n_review::is_translator_comment(std::wstring_view commentBlock)
+        {
+        const std::wstring_view translatorKey{ _DT(L"TRANSLATORS:") };
+
+        const size_t firstNonSpace = commentBlock.find_first_not_of(L" \t\n\r");
+        if (firstNonSpace == std::wstring_view::npos)
+            {
+            return false;
+            }
+        commentBlock.remove_prefix(firstNonSpace);
+        return (commentBlock.length() > translatorKey.length() &&
+                commentBlock.compare(0, translatorKey.length(), translatorKey) == 0);
+        }
+
+    //--------------------------------------------------
     std::pair<bool, size_t> i18n_review::is_block_suppressed(std::wstring_view commentBlock)
         {
         const std::wstring_view SUPPRESS_BEGIN{ L"cuneiform-suppress-begin" };
@@ -920,6 +943,11 @@ namespace i18n_check
                 {
                 m_localizable_strings_with_urls.push_back(str);
                 }
+            if ((m_reviewStyles & check_missing_context) && !str.m_usage.m_hasContext &&
+                is_string_ambiguous(str.m_string))
+                {
+                m_localizable_strings_ambiguous_missing_context.push_back(str);
+                }
 #if __cplusplus >= 202002L
             if ((m_reviewStyles & check_l10n_has_surrounding_spaces) &&
                 has_surrounding_spaces(str.m_string))
@@ -949,6 +977,7 @@ namespace i18n_check
             classifyMalformedStrings(m_not_available_for_localization_strings);
             classifyMalformedStrings(m_unsafe_localizable_strings);
             classifyMalformedStrings(m_localizable_strings_with_urls);
+            classifyMalformedStrings(m_localizable_strings_ambiguous_missing_context);
             classifyMalformedStrings(m_localizable_strings_in_internal_call);
             classifyMalformedStrings(m_localizable_strings_with_surrounding_spaces);
             }
@@ -976,6 +1005,7 @@ namespace i18n_check
             classifyUnencodedStrings(m_not_available_for_localization_strings);
             classifyUnencodedStrings(m_unsafe_localizable_strings);
             classifyUnencodedStrings(m_localizable_strings_with_urls);
+            classifyUnencodedStrings(m_localizable_strings_ambiguous_missing_context);
             classifyUnencodedStrings(m_localizable_strings_in_internal_call);
             classifyUnencodedStrings(m_localizable_strings_with_surrounding_spaces);
             }
@@ -1032,7 +1062,7 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    std::wstring_view i18n_review::extract_base_function(const std::wstring_view str) const
+    std::wstring_view i18n_review::extract_base_function(std::wstring_view str) const
         {
         if (str.empty() || !is_valid_name_char(str.back()))
             {
@@ -1311,6 +1341,71 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
+    bool i18n_review::is_string_ambiguous(std::wstring_view str)
+        {
+        static std::set<std::wstring_view> common_acronyms = { L"N/A", L"OK", L"ASCII", L"CD-ROM",
+                                                               L"DVD" };
+        // Just one word?
+        if (str.find_first_of(L" \t\n\r") == std::wstring::npos)
+            {
+            // this is probably some sort of complex syntactical string
+            // if it's abnormally long and has no spaces
+            if (str.length() >= 32)
+                {
+                return true;
+                }
+            // Single word with multiple punctuations marks?
+            // (Slashes and hyphens are ignored though, as that can be part of a compound word.)
+            if (str.ends_with(L"..."))
+                {
+                str.remove_suffix(3);
+                }
+            if (str.ends_with(L"(s)"))
+                {
+                str.remove_suffix(3);
+                }
+            if (str.starts_with(L"&"))
+                {
+                str.remove_prefix(1);
+                }
+            // some acronymys are self explanatory, so ignore them
+            if (common_acronyms.find(str) != common_acronyms.cend())
+                {
+                return false;
+                }
+            const size_t punctCount = std::count_if(str.cbegin(), str.cend(),
+                                                    [](const auto chr) {
+                                                        return std::iswpunct(chr) && chr != L'-' &&
+                                                               chr != L'/' && chr != L'\\' &&
+                                                               chr != L'&';
+                                                    });
+            if (punctCount > 1)
+                {
+                return true;
+                }
+            // All CAPS and/or punctuation?
+            const size_t cappedOrPunctCount =
+                std::count_if(str.cbegin(), str.cend(), [](const auto chr)
+                              { return std::iswupper(chr) || std::iswpunct(chr); });
+            if (cappedOrPunctCount == str.length())
+                {
+                return true;
+                }
+
+            return false;
+            }
+        // String with many printf commands or a short string with at least one?
+        // That could use a context also.
+        std::wstring errorInfo;
+        const auto printfCmds = load_cpp_printf_commands(str, errorInfo);
+        if (printfCmds.size() >= 3 || (!printfCmds.empty() && str.length() < 16))
+            {
+            return true;
+            }
+        return false;
+        }
+
+    //--------------------------------------------------
     void i18n_review::process_quote(wchar_t* currentTextPos, const wchar_t* quoteEnd,
                                     const wchar_t* functionVarNamePos,
                                     const std::wstring& variableName,
@@ -1382,7 +1477,9 @@ namespace i18n_check
                     m_localizable_strings.emplace_back(
                         std::wstring(currentTextPos, quoteEnd - currentTextPos),
                         string_info::usage_info(string_info::usage_info::usage_type::function,
-                                                functionName, std::wstring{}),
+                                                functionName, std::wstring{},
+                                                (is_i18n_with_context_function(functionName) ||
+                                                    m_contextCommentActive)),
                         m_file_name, get_line_and_column(currentTextPos - m_file_start));
 
                     assert(functionVarNamePos);
@@ -1622,6 +1719,7 @@ namespace i18n_check
         {
         m_localizable_strings.clear();
         m_localizable_strings_with_urls.clear();
+        m_localizable_strings_ambiguous_missing_context.clear();
         m_localizable_strings_in_internal_call.clear();
         m_localizable_strings_with_surrounding_spaces.clear();
         m_not_available_for_localization_strings.clear();
@@ -1867,8 +1965,7 @@ namespace i18n_check
         {
         const auto processStrings = [this](auto& strings)
         {
-            std::for_each(strings.begin(), strings.end(),
-                          [this](auto& val)
+            std::for_each(strings.begin(), strings.end(), [this](auto& val)
                           { val.m_string = i18n_review::collapse_multipart_string(val.m_string); });
         };
         processStrings(m_localizable_strings);
@@ -2359,15 +2456,15 @@ namespace i18n_check
         }
 
     //------------------------------------------------
-    std::vector<std::wstring> i18n_review::load_cpp_printf_commands(const std::wstring& resource,
+    std::vector<std::wstring> i18n_review::load_cpp_printf_commands(std::wstring_view resource,
                                                                     std::wstring& errorInfo)
         {
         std::vector<std::pair<size_t, std::wstring>> results;
 
         // we need to do this multipass because a single regex command for all printf
         // commands is too complex and will cause the regex library to randomly throw exceptions
-        std::wstring::const_iterator searchStart(resource.cbegin());
-        std::wsmatch res;
+        std::wstring_view::const_iterator searchStart(resource.cbegin());
+        std::match_results<std::wstring_view::const_iterator> res;
         size_t commandPosition{ 0 };
         size_t previousLength{ 0 };
         while (std::regex_search(searchStart, resource.cend(), res, m_printf_cpp_int_regex))

@@ -42,11 +42,16 @@ namespace i18n_check
                 // see if a block comment (/*comment*/)
                 if (*std::next(cppText) == L'*')
                     {
+                    m_contextCommentActive = is_translator_comment(
+                        { std::next(cppText, 2),
+                          static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
+
                     const auto [isSuppressed, suppresionEnd] = i18n_review::is_block_suppressed(
                         { std::next(cppText, 2),
                           static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
                     if (isSuppressed)
                         {
+                        m_contextCommentActive = false;
                         clear_section(
                             cppText, std::next(cppText, static_cast<ptrdiff_t>(suppresionEnd + 2)));
                         std::advance(cppText, suppresionEnd);
@@ -66,15 +71,36 @@ namespace i18n_check
                         {
                         return;
                         }
+                    // move to next character
+                    while (std::next(cppText) < endSentinel && std::iswspace(*cppText))
+                        {
+                        std::advance(cppText, 1);
+                        }
+                    // look ahead and see if next function is a translation function
+                    // if we have a translator comment to connect to it
+                    if (m_contextCommentActive)
+                        {
+                        const wchar_t* openingParen = std::wcschr(cppText, L'(');
+                        if (openingParen != nullptr && openingParen < endSentinel)
+                            {
+                            m_contextCommentActive = is_i18n_function(
+                                { cppText, static_cast<size_t>(openingParen - cppText) });
+                            }
+                        }
                     }
                 // or a single line comment
                 else if (*std::next(cppText) == L'/' && std::next(cppText, 2) < endSentinel)
                     {
+                    m_contextCommentActive = is_translator_comment(
+                        { std::next(cppText, 2),
+                          static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
+
                     const auto [isSuppressed, suppresionEnd] = i18n_review::is_block_suppressed(
                         { std::next(cppText, 2),
                           static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
                     if (isSuppressed)
                         {
+                        m_contextCommentActive = false;
                         clear_section(
                             cppText, std::next(cppText, static_cast<ptrdiff_t>(suppresionEnd + 2)));
                         std::advance(cppText, suppresionEnd);
@@ -91,6 +117,22 @@ namespace i18n_check
                         }
                     clear_section(cppText, std::next(cppText, static_cast<ptrdiff_t>(endPos)));
                     std::advance(cppText, endPos);
+                    // move to next character
+                    while (std::next(cppText) < endSentinel && std::iswspace(*cppText))
+                        {
+                        std::advance(cppText, 1);
+                        }
+                    // look ahead and see if next function is a translation function
+                    // if we have a translator comment to connect to it
+                    if (m_contextCommentActive)
+                        {
+                        const wchar_t* openingParen = std::wcschr(cppText, L'(');
+                        if (openingParen != nullptr && openingParen < endSentinel)
+                            {
+                            m_contextCommentActive = is_i18n_function(
+                                { cppText, static_cast<size_t>(openingParen - cppText) });
+                            }
+                        }
                     }
                 // not a comment
                 else

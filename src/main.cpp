@@ -221,6 +221,10 @@ int main(int argc, char* argv[])
                 {
                 rs |= i18n_check::review_style::check_consistency;
                 }
+            else if (r == "missingContext")
+                {
+                rs |= i18n_check::review_style::check_missing_context;
+                }
             else if (r == "urlInL10NString")
                 {
                 rs |= i18n_check::review_style::check_l10n_contains_url;
@@ -336,6 +340,10 @@ int main(int argc, char* argv[])
             else if (r == "transInconsistency")
                 {
                 rs = rs & ~i18n_check::review_style::check_consistency;
+                }
+            else if (r == "missingContext")
+                {
+                rs = rs & ~i18n_check::review_style::check_missing_context;
                 }
             else if (r == "urlInL10NString")
                 {
