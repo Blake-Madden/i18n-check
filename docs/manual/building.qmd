@@ -43,7 +43,7 @@ cmake --build . --target install -j $(nproc) --config Release
 
 # go back into the project folder and build the GUI version
 cd ..
-cd i18n-check/gui
+cd Cuneiform/gui
 cmake . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target all -j $(nproc) --config Release
 ```
