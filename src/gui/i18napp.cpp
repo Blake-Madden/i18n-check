@@ -775,8 +775,21 @@ void I18NFrame::OnSettings([[maybe_unused]] wxCommandEvent&)
 //------------------------------------------------------
 void I18NFrame::OnHelp([[maybe_unused]] wxCommandEvent&)
     {
-    wxLaunchDefaultApplication(wxStandardPaths::Get().GetResourcesDir() +
-                               wxFileName::GetPathSeparator() + L"cuneiform.pdf");
+    const wxString docPath = []()
+        {
+        if (wxFile::Exists(wxStandardPaths::Get().GetResourcesDir() +
+                               wxFileName::GetPathSeparator() + L"cuneiform.pdf"))
+            {
+            return wxStandardPaths::Get().GetResourcesDir() +
+                               wxFileName::GetPathSeparator() + L"cuneiform.pdf";
+            }
+        return wxFileName{ wxStandardPaths::Get().GetExecutablePath() }.GetPath() +
+                           wxFileName::GetPathSeparator() + L"cuneiform.pdf";
+        }();
+    if (wxFile::Exists(docPath))
+        {
+        wxLaunchDefaultApplication(docPath);
+        }
     }
 
 //------------------------------------------------------

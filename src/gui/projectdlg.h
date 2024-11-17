@@ -283,8 +283,21 @@ class NewProjectDialog final : public wxDialog
 
     void OnHelpClicked([[maybe_unused]] wxCommandEvent& event)
         {
-        wxLaunchDefaultApplication(wxStandardPaths::Get().GetResourcesDir() +
-                                   wxFileName::GetPathSeparator() + L"cuneiform.pdf");
+        const wxString docPath = []()
+            {
+            if (wxFile::Exists(wxStandardPaths::Get().GetResourcesDir() +
+                                wxFileName::GetPathSeparator() + L"cuneiform.pdf"))
+                {
+                return wxStandardPaths::Get().GetResourcesDir() +
+                                wxFileName::GetPathSeparator() + L"cuneiform.pdf";
+                }
+            return wxFileName{ wxStandardPaths::Get().GetExecutablePath() }.GetPath() +
+                            wxFileName::GetPathSeparator() + L"cuneiform.pdf";
+            }();
+        if (wxFile::Exists(docPath))
+            {
+            wxLaunchDefaultApplication(docPath);
+            }
         }
 
     void OnContextHelp([[maybe_unused]] wxHelpEvent& event)
