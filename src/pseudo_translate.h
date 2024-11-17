@@ -87,7 +87,6 @@ namespace i18n_check
 
       private:
         static const std::map<wchar_t, wchar_t> m_euro_char_map;
-        static size_t find_po_msg_end(const std::wstring& poFileText, const size_t startPos);
         std::wstring mutate_message(const std::wstring& msg) const;
         pseudo_translation_method m_trans_type{ pseudo_translation_method::all_caps };
         bool m_add_surrounding_brackets{ false };

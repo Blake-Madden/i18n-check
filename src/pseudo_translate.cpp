@@ -50,7 +50,6 @@ namespace i18n_check
 
         std::wstring_view fileContent{ poFileText };
 
-        std::wsmatch res;
         size_t currentPosition{ 0 };
 
         // find the first blank line so that we can skip over the header section
@@ -385,49 +384,5 @@ namespace i18n_check
             }
 
         return newMsg;
-        }
-
-    //------------------------------------------------
-    size_t pseudo_translater::find_po_msg_end(const std::wstring& poFileText, const size_t startPos)
-        {
-        size_t idEndPos{ startPos };
-        while (true)
-            {
-            idEndPos = poFileText.find(L'\"', idEndPos);
-            if (idEndPos == std::wstring_view::npos)
-                {
-                return std::wstring_view::npos;
-                }
-            // skip escaped quotes
-            if (idEndPos > 0 && poFileText[idEndPos - 1] == L'\\')
-                {
-                ++idEndPos;
-                continue;
-                }
-            else
-                {
-                size_t lookAheadIndex{ idEndPos + 1 };
-                // jump to next line
-                while (lookAheadIndex < poFileText.length() &&
-                       string_util::is_either(poFileText[lookAheadIndex], L'\r', L'\n'))
-                    {
-                    ++lookAheadIndex;
-                    }
-                // eat up leading spaces
-                while (lookAheadIndex < poFileText.length() &&
-                       string_util::is_either(poFileText[lookAheadIndex], L'\t', L' '))
-                    {
-                    ++lookAheadIndex;
-                    }
-                // if a quote, then this is still be part of the same string
-                if (lookAheadIndex < poFileText.length() && poFileText[lookAheadIndex] == L'"')
-                    {
-                    idEndPos = lookAheadIndex + 1;
-                    continue;
-                    }
-                break;
-                }
-            }
-        return idEndPos;
         }
     } // namespace i18n_check
