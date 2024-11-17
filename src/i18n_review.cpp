@@ -501,6 +501,9 @@ namespace i18n_check
                 LR"(^#(include|define|if|ifdef|ifndef|endif|elif|pragma|warning)[[:space:]].*)"),
             // C++
             std::wregex(LR"([a-zA-Z0-9_]+([-][>]|::)[a-zA-Z0-9_]+([(][)];)?)"),
+            // registry keys
+            std::wregex(LR"(SOFTWARE[\\]{1,2}(Policies|Microsoft))"),
+            std::wregex(LR"(HKEY_.*)"),
             // XML elements
             std::wregex(LR"(version[ ]?=\\"[0-9\.]+\\")"),
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
