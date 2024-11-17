@@ -121,7 +121,7 @@ namespace i18n_check
         size_t currentFileIndex{ 0 };
 
         const auto outputFile =
-            [this](const std::filesystem::path filePath, const std::wstring content)
+            [this](const std::filesystem::path filePath, const std::wstring& content)
         {
             std::u32string outBuffer;
             outBuffer.reserve(content.size());

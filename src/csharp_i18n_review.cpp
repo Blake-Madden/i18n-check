@@ -45,9 +45,8 @@ namespace i18n_check
             else
                 {
                 std::advance(text, 1);
-                // next character after the stepped-over quote is not a quote or we are at the
-                // end of the stream, so return
-                if (*text == 0 || *text != '\"')
+                // next character after the stepped-over quote is not a quote, so return
+                if (*text != '\"')
                     {
                     return std::prev(text);
                     }

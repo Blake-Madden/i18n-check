@@ -702,6 +702,7 @@ namespace i18n_check
             L"deprecated", L"nodiscard", L"_Pragma",
             // assert functions
             L"check_assertion", L"static_assert", L"assert", L"Assert", L"__android_log_assert",
+            L"Assert.True",
             // wxWidgets functions and macros
             L"wxDEPRECATED_MSG", L"wxSTC_DEPRECATED_MACRO_VALUE", L"wxPG_DEPRECATED_MACRO_VALUE",
             L"GetExt", L"SetExt", L"XRCID", L"wxSystemOptions::GetOptionInt", L"WXTRACE",
@@ -819,12 +820,14 @@ namespace i18n_check
             // actual console (or file) functions
             // (we will consider that most console apps are not localized, or if being used
             //  in a GUI then the message is meant for developers)
-            L"printf", L"Console.WriteLine", L"dprintf",
+            L"printf", L"Console.WriteLine", L"dprintf", L"WriteLine",
             // .NET
             L"LoggerMessage", L"JITDUMP", L"LOG", L"LogSpew", L"LOG_HANDLE_OBJECT_CLASS",
-            L"LOG_HANDLE_OBJECT", L"CorDisToolsLogERROR",
+            L"LOG_HANDLE_OBJECT", L"CorDisToolsLogERROR", L"LOG_ERROR", L"LOG_INFO",
+            L"Log.LogError", L"Log.LogMessage", L"LogAsErrorException", L"LogError",
+            L"LogMessage", L"LogVerbose",
             // other programs
-            L"log_message", L"outLog"
+            L"log_message", L"outLog", L"Error"
         };
 
         m_exceptions = {
@@ -840,7 +843,8 @@ namespace i18n_check
             L"QException",
             // .NET
             L"NotImplementedException", L"ArgumentException", L"InvalidOperationException",
-            L"OptionException", L"NotSupportedException", L"Exception"
+            L"OptionException", L"NotSupportedException", L"Exception",
+            L"BadImageFormatException",
         };
 
         // known strings to ignore
