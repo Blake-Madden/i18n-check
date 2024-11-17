@@ -209,7 +209,7 @@ namespace i18n_check
                     ++i;
                     continue;
                     }
-                else if (msg[i] == L'\\' && i < (msg.length() - 1) &&
+                else if (i < (msg.length() - 1) && msg[i] == L'\\' &&
                          (msg[i + 1] == L'r' || msg[i + 1] == L'n' || msg[i + 1] == L't'))
                     {
                     i += 2;
