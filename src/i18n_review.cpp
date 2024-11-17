@@ -979,11 +979,6 @@ namespace i18n_check
             classifyMalformedStrings(m_marked_as_non_localizable_strings);
             classifyMalformedStrings(m_internal_strings);
             classifyMalformedStrings(m_not_available_for_localization_strings);
-            classifyMalformedStrings(m_unsafe_localizable_strings);
-            classifyMalformedStrings(m_localizable_strings_with_urls);
-            classifyMalformedStrings(m_localizable_strings_ambiguous_needing_context);
-            classifyMalformedStrings(m_localizable_strings_in_internal_call);
-            classifyMalformedStrings(m_localizable_strings_with_surrounding_spaces);
             }
 
         if (m_reviewStyles & check_unencoded_ext_ascii)
@@ -1007,11 +1002,6 @@ namespace i18n_check
             classifyUnencodedStrings(m_marked_as_non_localizable_strings);
             classifyUnencodedStrings(m_internal_strings);
             classifyUnencodedStrings(m_not_available_for_localization_strings);
-            classifyUnencodedStrings(m_unsafe_localizable_strings);
-            classifyUnencodedStrings(m_localizable_strings_with_urls);
-            classifyUnencodedStrings(m_localizable_strings_ambiguous_needing_context);
-            classifyUnencodedStrings(m_localizable_strings_in_internal_call);
-            classifyUnencodedStrings(m_localizable_strings_with_surrounding_spaces);
             }
 
         if (m_reviewStyles & check_printf_single_number)
