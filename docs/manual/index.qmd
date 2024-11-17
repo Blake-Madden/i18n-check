@@ -101,7 +101,7 @@ with mutations of their respective source strings.
 These files (which will have a "pseudo\_" prefix) can then be compiled and loaded by your application for integration testing.
 
 ::: {.notesection data-latex=""}
-After processing a folder, the **Log** tab of the bottom window will display a list of all pseudo-translated resource files that were generated.
+After processing a folder, the **Analysis Log** tab of the bottom window will display a list of all pseudo-translated resource files that were generated.
 :::
 
 [^1]: Strings are considered translatable if inside of [gettext](https://www.gnu.org/software/gettext/),

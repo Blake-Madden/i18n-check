@@ -209,6 +209,8 @@ namespace i18n_check
                 }
             catch (const std::exception& expt)
                 {
+                m_logReport.append(i18n_string_util::lazy_string_to_wstring(expt.what()))
+                    .append(L"\n");
                 std::wcout << i18n_string_util::lazy_string_to_wstring(expt.what()) << L"\n";
                 }
             }
@@ -322,13 +324,23 @@ namespace i18n_check
                 }
             catch (const std::exception& expt)
                 {
+                m_logReport.append(i18n_string_util::lazy_string_to_wstring(expt.what()))
+                    .append(L"\n");
                 std::wcout << i18n_string_util::lazy_string_to_wstring(expt.what()) << L"\n";
                 }
             }
 
         // analyze the content
-        m_cpp->review_strings(resetCallback, callback);
-        m_po->review_strings(resetCallback, callback);
+        try
+            {
+            m_cpp->review_strings(resetCallback, callback);
+            m_po->review_strings(resetCallback, callback);
+            }
+        catch (const std::exception& expt)
+            {
+            m_logReport.append(i18n_string_util::lazy_string_to_wstring(expt.what())).append(L"\n");
+            std::wcout << i18n_string_util::lazy_string_to_wstring(expt.what()) << L"\n";
+            }
         }
 
     //------------------------------------------------------
@@ -347,7 +359,8 @@ namespace i18n_check
                                                                                L"")
                 << ((m_cpp->get_style() & check_accelerators) ? L"acceleratorMismatch\n" : L"")
                 << ((m_cpp->get_style() & check_consistency) ? L"transInconsistency\n" : L"")
-                << ((m_cpp->get_style() & check_needing_context) ? L"L10NStringNeedsContext\n" : L"")
+                << ((m_cpp->get_style() & check_needing_context) ? L"L10NStringNeedsContext\n" :
+                                                                   L"")
                 << ((m_cpp->get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
                 << ((m_cpp->get_style() & check_l10n_has_surrounding_spaces) ?
                         L"spacesAroundL10NString\n" :
@@ -493,11 +506,12 @@ namespace i18n_check
                     }
                 else if (issue.first == translation_issue::consistency_issue)
                     {
-                    report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
-                           << issue.second << L"\t"
-                           << _(L"Mismatching first character casing or trailing punctuation, spaces, "
-                                "or newlines between source and translation strings.")
-                           << "\t[transInconsistency]\n";
+                    report
+                        << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t"
+                        << issue.second << L"\t"
+                        << _(L"Mismatching first character casing or trailing punctuation, spaces, "
+                             "or newlines between source and translation strings.")
+                        << "\t[transInconsistency]\n";
                     }
                 }
             }
