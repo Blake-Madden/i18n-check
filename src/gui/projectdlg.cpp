@@ -408,7 +408,7 @@ void NewProjectDialog::CreateControls()
                                                   _(L"Ignore strings assigned to variables named:"),
                                                   wxDefaultPosition, wxSize{ -1, FromDIP(100) });
         gbSizer->Add(m_ignoredVarsList, wxGBPosition(currentRow++, 0), wxGBSpan{ 1, 2 },
-                     wxLEFT | wxEXPAND, wxSizerFlags::GetDefaultBorder() * 3);
+                     wxLEFT, wxSizerFlags::GetDefaultBorder() * 3);
 
         gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
                                     _(L"Translatable strings that shouldn't be"), wxDefaultPosition,
@@ -637,7 +637,7 @@ void NewProjectDialog::CreateControls()
 
             pseudoTransSizer->Add(pseudoWidthSizer, wxSizerFlags{}.Expand().Border());
 
-            poOptionsSizer->Add(gbSizer);
+            poOptionsSizer->Add(gbSizer, wxSizerFlags{}.Expand().Border());
             poOptionsSizer->Add(pseudoTransSizer, wxSizerFlags{}.Expand().Border());
             }
 
@@ -654,7 +654,7 @@ void NewProjectDialog::CreateControls()
                          wxGBPosition(currentRow, 0), wxGBSpan{});
             gbSizer->Add(buildCodeLabel(L"fontIssue", rcOptionsSizer->GetStaticBox()),
                          wxGBPosition(currentRow++, 1), wxGBSpan{});
-            rcOptionsSizer->Add(gbSizer);
+            rcOptionsSizer->Add(gbSizer, wxSizerFlags{}.Expand().Border());
             }
 
         wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);

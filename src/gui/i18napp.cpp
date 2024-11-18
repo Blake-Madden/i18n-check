@@ -328,7 +328,7 @@ void I18NFrame::InitControls()
 
     tabstrip->InsertPage(0, m_editor, _("Edit"));
     tabstrip->InsertPage(1, m_logWindow, _("Analysis Log"), false);
-    tabstrip->SetMinSize(FromDIP(wxSize{ 100, 100 }));
+    tabstrip->SetMinSize(FromDIP(wxSize{ 200, 200 }));
 
     splitter->SplitHorizontally(m_resultsDataView, tabstrip,
                                 FromDIP(-wxGetApp().m_defaultOptions.m_editorHeight));
