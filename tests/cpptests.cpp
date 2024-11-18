@@ -1567,7 +1567,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
 TEST_CASE("CPP Tests 2", "[cpp]")
     {
-    SECTION("Hex color")
+        SECTION("Hex color")
         {
         cpp_i18n_review cpp;
         std::wstring str = L"&	c #437A40";
@@ -1591,8 +1591,28 @@ TEST_CASE("CPP Tests 2", "[cpp]")
         CHECK(cpp.is_untranslatable_string(str = L"<p style=\\\"font-family: %s; font-size: %dpt; color: rgb(%u, %u, %u)\\\">\n", false));
         CHECK(cpp.is_untranslatable_string(str = LR"(<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n<head>\n<meta content=\"text/html; charset=UTF-8\"/>\n<title></title>\n<link href=\"stylesheet.css\" type=\"text/css\" rel=\"stylesheet\" />\n<link rel=\"stylesheet\" type=\"application/vnd.adobe-page-template+xml\" href=\"page-template.xpgt\"/>\n</head>)", false));
         CHECK(cpp.is_untranslatable_string(str = LR"(<br />&nbsp;&nbsp;&nbsp;&nbsp;&ldquo;<span style="font-style:italic;">%s</span>&rdquo;)", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<!-- BEGIN {marker} -->)", false));
         }
 
+    SECTION("Command lines")
+        {
+        cpp_i18n_review cpp;
+        std::wstring str;
+        CHECK(cpp.is_untranslatable_string(str = L"-D HOST_APPLE_MOBILE=1", false));
+        CHECK(cpp.is_untranslatable_string(str = L"-dynamiclib -o {libraryName}", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(--jitpath:\"{jitPath}\")", false));
+        }
+
+    SECTION("Preprocessor")
+        {
+        cpp_i18n_review cpp;
+        std::wstring str;
+        CHECK(cpp.is_untranslatable_string(str = L"#define {resourceDataSymbol}_data_len_val", false));
+        }
+    }
+
+TEST_CASE("CPP Tests 3", "[cpp]")
+    {
     SECTION("Macro variable")
         {
         cpp_i18n_review cpp;

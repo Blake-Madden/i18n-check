@@ -482,6 +482,7 @@ namespace i18n_check
             std::wregex(LR"(<!DOCTYPE html)"),
             // HTML entities
             std::wregex(LR"(&[#]?[xX]?[A-Za-z0-9]+;)"), std::wregex(LR"(<a href=.*)"),
+            // HTML comment
             // CSS
             std::wregex(
                 LR"([\s\S]*(\{[[:space:]]*[a-zA-Z\-]+[[:space:]]*[:][[:space:]]*[0-9a-zA-Z\- \(\);\:%#'",]+[[:space:]]*\})+[\s\S]*)"),
@@ -501,6 +502,11 @@ namespace i18n_check
                 LR"(^#(include|define|if|ifdef|ifndef|endif|elif|pragma|warning)[[:space:]].*)"),
             // C++
             std::wregex(LR"([a-zA-Z0-9_]+([-][>]|::)[a-zA-Z0-9_]+([(][)];)?)"),
+            std::wregex(LR"(#(define|pragma) .*)"),
+            // command lines
+            std::wregex(LR"([-]D [A-Z_]{2,}[ =].*)"),
+            std::wregex(LR"([-]dynamiclib .*)"),
+            std::wregex(LR"([-]{2}[a-z]{2,}[ :].*)"),
             // registry keys
             std::wregex(LR"(SOFTWARE[\\]{1,2}(Policies|Microsoft))"),
             std::wregex(LR"(HKEY_.*)"),
@@ -621,6 +627,7 @@ namespace i18n_check
             std::wregex(LR"((Microsoft )VS Code)"), std::wregex(LR"((Microsoft )?Visual Studio)"),
             std::wregex(LR"((Microsoft )?Visual C\+\+)"),
             std::wregex(LR"((Microsoft )?Visual Basic)"),
+            std::wregex(LR"(GNU gdb debugger)"),
             // culture language tags
             std::wregex(LR"([a-z]{2,3}[\-_][A-Z]{2,3})"),
             // image formats
@@ -720,7 +727,7 @@ namespace i18n_check
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo", L"Platform::DebugPrintf",
             L"wxGetCommandOutput", L"SetKeyWords", L"AddDeveloper", L"AddDocWriter", L"AddArtist",
             L"AddTranslator", L"MarkerSetBackground", L"SetProperty", L"SetAppName",
-            L"SetPrintToFile", L"GetAttribute",
+            L"SetPrintToFile", L"GetAttribute", L"SetAuthor",
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern", L"qmlRegisterUncreatableMetaObject",
             L"addShaderFromSourceCode", L"QStandardPaths::findExecutable", L"QDateTime::fromString",
@@ -792,7 +799,8 @@ namespace i18n_check
             L"FindSystemTimeZoneById", L"CreateSpecificCulture", L"DebuggerDisplay", L"Debug.Fail",
             L"DeriveKey", L"Assert.Fail", L"Debug.Assert", L"Debug.Print", L"Debug.WriteLine",
             L"Debug.Write", L"Debug.WriteIf", L"Debug.WriteLineIf", L"Assert.Equal", L"DEBUGARG",
-            L"noway_assert", L"DISASM_DUMP", L"NO_WAY", L"printfAlloc",
+            L"noway_assert", L"DISASM_DUMP", L"NO_WAY", L"printfAlloc", L"Directory.GetFiles",
+            L"Directory.EnumerateFiles", L"Utils.RunProcess", L"Utils.TryRunProcess",
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // Lua
@@ -847,7 +855,7 @@ namespace i18n_check
             // .NET
             L"NotImplementedException", L"ArgumentException", L"InvalidOperationException",
             L"OptionException", L"NotSupportedException", L"Exception",
-            L"BadImageFormatException",
+            L"BadImageFormatException", L"JsonException"
         };
 
         // known strings to ignore
@@ -1049,11 +1057,11 @@ namespace i18n_check
 
             if (is_untranslatable_string(str.m_string, true))
                 {
-                m_internal_strings.emplace_back(str);
+                m_internal_strings.push_back(str);
                 }
             else
                 {
-                m_not_available_for_localization_strings.emplace_back(str);
+                m_not_available_for_localization_strings.push_back(str);
                 }
             }
         }
