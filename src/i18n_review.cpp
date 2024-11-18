@@ -483,6 +483,7 @@ namespace i18n_check
             // HTML entities
             std::wregex(LR"(&[#]?[xX]?[A-Za-z0-9]+;)"), std::wregex(LR"(<a href=.*)"),
             // HTML comment
+            std::wregex(LR"(<![-]{2,}.*)"),
             // CSS
             std::wregex(
                 LR"([\s\S]*(\{[[:space:]]*[a-zA-Z\-]+[[:space:]]*[:][[:space:]]*[0-9a-zA-Z\- \(\);\:%#'",]+[[:space:]]*\})+[\s\S]*)"),
@@ -1446,7 +1447,7 @@ namespace i18n_check
         if (variableName.length() > 0)
             {
             process_variable(variableType, variableName,
-                             std::wstring(currentTextPos, quoteEnd - currentTextPos),
+                             std::wstring_view{ currentTextPos, static_cast<size_t>(quoteEnd - currentTextPos) },
                              (currentTextPos - m_file_start));
             }
         else if (functionName.length() > 0)
@@ -1621,7 +1622,7 @@ namespace i18n_check
 
     //--------------------------------------------------
     void i18n_review::process_variable(const std::wstring& variableType,
-                                       const std::wstring& variableName, const std::wstring& value,
+                                       const std::wstring& variableName, const std::wstring_view value,
                                        const size_t quotePosition)
         {
 #ifndef NDEBUG
@@ -1653,10 +1654,13 @@ namespace i18n_check
             log_message(variableType, L"New variable type detected.", quotePosition);
             }
 #endif
+        // For large string values, a 1024 substring will suffice for classifying it.
+        // This is more optimal and will prevent memory exhaustion with regex comparisons.
+        std::wstring clippedValue{ value.length() >= 1024 ? value.substr(0, 1024) : value };
         if (get_ignored_variable_types().find(variableType) != get_ignored_variable_types().cend())
             {
             m_internal_strings.emplace_back(
-                value,
+                std::move(clippedValue),
                 string_info::usage_info(string_info::usage_info::usage_type::variable, variableName,
                                         variableType),
                 m_file_name, get_line_and_column(quotePosition));
@@ -1672,7 +1676,7 @@ namespace i18n_check
                     if (std::regex_match(variableName, reg))
                         {
                         m_internal_strings.emplace_back(
-                            value,
+                            std::move(clippedValue),
                             string_info::usage_info(string_info::usage_info::usage_type::variable,
                                                     variableName, variableType),
                             m_file_name, get_line_and_column(quotePosition));
@@ -1684,7 +1688,7 @@ namespace i18n_check
                 if (!matchedInternalVar)
                     {
                     classify_non_localizable_string(string_info(
-                        value,
+                        std::move(clippedValue),
                         string_info::usage_info(string_info::usage_info::usage_type::variable,
                                                 variableName, variableType),
                         m_file_name, get_line_and_column(quotePosition)));
@@ -1695,7 +1699,7 @@ namespace i18n_check
                 log_message(variableName, i18n_string_util::lazy_string_to_wstring(exp.what()),
                             quotePosition);
                 classify_non_localizable_string(string_info(
-                    value,
+                    std::move(clippedValue),
                     string_info::usage_info(string_info::usage_info::usage_type::variable,
                                             variableName, variableType),
                     m_file_name, get_line_and_column(quotePosition)));
@@ -1704,7 +1708,7 @@ namespace i18n_check
         else
             {
             classify_non_localizable_string(
-                string_info(value,
+                string_info(std::move(clippedValue),
                             string_info::usage_info(string_info::usage_info::usage_type::variable,
                                                     variableName, variableType),
                             m_file_name, get_line_and_column(quotePosition)));

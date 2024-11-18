@@ -999,7 +999,7 @@ namespace i18n_check
         /// @param quotePosition The character position of where the
         ///     quote starting @c value begins.
         void process_variable(const std::wstring& variableType, const std::wstring& variableName,
-                              const std::wstring& value, const size_t quotePosition);
+                              const std::wstring_view value, const size_t quotePosition);
 
         /// @brief Fills a block with blanks.
         /// @details Useful for excluding an already processed text block.
