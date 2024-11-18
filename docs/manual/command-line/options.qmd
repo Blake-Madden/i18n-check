@@ -79,7 +79,8 @@ Folder and file paths must be absolute or relative to the folder being analyzed.
 
 ## \-o,\-\-output {-}
 
-The output report path (which will result in a tab-delimited text file).
+The output report path, which can be either a CSV or tab-delimited text file.
+(Format is deteremined by the file extention that you provide.)
 
 Can either be a full path, or a file name within the current working directory.
 

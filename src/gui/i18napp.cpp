@@ -22,6 +22,7 @@ I18NArtProvider::I18NArtProvider()
     // cppcheck-suppress useInitializationList
     m_idFileMap = { { wxART_FILE_OPEN, L"images/file-open.svg" },
                     { wxART_FILE_SAVE, L"images/file-save.svg" },
+                    { L"ID_CSV", L"images/file-csv.svg" },
                     { wxART_NEW, L"images/document.svg" },
                     { wxART_REFRESH, L"images/reload.svg" },
                     { wxART_DELETE, L"images/delete.svg" },
@@ -90,7 +91,7 @@ void I18NFrame::InitControls()
             wxID_OPEN, _(L"Open"),
             wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
                 .ConvertToImage());
-        m_projectBar->AddButton(
+        m_projectBar->AddHybridButton(
             wxID_SAVE, _(L"Save"),
             wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
                 .ConvertToImage());
@@ -354,6 +355,7 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnNew, this, wxID_NEW);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnOpen, this, wxID_OPEN);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSave, this, wxID_SAVE);
+    Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnSaveMenu, this, wxID_SAVE);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnRefresh, this, wxID_REFRESH);
     Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnIgnore, this, XRCID("ID_IGNORE"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSettings, this, XRCID("ID_SETTINGS"));
@@ -384,6 +386,9 @@ void I18NFrame::InitControls()
             OnAbout(event);
         },
         wxID_ABOUT);
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& event) { OnExportResults(event); },
+        XRCID("ID_EXPORT_RESULTS"));
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -676,6 +681,23 @@ void I18NFrame::OnOpenSelectedFile([[maybe_unused]] wxCommandEvent&)
     }
 
 //------------------------------------------------------
+void I18NFrame::OnSaveMenu(wxRibbonButtonBarEvent& event)
+    {
+    wxMenu menu;
+    wxMenuItem* menuItem = new wxMenuItem(&menu, wxID_SAVE, _(L"Save Project..."));
+    menuItem->SetBitmap(
+        wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
+    menu.Append(menuItem);
+
+    menuItem = new wxMenuItem(&menu, XRCID("ID_EXPORT_RESULTS"), _(L"Export Results..."));
+    menuItem->SetBitmap(
+        wxArtProvider::GetBitmap(L"ID_CSV", wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
+    menu.Append(menuItem);
+
+    event.PopupMenu(&menu);
+    }
+
+//------------------------------------------------------
 void I18NFrame::OnIgnore(wxRibbonButtonBarEvent& event)
     {
     wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
@@ -780,8 +802,8 @@ void I18NFrame::OnHelp([[maybe_unused]] wxCommandEvent&)
         if (wxFile::Exists(wxStandardPaths::Get().GetResourcesDir() +
                                wxFileName::GetPathSeparator() + L"cuneiform.pdf"))
             {
-            return wxStandardPaths::Get().GetResourcesDir() +
-                               wxFileName::GetPathSeparator() + L"cuneiform.pdf";
+            return wxStandardPaths::Get().GetResourcesDir() + wxFileName::GetPathSeparator() +
+                   L"cuneiform.pdf";
             }
         return wxFileName{ wxStandardPaths::Get().GetExecutablePath() }.GetPath() +
                            wxFileName::GetPathSeparator() + L"cuneiform.pdf";
@@ -885,6 +907,42 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
              wxFileName{ m_activeProjectFilePath }.GetFullName());
 
     Process();
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnExportResults([[maybe_unused]] wxCommandEvent&)
+    {
+    const wxFileName projectName{ m_activeProjectOptions.m_filePath };
+        const wxString lastFolder =
+            projectName.GetName().empty() ? wxString{ _(L"Results") } : projectName.GetName();
+
+    wxFileDialog dialog(nullptr, _(L"Export Results"), wxString{}, lastFolder + L".csv",
+                        _(L"Comma Separated Values (*.csv)|*.csv|Tab-delimited Text (*.txt)|*.txt"),
+            wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
+    if (dialog.ShowModal() != wxID_OK)
+        {
+        return;
+        }
+
+    wxString outText{ m_activeResults };
+    if (dialog.GetFilterIndex() == 0)
+        {
+        // convert to CSV
+        outText.Replace(L"\t", L",", true);
+        }
+
+    wxFile outFile(dialog.GetPath(), wxFile::write);
+    if (outFile.IsOpened())
+        {
+        if (!outFile.Write(outText))
+            {
+            wxMessageBox(_(L"Unable to export results."), _(L"Export"));
+            }
+        }
+    else
+        {
+        wxMessageBox(_(L"Unable to export results."), _(L"Export"));
+        }
     }
 
 //------------------------------------------------------
@@ -1191,6 +1249,7 @@ void I18NFrame::Process()
         }
 
     std::wstringstream report = analyzer.format_results(false);
+    m_activeResults = report.str();
 
     std::wstring currentLine;
     size_t readLines{ 0 };

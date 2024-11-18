@@ -30,3 +30,8 @@ All instances of this warning will be removed from all files. Also, this check w
 ::: {.notesection data-latex=""}
 These options are also available by right clicking any warning and selecting them from the popup menu.
 :::
+
+Exporting Results
+
+To export all warnings, click the `r keys("Save")` button on the ribbon and select **Export Results**.
+From here, you can export the results to either a CSV or tab-delimited text file.

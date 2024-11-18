@@ -76,6 +76,8 @@ class I18NFrame : public wxFrame
     void OnNew([[maybe_unused]] wxCommandEvent&);
     void OnOpen([[maybe_unused]] wxCommandEvent&);
     void OnSave([[maybe_unused]] wxCommandEvent&);
+    void OnExportResults([[maybe_unused]] wxCommandEvent&);
+    void OnSaveMenu(wxRibbonButtonBarEvent& event);
     void OnRefresh([[maybe_unused]] wxCommandEvent&);
     void OnOpenSelectedFile([[maybe_unused]] wxCommandEvent&);
     void OnIgnore(wxRibbonButtonBarEvent& event);
@@ -123,6 +125,8 @@ class I18NFrame : public wxFrame
 
     bool m_projectDirty{ false };
     wxString m_activeProjectFilePath;
+
+    wxString m_activeResults;
 
     constexpr static int ERROR_ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 

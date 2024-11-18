@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   id="svg3491"
+   sodipodi:docname="file-csv.svg"
+   viewBox="0 0 61 61"
+   version="1.1"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   width="61"
+   height="61"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs3493">
+    <linearGradient
+       id="linearGradient3928-8-2">
+      <stop
+         id="stop3930-2-9"
+         style="stop-color:#7c7c7c"
+         offset="0" />
+      <stop
+         id="stop3932-0-4"
+         style="stop-color:#e6e3e3"
+         offset="1" />
+    </linearGradient>
+    <filter
+       id="filter4396"
+       width="1.0832258"
+       y="-0.10749999"
+       x="-0.0416129"
+       height="1.215"
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always">
+      <feGaussianBlur
+         id="feGaussianBlur4398"
+         stdDeviation="0.53749999"
+         inkscape:collect="always" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Drop Shadow"
+       id="filter8435"
+       x="-0.3818125"
+       y="-0.21263735"
+       width="1.5944498"
+       height="1.5503695">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood8425" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite8427" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="0.5"
+         result="blur"
+         id="feGaussianBlur8429" />
+      <feOffset
+         dx="-1.3524"
+         dy="1"
+         result="offset"
+         id="feOffset8431" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="fbSourceGraphic"
+         id="feComposite8433" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix8455" />
+      <feFlood
+         id="feFlood8457"
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         in="fbSourceGraphic" />
+      <feComposite
+         in2="fbSourceGraphic"
+         id="feComposite8459"
+         in="flood"
+         operator="in"
+         result="composite1" />
+      <feGaussianBlur
+         id="feGaussianBlur8461"
+         in="composite1"
+         stdDeviation="0.5"
+         result="blur" />
+      <feOffset
+         id="feOffset8463"
+         dx="-1.3524"
+         dy="1"
+         result="offset" />
+      <feComposite
+         in2="offset"
+         id="feComposite8465"
+         in="fbSourceGraphic"
+         operator="over"
+         result="composite2" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     fit-margin-left="0"
+     inkscape:showpageshadow="false"
+     inkscape:zoom="6.35014"
+     borderopacity="1.0"
+     inkscape:current-layer="layer1"
+     inkscape:cx="-23.93648"
+     inkscape:cy="9.1336569"
+     inkscape:window-maximized="1"
+     showgrid="false"
+     fit-margin-right="0"
+     inkscape:document-units="px"
+     bordercolor="#666666"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="2560"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     pagecolor="#ffffff"
+     inkscape:window-height="1368"
+     showborder="false"
+     fit-margin-top="0"
+     inkscape:pagecheckerboard="0" />
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     transform="translate(-434.26798,-259.35114)">
+    <g
+       id="g885">
+      <path
+         id="path3436"
+         d="m 444.558,262.74 v 8.0776 13.21 34.712 h 45 v -40.108 l -16.023,-15.892 z"
+         sodipodi:nodetypes="cccccccc"
+         style="color:#000000;fill:#f2f2f2;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:117.54"
+         inkscape:connector-curvature="0" />
+      <rect
+         id="rect3438"
+         style="color:#000000;fill:#000000;filter:url(#filter4396)"
+         rx="1"
+         ry="1"
+         height="12"
+         width="31"
+         y="273.73999"
+         x="435.55798" />
+      <rect
+         id="rect3440"
+         style="color:#000000;fill:#228b22"
+         rx="1"
+         ry="1"
+         height="12"
+         width="31"
+         y="273.73999"
+         x="435.55798" />
+      <path
+         id="path3442"
+         d="M 489.558,278.74 473.569,262.751 V 278.74 Z"
+         style="color:#000000;fill:#f2f2f2;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:117.54;filter:url(#filter8435)"
+         inkscape:connector-curvature="0" />
+      <text
+         id="text3444"
+         style="font-weight:bold;font-size:11.9999px;line-height:0%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#ffffff;stroke-width:0.99999"
+         inkscape:export-ydpi="75.042641"
+         xml:space="preserve"
+         inkscape:export-filename="/home/ramsakb/desk/cherryhill/text6715.png"
+         transform="scale(0.89596855,1.1161106)"
+         inkscape:export-xdpi="75.042641"
+         y="254.28328"
+         x="502.86246"><tspan
+           id="tspan3446"
+           sodipodi:role="line"
+           x="502.86246"
+           y="254.28328"
+           style="font-size:10.2079px;line-height:1.25;font-family:sans-serif;stroke-width:0.99999">CSV</tspan></text>
+      <text
+         id="text3448"
+         style="color:#000000;font-size:9.36414px;line-height:0%;font-family:'DejaVu Sans';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#006400;stroke-width:0.780345"
+         inkscape:export-ydpi="75.042641"
+         xml:space="preserve"
+         inkscape:export-filename="/home/ramsakb/desk/cherryhill/text6715.png"
+         transform="scale(0.91141044,1.0972005)"
+         inkscape:export-xdpi="75.042641"
+         y="279.17273"
+         x="513.47015"><tspan
+           id="tspan3450"
+           sodipodi:role="line"
+           x="513.47015"
+           style="color:#000000;font-size:14.889px;line-height:1.25;font-family:'DejaVu Sans';fill:#006400;stroke-width:0.780345"
+           y="279.17273">1,2,3</tspan></text>
+    </g>
+  </g>
+  <metadata
+     id="metadata24">
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
+        <dc:publisher>
+          <cc:Agent
+             rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>file-icon-csv</dc:title>
+        <dc:date>2012-04-29T23:00:39</dc:date>
+        <dc:description />
+        <dc:source>https://openclipart.org/detail/169752/file-icon-csv-by-jabon</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>jabon</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>csv</rdf:li>
+            <rdf:li>file</rdf:li>
+            <rdf:li>icon</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

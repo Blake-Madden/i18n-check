@@ -457,6 +457,11 @@ int main(int argc, char* argv[])
             utf8::utf32to8(resText.cbegin(), resText.cend(), std::back_inserter(utf8Str));
             }
 
+        if (outPath.extension().compare(L"csv") == 0)
+            {
+            string_util::replace_all<std::string>(utf8Str, "\t", ",");
+            }
+
         ofs << utf8Str;
         }
     // ...otherwise, send it to the console

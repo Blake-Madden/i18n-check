@@ -205,8 +205,8 @@ loaded by your application for integration testing.
 
 -i,--ignore: Folders and files to ignore (can be used multiple times).
 
--o,--output: The output report path (tab-delimited format). (Can either be a full path,
-             or a file name within the current working directory.)
+-o,--output: The output report path (tab-delimited or CSV format).
+             (Can either be a full path, or a file name within the current working directory.)
 
 -q,--quiet: Only print errors and the final output.
 
