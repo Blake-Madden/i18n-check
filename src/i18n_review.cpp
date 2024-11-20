@@ -69,6 +69,14 @@ namespace i18n_check
         std::regex_constants::icase
     };
 
+    // <results>, which should be OK to translate
+    const std::wregex i18n_review::m_angle_braced_one_word_regex{ LR"(<[a-zA-Z0-8\-]+>)" };
+
+    // allowable HTML-like elements that are known
+    const std::wregex i18n_review::m_html_known_elements_regex{
+        LR"(<(span|object|property|div|p|ul|ol|li|img|html|xml|meta|body|table|tbody|tr|td|thead|head|title|br|center|dd|em|dl|dt|tt|font|form|hr|main|map|pre|script)>)"
+    };
+
     // first capture group ensures that printf command is not proceeded by a negating '%'
     // second capture group is the actual printf command
     //
@@ -522,12 +530,10 @@ namespace i18n_check
             std::wregex(LR"([a-zA-Z0-9_]+([-][>]|::)[a-zA-Z0-9_]+([(][)];)?)"),
             std::wregex(LR"(#(define|pragma) .*)"),
             // command lines
-            std::wregex(LR"([-]D [A-Z_]{2,}[ =].*)"),
-            std::wregex(LR"([-]dynamiclib .*)"),
+            std::wregex(LR"([-]D [A-Z_]{2,}[ =].*)"), std::wregex(LR"([-]dynamiclib .*)"),
             std::wregex(LR"([-]{2}[a-z]{2,}[ :].*)"),
             // registry keys
-            std::wregex(LR"(SOFTWARE[\\]{1,2}(Policies|Microsoft))"),
-            std::wregex(LR"(HKEY_.*)"),
+            std::wregex(LR"(SOFTWARE[\\]{1,2}(Policies|Microsoft))"), std::wregex(LR"(HKEY_.*)"),
             // XML elements
             std::wregex(LR"(version[ ]?=\\"[0-9\.]+\\")"),
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
@@ -644,8 +650,7 @@ namespace i18n_check
             std::wregex(LR"(Borland C\+\+ Builder( [0-9]+)?)"), std::wregex(LR"(Qt Creator)"),
             std::wregex(LR"((Microsoft )VS Code)"), std::wregex(LR"((Microsoft )?Visual Studio)"),
             std::wregex(LR"((Microsoft )?Visual C\+\+)"),
-            std::wregex(LR"((Microsoft )?Visual Basic)"),
-            std::wregex(LR"(GNU gdb debugger)"),
+            std::wregex(LR"((Microsoft )?Visual Basic)"), std::wregex(LR"(GNU gdb debugger)"),
             // culture language tags
             std::wregex(LR"([a-z]{2,3}[\-_][A-Z]{2,3})"),
             // image formats
@@ -672,13 +677,20 @@ namespace i18n_check
             L"_WXTRANS_WSTR"
         };
 
-        m_localization_with_context_functions = {
-            _DT(L"translate"), L"QApplication::translate", L"QApplication::tr",
-            L"QApplication::trUtf8", L"QCoreApplication::translate", L"QCoreApplication::tr",
-            L"QCoreApplication::trUtf8", L"tr", L"trUtf8", L"QT_TRANSLATE_NOOP",
-            L"wxTRANSLATE_IN_CONTEXT", L"wxGETTEXT_IN_CONTEXT_PLURAL", L"wxGETTEXT_IN_CONTEXT",
-            L"wxGetTranslation"
-        };
+        m_localization_with_context_functions = { _DT(L"translate"),
+                                                  L"QApplication::translate",
+                                                  L"QApplication::tr",
+                                                  L"QApplication::trUtf8",
+                                                  L"QCoreApplication::translate",
+                                                  L"QCoreApplication::tr",
+                                                  L"QCoreApplication::trUtf8",
+                                                  L"tr",
+                                                  L"trUtf8",
+                                                  L"QT_TRANSLATE_NOOP",
+                                                  L"wxTRANSLATE_IN_CONTEXT",
+                                                  L"wxGETTEXT_IN_CONTEXT_PLURAL",
+                                                  L"wxGETTEXT_IN_CONTEXT",
+                                                  L"wxGetTranslation" };
 
         // functions that indicate that a string is explicitly marked to not be translatable
         m_non_localizable_functions = {
@@ -852,9 +864,8 @@ namespace i18n_check
             L"printf", L"Console.WriteLine", L"dprintf", L"WriteLine",
             // .NET
             L"LoggerMessage", L"JITDUMP", L"LOG", L"LogSpew", L"LOG_HANDLE_OBJECT_CLASS",
-            L"LOG_HANDLE_OBJECT", L"CorDisToolsLogERROR", L"LOG_ERROR", L"LOG_INFO",
-            L"Log.LogError", L"Log.LogMessage", L"LogAsErrorException", L"LogError",
-            L"LogMessage", L"LogVerbose",
+            L"LOG_HANDLE_OBJECT", L"CorDisToolsLogERROR", L"LOG_ERROR", L"LOG_INFO", L"LogError",
+            L"LogMessage", L"LogAsErrorException", L"LogVerbose",
             // other programs
             L"log_message", L"outLog", L"Error"
         };
@@ -872,8 +883,8 @@ namespace i18n_check
             L"QException",
             // .NET
             L"NotImplementedException", L"ArgumentException", L"InvalidOperationException",
-            L"OptionException", L"NotSupportedException", L"Exception",
-            L"BadImageFormatException", L"JsonException"
+            L"OptionException", L"NotSupportedException", L"Exception", L"BadImageFormatException",
+            L"JsonException"
         };
 
         // known strings to ignore
@@ -1282,7 +1293,8 @@ namespace i18n_check
                         std::make_pair(get_line_and_column(position, fileText).first,
                                        std::wstring::npos)));
                     }
-                else if (static_cast<bool>(m_review_styles & check_number_assigned_to_id) && idVal &&
+                else if (static_cast<bool>(m_review_styles & check_number_assigned_to_id) &&
+                         idVal &&
                          !(idVal.value() >= idRangeStart && idVal.value() <= stringIdRangeEnd) &&
                          (idNameParts[1] == L"IDS_" || idNameParts[1] == L"IDP_"))
                     {
@@ -1301,7 +1313,8 @@ namespace i18n_check
                         std::make_pair(get_line_and_column(position, fileText).first,
                                        std::wstring::npos));
                     }
-                else if (static_cast<bool>(m_review_styles & check_number_assigned_to_id) && idVal &&
+                else if (static_cast<bool>(m_review_styles & check_number_assigned_to_id) &&
+                         idVal &&
                          !(idVal.value() >= dialogIdRangeStart &&
                            idVal.value() <= dialogIdRangeEnd) &&
                          idNameParts[1] == L"IDC_")
@@ -1407,7 +1420,8 @@ namespace i18n_check
                 }
             // Single word with multiple punctuations marks?
             const size_t punctCount = std::count_if(str.cbegin(), str.cend(),
-                                                    [](const auto chr) {
+                                                    [](const auto chr)
+                                                    {
                                                         return std::iswpunct(chr) && chr != L'-' &&
                                                                chr != L'/' && chr != L'\\' &&
                                                                chr != L'&' && chr != L'.';
@@ -1463,7 +1477,8 @@ namespace i18n_check
 
         if (variableName.length() > 0)
             {
-            process_variable(variableType, variableName,
+            process_variable(
+                variableType, variableName,
                              std::wstring_view{ currentTextPos, static_cast<size_t>(quoteEnd - currentTextPos) },
                              (currentTextPos - m_file_start));
             }
@@ -1639,8 +1654,8 @@ namespace i18n_check
 
     //--------------------------------------------------
     void i18n_review::process_variable(const std::wstring& variableType,
-                                       const std::wstring& variableName, const std::wstring_view value,
-                                       const size_t quotePosition)
+                                       const std::wstring& variableName,
+                                       const std::wstring_view value, const size_t quotePosition)
         {
 #ifndef NDEBUG
         if (variableType.length() > 0 &&
@@ -1847,6 +1862,14 @@ namespace i18n_check
                 std::regex_match(str, m_html_tag_regex) ||
                 std::regex_match(str, m_html_tag_unicode_regex))
                 {
+                // Avoid a false positive for single words in braces.
+                // It may be an HTML/XML element, but it may also be a user-facing string,
+                // so error on the side of that.
+                if (std::regex_match(str, m_angle_braced_one_word_regex) &&
+                    !std::regex_match(str, m_html_known_elements_regex))
+                    {
+                    return false;
+                    }
                 str = std::regex_replace(str, std::wregex(LR"(<script[\d\D]*?>[\d\D]*?</script>)"),
                                          L"");
                 str = std::regex_replace(str, std::wregex(LR"(<style[\d\D]*?>[\d\D]*?</style>)"),

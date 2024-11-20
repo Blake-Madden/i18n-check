@@ -603,7 +603,7 @@ namespace i18n_check
         /// @returns The regex patterns compared against variables that have
         ///     strings assigned to them. @sa add_variable_name_patterns_to_ignore().
         [[nodiscard]]
-        static const std::vector<std::wregex>& get_ignored_variable_patterns() noexcept
+        static std::vector<std::wregex>& get_ignored_variable_patterns() noexcept
             {
             return m_variable_name_patterns_to_ignore;
             }
@@ -1141,6 +1141,8 @@ namespace i18n_check
         static const std::wregex m_html_tag_regex;
         static const std::wregex m_html_tag_unicode_regex;
         static const std::wregex m_xml_element_regex;
+        static const std::wregex m_html_known_elements_regex;
+        static const std::wregex m_angle_braced_one_word_regex;
         static const std::wregex m_2letter_regex;
         static const std::wregex m_hashtag_regex;
         static const std::wregex m_key_shortcut_regex;

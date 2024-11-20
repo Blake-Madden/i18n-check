@@ -55,6 +55,16 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
 
 TEST_CASE("<<", "[cpp][i18n]")
     {
+    SECTION("Stream")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(s << _("Can't open file") << _("You must specify path to another database file");)";
+        cpp(code, L"");
+        CHECK(cpp.get_localizable_strings().size() == 2);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
     SECTION("<< with params")
         {
         cpp_i18n_review cpp(false);
@@ -104,6 +114,15 @@ TEST_CASE("Place holders", "[cpp][i18n]")
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
         }
 
+    SECTION("All Xes")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        str = L" xx xx x";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        }
+
+
     SECTION("X numbers")
         {
         cpp_i18n_review cpp(false);
@@ -111,6 +130,32 @@ TEST_CASE("Place holders", "[cpp][i18n]")
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        }
+
+    SECTION("Place holder")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(wxMessageBox(_("  Lorem ipsum dolor sit amet"));)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"  Lorem ipsum dolor sit amet");
+        }
+    
+    SECTION("Long place holder")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(wxMessageBox(_("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisl \nmassa, luctus ut ligula vitae, suscipit tempus velit. Vivamus sodales, quam in \nconvallis posuere, libero nisi ultricies orci, nec lobortis.\n"));)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == LR"(Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisl \nmassa, luctus ut ligula vitae, suscipit tempus velit. Vivamus sodales, quam in \nconvallis posuere, libero nisi ultricies orci, nec lobortis.\n)");
         }
     }
 
@@ -896,329 +941,18 @@ TEST_CASE("Code generator strings", "[i18n]")
         }
     }
 
-TEST_CASE("CPP Tests", "[cpp]")
+TEST_CASE("Printf", "[cpp]")
     {
-    SECTION("Stream")
+    SECTION("Printf commands")
         {
         cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(s << _("Can't open file") << _("You must specify path to another database file");)";
-        cpp(code, L"");
-        CHECK(cpp.get_localizable_strings().size() == 2);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        }
-
-    SECTION("Dead code block")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(2);
-        const wchar_t* code = LR"(int Wisteria::UI::BaseApp::OnExit()
-            {
-            wxLogDebug(__WXFUNCTION__);
-            SaveFileHistoryMenu();
-            wxDELETE(m_docManager);
-
-        #ifdef __WXMSW__
-            #if 0
-                // dump max memory usage
-                // https://docs.microsoft.com/en-us/windows/win32/psapi/collecting-memory-usage-information-for-a-process?redirectedfrom=MSDN
-                PROCESS_MEMORY_COUNTERS memCounter;
-                ::ZeroMemory(&memCounter, sizeof(PROCESS_MEMORY_COUNTERS));
-                if (::GetProcessMemoryInfo(::GetCurrentProcess(), &memCounter, sizeof(memCounter)))
-                    {
-                    const wxString memMsg = wxString::Format(L"Peak Memory Usage: %.02fGbs.",
-                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
-                    wxLogDebug(memMsg);
-                    OutputDebugString(memMsg.wc_str());
-                    }
-            #elif
-                const wxString memMsg = wxString::Format(L"Info: Peak Memory Usage: %.02fGbs.",
-                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
-                MsgBox(memMsg);
-            #endif
-            #ifdef _DEBUG
-                MsgBox("Debug message 0!");
-            #endif
-            #ifndef NDEBUG
-                MsgBox("Debug message 1!");
-            #endif
-            #ifndef NDEBUG
-                MsgBox("Debug message 2!");
-            #elif
-                MsgBox("Release message!");
-            #endif
-            #if defined _DEBUG
-                MsgBox("Debug message 3!");
-            #endif
-        #endif
-            return wxApp::OnExit();
-            })";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-            std::wstring{ L"Info: Peak Memory Usage: %.02fGbs." });
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
-            std::wstring{ L"Release message!" });
-        CHECK(cpp.get_internal_strings().size() == 0);
-        }
-
-    SECTION("Debug defined block")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(2);
-        const wchar_t* code = LR"(int Wisteria::UI::BaseApp::OnExit()
-            {
-            wxLogDebug(__WXFUNCTION__);
-            SaveFileHistoryMenu();
-            wxDELETE(m_docManager);
-
-        #ifdef __WXMSW__
-            #if wxDEBUG_LEVEL >= 2
-                // dump max memory usage
-                // https://docs.microsoft.com/en-us/windows/win32/psapi/collecting-memory-usage-information-for-a-process?redirectedfrom=MSDN
-                PROCESS_MEMORY_COUNTERS memCounter;
-                ::ZeroMemory(&memCounter, sizeof(PROCESS_MEMORY_COUNTERS));
-                if (::GetProcessMemoryInfo(::GetCurrentProcess(), &memCounter, sizeof(memCounter)))
-                    {
-                    const wxString memMsg = wxString::Format(L"Peak Memory Usage: %.02fGbs.",
-                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
-                    wxLogDebug(memMsg);
-                    OutputDebugString(memMsg.wc_str());
-                    }
-            #elif
-                const wxString memMsg = wxString::Format(L"Info: Peak Memory Usage: %.02fGbs.",
-                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
-                MsgBox(memMsg);
-            #endif
-            #ifdef _DEBUG
-                MsgBox("Debug message 0!");
-            #endif
-            #ifndef NDEBUG
-                MsgBox("Debug message 1!");
-            #endif
-            #ifndef NDEBUG
-                MsgBox("Debug message 2!");
-            #elif
-                MsgBox("Release message!");
-            #endif
-            #if defined _DEBUG
-                MsgBox("Debug message 3!");
-            #endif
-        #endif
-            return wxApp::OnExit();
-            })";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-            std::wstring{ L"Info: Peak Memory Usage: %.02fGbs." });
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
-            std::wstring{ L"Release message!" });
-        CHECK(cpp.get_internal_strings().size() == 0);
-        }
-
-    SECTION("Var types to ignore")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(2);
-        const wchar_t* code = LR"(const LOGFONTW font("My Comic Sans");)";
+        const wchar_t* code = LR"(DateFormat(L"%Y%m%dT%H%M%S");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType == L"LOGFONTW");
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"font");
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
-
-        code = LR"(LOGFONTW& font("My Comic Sans");)"; // bad syntax, but check anyway
-        cpp.clear_results();
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType == L"LOGFONTW");
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"font");
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
-
-        code = LR"(LOGFONTW const font("My Comic Sans");)";
-        cpp.clear_results();
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType == L"LOGFONTW");
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"font");
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
-
-        code = LR"(LOGFONTW* font = new LOGFONTW("My Comic Sans");)";
-        cpp.clear_results();
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        // will be seen as a function or CTOR call
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"LOGFONTW");
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::function);
-
-        code = LR"(auto font = std::make_shared<LOGFONTW>("My Comic Sans");)";
-        cpp.clear_results();
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"LOGFONTW");
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::function);
-
-        code = LR"(auto font = std::shared_ptr<LOGFONTW>("My Comic Sans");)";
-        cpp.clear_results();
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"LOGFONTW");
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::function);
-        }
-
-    SECTION("C header include")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(2);
-        const wchar_t* code = LR"(auto var = "#include <wx/mstream.h>";)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 1);
-
-        code = LR"(auto var = "#include <vector>")";
-        cpp.clear_results();
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 1);
-
-        code = LR"(auto var = "#include \"my_header.h\"")";
-        cpp.clear_results();
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 1);
-
-        code = LR"(auto var = "#include \"my_header.h\"\n\n#include <vector>\n#include <wx/mstream.h>\n")";
-        cpp.clear_results();
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 1);
-        }
-
-    SECTION("Separated strings")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(MessageBox("This is a long "
-                                             "message across "
-                                             "multiple lines");)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-              L"This is a long message across multiple lines");
-        CHECK(cpp.get_internal_strings().size() == 0);
-        }
-
-    SECTION("Separated strings int 64")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(MessageBox("The amount is %0" PRId64 "\n");)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-              std::wstring{ LR"(The amount is %0\n)" });
-        CHECK(cpp.get_internal_strings().size() == 0);
-        }
-
-    SECTION("Separated strings bad int 64 macro")
-        {
-        cpp_i18n_review cpp(false);
-        // "46" is wrong, so parse this as two strings
-        const wchar_t* code = LR"(MessageBox("Invalid Likert response: %\n" PRIu46
-                                             "Column: %s\nValues should not exceed 7.");)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-              std::wstring{ LR"(Invalid Likert response: %\n)" });
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
-              std::wstring{ LR"(Column: %s\nValues should not exceed 7.)" });
-        CHECK(cpp.get_internal_strings().size() == 0);
-        }
-
-    SECTION("Content type")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(var = "text/html; charset=utf-8")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string ==
-              std::wstring{ L"text/html; charset=utf-8" });
-        }
-
-    SECTION("File filter")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"var = \"PNG (*.png)|*.png\"";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string ==
-              std::wstring{  L"PNG (*.png)|*.png" });
-        }
-
-    SECTION("File filter word")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"var = \"Bitmap (*.bmp)|*.bmp\"";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string ==
-              L"Bitmap (*.bmp)|*.bmp");
-        }
-
-    SECTION("File filter multi extensions")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"var = \"TIFF (*.tif;*.tiff)|*.tif;*.tiff\"";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string ==
-              L"TIFF (*.tif;*.tiff)|*.tif;*.tiff");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"DateFormat");
         }
 
     SECTION("Printf integers")
@@ -1285,84 +1019,10 @@ TEST_CASE("CPP Tests", "[cpp]")
             CHECK(cpp.get_printf_single_numbers().size() == 0);
             }
         }
-    
-    SECTION("Ignored macro")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(wxString GetName() const wxOVERRIDE { return wxT("Simple DirectMedia Layer"); })";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
-              L"Simple DirectMedia Layer");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"");
-        CHECK(cpp.get_internal_strings().size() == 0);
-        }
+    }
 
-    SECTION("Ignore email contact info")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(auto var = "Blake Madden <empty.name@company.mail.org>")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string ==
-            L"Blake Madden <empty.name@company.mail.org>");
-        }
-
-    SECTION("Ignore email contact info should not be l10n")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(auto var = _("Blake Madden <empty.name@company.mail.org>"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
-        }
-
-    SECTION("Ignore email")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        const wchar_t* code = LR"(auto var = "emptyname@mail.org")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string ==
-            L"emptyname@mail.org");
-        }
-
-    SECTION("Not formula")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        const wchar_t* code = L"auto var = _(\"%s item(s)\")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 1);
-        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 0);
-        }
-
-    SECTION("Ignore URL")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        const wchar_t* code = LR"(auto var = "www.company.com")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string ==
-            L"www.company.com");
-        }
-
+TEST_CASE("URLs", "[cpp]")
+    {
     SECTION("URL in l10n string")
         {
         cpp_i18n_review cpp(false);
@@ -1388,95 +1048,58 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings_with_urls().size() == 0);
         }
+    }
 
-    SECTION("Internal file name")
+TEST_CASE("Separated Strings", "[cpp]")
+    {
+    SECTION("Separated strings")
         {
         cpp_i18n_review cpp(false);
-        std::wstring str;
-        str = L"Log_Rep[o]rt-1.log";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"c:\\Reports\\Log_Report-1.log";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"c:\\src-stuff,files\\Log_Reporter.h";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"c:\\users\\yam\\documents&files\\audacity\\mixer\\n\\audacity\\src\\dither.cpp";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"/src/Log_Reporter.sps9";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        // double extensions (common on UNIX files)
-        str = L"dynlib.so.o";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        // file extension
-        str = L".sps9";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"*.sps9";
-        CHECK(cpp.is_untranslatable_string(str, false)); // wild card
-        str = L"Log-Report-1.log";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        // ultra simple relative file path
-        str = L"shaders/player1.vert";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"resources\\shaders\\player1.vert";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        // not really a file name, the ending is deceptively like a file extension
-        str = L"The maximum number of notes must be in the range 1..128";
-        CHECK_FALSE(cpp.is_untranslatable_string(str, false));
-        }
-
-    SECTION("Filename")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(wxMessageBox(_("another.hhp"));)";
+        const wchar_t* code = LR"(MessageBox("This is a long "
+                                             "message across "
+                                             "multiple lines");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+              L"This is a long message across multiple lines");
         CHECK(cpp.get_internal_strings().size() == 0);
-        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
-        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"another.hhp");
         }
 
-    SECTION("Filename with folder path")
+    SECTION("Separated strings int 64")
         {
         cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(wxMessageBox(_("Enums/Tests.h"));)";
+        const wchar_t* code = LR"(MessageBox("The amount is %0" PRId64 "\n");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+              std::wstring{ LR"(The amount is %0\n)" });
         CHECK(cpp.get_internal_strings().size() == 0);
-        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
-        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"Enums/Tests.h");
-
-        CHECK(i18n_string_util::is_file_address(L"Enums/Tests.h"));
         }
 
-    SECTION("Place holder")
+    SECTION("Separated strings bad int 64 macro")
         {
         cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(wxMessageBox(_("  Lorem ipsum dolor sit amet"));)";
+        // "46" is wrong, so parse this as two strings
+        const wchar_t* code = LR"(MessageBox("Invalid Likert response: %\n" PRIu46
+                                             "Column: %s\nValues should not exceed 7.");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+              std::wstring{ LR"(Invalid Likert response: %\n)" });
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
+              std::wstring{ LR"(Column: %s\nValues should not exceed 7.)" });
         CHECK(cpp.get_internal_strings().size() == 0);
-        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
-        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"  Lorem ipsum dolor sit amet");
         }
-    
-    SECTION("Long place holder")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(wxMessageBox(_("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisl \nmassa, luctus ut ligula vitae, suscipit tempus velit. Vivamus sodales, quam in \nconvallis posuere, libero nisi ultricies orci, nec lobortis.\n"));)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
-        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == LR"(Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisl \nmassa, luctus ut ligula vitae, suscipit tempus velit. Vivamus sodales, quam in \nconvallis posuere, libero nisi ultricies orci, nec lobortis.\n)");
-        }
+    }
 
+TEST_CASE("Min words", "[cpp]")
+    {
     SECTION("Min word count")
         {
         // default is to ignore strings with just one word
@@ -1551,6 +1174,280 @@ TEST_CASE("CPP Tests", "[cpp]")
         CHECK(cpp.get_internal_strings().size() == 0);
         CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
         }
+    }
+
+TEST_CASE("Ignore", "[cpp]")
+    {
+    SECTION("Macro variable ignored")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(#define  DX_MSG   "Direct2D failed")";
+        cpp.add_variable_name_pattern_to_ignore(std::wregex(L"DX_MSG"));
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring(L"Direct2D failed"));
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == std::wstring(L"DX_MSG"));
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
+        i18n_review::get_ignored_variable_patterns().clear();
+        }
+
+    SECTION("Var types to ignore")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(2);
+        const wchar_t* code = LR"(const LOGFONTW font("My Comic Sans");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType == L"LOGFONTW");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"font");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
+
+        code = LR"(LOGFONTW& font("My Comic Sans");)"; // bad syntax, but check anyway
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType == L"LOGFONTW");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"font");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
+
+        code = LR"(LOGFONTW const font("My Comic Sans");)";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType == L"LOGFONTW");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"font");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
+
+        code = LR"(LOGFONTW* font = new LOGFONTW("My Comic Sans");)";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        // will be seen as a function or CTOR call
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"LOGFONTW");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::function);
+
+        code = LR"(auto font = std::make_shared<LOGFONTW>("My Comic Sans");)";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"LOGFONTW");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::function);
+
+        code = LR"(auto font = std::shared_ptr<LOGFONTW>("My Comic Sans");)";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"LOGFONTW");
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::function);
+        }
+
+    SECTION("Ignored macro")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(wxString GetName() const wxOVERRIDE { return wxT("Simple DirectMedia Layer"); })";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+              L"Simple DirectMedia Layer");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("Ignore email contact info")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(auto var = "Blake Madden <empty.name@company.mail.org>")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+            L"Blake Madden <empty.name@company.mail.org>");
+        }
+
+    SECTION("Ignore email contact info should not be l10n")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(auto var = _("Blake Madden <empty.name@company.mail.org>"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        }
+
+    SECTION("Ignore email")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = "emptyname@mail.org")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+            L"emptyname@mail.org");
+        }
+
+    SECTION("Ignore URL")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = "www.company.com")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+            L"www.company.com");
+        }
+    }
+
+TEST_CASE("File Paths", "[cpp]")
+    {
+    SECTION("File Filter")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring code = LR"("Rich Text Format (*.rtf)|*.rtf")";
+        CHECK_FALSE(cpp.is_untranslatable_string(code, false));
+        }
+
+    SECTION("Unix path")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs", false));
+        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs/", false));
+        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs/info.so", false));
+        CHECK(cpp.is_untranslatable_string(str = L"/usr/libs/info folder", false));
+        // not enough slashes to make it appear like a file path
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L"/usr is a root folder", false));
+        }
+
+    SECTION("File filter")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"var = \"PNG (*.png)|*.png\"";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+              std::wstring{  L"PNG (*.png)|*.png" });
+        }
+
+    SECTION("File filter word")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"var = \"Bitmap (*.bmp)|*.bmp\"";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+              L"Bitmap (*.bmp)|*.bmp");
+        }
+
+    SECTION("File filter multi extensions")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"var = \"TIFF (*.tif;*.tiff)|*.tif;*.tiff\"";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+              L"TIFF (*.tif;*.tiff)|*.tif;*.tiff");
+        }
+
+    SECTION("Internal file name")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        str = L"Log_Rep[o]rt-1.log";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"c:\\Reports\\Log_Report-1.log";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"c:\\src-stuff,files\\Log_Reporter.h";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"c:\\users\\yam\\documents&files\\audacity\\mixer\\n\\audacity\\src\\dither.cpp";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"/src/Log_Reporter.sps9";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        // double extensions (common on UNIX files)
+        str = L"dynlib.so.o";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        // file extension
+        str = L".sps9";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"*.sps9";
+        CHECK(cpp.is_untranslatable_string(str, false)); // wild card
+        str = L"Log-Report-1.log";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        // ultra simple relative file path
+        str = L"shaders/player1.vert";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"resources\\shaders\\player1.vert";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        // not really a file name, the ending is deceptively like a file extension
+        str = L"The maximum number of notes must be in the range 1..128";
+        CHECK_FALSE(cpp.is_untranslatable_string(str, false));
+        }
+
+    SECTION("Filename")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(wxMessageBox(_("another.hhp"));)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"another.hhp");
+        }
+
+    SECTION("Filename with folder path")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(wxMessageBox(_("Enums/Tests.h"));)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings()[0].m_string == L"Enums/Tests.h");
+
+        CHECK(i18n_string_util::is_file_address(L"Enums/Tests.h"));
+        }
 
     SECTION("Not filename too long")
         {
@@ -1565,53 +1462,16 @@ TEST_CASE("CPP Tests", "[cpp]")
         }
     }
 
-TEST_CASE("CPP Tests 2", "[cpp]")
+TEST_CASE("Command lines", "[cpp]")
     {
-        SECTION("Hex color")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str = L"&	c #437A40";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        }
-
-    SECTION("Xes")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        str = L" xx xx x";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        }
-
-    SECTION("HTML")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = LR"(<tt><span style = 'font-weight:bold;'>)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<table style=\\\"width:100%;\"><tr><td width=\"33%\">", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<p style=\\\"font-family: %s; font-size: %dpt; color: rgb(%u, %u, %u)\\\">\n", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n<head>\n<meta content=\"text/html; charset=UTF-8\"/>\n<title></title>\n<link href=\"stylesheet.css\" type=\"text/css\" rel=\"stylesheet\" />\n<link rel=\"stylesheet\" type=\"application/vnd.adobe-page-template+xml\" href=\"page-template.xpgt\"/>\n</head>)", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<br />&nbsp;&nbsp;&nbsp;&nbsp;&ldquo;<span style="font-style:italic;">%s</span>&rdquo;)", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<!-- BEGIN {marker} -->)", false));
-        }
-
-    SECTION("Command lines")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"-D HOST_APPLE_MOBILE=1", false));
-        CHECK(cpp.is_untranslatable_string(str = L"-dynamiclib -o {libraryName}", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(--jitpath:\"{jitPath}\")", false));
-        }
-
-    SECTION("Preprocessor")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"#define {resourceDataSymbol}_data_len_val", false));
-        }
+    cpp_i18n_review cpp(false);
+    std::wstring str;
+    CHECK(cpp.is_untranslatable_string(str = L"-D HOST_APPLE_MOBILE=1", false));
+    CHECK(cpp.is_untranslatable_string(str = L"-dynamiclib -o {libraryName}", false));
+    CHECK(cpp.is_untranslatable_string(str = LR"(--jitpath:\"{jitPath}\")", false));
     }
 
-TEST_CASE("CPP Tests 3", "[cpp]")
+TEST_CASE("Macros", "[cpp]")
     {
     SECTION("Macro variable")
         {
@@ -1627,49 +1487,6 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
         }
 
-    SECTION("Function signature")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(void DefineProperty(const char *name, plcob pb, std::string description="my description"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring(L"my description"));
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L"description"));
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
-        }
-
-    SECTION("Macro variable ignored")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(#define  DX_MSG   "Direct2D failed")";
-        cpp.add_variable_name_pattern_to_ignore(std::wregex(L"DX_MSG"));
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring(L"Direct2D failed"));
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == std::wstring(L"DX_MSG"));
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
-        }
-
-    SECTION("Orphan string")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(if (value =="my message"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring(L"my message"));
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L""));
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::orphan);
-        }
-
     SECTION("Macro variable expands to function")
         {
         cpp_i18n_review cpp(false);
@@ -1683,241 +1500,10 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L"MessageBox"));
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::function);
         }
+    }
 
-    SECTION("Allow punctuation only")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        cpp.allow_translating_punctuation_only_strings(false);
-        CHECK(cpp.is_untranslatable_string(str = L" % ", false));
-        cpp.allow_translating_punctuation_only_strings(true);
-        CHECK_FALSE(cpp.is_untranslatable_string(str = L" % ", false));
-        }
-
-    SECTION("Windows names")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 3.1", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 98", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 2000", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows NT", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows NT SP4", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows XP", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows XP SP3", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows Server", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows Server 2012", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows Server 2012 R2", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows Vista", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 8", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 8.1", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 10", false));
-        }
-
-    SECTION("Unix path")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs", false));
-        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs/", false));
-        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs/info.so", false));
-        CHECK(cpp.is_untranslatable_string(str = L"/usr/libs/info folder", false));
-        // not enough slashes to make it appear like a file path
-        CHECK_FALSE(cpp.is_untranslatable_string(str = L"/usr is a root folder", false));
-        }
-
-    SECTION("Escaped quotes")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        const wchar_t* code = L"description.Replace(wxT(\"\\\\\\\"\"), wxT(\"/\"));";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 2);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"\\\\\\\"");
-        CHECK(cpp.get_internal_strings()[1].m_string == L"/");
-        cpp.clear_results();
-        code = L"view = (mCurTrack[0]->GetWaveformSettings().scaleType == 0) ? wxT(\"\\\"Waveform\\\"\") : wxT(\"\\\"Waveform (dB)\\\"\")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"\\\"Waveform\\\"");
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == L"\\\"Waveform (dB)\\\"");
-        }
-
-    SECTION("Quote in single quotes")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        const wchar_t* code = L"if (a == '\"')\nAddCheckBox(_(\"&Use legacy (version 3) syntax.\"),\n(mVersion == 3) ? wxT(\"true\") : wxT(\"false\"));";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 1);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_localizable_strings()[0].m_string == L"&Use legacy (version 3) syntax.");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"true");
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == L"false");
-        }
-
-    SECTION("Internal Strings")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"", false));
-        CHECK(cpp.is_untranslatable_string(str = L" ", false));
-        CHECK(cpp.is_untranslatable_string(str = L"  \t", false));
-        CHECK(cpp.is_untranslatable_string(str = L"1", false));
-        CHECK(cpp.is_untranslatable_string(str = L"1.0", false));
-        CHECK(cpp.is_untranslatable_string(str = L">", false));
-        CHECK(cpp.is_untranslatable_string(str = L"> ", false));
-        CHECK(cpp.is_untranslatable_string(str = L"\\n\\t\\r ", false));
-        }
-
-    SECTION("Parens")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"GetMenuBar()->SetLabel(XRCID(\"ID_SAVE_ITEM\"), wxString::Format(_(\"Export %s...\"), GetActiveProjectWindow()->GetName()) );";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_localizable_strings()[0].m_string == L"Export %s...");
-        CHECK(cpp.get_internal_strings()[0].m_string == L"ID_SAVE_ITEM");
-        }
-
-    SECTION("Parens 2")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"customTestMenu->Append(XRCID(\"ID_ADD_CUSTOM_NEW_DALE_CHALL_TEST\"), wxString::Format(_(\"Add Custom \\\"%s\\\"...\"), wxT(\"New Dale-Chall\")) );";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        REQUIRE(cpp.get_localizable_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_localizable_strings()[0].m_string == L"Add Custom \\\"%s\\\"...");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"New Dale-Chall");
-        CHECK(cpp.get_internal_strings()[0].m_string == L"ID_ADD_CUSTOM_NEW_DALE_CHALL_TEST");
-        }
-
-    SECTION("Pascal Case")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"value = \"XmlHttpRequest\"; value = \"SupportsIpv6OnIos\"; value = \"Xml2HttpRequest\";";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 3);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"XmlHttpRequest");
-        CHECK(cpp.get_internal_strings()[1].m_string == L"SupportsIpv6OnIos");
-        CHECK(cpp.get_internal_strings()[2].m_string == L"Xml2HttpRequest");
-        }
-
-    SECTION("Camel Case")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"value = \"xmlHttpRequest\"; value = \"supportsIpv6OnIos\"; value = \"xml2HttpRequest\";";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 3);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"xmlHttpRequest");
-        CHECK(cpp.get_internal_strings()[1].m_string == L"supportsIpv6OnIos");
-        CHECK(cpp.get_internal_strings()[2].m_string == L"xml2HttpRequest");
-        }
-
-    SECTION("Internal CSS Strings")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"font-style: italic;", false));
-        CHECK(cpp.is_untranslatable_string(str = L"  font-style: italic;  ", false));
-        CHECK(cpp.is_untranslatable_string(str = L"font-weight: bold", false));
-        CHECK(cpp.is_untranslatable_string(str = L" color:red", false));
-        CHECK(cpp.is_untranslatable_string(str = L"background-COLOR:red, false", false));
-        CHECK(cpp.is_untranslatable_string(str = L" style = 'color: red", false));
-        }
-
-    SECTION("Internal HTML Strings")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"<html>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<!--commment>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<SPAN style=", false));
-        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<HTML>hello", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<HTML = "hello"></html>)", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<a href="website"><br>)", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(]]</center>\n)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"&amp;", false));
-        CHECK(cpp.is_untranslatable_string(str = L"&#107;", false));
-        CHECK(cpp.is_untranslatable_string(str = L"&#xF8;", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(charset = \"%s\"\n)", false));
-        }
-
-    SECTION("Internal XML Strings")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<?xml>hello", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<?XML>7</XML>", false));
-        // generic tags
-        CHECK(cpp.is_untranslatable_string(str = L"<doc-val>&entity;</doc-val>", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<comment =\")", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<startdoctype name=\"%s\")", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<image x=%d y=\"%d\" width = '%dpx' height=\"%dpx\")", false));
-        }
-
-    SECTION("Custom XML")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"<ice>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"</ice>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<ice> 9, </ice>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<ice><ice>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<ice-level><ice-level>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<ice> <ice>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<unrecognized version=\"3\">", false));
-        }
-
-    SECTION("Formulas")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"=color", false));
-        CHECK(cpp.is_untranslatable_string(str = L"=small", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Open()", false));
-        CHECK(cpp.is_untranslatable_string(str = L"ABS(-2.7)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"POW(-4, 2)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"SUM(5,6)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"SUM(5;6)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"SUM(R[-4]C:R[-1]C)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"=SUM(R[-4]C:R[-1]C)", false));
-        }
-
-    SECTION("Variable name define")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        const wchar_t* code = LR"(#define SAVE_MAGIC_V1 "fish")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"fish");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L"SAVE_MAGIC_V1"));
-        }
-
+TEST_CASE("Assembly Blocks", "[cpp]")
+    {
     SECTION("__asm")
         {
         cpp_i18n_review cpp(false);
@@ -1988,57 +1574,21 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         CHECK(cpp.get_internal_strings().size() == 0);
         }
+    }
 
-    SECTION("Preprocessor Defined Variable In String Helper")
+TEST_CASE("Asserts", "[cpp]")
+    {
+    SECTION("Comparison in function call")
         {
         cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(#define REV_IDENT CString("No revision identifier was provided"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"No revision identifier was provided");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L"REV_IDENT"));
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
-        }
-
-    SECTION("Preprocessor")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        const wchar_t* code = L"# include \"string\"\n#  pragma __asm \"some library\"\n#define color \"Red\"\nif ShowMessage(\"this is an error\")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Red");
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == L"this is an error");
-        }
-
-    SECTION("Preprocessor logic block")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"#ifdef MYDEFINE \"bogus string\" \\ \nANOTHERDEF \"More bogus text\"\nif ShowMessage(\"this is an error\")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"this is an error");
-        }
-
-    SECTION("With spaces")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"//\"comment\" ASSERT() is a diagnostic function\nif assert  (true && \"this is an error\")";
+        // in call to assert
+        const wchar_t* code = L"if assert(ID==5, \"Bad ID\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"this is an error");
+        CHECK(cpp.get_internal_strings()[0].m_string == L"Bad ID");
         }
 
     SECTION("Assert")
@@ -2052,6 +1602,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_internal_strings()[0].m_string == L"this is an error");
         }
+
     SECTION("Assert less than token")
         {
         cpp_i18n_review cpp(false);
@@ -2099,30 +1650,6 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         CHECK(cpp.get_internal_strings()[1].m_string == L"this is an error also");
         }
 
-    SECTION("Exception")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"throw std::range_error(\"Arrays passed to phi_coefficient must be the same size!\");";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Arrays passed to phi_coefficient must be the same size!");
-        }
-
-    SECTION("Buried In Parentheses")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"//comment\nif assert(true && ( (\"this is an error\")))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"this is an error");
-        }
-
     SECTION("Localizable In Assert")
         {
         cpp_i18n_review cpp(false);
@@ -2134,145 +1661,274 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         CHECK(cpp.get_internal_strings().size() == 0);
         CHECK(cpp.get_localizable_strings()[0].m_string == L"this is an error");
         }
+    }
 
-    SECTION("String In CTOR")
+TEST_CASE("Preprocessor", "[cpp]")
+    {
+    SECTION("Variable name define")
         {
         cpp_i18n_review cpp(false);
-        // in call to assert
-        const wchar_t* code = L"if assert(ID, wstring(\"Enter your ID.\"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
-        }
-
-    SECTION("String In CTOR variable")
-        {
-        cpp_i18n_review cpp(false);
-        // in call to assert
-        const wchar_t* code = L"wstring message( \"Enter your ID.\" );";
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(#define SAVE_MAGIC_V1 "fish")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"wstring");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"message");
         CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"fish");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L"SAVE_MAGIC_V1"));
         }
 
-    SECTION("String In CTOR variable with braces")
+    SECTION("Dead code block")
         {
         cpp_i18n_review cpp(false);
-        // in call to assert
-        const wchar_t* code = L"wstring message{ \"Enter your ID.\" };";
+        cpp.set_min_words_for_classifying_unavailable_string(2);
+        const wchar_t* code = LR"(int Wisteria::UI::BaseApp::OnExit()
+            {
+            wxLogDebug(__WXFUNCTION__);
+            SaveFileHistoryMenu();
+            wxDELETE(m_docManager);
+
+        #ifdef __WXMSW__
+            #if 0
+                // dump max memory usage
+                // https://docs.microsoft.com/en-us/windows/win32/psapi/collecting-memory-usage-information-for-a-process?redirectedfrom=MSDN
+                PROCESS_MEMORY_COUNTERS memCounter;
+                ::ZeroMemory(&memCounter, sizeof(PROCESS_MEMORY_COUNTERS));
+                if (::GetProcessMemoryInfo(::GetCurrentProcess(), &memCounter, sizeof(memCounter)))
+                    {
+                    const wxString memMsg = wxString::Format(L"Peak Memory Usage: %.02fGbs.",
+                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
+                    wxLogDebug(memMsg);
+                    OutputDebugString(memMsg.wc_str());
+                    }
+            #elif
+                const wxString memMsg = wxString::Format(L"Info: Peak Memory Usage: %.02fGbs.",
+                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
+                MsgBox(memMsg);
+            #endif
+            #ifdef _DEBUG
+                MsgBox("Debug message 0!");
+            #endif
+            #ifndef NDEBUG
+                MsgBox("Debug message 1!");
+            #endif
+            #ifndef NDEBUG
+                MsgBox("Debug message 2!");
+            #elif
+                MsgBox("Release message!");
+            #endif
+            #if defined _DEBUG
+                MsgBox("Debug message 3!");
+            #endif
+        #endif
+            return wxApp::OnExit();
+            })";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"wstring");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"message");
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+            std::wstring{ L"Info: Peak Memory Usage: %.02fGbs." });
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
+            std::wstring{ L"Release message!" });
         CHECK(cpp.get_internal_strings().size() == 0);
         }
 
-    SECTION("String In CTOR With Namespace")
-        {
-        cpp_i18n_review cpp(false);
-        // in call to assert
-        const wchar_t* code = L"if assert(ID, std::wstring(\"Enter your ID.\"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
-        }
-
-    SECTION("Encodings")
+    SECTION("Preprocessor")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        str = L"UTF-8";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"utf8";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"shift-jis";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"shift_jis";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"windows-1252";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"Big5";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"iso-8859-1";
-        CHECK(cpp.is_untranslatable_string(str, false));
-        str = L"iso-8859-13";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str = L"#define {resourceDataSymbol}_data_len_val", false));
         }
 
-    SECTION("Pointless Parens")
+    SECTION("C header include")
         {
         cpp_i18n_review cpp(false);
-        const wchar_t* code = L"assert(mPipeline.get(), (\"OnPadAdded: unable to allocate stream context\"));";
+        cpp.set_min_words_for_classifying_unavailable_string(2);
+        const wchar_t* code = LR"(auto var = "#include <wx/mstream.h>";)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"OnPadAdded: unable to allocate stream context");
-        }
+        CHECK(cpp.get_internal_strings().size() == 1);
 
-    SECTION("String In CTOR With Template")
-        {
-        cpp_i18n_review cpp(false);
-        // in call to assert
-        const wchar_t* code = L"if assert<char>(ID, std::basic_string<char>(\"Enter your ID.\"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
-        }
-
-    SECTION("String in CTOR with global namespace")
-        {
-        cpp_i18n_review cpp(false);
-        // in call to assert
-        const wchar_t* code = L"if assert<char>(ID, ::basic_string(\"Enter your ID.\"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
+        code = LR"(auto var = "#include <vector>")";
         cpp.clear_results();
-        // sanity test of empty CTOR
-        code = L"if assert<char>(ID, ::(\"Enter your ID.\"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        code = LR"(auto var = "#include \"my_header.h\"")";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        code = LR"(auto var = "#include \"my_header.h\"\n\n#include <vector>\n#include <wx/mstream.h>\n")";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
         }
 
-    SECTION("Comparison in function call")
+    SECTION("Skip include")
         {
         cpp_i18n_review cpp(false);
-        // in call to assert
-        const wchar_t* code = L"if assert(ID==5, \"Bad ID\")";
+        const wchar_t* code = L"#include \"string\"\n\nif GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"Bad ID");
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your \\\"ID\\\".");
+        }
+
+    SECTION("Define variable")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"#define REV_TIME \"unknown date and time\"\n\nint i = 9";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"unknown date and time");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"REV_TIME");
+        }
+
+    SECTION("Debug defined block")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(2);
+        const wchar_t* code = LR"(int Wisteria::UI::BaseApp::OnExit()
+            {
+            wxLogDebug(__WXFUNCTION__);
+            SaveFileHistoryMenu();
+            wxDELETE(m_docManager);
+
+        #ifdef __WXMSW__
+            #if wxDEBUG_LEVEL >= 2
+                // dump max memory usage
+                // https://docs.microsoft.com/en-us/windows/win32/psapi/collecting-memory-usage-information-for-a-process?redirectedfrom=MSDN
+                PROCESS_MEMORY_COUNTERS memCounter;
+                ::ZeroMemory(&memCounter, sizeof(PROCESS_MEMORY_COUNTERS));
+                if (::GetProcessMemoryInfo(::GetCurrentProcess(), &memCounter, sizeof(memCounter)))
+                    {
+                    const wxString memMsg = wxString::Format(L"Peak Memory Usage: %.02fGbs.",
+                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
+                    wxLogDebug(memMsg);
+                    OutputDebugString(memMsg.wc_str());
+                    }
+            #elif
+                const wxString memMsg = wxString::Format(L"Info: Peak Memory Usage: %.02fGbs.",
+                        safe_divide<double>(memCounter.PeakWorkingSetSize, 1024*1024*1024));
+                MsgBox(memMsg);
+            #endif
+            #ifdef _DEBUG
+                MsgBox("Debug message 0!");
+            #endif
+            #ifndef NDEBUG
+                MsgBox("Debug message 1!");
+            #endif
+            #ifndef NDEBUG
+                MsgBox("Debug message 2!");
+            #elif
+                MsgBox("Release message!");
+            #endif
+            #if defined _DEBUG
+                MsgBox("Debug message 3!");
+            #endif
+        #endif
+            return wxApp::OnExit();
+            })";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string ==
+            std::wstring{ L"Info: Peak Memory Usage: %.02fGbs." });
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string ==
+            std::wstring{ L"Release message!" });
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("Preprocessor Defined Variable In String Helper")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(#define REV_IDENT CString("No revision identifier was provided"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"No revision identifier was provided");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L"REV_IDENT"));
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
+        }
+
+    SECTION("Preprocessor")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = L"# include \"string\"\n#  pragma __asm \"some library\"\n#define color \"Red\"\nif ShowMessage(\"this is an error\")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Red");
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == L"this is an error");
+        }
+
+    SECTION("Preprocessor logic block")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"#ifdef MYDEFINE \"bogus string\" \\ \nANOTHERDEF \"More bogus text\"\nif ShowMessage(\"this is an error\")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"this is an error");
+        }
+    }
+
+TEST_CASE("Variable Assignment", "[cpp]")
+    {
+    SECTION("Variable initializer list")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(static const char * const effect_play[] = {
+            "=	RR",
+            "-	RR",
+            ";	RR",
+            ">	
+    RR",
+            ",	RR")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 5);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"=	RR" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"effect_play" });
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == std::wstring{ L"-	RR" });
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_usage.m_value == std::wstring{ L"effect_play" });
+        CHECK(cpp.get_not_available_for_localization_strings()[2].m_string == std::wstring{ L";	RR" });
+        CHECK(cpp.get_not_available_for_localization_strings()[2].m_usage.m_value == std::wstring{ L"effect_play" });
+        CHECK(cpp.get_not_available_for_localization_strings()[3].m_string == std::wstring{ LR"(>	
+    RR)" });
+        CHECK(cpp.get_not_available_for_localization_strings()[3].m_usage.m_value == std::wstring{ L"effect_play" });
+        CHECK(cpp.get_not_available_for_localization_strings()[4].m_string == std::wstring{ L",	RR" });
+        CHECK(cpp.get_not_available_for_localization_strings()[4].m_usage.m_value == std::wstring{ L"effect_play" });
         }
 
     SECTION("Variable assignment")
@@ -2319,6 +1975,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
         CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"testMessage");
         CHECK(cpp.get_internal_strings()[0].m_usage.m_variableType == L"std::string");
+        i18n_review::get_ignored_variable_patterns().clear();
         }
 
     SECTION("Variable assignment array")
@@ -2398,6 +2055,723 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         // decorations get stripped
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"std::map");
         }
+    }
+
+TEST_CASE("Function Names", "[cpp]")
+    {
+    SECTION("Function signature")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(void DefineProperty(const char *name, plcob pb, std::string description="my description"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring(L"my description"));
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L"description"));
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::variable);
+        }
+
+    SECTION("Function name pointer")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(mid = (*env)->GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"(II)V" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"GetStaticMethodID" });
+        }
+
+    SECTION("Function name global namespace")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(mid = ::GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"(II)V" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"GetStaticMethodID" });
+        }
+
+    SECTION("Function name member")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(what.Printf("standard exception of type \"%s\" with message \"%s\"");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ LR"(standard exception of type \"%s\" with message \"%s\")" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"Printf" });
+        }
+
+    SECTION("Function name template")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(mid = ::GetStaticMethodID<int>(env, mActivityClass, "promptForAlias", "(II)V");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"(II)V" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"GetStaticMethodID" });
+        }
+    }
+
+TEST_CASE("HTML", "[cpp]")
+    {
+    SECTION("Content type")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(var = "text/html; charset=utf-8")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+              std::wstring{ L"text/html; charset=utf-8" });
+        }
+
+    SECTION("Hex color")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str = L"&	c #437A40";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        }
+
+    SECTION("HTML")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        CHECK(cpp.is_untranslatable_string(str = LR"(<tt><span style = 'font-weight:bold;'>)", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<table style=\\\"width:100%;\"><tr><td width=\"33%\">", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<p style=\\\"font-family: %s; font-size: %dpt; color: rgb(%u, %u, %u)\\\">\n", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n<head>\n<meta content=\"text/html; charset=UTF-8\"/>\n<title></title>\n<link href=\"stylesheet.css\" type=\"text/css\" rel=\"stylesheet\" />\n<link rel=\"stylesheet\" type=\"application/vnd.adobe-page-template+xml\" href=\"page-template.xpgt\"/>\n</head>)", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<br />&nbsp;&nbsp;&nbsp;&nbsp;&ldquo;<span style="font-style:italic;">%s</span>&rdquo;)", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<!-- BEGIN {marker} -->)", false));
+        }
+
+    SECTION("Internal CSS Strings")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        CHECK(cpp.is_untranslatable_string(str = L"font-style: italic;", false));
+        CHECK(cpp.is_untranslatable_string(str = L"  font-style: italic;  ", false));
+        CHECK(cpp.is_untranslatable_string(str = L"font-weight: bold", false));
+        CHECK(cpp.is_untranslatable_string(str = L" color:red", false));
+        CHECK(cpp.is_untranslatable_string(str = L"background-COLOR:red, false", false));
+        CHECK(cpp.is_untranslatable_string(str = L" style = 'color: red", false));
+        }
+
+    SECTION("Internal HTML Strings")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        CHECK(cpp.is_untranslatable_string(str = L"<html>", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<!--commment>", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<SPAN style=", false));
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<HTML>hello", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<HTML = "hello"></html>)", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<a href="website"><br>)", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(]]</center>\n)", false));
+        CHECK(cpp.is_untranslatable_string(str = L"&amp;", false));
+        CHECK(cpp.is_untranslatable_string(str = L"&#107;", false));
+        CHECK(cpp.is_untranslatable_string(str = L"&#xF8;", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(charset = \"%s\"\n)", false));
+        }
+
+    SECTION("Internal XML Strings")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<?xml>hello", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<?XML>7</XML>", false));
+        // generic tags
+        CHECK(cpp.is_untranslatable_string(str = L"<doc-val>&entity;</doc-val>", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<comment =\")", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<startdoctype name=\"%s\")", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<image x=%d y=\"%d\" width = '%dpx' height=\"%dpx\")", false));
+        }
+
+    SECTION("Custom XML")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<ice>", false)); // this can be translatable
+        CHECK(cpp.is_untranslatable_string(str = L"</ice>", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<ice> 9, </ice>", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<>", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<ice><ice>", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<ice-level><ice-level>", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<ice> <ice>", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<unrecognized version=\"3\">", false));
+        }
+    }
+
+TEST_CASE("String in CTORs", "[cpp]")
+    {
+
+    SECTION("String In CTOR")
+        {
+        cpp_i18n_review cpp(false);
+        // in call to assert
+        const wchar_t* code = L"if assert(ID, wstring(\"Enter your ID.\"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
+        }
+
+    SECTION("String In CTOR variable")
+        {
+        cpp_i18n_review cpp(false);
+        // in call to assert
+        const wchar_t* code = L"wstring message( \"Enter your ID.\" );";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"wstring");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"message");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("String In CTOR variable with braces")
+        {
+        cpp_i18n_review cpp(false);
+        // in call to assert
+        const wchar_t* code = L"wstring message{ \"Enter your ID.\" };";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::variable);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_variableType == L"wstring");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"message");
+        CHECK(cpp.get_internal_strings().size() == 0);
+        }
+
+    SECTION("String In CTOR With Namespace")
+        {
+        cpp_i18n_review cpp(false);
+        // in call to assert
+        const wchar_t* code = L"if assert(ID, std::wstring(\"Enter your ID.\"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
+        }
+
+    SECTION("String In CTOR With Template")
+        {
+        cpp_i18n_review cpp(false);
+        // in call to assert
+        const wchar_t* code = L"if assert<char>(ID, std::basic_string<char>(\"Enter your ID.\"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
+        }
+
+    SECTION("String in CTOR with global namespace")
+        {
+        cpp_i18n_review cpp(false);
+        // in call to assert
+        const wchar_t* code = L"if assert<char>(ID, ::basic_string(\"Enter your ID.\"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
+        cpp.clear_results();
+        // sanity test of empty CTOR
+        code = L"if assert<char>(ID, ::(\"Enter your ID.\"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"Enter your ID.");
+        }
+    }
+
+TEST_CASE("Parens", "[cpp]")
+    {
+    SECTION("Pointless Parens")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"assert(mPipeline.get(), (\"OnPadAdded: unable to allocate stream context\"));";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"OnPadAdded: unable to allocate stream context");
+        }
+
+    SECTION("String commented paren")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"//comment\nif GetUserInput(/*assert(*/, \"Enter your ID.\")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Enter your ID." });
+        }
+
+    SECTION("Buried In Parentheses")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"//comment\nif assert(true && ( (\"this is an error\")))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"this is an error");
+        }
+
+    SECTION("Parens")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"GetMenuBar()->SetLabel(XRCID(\"ID_SAVE_ITEM\"), wxString::Format(_(\"Export %s...\"), GetActiveProjectWindow()->GetName()) );";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_localizable_strings()[0].m_string == L"Export %s...");
+        CHECK(cpp.get_internal_strings()[0].m_string == L"ID_SAVE_ITEM");
+        }
+
+    SECTION("Parens 2")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"customTestMenu->Append(XRCID(\"ID_ADD_CUSTOM_NEW_DALE_CHALL_TEST\"), wxString::Format(_(\"Add Custom \\\"%s\\\"...\"), wxT(\"New Dale-Chall\")) );";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        REQUIRE(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_localizable_strings()[0].m_string == L"Add Custom \\\"%s\\\"...");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"New Dale-Chall");
+        CHECK(cpp.get_internal_strings()[0].m_string == L"ID_ADD_CUSTOM_NEW_DALE_CHALL_TEST");
+        }
+    }
+
+TEST_CASE("Formulas", "[cpp]")
+    {
+    SECTION("Formulas")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        CHECK(cpp.is_untranslatable_string(str = L"=color", false));
+        CHECK(cpp.is_untranslatable_string(str = L"=small", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Open()", false));
+        CHECK(cpp.is_untranslatable_string(str = L"ABS(-2.7)", false));
+        CHECK(cpp.is_untranslatable_string(str = L"POW(-4, 2)", false));
+        CHECK(cpp.is_untranslatable_string(str = L"SUM(5,6)", false));
+        CHECK(cpp.is_untranslatable_string(str = L"SUM(5;6)", false));
+        CHECK(cpp.is_untranslatable_string(str = L"SUM(R[-4]C:R[-1]C)", false));
+        CHECK(cpp.is_untranslatable_string(str = L"=SUM(R[-4]C:R[-1]C)", false));
+        }
+
+    SECTION("Not formula")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = L"auto var = _(\"%s item(s)\")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 0);
+        }
+    }
+
+TEST_CASE("Loggers", "[cpp]")
+    {
+    SECTION("Log Functions")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.log_messages_can_be_translatable(false);
+        const wchar_t* code = LR"(wxLogError("My ID");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring{ L"My ID" });
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == std::wstring{ L"wxLogError" });
+        }
+
+    SECTION("Log Member Functions")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.log_messages_can_be_translatable(false);
+        const wchar_t* code = LR"(myLog.LogMessage("My ID");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring{ L"My ID" });
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == std::wstring{ L"LogMessage" });
+        }
+
+    SECTION("Log Member Functions")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.log_messages_can_be_translatable(false);
+        const wchar_t* code = LR"(myLog.LogMessage(_("My ID"));)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        REQUIRE(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_localizable_strings()[0].m_string == std::wstring{ L"My ID" });
+        CHECK(cpp.get_localizable_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function);
+        CHECK(cpp.get_localizable_strings()[0].m_usage.m_value == std::wstring{ L"_" });
+        REQUIRE(cpp.get_localizable_strings_in_internal_call().size() == 1);
+        CHECK(cpp.get_localizable_strings_in_internal_call()[0].m_string == std::wstring{ L"My ID" });
+        }
+    }
+
+TEST_CASE("Internal Strings", "[cpp]")
+    {
+    SECTION("Windows names")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 3.1", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 98", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 2000", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows NT", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows NT SP4", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows XP", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows XP SP3", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows Server", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows Server 2012", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows Server 2012 R2", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows Vista", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 8", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 8.1", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 10", false));
+        }
+
+    SECTION("Internal Strings")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        CHECK(cpp.is_untranslatable_string(str = L"", false));
+        CHECK(cpp.is_untranslatable_string(str = L" ", false));
+        CHECK(cpp.is_untranslatable_string(str = L"  \t", false));
+        CHECK(cpp.is_untranslatable_string(str = L"1", false));
+        CHECK(cpp.is_untranslatable_string(str = L"1.0", false));
+        CHECK(cpp.is_untranslatable_string(str = L">", false));
+        CHECK(cpp.is_untranslatable_string(str = L"> ", false));
+        CHECK(cpp.is_untranslatable_string(str = L"\\n\\t\\r ", false));
+        }
+
+    SECTION("Encodings")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        str = L"UTF-8";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"utf8";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"shift-jis";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"shift_jis";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"windows-1252";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"Big5";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"iso-8859-1";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        str = L"iso-8859-13";
+        CHECK(cpp.is_untranslatable_string(str, false));
+        }
+
+    SECTION("Clipboard")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(MsgBox("\r\nStartHTML:00000000\r\nEndHTML:00000000\r\nStartFragment:00000000\r\nEndFragment:00000000\r\n<html><body>\r\n<!--StartFragment -->\r\n"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        cpp.clear_results();
+        code = LR"(MsgBox("Version:0.9\r\nStartHTML:00000000\r\nEndHTML:00000000\r\nStartFragment:00000000\r\nEndFragment:00000000\r\n<html><body>\r\n<!--StartFragment -->\r\n"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+        }
+    }
+
+TEST_CASE("Escaped Strings", "[cpp]")
+    {
+    SECTION("Escaped quotes")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = L"description.Replace(wxT(\"\\\\\\\"\"), wxT(\"/\"));";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 2);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"\\\\\\\"");
+        CHECK(cpp.get_internal_strings()[1].m_string == L"/");
+        cpp.clear_results();
+        code = L"view = (mCurTrack[0]->GetWaveformSettings().scaleType == 0) ? wxT(\"\\\"Waveform\\\"\") : wxT(\"\\\"Waveform (dB)\\\"\")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"\\\"Waveform\\\"");
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == L"\\\"Waveform (dB)\\\"");
+        }
+
+    SECTION("String escaped")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"if GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your \\\"ID\\\".");
+        }
+
+    SECTION("String escaped with escaped slash")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"if GetUserInput(wxT(\"<img src=\\\"images\\\\\"), \"Enter your \\\"ID\\\".\")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring{ L"<img src=\\\"images\\\\" });
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Enter your \\\"ID\\\"." });
+        }
+
+    SECTION("String start escaped")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"blah('\\\"')\nif GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Enter your \\\"ID\\\"." });
+        }
+    }
+
+TEST_CASE("Spaces", "[cpp]")
+    {
+    SECTION("With spaces")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"//\"comment\" ASSERT() is a diagnostic function\nif assert  (true && \"this is an error\")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"this is an error");
+        }
+
+    SECTION("Missing space after semicolon")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"({ return wxSizerFlags::GetDefaultBorder() * 2;})";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        REQUIRE(cpp.get_error_log().size() == 1);
+        CHECK(cpp.get_error_log()[0].m_message == L"Space or newline should be inserted between ';' and '}'.");
+        }
+    }
+
+TEST_CASE("Long Strings", "[cpp]")
+    {
+    SECTION("Mutliline String")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.log_messages_can_be_translatable(false);
+        const wchar_t* code = LR"(wxLogError("Your ID "
+"is revoked");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring{ L"Your ID is revoked" });
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == std::wstring{ L"wxLogError" });
+        }
+
+    SECTION("Mutliline String with Slash")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.log_messages_can_be_translatable(false);
+        const wchar_t* code = LR"(wxLogError("Your ID " \
+"is revoked");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring{ L"Your ID is revoked" });
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function);
+        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == std::wstring{ L"wxLogError" });
+        }
+
+    SECTION("Long line")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(/* Handle HTML syntax that is hard coded in the source file.
+Strip it down and then see if what's left contains translatable content.
+Note that we skip any punctuation (not word characters, excluding '<')
+in front of the initial '<' (sometimes there are braces and brackets
+in front of the HTML tags).
+*/
+if (std::regex_match(str, m_html_regex) ||
+    std::regex_match(str, m_html_element_regex) ||
+    std::regex_match(str, m_html_tag_regex) ||
+    std::regex_match(str, m_html_tag_unicode_regex))
+    {
+    str = std::regex_replace(str,
+                                            std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
+    // strip things like &ldquo;
+    str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
+    str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
+    })";
+        cpp.set_style(i18n_check::review_style::check_line_width);
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        REQUIRE(cpp.get_wide_lines().size() == 1);
+        CHECK(cpp.get_wide_lines()[0].m_usage.m_value == L"122");
+        }
+    }
+
+TEST_CASE("Casing", "[cpp]")
+    {
+    SECTION("Pascal Case")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"value = \"XmlHttpRequest\"; value = \"SupportsIpv6OnIos\"; value = \"Xml2HttpRequest\";";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 3);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"XmlHttpRequest");
+        CHECK(cpp.get_internal_strings()[1].m_string == L"SupportsIpv6OnIos");
+        CHECK(cpp.get_internal_strings()[2].m_string == L"Xml2HttpRequest");
+        }
+
+    SECTION("Camel Case")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"value = \"xmlHttpRequest\"; value = \"supportsIpv6OnIos\"; value = \"xml2HttpRequest\";";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 3);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"xmlHttpRequest");
+        CHECK(cpp.get_internal_strings()[1].m_string == L"supportsIpv6OnIos");
+        CHECK(cpp.get_internal_strings()[2].m_string == L"xml2HttpRequest");
+        }
+    }
+
+TEST_CASE("CPP Tests", "[cpp]")
+    {
+    SECTION("Orphan string")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(if (value =="my message"))";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring(L"my message"));
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring(L""));
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_type == cpp_i18n_review::string_info::usage_info::usage_type::orphan);
+        }
+
+    SECTION("Allow punctuation only")
+        {
+        cpp_i18n_review cpp(false);
+        std::wstring str;
+        cpp.allow_translating_punctuation_only_strings(false);
+        CHECK(cpp.is_untranslatable_string(str = L" % ", false));
+        cpp.allow_translating_punctuation_only_strings(true);
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L" % ", false));
+        }
+
+    SECTION("Quote in single quotes")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = L"if (a == '\"')\nAddCheckBox(_(\"&Use legacy (version 3) syntax.\"),\n(mVersion == 3) ? wxT(\"true\") : wxT(\"false\"));";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 2);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_localizable_strings()[0].m_string == L"&Use legacy (version 3) syntax.");
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"true");
+        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == L"false");
+        }
+
+    SECTION("Exception")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"throw std::range_error(\"Arrays passed to phi_coefficient must be the same size!\");";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Arrays passed to phi_coefficient must be the same size!");
+        }
 
     SECTION("String in parameters with other func calls")
         {
@@ -2472,172 +2846,10 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"Add");
         }
 
-    SECTION("String escaped")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"if GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your \\\"ID\\\".");
-        }
-
-    SECTION("Skip include")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"#include \"string\"\n\nif GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your \\\"ID\\\".");
-        }
-
-    SECTION("Define variable")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"#define REV_TIME \"unknown date and time\"\n\nint i = 9";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"unknown date and time");
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == L"REV_TIME");
-        }
-
-    SECTION("Variable initializer list")
-        {
-        cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        const wchar_t* code = LR"(static const char * const effect_play[] = {
-            "=	RR",
-            "-	RR",
-            ";	RR",
-            ">	
-    RR",
-            ",	RR")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 5);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"=	RR" });
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"effect_play" });
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_string == std::wstring{ L"-	RR" });
-        CHECK(cpp.get_not_available_for_localization_strings()[1].m_usage.m_value == std::wstring{ L"effect_play" });
-        CHECK(cpp.get_not_available_for_localization_strings()[2].m_string == std::wstring{ L";	RR" });
-        CHECK(cpp.get_not_available_for_localization_strings()[2].m_usage.m_value == std::wstring{ L"effect_play" });
-        CHECK(cpp.get_not_available_for_localization_strings()[3].m_string == std::wstring{ LR"(>	
-    RR)" });
-        CHECK(cpp.get_not_available_for_localization_strings()[3].m_usage.m_value == std::wstring{ L"effect_play" });
-        CHECK(cpp.get_not_available_for_localization_strings()[4].m_string == std::wstring{ L",	RR" });
-        CHECK(cpp.get_not_available_for_localization_strings()[4].m_usage.m_value == std::wstring{ L"effect_play" });
-        }
-
-    SECTION("String escaped with escaped slash")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"if GetUserInput(wxT(\"<img src=\\\"images\\\\\"), \"Enter your \\\"ID\\\".\")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring{ L"<img src=\\\"images\\\\" });
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Enter your \\\"ID\\\"." });
-        }
-
-    SECTION("Function name pointer")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(mid = (*env)->GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"(II)V" });
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"GetStaticMethodID" });
-        }
-
-    SECTION("Function name global namespace")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(mid = ::GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"(II)V" });
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"GetStaticMethodID" });
-        }
-
-    SECTION("Function name member")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(what.Printf("standard exception of type \"%s\" with message \"%s\"");)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ LR"(standard exception of type \"%s\" with message \"%s\")" });
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"Printf" });
-        }
-
-    SECTION("Function name template")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(mid = ::GetStaticMethodID<int>(env, mActivityClass, "promptForAlias", "(II)V");)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"(II)V" });
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_usage.m_value == std::wstring{ L"GetStaticMethodID" });
-        }
-
-    SECTION("String commented paren")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"//comment\nif GetUserInput(/*assert(*/, \"Enter your ID.\")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Enter your ID." });
-        }
-
-    SECTION("String start escaped")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = L"blah('\\\"')\nif GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == std::wstring{ L"Enter your \\\"ID\\\"." });
-        }
-
     SECTION("With Email")
         {
         cpp_i18n_review cpp(false);
         std::wstring code = LR"("An error report has been saved to : \n\"%s\".\n\nPlease email this file to support@company.com to have this issue reviewed. Thank you for your patience.")";
-        CHECK_FALSE(cpp.is_untranslatable_string(code, false));
-        }
-
-    SECTION("File Filter")
-        {
-        cpp_i18n_review cpp(false);
-        std::wstring code = LR"("Rich Text Format (*.rtf)|*.rtf")";
         CHECK_FALSE(cpp.is_untranslatable_string(code, false));
         }
 
@@ -2651,74 +2863,6 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_internal_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"Enter your ID.");
-        }
-
-    SECTION("Printf commands")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(DateFormat(L"%Y%m%dT%H%M%S");)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_usage.m_value == L"DateFormat");
-        }
-
-    SECTION("Missing space after semicolon")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"({ return wxSizerFlags::GetDefaultBorder() * 2;})";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        REQUIRE(cpp.get_error_log().size() == 1);
-        CHECK(cpp.get_error_log()[0].m_message == L"Space or newline should be inserted between ';' and '}'.");
-        }
-
-    SECTION("Clipboard")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(MsgBox("\r\nStartHTML:00000000\r\nEndHTML:00000000\r\nStartFragment:00000000\r\nEndFragment:00000000\r\n<html><body>\r\n<!--StartFragment -->\r\n"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 1);
-
-        cpp.clear_results();
-        code = LR"(MsgBox("Version:0.9\r\nStartHTML:00000000\r\nEndHTML:00000000\r\nStartFragment:00000000\r\nEndFragment:00000000\r\n<html><body>\r\n<!--StartFragment -->\r\n"))";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 1);
-        }
-
-    SECTION("Long line")
-        {
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(/* Handle HTML syntax that is hard coded in the source file.
-Strip it down and then see if what's left contains translatable content.
-Note that we skip any punctuation (not word characters, excluding '<')
-in front of the initial '<' (sometimes there are braces and brackets
-in front of the HTML tags).
-*/
-if (std::regex_match(str, m_html_regex) ||
-    std::regex_match(str, m_html_element_regex) ||
-    std::regex_match(str, m_html_tag_regex) ||
-    std::regex_match(str, m_html_tag_unicode_regex))
-    {
-    str = std::regex_replace(str,
-                                            std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
-    // strip things like &ldquo;
-    str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
-    str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
-    })";
-        cpp.set_style(i18n_check::review_style::check_line_width);
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        REQUIRE(cpp.get_wide_lines().size() == 1);
-        CHECK(cpp.get_wide_lines()[0].m_usage.m_value == L"122");
         }
     }
 
