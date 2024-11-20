@@ -2650,13 +2650,14 @@ TEST_CASE("Long Strings", "[cpp]")
         cpp_i18n_review cpp(false);
         cpp.log_messages_can_be_translatable(false);
         const wchar_t* code = LR"(wxLogError("Your ID " \
-"is revoked");)";
+"is revoked " \
+"tomorrow");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring{ L"Your ID is revoked" });
+        CHECK(cpp.get_internal_strings()[0].m_string == std::wstring{ L"Your ID is revoked tomorrow" });
         CHECK(cpp.get_internal_strings()[0].m_usage.m_type == i18n_review::string_info::usage_info::usage_type::function);
         CHECK(cpp.get_internal_strings()[0].m_usage.m_value == std::wstring{ L"wxLogError" });
         }

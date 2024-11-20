@@ -304,6 +304,22 @@ namespace i18n_check
                                     continue;
                                     }
                                 }
+                            else if (connectedQuote < endSentinel && *connectedQuote == L'\\')
+                                {
+                                wchar_t* scanAhead{ std::next(connectedQuote) };
+                                while (scanAhead < endSentinel &&
+                                       string_util::is_either(*scanAhead, L'\n', L'\r'))
+                                    {
+                                    std::advance(scanAhead, 1);
+                                    }
+                                if (scanAhead < endSentinel && *scanAhead == L'\"')
+                                    {
+                                    clear_section(connectedQuote, std::next(connectedQuote, 1));
+                                    connectedQuote = scanAhead;
+                                    end = std::next(scanAhead);
+                                    continue;
+                                    }
+                                }
                             break;
                             }
                         break;

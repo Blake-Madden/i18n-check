@@ -436,8 +436,8 @@ namespace i18n_check
                   _WXTRANS_WSTR(L"Delete the copy CTOR and assignment operator "
                                 "instead of DECLARE_NO_COPY_CLASS.") });
             m_deprecated_string_functions.insert(
-            { L"wxDECLARE_NO_COPY_CLASS",
-              _WXTRANS_WSTR(L"Delete the copy CTOR and assignment operator instead of "
+                { L"wxDECLARE_NO_COPY_CLASS",
+                  _WXTRANS_WSTR(L"Delete the copy CTOR and assignment operator instead of "
                                 "wxDECLARE_NO_COPY_CLASS.") });
             m_deprecated_string_functions.insert(
                 { L"wxMin", _WXTRANS_WSTR(L"Use std::min() instead of wxMin().") });
@@ -1479,8 +1479,8 @@ namespace i18n_check
             {
             process_variable(
                 variableType, variableName,
-                             std::wstring_view{ currentTextPos, static_cast<size_t>(quoteEnd - currentTextPos) },
-                             (currentTextPos - m_file_start));
+                std::wstring_view{ currentTextPos, static_cast<size_t>(quoteEnd - currentTextPos) },
+                (currentTextPos - m_file_start));
             }
         else if (functionName.length() > 0)
             {
@@ -1527,7 +1527,7 @@ namespace i18n_check
                         string_info::usage_info(string_info::usage_info::usage_type::function,
                                                 functionName, std::wstring{},
                                                 (is_i18n_with_context_function(functionName) ||
-                                                    m_context_comment_active)),
+                                                 m_context_comment_active)),
                         m_file_name, get_line_and_column(currentTextPos - m_file_start));
 
                     assert(functionVarNamePos);
