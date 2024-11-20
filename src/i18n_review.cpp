@@ -538,7 +538,7 @@ namespace i18n_check
             std::wregex(LR"(version[ ]?=\\"[0-9\.]+\\")"),
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
             std::wregex(LR"(xml[ ]*version[ ]*=[ ]*\\["'][0-9\.]+\\["'][>]?)"), // partial header
-            std::wregex(LR"(<[\\]?\?xml[ a-zA-Z0-9=\\"'%\-]*[\?]?>)"),          // full header
+            std::wregex(LR"(<[\\]?\?xml[ a-zA-Z0-9=\\"'%\.\-]*[\?]?>)"),        // full header
             std::wregex(
                 LR"(<[A-Za-z]+[A-Za-z0-9_/\\\-\.'"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\-.']*>)"),
             std::wregex(LR"(<[A-Za-z]+([A-Za-z0-9_\-\.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*)"),
