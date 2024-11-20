@@ -403,13 +403,13 @@ namespace i18n_check
 
         /** @brief Sets which checks are being performed.
             @param sty The checks to perform.*/
-        void set_style(const review_style sty) noexcept { m_reviewStyles = sty; }
+        void set_style(const review_style sty) noexcept { m_review_styles = sty; }
 
         /// @returns The checks being performed.
         [[nodiscard]]
         review_style get_style() const noexcept
             {
-            return m_reviewStyles;
+            return m_review_styles;
             }
 
         /** @brief Main interface for extracting resource text from C++ source code.
@@ -1073,7 +1073,7 @@ namespace i18n_check
 
         int m_min_cpp_version{ 2014 };
 
-        review_style m_reviewStyles{ static_cast<review_style>(
+        review_style m_review_styles{ static_cast<review_style>(
             review_style::check_l10n_strings | review_style::check_suspect_l10n_string_usage |
             review_style::check_not_available_for_l10n | review_style::check_deprecated_macros |
             review_style::check_utf8_encoded | review_style::check_printf_single_number |

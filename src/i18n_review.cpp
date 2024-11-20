@@ -949,23 +949,23 @@ namespace i18n_check
         std::wsmatch results;
         for (const auto& str : m_localizable_strings)
             {
-            if ((m_reviewStyles & check_l10n_strings) && str.m_string.length() > 0 &&
+            if ((m_review_styles & check_l10n_strings) && str.m_string.length() > 0 &&
                 is_untranslatable_string(str.m_string, false))
                 {
                 m_unsafe_localizable_strings.push_back(str);
                 }
-            if ((m_reviewStyles & check_l10n_contains_url) &&
+            if ((m_review_styles & check_l10n_contains_url) &&
                 std::regex_search(str.m_string, results, m_url_email_regex))
                 {
                 m_localizable_strings_with_urls.push_back(str);
                 }
-            if ((m_reviewStyles & check_needing_context) && !str.m_usage.m_hasContext &&
+            if ((m_review_styles & check_needing_context) && !str.m_usage.m_hasContext &&
                 is_string_ambiguous(str.m_string))
                 {
                 m_localizable_strings_ambiguous_needing_context.push_back(str);
                 }
 #if __cplusplus >= 202002L
-            if ((m_reviewStyles & check_l10n_has_surrounding_spaces) &&
+            if ((m_review_styles & check_l10n_has_surrounding_spaces) &&
                 has_surrounding_spaces(str.m_string))
                 {
                 m_localizable_strings_with_surrounding_spaces.push_back(str);
@@ -973,7 +973,7 @@ namespace i18n_check
 #endif
             }
 
-        if (m_reviewStyles & check_malformed_strings)
+        if (m_review_styles & check_malformed_strings)
             {
             const auto& classifyMalformedStrings = [this](const auto& strings)
             {
@@ -993,7 +993,7 @@ namespace i18n_check
             classifyMalformedStrings(m_not_available_for_localization_strings);
             }
 
-        if (m_reviewStyles & check_unencoded_ext_ascii)
+        if (m_review_styles & check_unencoded_ext_ascii)
             {
             const auto& classifyUnencodedStrings = [this](const auto& strings)
             {
@@ -1016,7 +1016,7 @@ namespace i18n_check
             classifyUnencodedStrings(m_not_available_for_localization_strings);
             }
 
-        if (m_reviewStyles & check_printf_single_number)
+        if (m_review_styles & check_printf_single_number)
             {
             // only looking at integral values (i.e., no floating-point precision)
             std::wregex intPrintf{ LR"([%]([+]|[-] #0)?(l)?(d|i|o|u|zu|c|C|e|E|x|X|l|I|I32|I64))" };
@@ -1043,7 +1043,7 @@ namespace i18n_check
     //--------------------------------------------------
     void i18n_review::classify_non_localizable_string(string_info str)
         {
-        if (m_reviewStyles & check_not_available_for_l10n)
+        if (m_review_styles & check_not_available_for_l10n)
             {
             if (!should_exceptions_be_translatable() &&
                 (m_exceptions.find(str.m_usage.m_value) != m_exceptions.cend() ||
@@ -1092,7 +1092,7 @@ namespace i18n_check
     void i18n_review::load_deprecated_functions(const std::wstring_view fileText,
                                                 const std::filesystem::path& fileName)
         {
-        if (!static_cast<bool>(m_reviewStyles & check_deprecated_macros))
+        if (!static_cast<bool>(m_review_styles & check_deprecated_macros))
             {
             return;
             }
@@ -1124,8 +1124,8 @@ namespace i18n_check
     void i18n_review::load_id_assignments(const std::wstring_view fileText,
                                           const std::filesystem::path& fileName)
         {
-        if (!(static_cast<bool>(m_reviewStyles & check_duplicate_value_assigned_to_ids) ||
-              static_cast<bool>(m_reviewStyles & check_number_assigned_to_id)))
+        if (!(static_cast<bool>(m_review_styles & check_duplicate_value_assigned_to_ids) ||
+              static_cast<bool>(m_review_styles & check_number_assigned_to_id)))
             {
             return;
             }
@@ -1244,7 +1244,7 @@ namespace i18n_check
                 const int32_t stringIdRangeEnd{ 0x7FFF };
                 const int32_t dialogIdRangeStart{ 8 };
                 const int32_t dialogIdRangeEnd{ 0xDFFF };
-                if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && idVal &&
+                if (static_cast<bool>(m_review_styles & check_number_assigned_to_id) && idVal &&
                     !(idVal.value() >= idRangeStart && idVal.value() <= menuIdRangeEnd) &&
                     (idNameParts[1] == L"IDR_" || idNameParts[1] == L"IDD_" ||
                      idNameParts[1] == L"IDM_" || idNameParts[1] == L"IDC_" ||
@@ -1265,7 +1265,7 @@ namespace i18n_check
                         std::make_pair(get_line_and_column(position, fileText).first,
                                        std::wstring::npos)));
                     }
-                else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && idVal &&
+                else if (static_cast<bool>(m_review_styles & check_number_assigned_to_id) && idVal &&
                          !(idVal.value() >= idRangeStart && idVal.value() <= stringIdRangeEnd) &&
                          (idNameParts[1] == L"IDS_" || idNameParts[1] == L"IDP_"))
                     {
@@ -1284,7 +1284,7 @@ namespace i18n_check
                         std::make_pair(get_line_and_column(position, fileText).first,
                                        std::wstring::npos));
                     }
-                else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) && idVal &&
+                else if (static_cast<bool>(m_review_styles & check_number_assigned_to_id) && idVal &&
                          !(idVal.value() >= dialogIdRangeStart &&
                            idVal.value() <= dialogIdRangeEnd) &&
                          idNameParts[1] == L"IDC_")
@@ -1304,7 +1304,7 @@ namespace i18n_check
                         std::make_pair(get_line_and_column(position, fileText).first,
                                        std::wstring::npos));
                     }
-                else if (static_cast<bool>(m_reviewStyles & check_number_assigned_to_id) &&
+                else if (static_cast<bool>(m_review_styles & check_number_assigned_to_id) &&
                          idNameParts[1].length() <= 3 && // ignore MFC IDs (handled above)
                          std::regex_match(string2, numRE) &&
                          // -1 or 0 are usually generic IDs for the framework or
@@ -1324,7 +1324,7 @@ namespace i18n_check
 
                 const auto [pos, inserted] = assignedIds.insert(std::make_pair(string2, string1));
 
-                if (static_cast<bool>(m_reviewStyles & check_duplicate_value_assigned_to_ids) &&
+                if (static_cast<bool>(m_review_styles & check_duplicate_value_assigned_to_ids) &&
                     !inserted && string2.length() > 0 &&
                     // ignore if same ID is assigned to variables with the same name
                     string1 != pos->second && string2 != L"wxID_ANY" && string2 != L"wxID_NONE" &&
@@ -1431,7 +1431,7 @@ namespace i18n_check
                                     const size_t parameterPosition)
         {
         if (deprecatedMacroEncountered.length() > 0 &&
-            static_cast<bool>(m_reviewStyles & check_deprecated_macros))
+            static_cast<bool>(m_review_styles & check_deprecated_macros))
             {
             const auto foundMessage = m_deprecated_string_macros.find(deprecatedMacroEncountered);
             m_deprecated_macros.emplace_back(
@@ -1500,7 +1500,7 @@ namespace i18n_check
 
                     assert(functionVarNamePos);
                     if (functionVarNamePos != nullptr &&
-                        static_cast<bool>(m_reviewStyles & check_suspect_l10n_string_usage))
+                        static_cast<bool>(m_review_styles & check_suspect_l10n_string_usage))
                         {
                         std::wstring functionNameOuter;
                         std::wstring variableNameOuter;
@@ -1512,7 +1512,7 @@ namespace i18n_check
                             variableTypeOuter, deprecatedMacroOuterEncountered,
                             parameterPositionOuter);
                         if (deprecatedMacroOuterEncountered.length() > 0 &&
-                            static_cast<bool>(m_reviewStyles & check_deprecated_macros))
+                            static_cast<bool>(m_review_styles & check_deprecated_macros))
                             {
                             m_deprecated_macros.emplace_back(
                                 deprecatedMacroOuterEncountered,

@@ -106,7 +106,7 @@ namespace i18n_check
                         std::advance(cppText, suppresionEnd);
                         }
                     const size_t endPos = std::wcscspn(cppText, L"\n\r");
-                    if (static_cast<bool>(m_reviewStyles & check_space_after_comment) &&
+                    if (static_cast<bool>(m_review_styles & check_space_after_comment) &&
                         static_cast<bool>(std::iswalnum(*std::next(cppText, 2))) &&
                         // something like "//--------" is OK
                         *std::next(cppText, 2) != L'-')
@@ -333,13 +333,13 @@ namespace i18n_check
                 }
             else
                 {
-                if (static_cast<bool>(m_reviewStyles & check_tabs) && *cppText == L'\t')
+                if (static_cast<bool>(m_review_styles & check_tabs) && *cppText == L'\t')
                     {
                     m_tabs.push_back(string_info(std::wstring{}, string_info::usage_info{},
                                                  m_file_name,
                                                  get_line_and_column((cppText - m_file_start))));
                     }
-                else if (static_cast<bool>(m_reviewStyles & check_trailing_spaces) &&
+                else if (static_cast<bool>(m_review_styles & check_trailing_spaces) &&
                          *cppText == L' ' && std::next(cppText) < endSentinel &&
                          (*std::next(cppText) == L'\n' || *std::next(cppText) == L'\r'))
                     {
@@ -360,7 +360,7 @@ namespace i18n_check
                         string_info(codeLine, string_info::usage_info{}, m_file_name,
                                     get_line_and_column((cppText - m_file_start))));
                     }
-                else if (static_cast<bool>(m_reviewStyles & check_line_width) &&
+                else if (static_cast<bool>(m_review_styles & check_line_width) &&
                          (*cppText == L'\n' || *cppText == L'\r') && cppText > m_file_start)
                     {
                     const auto currentPos{ (cppText - m_file_start) };

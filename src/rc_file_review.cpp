@@ -106,7 +106,7 @@ namespace i18n_check
                                        std::wstring::npos));
                     }
 
-                if (m_reviewStyles & check_l10n_contains_url)
+                if (m_review_styles & check_l10n_contains_url)
                     {
                     std::wsmatch results;
                     if (std::regex_search(tableEntry.second, results, m_url_email_regex))
@@ -122,7 +122,7 @@ namespace i18n_check
                     }
 
 #if __cplusplus >= 202002L
-                if ((m_reviewStyles & check_l10n_has_surrounding_spaces) &&
+                if ((m_review_styles & check_l10n_has_surrounding_spaces) &&
                     has_surrounding_spaces(tableEntry.second))
                     {
                     m_localizable_strings_with_surrounding_spaces.emplace_back(

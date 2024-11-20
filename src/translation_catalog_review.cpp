@@ -30,7 +30,7 @@ namespace i18n_check
                 {
                 return;
                 }
-            if (static_cast<bool>(m_reviewStyles & check_l10n_strings))
+            if (static_cast<bool>(m_review_styles & check_l10n_strings))
                 {
                 if (is_untranslatable_string(catEntry.second.m_source, false))
                     {
@@ -44,7 +44,7 @@ namespace i18n_check
                                                           catEntry.second.m_source_plural);
                     }
                 }
-            if (static_cast<bool>(m_reviewStyles & check_l10n_contains_url))
+            if (static_cast<bool>(m_review_styles & check_l10n_contains_url))
                 {
                 std::wsmatch results;
 
@@ -60,7 +60,7 @@ namespace i18n_check
                                                           catEntry.second.m_source_plural);
                     }
                 }
-            if (static_cast<bool>(m_reviewStyles & check_l10n_has_surrounding_spaces))
+            if (static_cast<bool>(m_review_styles & check_l10n_has_surrounding_spaces))
                 {
                 if (has_surrounding_spaces(catEntry.second.m_source))
                     {
@@ -76,7 +76,7 @@ namespace i18n_check
                         catEntry.second.m_source_plural);
                     }
                 }
-            if (static_cast<bool>(m_reviewStyles & check_needing_context))
+            if (static_cast<bool>(m_review_styles & check_needing_context))
                 {
                 if (catEntry.second.m_comment.empty() &&
                     is_string_ambiguous(catEntry.second.m_source))
@@ -86,7 +86,7 @@ namespace i18n_check
                                                           catEntry.second.m_source);
                     }
                 }
-            if (static_cast<bool>(m_reviewStyles & check_mismatching_printf_commands))
+            if (static_cast<bool>(m_review_styles & check_mismatching_printf_commands))
                 {
                 if (catEntry.second.m_po_format == po_format_string::cpp_format)
                     {
@@ -131,7 +131,7 @@ namespace i18n_check
                     }
                 }
 
-            if (static_cast<bool>(m_reviewStyles & check_accelerators))
+            if (static_cast<bool>(m_review_styles & check_accelerators))
                 {
                 const std::wregex keyboardAcceleratorRegex{ L"&[[:alnum:]]" };
 
@@ -172,7 +172,7 @@ namespace i18n_check
                     }
                 }
 
-            if (static_cast<bool>(m_reviewStyles & check_consistency))
+            if (static_cast<bool>(m_review_styles & check_consistency))
                 {
                 if (!catEntry.second.m_source.empty() && !catEntry.second.m_translation.empty())
                     {
