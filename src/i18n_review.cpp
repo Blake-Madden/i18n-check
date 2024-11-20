@@ -1495,7 +1495,7 @@ namespace i18n_check
                         string_info::usage_info(string_info::usage_info::usage_type::function,
                                                 functionName, std::wstring{},
                                                 (is_i18n_with_context_function(functionName) ||
-                                                    m_contextCommentActive)),
+                                                    m_context_comment_active)),
                         m_file_name, get_line_and_column(currentTextPos - m_file_start));
 
                     assert(functionVarNamePos);

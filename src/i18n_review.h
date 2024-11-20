@@ -1121,7 +1121,7 @@ namespace i18n_check
         std::vector<string_info> m_wide_lines;
         std::vector<string_info> m_comments_missing_space;
 
-        bool m_contextCommentActive{ false };
+        bool m_context_comment_active{ false };
 
         std::filesystem::path m_file_name;
 

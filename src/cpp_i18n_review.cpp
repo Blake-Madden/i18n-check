@@ -42,7 +42,7 @@ namespace i18n_check
                 // see if a block comment (/*comment*/)
                 if (*std::next(cppText) == L'*')
                     {
-                    m_contextCommentActive = is_translator_comment(
+                    m_context_comment_active = is_translator_comment(
                         { std::next(cppText, 2),
                           static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
 
@@ -51,7 +51,7 @@ namespace i18n_check
                           static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
                     if (isSuppressed)
                         {
-                        m_contextCommentActive = false;
+                        m_context_comment_active = false;
                         clear_section(
                             cppText, std::next(cppText, static_cast<ptrdiff_t>(suppresionEnd + 2)));
                         std::advance(cppText, suppresionEnd);
@@ -78,12 +78,12 @@ namespace i18n_check
                         }
                     // look ahead and see if next function is a translation function
                     // if we have a translator comment to connect to it
-                    if (m_contextCommentActive)
+                    if (m_context_comment_active)
                         {
                         const wchar_t* openingParen = std::wcschr(cppText, L'(');
                         if (openingParen != nullptr && openingParen < endSentinel)
                             {
-                            m_contextCommentActive = is_i18n_function(
+                            m_context_comment_active = is_i18n_function(
                                 { cppText, static_cast<size_t>(openingParen - cppText) });
                             }
                         }
@@ -91,7 +91,7 @@ namespace i18n_check
                 // or a single line comment
                 else if (*std::next(cppText) == L'/' && std::next(cppText, 2) < endSentinel)
                     {
-                    m_contextCommentActive = is_translator_comment(
+                    m_context_comment_active = is_translator_comment(
                         { std::next(cppText, 2),
                           static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
 
@@ -100,7 +100,7 @@ namespace i18n_check
                           static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
                     if (isSuppressed)
                         {
-                        m_contextCommentActive = false;
+                        m_context_comment_active = false;
                         clear_section(
                             cppText, std::next(cppText, static_cast<ptrdiff_t>(suppresionEnd + 2)));
                         std::advance(cppText, suppresionEnd);
@@ -124,12 +124,12 @@ namespace i18n_check
                         }
                     // look ahead and see if next function is a translation function
                     // if we have a translator comment to connect to it
-                    if (m_contextCommentActive)
+                    if (m_context_comment_active)
                         {
                         const wchar_t* openingParen = std::wcschr(cppText, L'(');
                         if (openingParen != nullptr && openingParen < endSentinel)
                             {
-                            m_contextCommentActive = is_i18n_function(
+                            m_context_comment_active = is_i18n_function(
                                 { cppText, static_cast<size_t>(openingParen - cppText) });
                             }
                         }
