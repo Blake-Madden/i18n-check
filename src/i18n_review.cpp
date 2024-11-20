@@ -1252,7 +1252,7 @@ namespace i18n_check
                           std::regex_token_iterator<
                               std::remove_reference_t<decltype(string1)>::const_iterator>(),
                           std::back_inserter(idNameParts));
-                const auto idVal = [&string2]()
+                const auto idVal = [&string2 = string2]()
                 {
                     try
                         {

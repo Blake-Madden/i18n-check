@@ -101,7 +101,8 @@ namespace i18n_check
                 bool inExcludedPath{ false };
                 for (const auto& ePath : excludedPaths)
                     {
-                    std::filesystem::path excPath(ePath, std::filesystem::path::native_format);
+                    std::filesystem::path excPath(ePath,
+                                                  std::filesystem::path::format::native_format);
                     if (p.exists() && std::filesystem::exists(excPath) &&
                         std::filesystem::equivalent(p.path().parent_path(), excPath))
                         {
@@ -114,7 +115,8 @@ namespace i18n_check
                     {
                     for (const auto& eFile : excludedFiles)
                         {
-                        std::filesystem::path excFile(eFile, std::filesystem::path::native_format);
+                        std::filesystem::path excFile(eFile,
+                                                      std::filesystem::path::format::native_format);
                         if (p.exists() && std::filesystem::exists(excFile) &&
                             std::filesystem::equivalent(p, excFile))
                             {
