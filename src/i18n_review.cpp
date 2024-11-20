@@ -1730,11 +1730,6 @@ namespace i18n_check
                 {
                 log_message(variableName, i18n_string_util::lazy_string_to_wstring(exp.what()),
                             quotePosition);
-                classify_non_localizable_string(string_info(
-                    std::move(clippedValue),
-                    string_info::usage_info(string_info::usage_info::usage_type::variable,
-                                            variableName, variableType),
-                    m_file_name, get_line_and_column(quotePosition)));
                 }
             }
         else
