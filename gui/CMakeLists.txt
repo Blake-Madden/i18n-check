@@ -194,13 +194,15 @@ elseif(UNIX)
     endif()
 endif()
 
-if(APPLE)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        RESOURCE app-logo.icns
-        # Name the app bundle "Cuneiform"" (uppercase)
-        OUTPUT_NAME "Cuneiform"
-        XCODE_ATTRIBUTE_EXECUTABLE_NAME ${PROJECT_NAME}
-        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in)
+# On macOS, move the resource files up from the binary folder to the resources folder
+# (note that iOS has a flat folder structure, so only do this for macOS).
+# Some of these files are compiled post build, and others are dynamic folders,
+# so that is why we copy them like this post build instead of including them
+# via RESOURCE like we do the icon.
+if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(RESOURCE_FOLDER "/../resources")
+else()
+    set(RESOURCE_FOLDER "")
 endif()
 
 add_custom_command(TARGET ${PROJECT_NAME}
@@ -217,3 +219,12 @@ add_custom_command(TARGET ${PROJECT_NAME}
                    POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy
                    ${CMAKE_CURRENT_SOURCE_DIR}/../app-logo.svg $<TARGET_FILE_DIR:${PROJECT_NAME}>${RESOURCE_FOLDER}/images)
+
+if(APPLE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RESOURCE app-logo.icns
+        # Name the app bundle "Cuneiform"" (uppercase)
+        OUTPUT_NAME "Cuneiform"
+        XCODE_ATTRIBUTE_EXECUTABLE_NAME ${PROJECT_NAME}
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in)
+endif()
