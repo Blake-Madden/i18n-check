@@ -49,18 +49,30 @@ wxBitmapBundle I18NArtProvider::CreateBitmapBundle(const wxArtID& id, const wxAr
 //-------------------------------------------------------
 wxBitmapBundle I18NArtProvider::GetSVG(const wxString& path) const
     {
+    const wxString imagePath = [&path]()
+    {
+        if (wxFile::Exists(wxStandardPaths::Get().GetResourcesDir() +
+                           wxFileName::GetPathSeparator() + path))
+            {
+            return wxStandardPaths::Get().GetResourcesDir() + wxFileName::GetPathSeparator() +
+                   path;
+            }
+        return wxFileName{ wxStandardPaths::Get().GetExecutablePath() }.GetPath() +
+               wxFileName::GetPathSeparator() + path;
+    }();
+
     // load bitmap from disk if a local file
-    if (wxFile::Exists(path))
+    if (wxFile::Exists(imagePath))
         {
-        wxASSERT_MSG(wxBitmapBundle::FromSVGFile(path, wxSize(16, 16)).IsOk(),
+        wxASSERT_MSG(wxBitmapBundle::FromSVGFile(imagePath, wxSize(16, 16)).IsOk(),
                      L"Failed to load SVG icon!");
 
         wxVector<wxBitmap> bmps;
-        bmps.push_back(wxBitmapBundle::FromSVGFile(path, wxSize(16, 16)).GetBitmap(wxSize(16, 16)));
-        bmps.push_back(wxBitmapBundle::FromSVGFile(path, wxSize(32, 32)).GetBitmap(wxSize(32, 32)));
-        bmps.push_back(wxBitmapBundle::FromSVGFile(path, wxSize(64, 64)).GetBitmap(wxSize(64, 64)));
+        bmps.push_back(wxBitmapBundle::FromSVGFile(imagePath, wxSize(16, 16)).GetBitmap(wxSize(16, 16)));
+        bmps.push_back(wxBitmapBundle::FromSVGFile(imagePath, wxSize(32, 32)).GetBitmap(wxSize(32, 32)));
+        bmps.push_back(wxBitmapBundle::FromSVGFile(imagePath, wxSize(64, 64)).GetBitmap(wxSize(64, 64)));
         bmps.push_back(
-            wxBitmapBundle::FromSVGFile(path, wxSize(128, 128)).GetBitmap(wxSize(128, 128)));
+            wxBitmapBundle::FromSVGFile(imagePath, wxSize(128, 128)).GetBitmap(wxSize(128, 128)));
 
         return wxBitmapBundle::FromBitmaps(bmps);
         }
