@@ -171,15 +171,15 @@ int main(int argc, char* argv[])
         parser.set_min_cpp_version(readIntOption("cpp-version", 2014));
     };
 
-    i18n_check::cpp_i18n_review cpp;
+    i18n_check::cpp_i18n_review cpp(readBoolOption("verbose", false));
     setSourceParserInfo(cpp);
-    i18n_check::csharp_i18n_review csharp;
+    i18n_check::csharp_i18n_review csharp(readBoolOption("verbose", false));
     setSourceParserInfo(csharp);
 
-    i18n_check::rc_file_review rc;
+    i18n_check::rc_file_review rc(readBoolOption("verbose", false));
     rc.allow_translating_punctuation_only_strings(readBoolOption("punct-l10n-allowed", false));
 
-    i18n_check::po_file_review po;
+    i18n_check::po_file_review po(readBoolOption("verbose", false));
     po.review_fuzzy_translations(readBoolOption("fuzzy", false));
 
     // see which checks are being performed

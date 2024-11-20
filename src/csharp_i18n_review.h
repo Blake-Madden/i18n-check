@@ -27,7 +27,12 @@ namespace i18n_check
     class csharp_i18n_review : public cpp_i18n_review
         {
       public:
-        csharp_i18n_review() { m_collapse_double_quotes = true; }
+        /// @brief Constructor.
+        /// @param verbose @c true to include verbose warnings.
+        csharp_i18n_review(const bool verbose) : cpp_i18n_review(verbose)
+            {
+            m_collapse_double_quotes = true;
+            }
 
       private:
         void remove_decorations(std::wstring& str) const final;

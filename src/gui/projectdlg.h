@@ -82,6 +82,7 @@ class NewProjectDialog final : public wxDialog
         options.m_logMessagesCanBeTranslated = LogMessagesCanBeTranslated();
         options.m_allowTranslatingPunctuationOnlyStrings = AllowTranslatingPunctuationOnlyStrings();
         options.m_exceptionsShouldBeTranslatable = ExceptionsShouldBeTranslatable();
+        options.m_verbose = IsVerbose();
         options.m_minWordsForClassifyingUnavailableString =
             MinWordsForClassifyingUnavailableString();
         options.m_minCppVersion = MinCppVersion();
@@ -102,6 +103,7 @@ class NewProjectDialog final : public wxDialog
         m_logMessagesCanBeTranslated = options.m_logMessagesCanBeTranslated;
         m_allowTranslatingPunctuationOnlyStrings = options.m_allowTranslatingPunctuationOnlyStrings;
         m_exceptionsShouldBeTranslatable = options.m_exceptionsShouldBeTranslatable;
+        m_verbose = options.m_verbose;
         m_minWordsForClassifyingUnavailableString =
             options.m_minWordsForClassifyingUnavailableString;
         MinCppVersion(options.m_minCppVersion);
@@ -218,6 +220,18 @@ class NewProjectDialog final : public wxDialog
         }
 
     [[nodiscard]]
+    bool IsVerbose() const noexcept
+        {
+        return m_verbose;
+        }
+
+    void SetVerbose(const bool verbose)
+        {
+        m_verbose = verbose;
+        TransferDataToWindow();
+        }
+
+    [[nodiscard]]
     size_t MinWordsForClassifyingUnavailableString() const noexcept
         {
         return m_minWordsForClassifyingUnavailableString;
@@ -284,16 +298,16 @@ class NewProjectDialog final : public wxDialog
     void OnHelpClicked([[maybe_unused]] wxCommandEvent& event)
         {
         const wxString docPath = []()
-            {
+        {
             if (wxFile::Exists(wxStandardPaths::Get().GetResourcesDir() +
-                                wxFileName::GetPathSeparator() + L"cuneiform.pdf"))
+                               wxFileName::GetPathSeparator() + L"cuneiform.pdf"))
                 {
-                return wxStandardPaths::Get().GetResourcesDir() +
-                                wxFileName::GetPathSeparator() + L"cuneiform.pdf";
+                return wxStandardPaths::Get().GetResourcesDir() + wxFileName::GetPathSeparator() +
+                       L"cuneiform.pdf";
                 }
             return wxFileName{ wxStandardPaths::Get().GetExecutablePath() }.GetPath() +
-                            wxFileName::GetPathSeparator() + L"cuneiform.pdf";
-            }();
+                   wxFileName::GetPathSeparator() + L"cuneiform.pdf";
+        }();
         if (wxFile::Exists(docPath))
             {
             wxLaunchDefaultApplication(docPath);
@@ -333,6 +347,7 @@ class NewProjectDialog final : public wxDialog
     bool m_logMessagesCanBeTranslated{ true };
     bool m_allowTranslatingPunctuationOnlyStrings{ true };
     bool m_exceptionsShouldBeTranslatable{ true };
+    bool m_verbose{ false };
     int m_minWordsForClassifyingUnavailableString{ 2 };
     // C++ options
     bool m_nonUTF8File{ true };

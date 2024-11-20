@@ -32,6 +32,10 @@ namespace i18n_check
     class rc_file_review : public i18n_review
         {
       public:
+        /// @brief Constructor.
+        /// @param verbose @c true to include verbose warnings.
+        rc_file_review(const bool verbose) : i18n_review(verbose) {}
+
         /** @brief Main interface for extracting resource text from C++ source code.
             @param rcFileText The RC file's text to analyze.
             @param fileName The (optional) name of source file being analyzed.*/

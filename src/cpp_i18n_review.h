@@ -33,6 +33,10 @@ namespace i18n_check
     class cpp_i18n_review : public i18n_review
         {
       public:
+        /// @brief Constructor.
+        /// @param verbose @c true to include verbose warnings.
+        cpp_i18n_review(const bool verbose) : i18n_review(verbose) {}
+
         /** @brief Main interface for extracting resource text from C++ source code.
             @param srcText The C++ code text to extract text from.
             @param fileName The (optional) name of source file being analyzed.*/

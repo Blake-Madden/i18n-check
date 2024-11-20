@@ -16,7 +16,7 @@ TEST_CASE("C# code", "[csharp][i18n]")
     {
     SECTION("Raw Strings")
         {
-        csharp_i18n_review cs;
+        csharp_i18n_review cs(false);
         const wchar_t* code = LR"(string val = @"This is your last ""chance""!"""; int level;)";
         cs(code, L"");
         cs.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });

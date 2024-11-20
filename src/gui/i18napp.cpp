@@ -798,16 +798,16 @@ void I18NFrame::OnSettings([[maybe_unused]] wxCommandEvent&)
 void I18NFrame::OnHelp([[maybe_unused]] wxCommandEvent&)
     {
     const wxString docPath = []()
-        {
+    {
         if (wxFile::Exists(wxStandardPaths::Get().GetResourcesDir() +
-                               wxFileName::GetPathSeparator() + L"cuneiform.pdf"))
+                           wxFileName::GetPathSeparator() + L"cuneiform.pdf"))
             {
             return wxStandardPaths::Get().GetResourcesDir() + wxFileName::GetPathSeparator() +
                    L"cuneiform.pdf";
             }
         return wxFileName{ wxStandardPaths::Get().GetExecutablePath() }.GetPath() +
-                           wxFileName::GetPathSeparator() + L"cuneiform.pdf";
-        }();
+               wxFileName::GetPathSeparator() + L"cuneiform.pdf";
+    }();
     if (wxFile::Exists(docPath))
         {
         wxLaunchDefaultApplication(docPath);
@@ -913,12 +913,12 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
 void I18NFrame::OnExportResults([[maybe_unused]] wxCommandEvent&)
     {
     const wxFileName projectName{ m_activeProjectOptions.m_filePath };
-        const wxString lastFolder =
-            projectName.GetName().empty() ? wxString{ _(L"Results") } : projectName.GetName();
+    const wxString lastFolder =
+        projectName.GetName().empty() ? wxString{ _(L"Results") } : projectName.GetName();
 
     wxFileDialog dialog(nullptr, _(L"Export Results"), wxString{}, lastFolder + L".csv",
                         _(L"Comma Separated Values (*.csv)|*.csv|Tab-delimited Text (*.txt)|*.txt"),
-            wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
+                        wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT);
     if (dialog.ShowModal() != wxID_OK)
         {
         return;
@@ -1107,16 +1107,16 @@ void I18NFrame::Process()
             }
     };
 
-    i18n_check::cpp_i18n_review cpp;
+    i18n_check::cpp_i18n_review cpp(m_activeProjectOptions.m_verbose);
     setSourceParserInfo(cpp);
-    i18n_check::csharp_i18n_review csharp;
+    i18n_check::csharp_i18n_review csharp(m_activeProjectOptions.m_verbose);
     setSourceParserInfo(csharp);
 
-    i18n_check::rc_file_review rc;
+    i18n_check::rc_file_review rc(m_activeProjectOptions.m_verbose);
     rc.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
     rc.allow_translating_punctuation_only_strings(
         m_activeProjectOptions.m_allowTranslatingPunctuationOnlyStrings);
-    i18n_check::po_file_review po;
+    i18n_check::po_file_review po(m_activeProjectOptions.m_verbose);
     po.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
     po.review_fuzzy_translations(m_activeProjectOptions.m_fuzzyTranslations);
 
@@ -1248,7 +1248,7 @@ void I18NFrame::Process()
         progressDlg = nullptr;
         }
 
-    std::wstringstream report = analyzer.format_results(false);
+    std::wstringstream report = analyzer.format_results(cpp.is_verbose());
     m_activeResults = report.str();
 
     std::wstring currentLine;

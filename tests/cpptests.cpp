@@ -16,7 +16,7 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
     {
     SECTION("user_level_permission")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "user_level_permission";)";
         cpp(code, L"");
@@ -25,7 +25,7 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
         }
     SECTION("__HIGH_SCORE__")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "__HIGH_SCORE__";)";
         cpp(code, L"");
@@ -34,7 +34,7 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
         }
     SECTION("__HIGH_SCORE__")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "Config_File_Path";)";
         cpp(code, L"");
@@ -43,7 +43,7 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
         }
     SECTION("P_rinter")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "P_rinter";)";
         cpp(code, L"");
@@ -57,7 +57,7 @@ TEST_CASE("<<", "[cpp][i18n]")
     {
     SECTION("<< with params")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(qCDebug(KDE_LOG) << "Rendered image")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -66,7 +66,7 @@ TEST_CASE("<<", "[cpp][i18n]")
 
     SECTION("<< empty params")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(qDebug() << "################### THERE IS A MESSAGE #################";)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -75,7 +75,7 @@ TEST_CASE("<<", "[cpp][i18n]")
 
     SECTION("console")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(std::cout << "################### THERE IS A MESSAGE #################";)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -84,7 +84,7 @@ TEST_CASE("<<", "[cpp][i18n]")
 
     SECTION("Doesn't support <<")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxGetTranslation("Hello there") << "################### THERE IS A MESSAGE #################";)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -97,7 +97,7 @@ TEST_CASE("Place holders", "[cpp][i18n]")
     {
     SECTION("Xes")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(auto var = _(L"XXXXXX XXXXXX");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -106,7 +106,7 @@ TEST_CASE("Place holders", "[cpp][i18n]")
 
     SECTION("X numbers")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(auto var = _(L"XXXXXX -X.XXXXX, +X.XXXXX");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -118,7 +118,7 @@ TEST_CASE("Version Info", "[cpp][i18n]")
     {
     SECTION("vString")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(auto var = _(L"ClientTest v1.2");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -130,7 +130,7 @@ TEST_CASE("C/C++ code", "[cpp][i18n]")
     {
     SECTION("Pointer")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(auto var = _(L"pVal->Dosomething();");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -138,7 +138,7 @@ TEST_CASE("C/C++ code", "[cpp][i18n]")
         }
     SECTION("Raw Strings")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"auto var = LR\"(Hello \"world!\")\");";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -149,7 +149,7 @@ TEST_CASE("C/C++ code", "[cpp][i18n]")
 
 TEST_CASE("QLabel", "[cpp][i18n][qt]")
     {
-    cpp_i18n_review cpp;
+    cpp_i18n_review cpp(false);
     const wchar_t* code = LR"(void TestCLass::TestCase(const QString &text1, const QString &text2)
 {
     QLabel *test1 = new QLabel("label example 1");
@@ -230,7 +230,7 @@ TEST_CASE("IDs", "[cpp][i18n]")
     {
     SECTION("ID assignments")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_style(review_style::all_i18n_checks);
         const wchar_t* code = LR"(int val = 5;
 static int const MENU_ID_NEW = 1000;
@@ -250,7 +250,7 @@ UINT ID_PRINT_ALL(wxID_HIGHEST+1);)";
 
     SECTION("ID assignment define")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_style(review_style::all_i18n_checks);
         const wchar_t* code = LR"(#define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             101
@@ -371,7 +371,7 @@ UINT ID_PRINT_ALL(wxID_HIGHEST+1);)";
 
     SECTION("Duplicate ID value assignments")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_style(review_style::all_i18n_checks);
         const wchar_t* code = LR"(int val = 5;
 static int const MENU_ID_NEW = 1000;
@@ -390,7 +390,7 @@ UINT ID_PRINT_ALL(wxID_HIGHEST  +1);)";
 
     SECTION("Duplicate ID value assignments same variable")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(int val = 5;
 static int const MENU_ID_NEW = 1000;
 wxWindowID MENU_ID_NEW = 1000;
@@ -403,7 +403,7 @@ wxWindowID MENU_ID_SAVE = wxID_HIGHEST;)";
 
     SECTION("ID assignments in parentheses")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_style(review_style::all_i18n_checks);
         const wchar_t* code = LR"(int val = 5;
 static int const MENU_ID_NEW = (({ 1000}));
@@ -423,7 +423,7 @@ UINT ID_EXPORT{ (({1000})) };)";
 
     SECTION("ID value assignments from function")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(const wxWindowID listID = lua_tonumber(L, 2);
 const wxWindowID reportID = lua_tonumber(L, 3);)";
         cpp(code, L"");
@@ -433,7 +433,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
     
     SECTION("ID value assignments not ID var")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(static const int THUMBNAIL_WIDTH = 320;
     static const int THUMBNAIL_HEIGHT = 240;)";
         cpp(code, L"");
@@ -443,7 +443,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
     
     SECTION("ID value assignments from member function")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(int baseYearID = Model_Budgetyear::instance().Get(baseYear);
             int newYearID  = Model_Budgetyear::instance().Get(currYearText);)";
         cpp(code, L"");
@@ -453,7 +453,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
 
     SECTION("ID value assignments from object")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(int fromAccountID = from_account->ACCOUNTID;
             int fromAccountID = from_account->USER_ACCOUNTID;)";
         cpp(code, L"");
@@ -463,7 +463,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
     
     SECTION("ID value assignments not ID var")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(static const int THUMBNAIL_WIDTH = 320;
     static const int THUMBNAIL_HEIGHT = 240;)";
         cpp(code, L"");
@@ -473,7 +473,7 @@ const wxWindowID reportID = lua_tonumber(L, 3);)";
 
     SECTION("ID value assignments to ignore")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(static int const MENU_ID_NEW = wxID_ANY;
 static int const MENU_ID_PRINT = -1;
 static int const MENU_ID_PRINT_ALL = -1;
@@ -489,7 +489,7 @@ TEST_CASE("Qt", "[cpp][i18n]")
     {
     SECTION("tr & translate")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"( void some_global_function(LoginWidget *logwid)
  {
      QLabel *label = new QLabel(
@@ -528,7 +528,7 @@ QLabel *label = new QLabel(
 
     SECTION("QApplication::translate")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(QString test = qApp->translate("SomeContext1", "source content");
 QString test = QApplication::translate("SomeContext2", "more source content");
 QString test2 = QApplication::tr("SomeContext3", "even more source content");
@@ -552,7 +552,7 @@ QString test3 = QApplication::trUtf8("SomeContext4", "even even more source cont
 
     SECTION("QT_TR_NOOP")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(QString FriendlyConversation::greeting(int type)
  {
      static const char *greeting_strings[] = {
@@ -572,7 +572,7 @@ QString test3 = QApplication::trUtf8("SomeContext4", "even even more source cont
 
     SECTION("QT_TRANSLATE_NOOP")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"( static const char *greeting_strings[] = {
      QT_TRANSLATE_NOOP("FriendlyConversation", "Hello"),
      QT_TRANSLATE_NOOP("FriendlyConversation", "Goodbye")
@@ -605,7 +605,7 @@ TEST_CASE("Qt no-loc", "[cpp][i18n]")
     {
     SECTION("Q_MOC_INCLUDE")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(Q_MOC_INCLUDE("myheader"))"; // don't include extension
         cpp(code, L"");
@@ -617,7 +617,7 @@ TEST_CASE("Qt no-loc", "[cpp][i18n]")
 
     SECTION("Q_CLASSINFO")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(class MyClass : public QObject
 {
@@ -643,7 +643,7 @@ TEST_CASE("Deprecated functions & macros", "[cpp][i18n]")
     {
     SECTION("Functions")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_style(review_style::check_deprecated_macros);
         const wchar_t* code = LR"(wxStrlenn i = 9;
 auto var = ::wxStrlen(theString);
@@ -664,7 +664,7 @@ TEST_CASE("Code generator strings", "[i18n]")
     {
     SECTION("HTML CSS style")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "<!DOCTYPE html>
 <html><head>
@@ -688,7 +688,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
     SECTION("HTML script")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "(<!DOCTYPE html>
 <html><head>
@@ -716,7 +716,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
     SECTION("HTML")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "<b>Window</b><br />")";
         cpp(code, L"");
@@ -737,7 +737,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
     SECTION("Postscript command")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "<< /Registry (Adobe)\n";)";
         cpp(code, L"");
@@ -757,7 +757,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
     SECTION("SQL command")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "INSERT INTO BILLSDEPOSITS_V1(ACCOUNTID, TOACCOUNTID";)";
         cpp(code, L"");
@@ -785,7 +785,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
     SECTION("XML Tag")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "<and or>";)";
         cpp(code, L"");
@@ -869,7 +869,7 @@ TEST_CASE("Code generator strings", "[i18n]")
 
     SECTION("C code")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "#ifndef _";)";
         cpp(code, L"");
@@ -900,7 +900,7 @@ TEST_CASE("CPP Tests", "[cpp]")
     {
     SECTION("Stream")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(s << _("Can't open file") << _("You must specify path to another database file");)";
         cpp(code, L"");
         CHECK(cpp.get_localizable_strings().size() == 2);
@@ -910,7 +910,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Dead code block")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(int Wisteria::UI::BaseApp::OnExit()
             {
@@ -966,7 +966,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Debug defined block")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(int Wisteria::UI::BaseApp::OnExit()
             {
@@ -1022,7 +1022,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Var types to ignore")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(const LOGFONTW font("My Comic Sans");)";
         cpp(code, L"");
@@ -1090,7 +1090,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("C header include")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(2);
         const wchar_t* code = LR"(auto var = "#include <wx/mstream.h>";)";
         cpp(code, L"");
@@ -1126,7 +1126,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Separated strings")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(MessageBox("This is a long "
                                              "message across "
                                              "multiple lines");)";
@@ -1141,7 +1141,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Separated strings int 64")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(MessageBox("The amount is %0" PRId64 "\n");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1154,7 +1154,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Separated strings bad int 64 macro")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         // "46" is wrong, so parse this as two strings
         const wchar_t* code = LR"(MessageBox("Invalid Likert response: %\n" PRIu46
                                              "Column: %s\nValues should not exceed 7.");)";
@@ -1171,7 +1171,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Content type")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(var = "text/html; charset=utf-8")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1184,7 +1184,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("File filter")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"var = \"PNG (*.png)|*.png\"";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1197,7 +1197,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("File filter word")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"var = \"Bitmap (*.bmp)|*.bmp\"";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1210,7 +1210,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("File filter multi extensions")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"var = \"TIFF (*.tif;*.tiff)|*.tif;*.tiff\"";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1225,35 +1225,35 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         const wchar_t* code = LR"(auto = sprintf("%zu", value))";
             {
-            cpp_i18n_review cpp;
+            cpp_i18n_review cpp(false);
             cpp(code, L"");
             cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%d", value))";
             {
-            cpp_i18n_review cpp;
+            cpp_i18n_review cpp(false);
             cpp(code, L"");
             cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%+d", value))";
             {
-            cpp_i18n_review cpp;
+            cpp_i18n_review cpp(false);
             cpp(code, L"");
             cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%ll", value))";
             {
-            cpp_i18n_review cpp;
+            cpp_i18n_review cpp(false);
             cpp(code, L"");
             cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%s", value))";
             {
-            cpp_i18n_review cpp;
+            cpp_i18n_review cpp(false);
             cpp(code, L"");
             cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
             CHECK(cpp.get_printf_single_numbers().size() == 0);
@@ -1264,21 +1264,21 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         const wchar_t* code = LR"(auto = sprintf("%f", value))";
             {
-            cpp_i18n_review cpp;
+            cpp_i18n_review cpp(false);
             cpp(code, L"");
             cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%lf", value))";
             {
-            cpp_i18n_review cpp;
+            cpp_i18n_review cpp(false);
             cpp(code, L"");
             cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
             CHECK(cpp.get_printf_single_numbers().size() == 1);
             }
         code = LR"(auto = sprintf("%0.4f", value))";
             {
-            cpp_i18n_review cpp;
+            cpp_i18n_review cpp(false);
             cpp(code, L"");
             cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
             // specific formatting, so std::to_string() can't replace this
@@ -1288,7 +1288,7 @@ TEST_CASE("CPP Tests", "[cpp]")
     
     SECTION("Ignored macro")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxString GetName() const wxOVERRIDE { return wxT("Simple DirectMedia Layer"); })";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1302,7 +1302,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Ignore email contact info")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(auto var = "Blake Madden <empty.name@company.mail.org>")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1315,7 +1315,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Ignore email contact info should not be l10n")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(auto var = _("Blake Madden <empty.name@company.mail.org>"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1324,7 +1324,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Ignore email")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "emptyname@mail.org")";
         cpp(code, L"");
@@ -1338,7 +1338,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Not formula")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = L"auto var = _(\"%s item(s)\")";
         cpp(code, L"");
@@ -1351,7 +1351,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Ignore URL")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "www.company.com")";
         cpp(code, L"");
@@ -1365,7 +1365,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("URL in l10n string")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = _("Contact us at www.company.com"))";
         cpp(code, L"");
@@ -1375,7 +1375,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Not URL in l10n string")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = _("..then by:"))";
         cpp(code, L"");
@@ -1391,7 +1391,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Internal file name")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         str = L"Log_Rep[o]rt-1.log";
         CHECK(cpp.is_untranslatable_string(str, false));
@@ -1425,7 +1425,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Filename")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxMessageBox(_("another.hhp"));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1438,7 +1438,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Filename with folder path")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxMessageBox(_("Enums/Tests.h"));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1453,7 +1453,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Place holder")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxMessageBox(_("  Lorem ipsum dolor sit amet"));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1466,7 +1466,7 @@ TEST_CASE("CPP Tests", "[cpp]")
     
     SECTION("Long place holder")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxMessageBox(_("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisl \nmassa, luctus ut ligula vitae, suscipit tempus velit. Vivamus sodales, quam in \nconvallis posuere, libero nisi ultricies orci, nec lobortis.\n"));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1480,7 +1480,7 @@ TEST_CASE("CPP Tests", "[cpp]")
     SECTION("Min word count")
         {
         // default is to ignore strings with just one word
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxMessageBox("NETHEREALM");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1505,7 +1505,7 @@ TEST_CASE("CPP Tests", "[cpp]")
     SECTION("Min word count apos")
         {
         // default is to ignore strings with just one word
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxMessageBox("NETHEREALM'S");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1530,7 +1530,7 @@ TEST_CASE("CPP Tests", "[cpp]")
     SECTION("Min word count hypthen")
         {
         // default is to ignore strings with just one word
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxMessageBox("part-time");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1554,7 +1554,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
     SECTION("Not filename too long")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(wxMessageBox("Microsoft Windows 2000 system level function loading error occurred during process initialization - Unable to load a function from the library file riched.dll");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1569,14 +1569,14 @@ TEST_CASE("CPP Tests 2", "[cpp]")
     {
         SECTION("Hex color")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str = L"&	c #437A40";
         CHECK(cpp.is_untranslatable_string(str, false));
         }
 
     SECTION("Xes")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         str = L" xx xx x";
         CHECK(cpp.is_untranslatable_string(str, false));
@@ -1584,7 +1584,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
 
     SECTION("HTML")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = LR"(<tt><span style = 'font-weight:bold;'>)", false));
         CHECK(cpp.is_untranslatable_string(str = L"<table style=\\\"width:100%;\"><tr><td width=\"33%\">", false));
@@ -1596,7 +1596,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
 
     SECTION("Command lines")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = L"-D HOST_APPLE_MOBILE=1", false));
         CHECK(cpp.is_untranslatable_string(str = L"-dynamiclib -o {libraryName}", false));
@@ -1605,7 +1605,7 @@ TEST_CASE("CPP Tests 2", "[cpp]")
 
     SECTION("Preprocessor")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = L"#define {resourceDataSymbol}_data_len_val", false));
         }
@@ -1615,7 +1615,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
     {
     SECTION("Macro variable")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(#define  DX_MSG   ("Direct2D failed"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1629,7 +1629,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Function signature")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(void DefineProperty(const char *name, plcob pb, std::string description="my description"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1643,7 +1643,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Macro variable ignored")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(#define  DX_MSG   "Direct2D failed")";
         cpp.add_variable_name_pattern_to_ignore(std::wregex(L"DX_MSG"));
         cpp(code, L"");
@@ -1658,7 +1658,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Orphan string")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(if (value =="my message"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1672,7 +1672,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Macro variable expands to function")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(#define  DX_MSG   MessageBox("Direct2D failed"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1686,7 +1686,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Allow punctuation only")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         cpp.allow_translating_punctuation_only_strings(false);
         CHECK(cpp.is_untranslatable_string(str = L" % ", false));
@@ -1696,7 +1696,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Windows names")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = L"Windows 3.1", false));
         CHECK(cpp.is_untranslatable_string(str = L"Windows 98", false));
@@ -1716,7 +1716,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Unix path")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs", false));
         CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs/", false));
@@ -1728,7 +1728,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Escaped quotes")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = L"description.Replace(wxT(\"\\\\\\\"\"), wxT(\"/\"));";
         cpp(code, L"");
@@ -1751,7 +1751,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Quote in single quotes")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = L"if (a == '\"')\nAddCheckBox(_(\"&Use legacy (version 3) syntax.\"),\n(mVersion == 3) ? wxT(\"true\") : wxT(\"false\"));";
         cpp(code, L"");
@@ -1766,7 +1766,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Internal Strings")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = L"", false));
         CHECK(cpp.is_untranslatable_string(str = L" ", false));
@@ -1780,7 +1780,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Parens")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"GetMenuBar()->SetLabel(XRCID(\"ID_SAVE_ITEM\"), wxString::Format(_(\"Export %s...\"), GetActiveProjectWindow()->GetName()) );";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1793,7 +1793,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Parens 2")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"customTestMenu->Append(XRCID(\"ID_ADD_CUSTOM_NEW_DALE_CHALL_TEST\"), wxString::Format(_(\"Add Custom \\\"%s\\\"...\"), wxT(\"New Dale-Chall\")) );";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1807,7 +1807,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Pascal Case")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"value = \"XmlHttpRequest\"; value = \"SupportsIpv6OnIos\"; value = \"Xml2HttpRequest\";";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1821,7 +1821,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Camel Case")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"value = \"xmlHttpRequest\"; value = \"supportsIpv6OnIos\"; value = \"xml2HttpRequest\";";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1835,7 +1835,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Internal CSS Strings")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = L"font-style: italic;", false));
         CHECK(cpp.is_untranslatable_string(str = L"  font-style: italic;  ", false));
@@ -1847,7 +1847,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Internal HTML Strings")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = L"<html>", false));
         CHECK(cpp.is_untranslatable_string(str = L"<!--commment>", false));
@@ -1864,7 +1864,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Internal XML Strings")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK_FALSE(cpp.is_untranslatable_string(str = L"<?xml>hello", false));
         CHECK(cpp.is_untranslatable_string(str = L"<?XML>7</XML>", false));
@@ -1877,7 +1877,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Custom XML")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = L"<ice>", false));
         CHECK(cpp.is_untranslatable_string(str = L"</ice>", false));
@@ -1891,7 +1891,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Formulas")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         CHECK(cpp.is_untranslatable_string(str = L"=color", false));
         CHECK(cpp.is_untranslatable_string(str = L"=small", false));
@@ -1906,7 +1906,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable name define")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(#define SAVE_MAGIC_V1 "fish")";
         cpp(code, L"");
@@ -1920,7 +1920,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("__asm")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"__asm int \"A\"\n  __asm {int \"B\"\nint \"C\"}\n\nif b__asm(\"this is an error\")__asm";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1932,7 +1932,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("asm")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"asm int \"A\"\n  asm (int \"B\"\nint \"C\")\n\nif basm(\"this is an error\")asm";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1944,7 +1944,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("asm volatile")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(asm volatile (                            \
                     "sd  %[val_m],  %[pdst_sd_m]  \n\t"   \
                                                           \
@@ -1961,7 +1961,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("__asm__")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(__asm__ __volatile__ (
               "cpuid":
            "=a" (CPUInfo[0]),
@@ -1980,7 +1980,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("__asm__ inline")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(#define CATCH_TRAP()  __asm__(".inst 0xde01"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1991,7 +1991,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Preprocessor Defined Variable In String Helper")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(#define REV_IDENT CString("No revision identifier was provided"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2005,7 +2005,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Preprocessor")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = L"# include \"string\"\n#  pragma __asm \"some library\"\n#define color \"Red\"\nif ShowMessage(\"this is an error\")";
         cpp(code, L"");
@@ -2019,7 +2019,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Preprocessor logic block")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"#ifdef MYDEFINE \"bogus string\" \\ \nANOTHERDEF \"More bogus text\"\nif ShowMessage(\"this is an error\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2031,7 +2031,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("With spaces")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"//\"comment\" ASSERT() is a diagnostic function\nif assert  (true && \"this is an error\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2043,7 +2043,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Assert")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"/*comment here\nand more commenting about assert(true && \"this is an error\")*/\n\nif assert(true && \"this is an error\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2054,7 +2054,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
         }
     SECTION("Assert less than token")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"assert(delta >= 0 && \"delta value should be positive when comparing doubles\");";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2066,7 +2066,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Assert nested tokens")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         // check skipping over "==" to get to NON_UNIT_TEST_ASSERT
         const wchar_t* code = L"NON_UNIT_TEST_ASSERT((end1-begin1) == (end2-begin2) && \"Arrays passed to phi_coefficient must be the same size!\")";
         cpp(code, L"");
@@ -2086,7 +2086,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Assert Generic")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"//comment\nif CPPUNIT_ASSERT_EQUAL(true && \"this is an error\")";
         cpp(code, L"");
         code = L"//comment\nif CPPUNIT_ASSERT_EQUAL(true && \"this is an error also\")";
@@ -2101,7 +2101,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Exception")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"throw std::range_error(\"Arrays passed to phi_coefficient must be the same size!\");";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2113,7 +2113,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Buried In Parentheses")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"//comment\nif assert(true && ( (\"this is an error\")))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2125,7 +2125,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Localizable In Assert")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"//comment\nif assert(true && _(\"this is an error\"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2137,7 +2137,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String In CTOR")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         // in call to assert
         const wchar_t* code = L"if assert(ID, wstring(\"Enter your ID.\"))";
         cpp(code, L"");
@@ -2150,7 +2150,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String In CTOR variable")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         // in call to assert
         const wchar_t* code = L"wstring message( \"Enter your ID.\" );";
         cpp(code, L"");
@@ -2166,7 +2166,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String In CTOR variable with braces")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         // in call to assert
         const wchar_t* code = L"wstring message{ \"Enter your ID.\" };";
         cpp(code, L"");
@@ -2182,7 +2182,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String In CTOR With Namespace")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         // in call to assert
         const wchar_t* code = L"if assert(ID, std::wstring(\"Enter your ID.\"))";
         cpp(code, L"");
@@ -2195,7 +2195,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Encodings")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring str;
         str = L"UTF-8";
         CHECK(cpp.is_untranslatable_string(str, false));
@@ -2217,7 +2217,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Pointless Parens")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"assert(mPipeline.get(), (\"OnPadAdded: unable to allocate stream context\"));";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2229,7 +2229,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String In CTOR With Template")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         // in call to assert
         const wchar_t* code = L"if assert<char>(ID, std::basic_string<char>(\"Enter your ID.\"))";
         cpp(code, L"");
@@ -2242,7 +2242,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String in CTOR with global namespace")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         // in call to assert
         const wchar_t* code = L"if assert<char>(ID, ::basic_string(\"Enter your ID.\"))";
         cpp(code, L"");
@@ -2264,7 +2264,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Comparison in function call")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         // in call to assert
         const wchar_t* code = L"if assert(ID==5, \"Bad ID\")";
         cpp(code, L"");
@@ -2277,7 +2277,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable assignment")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"std::string userMessage = \"Enter your ID.\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2292,7 +2292,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable assignment add")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"std::wstring userMessage += L\"Enter your ID.\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2307,7 +2307,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable assignment with pattern")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.add_variable_name_pattern_to_ignore(std::wregex(L"^test.*"));
         const wchar_t* code = L"std::string testMessage = \"Enter your ID.\")";
         cpp(code, L"");
@@ -2323,7 +2323,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable assignment array")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"char userMessage [3] = \"Enter your ID.\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2338,7 +2338,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable assignment template")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"std::basic_string<char> userMessage = \"Enter your ID.\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2354,7 +2354,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable CTOR")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"std::string userMessage{ \"Enter your ID.\" }";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2369,7 +2369,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable CTOR template")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"std::basic_string<char> userMessage{ \"Enter your ID.\" }";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2385,7 +2385,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable CTOR complex template")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"std::map<string, int> userMessage{ \"Enter your ID.\", 87 }";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2401,7 +2401,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String in parameters with other func calls")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"wxASSERT_MSG(m_defaultReadabilityTestsTemplate.get_test_count() == 0, __WXFUNCTION__ + wxString(\" called twice?\"));";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2413,7 +2413,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
     
     SECTION("Switch statement")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(switch ( GetWindowStyle() & wxBK_ALIGN_MASK )
         {
             case wxBK_TOP:
@@ -2443,7 +2443,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
     
     SECTION("Pointers function")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(handlerInfo = m_frame->GetClassInfo()->
                 FindHandlerInfo(wxT("ButtonClickHandler"));)";
         cpp(code, L"");
@@ -2460,7 +2460,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Casts")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(Add(static_cast<CString*>("My ID"));)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2474,7 +2474,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String escaped")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"if GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2486,7 +2486,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Skip include")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"#include \"string\"\n\nif GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2498,7 +2498,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Define variable")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"#define REV_TIME \"unknown date and time\"\n\nint i = 9";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2511,7 +2511,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Variable initializer list")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(static const char * const effect_play[] = {
             "=	RR",
@@ -2540,7 +2540,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String escaped with escaped slash")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"if GetUserInput(wxT(\"<img src=\\\"images\\\\\"), \"Enter your \\\"ID\\\".\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2553,7 +2553,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Function name pointer")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(mid = (*env)->GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2566,7 +2566,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Function name global namespace")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(mid = ::GetStaticMethodID(env, mActivityClass, "promptForAlias", "(II)V");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2579,7 +2579,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Function name member")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(what.Printf("standard exception of type \"%s\" with message \"%s\"");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2592,7 +2592,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Function name template")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(mid = ::GetStaticMethodID<int>(env, mActivityClass, "promptForAlias", "(II)V");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2605,7 +2605,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String commented paren")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"//comment\nif GetUserInput(/*assert(*/, \"Enter your ID.\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2617,7 +2617,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("String start escaped")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"blah('\\\"')\nif GetUserInput(ID, \"Enter your \\\"ID\\\".\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2629,21 +2629,21 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("With Email")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring code = LR"("An error report has been saved to : \n\"%s\".\n\nPlease email this file to support@company.com to have this issue reviewed. Thank you for your patience.")";
         CHECK_FALSE(cpp.is_untranslatable_string(code, false));
         }
 
     SECTION("File Filter")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         std::wstring code = LR"("Rich Text Format (*.rtf)|*.rtf")";
         CHECK_FALSE(cpp.is_untranslatable_string(code, false));
         }
 
     SECTION("String in parameters")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = L"if GetUserInput(ID, \"Enter your ID.\")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2655,7 +2655,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Printf commands")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(DateFormat(L"%Y%m%dT%H%M%S");)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2667,7 +2667,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Missing space after semicolon")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"({ return wxSizerFlags::GetDefaultBorder() * 2;})";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2677,7 +2677,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Clipboard")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(MsgBox("\r\nStartHTML:00000000\r\nEndHTML:00000000\r\nStartFragment:00000000\r\nEndFragment:00000000\r\n<html><body>\r\n<!--StartFragment -->\r\n"))";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -2696,7 +2696,7 @@ TEST_CASE("CPP Tests 3", "[cpp]")
 
     SECTION("Long line")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         const wchar_t* code = LR"(/* Handle HTML syntax that is hard coded in the source file.
 Strip it down and then see if what's left contains translatable content.
 Note that we skip any punctuation (not word characters, excluding '<')
@@ -2726,7 +2726,7 @@ TEST_CASE("Context", "[cpp][i18n]")
     {
     SECTION("Comment")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_style(check_needing_context);
         const wchar_t* code = LR"(SetTitle(wxString::Format(
         /* TRANSLATORS: %s is app name */ _(L"UNTITLED"), wxGetApp().GetAppName()));)";
@@ -2761,7 +2761,7 @@ TEST_CASE("Context", "[cpp][i18n]")
 
     SECTION("Ambiguous CAPPED")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_style(check_needing_context);
         const wchar_t* code = LR"(SetTitle(wxString::Format(
         _(L"FACTOR_VAR"), wxGetApp().GetAppName()));)";
@@ -2780,7 +2780,7 @@ TEST_CASE("Context", "[cpp][i18n]")
 
     SECTION("Ambiguous Punct")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_style(check_needing_context);
         // weird $ at the end makes this ambiguous
         const wchar_t* code = LR"(SetTitle(wxString::Format(
@@ -2808,7 +2808,7 @@ TEST_CASE("Context", "[cpp][i18n]")
 
     SECTION("Ambiguous Long Word")
         {
-        cpp_i18n_review cpp;
+        cpp_i18n_review cpp(false);
         cpp.set_style(check_needing_context);
         // weird $ at the end makes this ambiguous
         const wchar_t* code = LR"(SetTitle(wxString::Format(

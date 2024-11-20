@@ -12,7 +12,7 @@ TEST_CASE("String tables", "[rc][i18n]")
 	{
 	SECTION("ID assignments")
 		{
-		rc_file_review rc;
+		rc_file_review rc(false);
 		const wchar_t* code = LR"(STRINGTABLE
 {
     IDS_HELLO,   "\"Hello\""
@@ -41,7 +41,7 @@ TEST_CASE("Fonts", "[rc][i18n]")
 {
 	SECTION("Check system font")
 	{
-		rc_file_review rc;
+		rc_file_review rc(false);
 		const wchar_t* code = LR"(IDD_ABOUTBOX DIALOGEX 0, 0, 170, 184
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About..."

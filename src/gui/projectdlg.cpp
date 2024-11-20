@@ -407,8 +407,8 @@ void NewProjectDialog::CreateControls()
         m_ignoredVarsList = new wxEditableListBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
                                                   _(L"Ignore strings assigned to variables named:"),
                                                   wxDefaultPosition, wxSize{ -1, FromDIP(100) });
-        gbSizer->Add(m_ignoredVarsList, wxGBPosition(currentRow++, 0), wxGBSpan{ 1, 2 },
-                     wxLEFT, wxSizerFlags::GetDefaultBorder() * 3);
+        gbSizer->Add(m_ignoredVarsList, wxGBPosition(currentRow++, 0), wxGBSpan{ 1, 2 }, wxLEFT,
+                     wxSizerFlags::GetDefaultBorder() * 3);
 
         gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
                                     _(L"Translatable strings that shouldn't be"), wxDefaultPosition,
@@ -531,6 +531,11 @@ void NewProjectDialog::CreateControls()
         cppVersionSizer->Add(cppVersionRadioBox, wxSizerFlags{}.Border(wxLEFT).Left());
 
         mainSizer->Add(cppVersionSizer, wxSizerFlags{}.Expand().Border());
+
+        mainSizer->Add(new wxCheckBox(generalSettingsPage, wxID_ANY, _(L"Include verbose warnings"),
+                                      wxDefaultPosition, wxDefaultSize, 0,
+                                      wxGenericValidator(&m_verbose)),
+                       wxSizerFlags{}.Border().Left());
 
         generalSettingsPage->SetSizer(mainSizer);
         listBook->AddPage(generalSettingsPage, _(L"Source Code"), !m_showFileOptions, 1);

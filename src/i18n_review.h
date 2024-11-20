@@ -383,7 +383,8 @@ namespace i18n_check
             };
 
         /// @brief Constructor.
-        i18n_review();
+        /// @param verbose @c true to include verbose warnings.
+        i18n_review(const bool verbose);
 
         /// @private
         virtual ~i18n_review() {}
@@ -410,6 +411,13 @@ namespace i18n_check
         review_style get_style() const noexcept
             {
             return m_review_styles;
+            }
+
+        /// @returns @c true if verbose warnings are being analyzed.
+        [[nodiscard]]
+        bool is_verbose() const noexcept
+            {
+            return m_verbose;
             }
 
         /** @brief Main interface for extracting resource text from C++ source code.
@@ -1079,6 +1087,8 @@ namespace i18n_check
             review_style::check_utf8_encoded | review_style::check_printf_single_number |
             review_style::check_l10n_contains_url | review_style::check_malformed_strings |
             review_style::check_fonts | review_style::all_l10n_checks) };
+
+        bool m_verbose{ false };
 
         // once these are set (by our CTOR and/or by client), they shouldn't be reset
         std::set<std::wstring_view> m_localization_functions;

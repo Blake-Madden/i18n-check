@@ -57,9 +57,9 @@ Higher values for this will result in less strings being classified as
 
 The C++ standard that should be assumed when issuing deprecated macro warnings (`deprecatedMacro`).
 
-For example, setting this to `2017` or higher will issue warnings for `WXUNUSED`, as it
-can be replaced with `[[maybe_unused]]`. If setting this to `2014`, however, `WXUNUSED`
-will be ignored since `[[maybe_unused]]` requires C++17.
+For example, setting this to `2017` or higher (along with enabling the `verbose` flag)
+will issue warnings for `WXUNUSED`, as it can be replaced with `[[maybe_unused]]`.
+If setting this to `2014`, however, `WXUNUSED` will be ignored since `[[maybe_unused]]` requires C++17.
 
 (Default is `2014`.)
 
@@ -90,7 +90,7 @@ Only print errors and the final output.
 
 ## \-v,\-\-verbose {-}
 
-Display debug information.
+Perform additional checks and display debug information and display debug information.
 
 ## \-h,\-\-help {-}
 

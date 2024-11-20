@@ -77,8 +77,11 @@ Setting this to `true` will suppress warnings about strings such as "*? - ?*" be
 Higher values for this will result in less strings being classified as `notL10NAvailable` warnings.
 
 **C++ standard when issuing deprecation warnings**: enter into here the C++ standard that should be assumed when issuing deprecated macro warnings (`deprecatedMacro`).
-For example, setting this to `2017` or higher will issue warnings for `WXUNUSED`, as it can be replaced with `[[maybe_unused]]`.
+For example, setting this to `2017` or higher (along with selecting the **Include verbose warnings** option) will issue warnings for `WXUNUSED`, as it can be replaced with `[[maybe_unused]]`.
 If setting this to `2014`, however, `WXUNUSED` will be ignored since `[[maybe_unused]]` requires C++17.
+
+**Include verbose warnings**: select this to perform additional checks, including those that may not be related to i18n/l10n issues.
+This will also include additional information in the **Analysis Log** window.
 
 {{< pagebreak >}}
 

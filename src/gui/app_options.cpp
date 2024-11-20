@@ -79,6 +79,9 @@ void I18NOptions::Save(const wxString& filePath)
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
                                  m_exceptionsShouldBeTranslatable ? L"true" : L"false"));
 
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"verbose");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_verbose ? L"true" : L"false"));
+
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"min-words-for-classifying-unavailable-string");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
                                  std::to_wstring(m_minWordsForClassifyingUnavailableString)));
@@ -87,7 +90,8 @@ void I18NOptions::Save(const wxString& filePath)
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_minCppVersion)));
 
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"window-maximized");
-    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_windowMaximized ? L"true" : L"false"));
+    node->AddChild(
+        new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_windowMaximized ? L"true" : L"false"));
 
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"editor-height");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_editorHeight)));
@@ -122,6 +126,7 @@ void I18NOptions::Load(const wxString& filePath)
     m_logMessagesCanBeTranslated = true;
     m_allowTranslatingPunctuationOnlyStrings = false;
     m_exceptionsShouldBeTranslatable = true;
+    m_verbose = false;
     m_widthPseudoIncrease = 0;
     m_minWordsForClassifyingUnavailableString = 2;
     m_minCppVersion = 2014;
@@ -209,6 +214,10 @@ void I18NOptions::Load(const wxString& filePath)
         else if (child->GetName() == L"exceptions-should-be-translatable")
             {
             m_exceptionsShouldBeTranslatable = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"verbose")
+            {
+            m_verbose = (child->GetNodeContent() == L"true");
             }
         else if (child->GetName() == L"min-words-for-classifying-unavailable-string")
             {

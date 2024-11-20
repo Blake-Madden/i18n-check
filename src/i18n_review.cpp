@@ -242,7 +242,7 @@ namespace i18n_check
     };
 
     //--------------------------------------------------
-    i18n_review::i18n_review()
+    i18n_review::i18n_review(const bool verbose)
         {
         m_deprecated_string_macros = {
             { L"wxT", _WXTRANS_WSTR(L"wxT() macro can be removed.") },
@@ -409,31 +409,48 @@ namespace i18n_check
                   "wxFileName::GetFullPath(wxPATH_DOS) instead of using wxUnix2DosFilename.") },
             { L"wxSplitPath",
               _WXTRANS_WSTR(
-                  L"wxSplitPath is obsolete, please use wxFileName::SplitPath() instead.") },
-            // not i18n related, just legacy wx functions that can be modernized
-            { L"wxMin", _WXTRANS_WSTR(L"Use std::min() instead of wxMin().") },
-            { L"wxMax", _WXTRANS_WSTR(L"Use std::max() instead of wxMax().") },
-            { L"wxRound", _WXTRANS_WSTR(L"Use std::lround() instead of wxRound().") },
-            { L"wxIsNan", _WXTRANS_WSTR(L"Use std::isnan() instead of wxIsNan().") },
-            { L"wxNOEXCEPT", _WXTRANS_WSTR(L"Use noexcept instead of wxNOEXCEPT.") },
-            { L"__WXMAC__", _WXTRANS_WSTR(L"Use __WXOSX__ instead of __WXMAC__.") },
-            { L"wxMEMBER_DELETE", _WXTRANS_WSTR(L"Use '= delete' instead of wxMEMBER_DELETE.") },
-            { L"wxOVERRIDE", _WXTRANS_WSTR(L"Use override or final instead of wxOVERRIDE.") },
-            { L"wxDECLARE_NO_COPY_CLASS",
-              _WXTRANS_WSTR(L"Delete the copy CTOR and assignment operator instead of "
-                            "wxDECLARE_NO_COPY_CLASS.") },
-            { L"DECLARE_NO_COPY_CLASS",
-              _WXTRANS_WSTR(L"Delete the copy CTOR and assignment operator "
-                            "instead of DECLARE_NO_COPY_CLASS.") },
-            { L"wxGROW",
-              _WXTRANS_WSTR(L"Call wxSizer::Add() with a wxSizerFlags object using Expand() "
-                            "instead of wxGROW.") },
-            { L"wxEXPAND",
-              _WXTRANS_WSTR(L"Call wxSizer::Add() with a wxSizerFlags object using Expand() "
-                            "instead of wxEXPAND.") }
+                  L"wxSplitPath is obsolete, please use wxFileName::SplitPath() instead.") }
         };
 
-        if (m_min_cpp_version >= 2017)
+        if (verbose)
+            {
+            // not i18n related, just legacy wx functions that can be modernized
+            m_deprecated_string_functions.insert(
+                { L"wxEXPAND",
+                  _WXTRANS_WSTR(L"Call wxSizer::Add() with a wxSizerFlags object using Expand() "
+                                "instead of wxEXPAND.") });
+            m_deprecated_string_functions.insert(
+                { L"wxGROW",
+                  _WXTRANS_WSTR(L"Call wxSizer::Add() with a wxSizerFlags object using Expand() "
+                                "instead of wxGROW.") });
+            m_deprecated_string_functions.insert(
+                { L"DECLARE_NO_COPY_CLASS",
+                  _WXTRANS_WSTR(L"Delete the copy CTOR and assignment operator "
+                                "instead of DECLARE_NO_COPY_CLASS.") });
+            m_deprecated_string_functions.insert(
+            { L"wxDECLARE_NO_COPY_CLASS",
+              _WXTRANS_WSTR(L"Delete the copy CTOR and assignment operator instead of "
+                                "wxDECLARE_NO_COPY_CLASS.") });
+            m_deprecated_string_functions.insert(
+                { L"wxMin", _WXTRANS_WSTR(L"Use std::min() instead of wxMin().") });
+            m_deprecated_string_functions.insert(
+                { L"wxMax", _WXTRANS_WSTR(L"Use std::max() instead of wxMax().") });
+            m_deprecated_string_functions.insert(
+                { L"wxRound", _WXTRANS_WSTR(L"Use std::lround() instead of wxRound().") });
+            m_deprecated_string_functions.insert(
+                { L"wxIsNan", _WXTRANS_WSTR(L"Use std::isnan() instead of wxIsNan().") });
+            m_deprecated_string_functions.insert(
+                { L"wxNOEXCEPT", _WXTRANS_WSTR(L"Use noexcept instead of wxNOEXCEPT.") });
+            m_deprecated_string_functions.insert(
+                { L"__WXMAC__", _WXTRANS_WSTR(L"Use __WXOSX__ instead of __WXMAC__.") });
+            m_deprecated_string_functions.insert(
+                { L"wxMEMBER_DELETE",
+                  _WXTRANS_WSTR(L"Use '= delete' instead of wxMEMBER_DELETE.") });
+            m_deprecated_string_functions.insert(
+                { L"wxOVERRIDE", _WXTRANS_WSTR(L"Use override or final instead of wxOVERRIDE.") });
+            }
+
+        if (verbose && m_min_cpp_version >= 2017)
             {
             m_deprecated_string_functions.insert(
                 { L"wxNODISCARD", _WXTRANS_WSTR(L"Use [[nodiscard]] instead of wxNODISCARD.") });

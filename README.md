@@ -210,7 +210,7 @@ loaded by your application for integration testing.
 
 -q,--quiet: Only print errors and the final output.
 
--v,--verbose: Display debug information.
+-v,--verbose: Perform additional checks and display debug information.
 
 -h,--help: Print usage.
 ```
