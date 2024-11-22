@@ -333,7 +333,7 @@ void I18NFrame::InitControls()
     if (wxSystemSettings::GetAppearance().IsDark())
         {
         m_logWindow->SetBackgroundColour(
-            wxSystemSettings::GetColour(wxSystemColour::wxSYS_COLOUR_BACKGROUND));
+            wxSystemSettings::GetColour(wxSystemColour::wxSYS_COLOUR_WINDOW));
         m_logWindow->SetForegroundColour(
             wxSystemSettings::GetColour(wxSystemColour::wxSYS_COLOUR_BTNTEXT));
         }
