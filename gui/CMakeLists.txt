@@ -224,7 +224,7 @@ if(UNIX)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_VISIBILITY_PRESET hidden
         C_VISIBILITY_PRESET hidden
-        VISIBILITY_INLINES_HIDDEN TRUE
+        VISIBILITY_INLINES_HIDDEN TRUE)
 endif()
 
 if(APPLE)
