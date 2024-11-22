@@ -137,8 +137,10 @@ namespace i18n_check
                     // ignore CMake build files
                     p.path().filename().compare(L"CMakeCXXCompilerId.cpp") != 0 &&
                     p.path().filename().compare(L"CMakeCCompilerId.c") != 0 &&
-                    // main catch2 file
+                    // main catch2 files
                     p.path().filename().compare(L"catch.hpp") != 0 &&
+                    p.path().filename().compare(L"catch_amalgamated.cpp") != 0 &&
+                    p.path().filename().compare(L"catch_amalgamated.hpp") != 0 &&
                 // ignore pseudo-translated message catalogs what we previously generated
 #if CHECK_GCC_VERSION(12, 2, 1)
                     !p.path().filename().wstring().starts_with(L"pseudo_"))
