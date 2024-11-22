@@ -54,8 +54,7 @@ wxBitmapBundle I18NArtProvider::GetSVG(const wxString& path) const
         if (wxFile::Exists(wxStandardPaths::Get().GetResourcesDir() +
                            wxFileName::GetPathSeparator() + path))
             {
-            return wxStandardPaths::Get().GetResourcesDir() + wxFileName::GetPathSeparator() +
-                   path;
+            return wxStandardPaths::Get().GetResourcesDir() + wxFileName::GetPathSeparator() + path;
             }
         return wxFileName{ wxStandardPaths::Get().GetExecutablePath() }.GetPath() +
                wxFileName::GetPathSeparator() + path;
@@ -68,9 +67,12 @@ wxBitmapBundle I18NArtProvider::GetSVG(const wxString& path) const
                      L"Failed to load SVG icon!");
 
         wxVector<wxBitmap> bmps;
-        bmps.push_back(wxBitmapBundle::FromSVGFile(imagePath, wxSize(16, 16)).GetBitmap(wxSize(16, 16)));
-        bmps.push_back(wxBitmapBundle::FromSVGFile(imagePath, wxSize(32, 32)).GetBitmap(wxSize(32, 32)));
-        bmps.push_back(wxBitmapBundle::FromSVGFile(imagePath, wxSize(64, 64)).GetBitmap(wxSize(64, 64)));
+        bmps.push_back(
+            wxBitmapBundle::FromSVGFile(imagePath, wxSize(16, 16)).GetBitmap(wxSize(16, 16)));
+        bmps.push_back(
+            wxBitmapBundle::FromSVGFile(imagePath, wxSize(32, 32)).GetBitmap(wxSize(32, 32)));
+        bmps.push_back(
+            wxBitmapBundle::FromSVGFile(imagePath, wxSize(64, 64)).GetBitmap(wxSize(64, 64)));
         bmps.push_back(
             wxBitmapBundle::FromSVGFile(imagePath, wxSize(128, 128)).GetBitmap(wxSize(128, 128)));
 
@@ -1132,133 +1134,101 @@ void I18NFrame::Process()
     po.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
     po.review_fuzzy_translations(m_activeProjectOptions.m_fuzzyTranslations);
 
-    wxProgressDialog* progressDlg{ nullptr };
-
     i18n_check::batch_analyze analyzer(&cpp, &rc, &po, &csharp);
 
     if (m_activeProjectOptions.m_pseudoTranslationMethod !=
         i18n_check::pseudo_translation_method::none)
         {
+        wxProgressDialog progressDlg = wxProgressDialog(
+            _(L"Pseudo-translating Files"), _(L"Pseudo-translating..."), filesToAnalyze.size(),
+            this,
+            wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
+                wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
+
         analyzer.pseudo_translate(
             filesToAnalyze, m_activeProjectOptions.m_pseudoTranslationMethod,
             m_activeProjectOptions.m_addPseudoTransBrackets,
             m_activeProjectOptions.m_widthPseudoIncrease, m_activeProjectOptions.m_pseudoTrack,
             [&progressDlg, this](const size_t totalFiles)
             {
-                if (progressDlg != nullptr)
-                    {
-                    if (!progressDlg->IsBeingDeleted())
-                        {
-                        progressDlg->Destroy();
-                        }
-                    progressDlg = nullptr;
-                    }
-                if (totalFiles > 0)
-                    {
-                    progressDlg = new wxProgressDialog(
-                        _(L"Pseudo-translating Files"), _(L"Pseudo-translating..."), totalFiles,
-                        this,
-                        wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
-                            wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
-                    progressDlg->Centre();
-                    }
+                progressDlg.SetRange(totalFiles);
+                progressDlg.Update(0);
             },
             [&progressDlg](const size_t currentFileIndex, const std::filesystem::path& file)
             {
-                progressDlg->SetTitle(
+                progressDlg.SetTitle(
                     wxString::Format(_(L"Pseudo-translating %s of %s..."),
                                      wxNumberFormatter::ToString(
                                          currentFileIndex, 0,
                                          wxNumberFormatter::Style::Style_NoTrailingZeroes |
                                              wxNumberFormatter::Style::Style_WithThousandsSep),
                                      wxNumberFormatter::ToString(
-                                         progressDlg->GetRange(), 0,
+                                         progressDlg.GetRange(), 0,
                                          wxNumberFormatter::Style::Style_NoTrailingZeroes |
                                              wxNumberFormatter::Style::Style_WithThousandsSep)));
 #ifndef NDEBUG
                 std::wcout << L"Pseudo-translating " << file << L"\n";
 #endif
-                if (!progressDlg->Update(currentFileIndex,
-                                         file.empty() ?
-                                             _(L"Processing...") :
-                                             wxString::Format(_(L"Pseudo-translating %s..."),
+                if (!progressDlg.Update(currentFileIndex,
+                                        file.empty() ?
+                                            _(L"Processing...") :
+                                            wxString::Format(_(L"Pseudo-translating %s..."),
 #if CHECK_GCC_VERSION(12, 2, 1)
-                                                              file.filename().wstring())))
+                                                             file.filename().wstring())))
 #else
-                                                              file.filename().string())))
+                                                             file.filename().string())))
 #endif
                     {
-                    progressDlg->Destroy();
-                    progressDlg = nullptr;
                     return false;
                     }
                 return true;
             });
         }
 
+    wxProgressDialog progressDlg =
+        wxProgressDialog(_(L"Analyzing Files"), _(L"Reviewing files for l10n/i18n issues..."),
+                         filesToAnalyze.size(), this,
+                         wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
+                             wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
+
     analyzer.analyze(
         filesToAnalyze,
         [&progressDlg, this](const size_t totalFiles)
         {
-            if (progressDlg != nullptr)
-                {
-                if (!progressDlg->IsBeingDeleted())
-                    {
-                    progressDlg->Destroy();
-                    }
-                progressDlg = nullptr;
-                }
-            if (totalFiles > 0)
-                {
-                progressDlg = new wxProgressDialog(
-                    _(L"Analyzing Files"), _(L"Reviewing files for l10n/i18n issues..."),
-                    totalFiles, this,
-                    wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
-                        wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
-                progressDlg->Centre();
-                }
+            // We set an extra step here so that the dialog doesn't autohide.
+            // This is necessary because we need to reuse this dialog for when it analyzes
+            // translation catalog entries, and if it autohides then it won't be visible then.
+            // This dialog will close when it goes out of scope (autohiding will take over then).
+            progressDlg.SetRange(totalFiles + 1);
+            progressDlg.Update(0);
         },
         [&progressDlg](const size_t currentFileIndex, const std::filesystem::path& file)
         {
-            if (progressDlg != nullptr)
-                {
-                progressDlg->SetTitle(
-                    wxString::Format(_(L"Processing %s of %s..."),
-                                     wxNumberFormatter::ToString(
-                                         currentFileIndex, 0,
-                                         wxNumberFormatter::Style::Style_NoTrailingZeroes |
-                                             wxNumberFormatter::Style::Style_WithThousandsSep),
-                                     wxNumberFormatter::ToString(
-                                         progressDlg->GetRange(), 0,
-                                         wxNumberFormatter::Style::Style_NoTrailingZeroes |
-                                             wxNumberFormatter::Style::Style_WithThousandsSep)));
+            progressDlg.Show();
+            progressDlg.SetTitle(wxString::Format(
+                _(L"Processing %s of %s..."),
+                wxNumberFormatter::ToString(currentFileIndex, 0,
+                                            wxNumberFormatter::Style::Style_NoTrailingZeroes |
+                                                wxNumberFormatter::Style::Style_WithThousandsSep),
+                wxNumberFormatter::ToString(progressDlg.GetRange(), 0,
+                                            wxNumberFormatter::Style::Style_NoTrailingZeroes |
+                                                wxNumberFormatter::Style::Style_WithThousandsSep)));
 #ifndef NDEBUG
-                std::wcout << L"Analyzing " << file << L"\n";
+            std::wcout << L"Analyzing " << file << L"\n";
 #endif
-                if (!progressDlg->Update(currentFileIndex,
-                                         file.empty() ?
-                                             _(L"Processing...") :
-                                             wxString::Format(_(L"Reviewing %s..."),
+            if (!progressDlg.Update(currentFileIndex,
+                                    file.empty() ? _(L"Processing...") :
+                                                   wxString::Format(_(L"Reviewing %s..."),
 #if CHECK_GCC_VERSION(12, 2, 1)
-                                                              file.filename().wstring())))
+                                                                    file.filename().wstring())))
 #else
-                                                              file.filename().string())))
+                                                                    file.filename().string())))
 #endif
-                    {
-                    progressDlg->Destroy();
-                    progressDlg = nullptr;
-                    return false;
-                    }
+                {
+                return false;
                 }
             return true;
         });
-
-    // in case it wasn't pulsed enough times to autohide
-    if (progressDlg != nullptr && !progressDlg->IsBeingDeleted())
-        {
-        progressDlg->Destroy();
-        progressDlg = nullptr;
-        }
 
     std::wstringstream report = analyzer.format_results(cpp.is_verbose());
     m_activeResults = report.str();
