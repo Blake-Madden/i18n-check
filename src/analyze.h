@@ -62,10 +62,27 @@ namespace i18n_check
             {
             return file_review_type::cs;
             }
-        else
+        else if (file.extension().compare(std::filesystem::path(L".cpp")) == 0 ||
+                 file.extension().compare(std::filesystem::path(L".c")) == 0 ||
+                 file.extension().compare(std::filesystem::path(L".hpp")) == 0 ||
+                 file.extension().compare(std::filesystem::path(L".h")) == 0)
             {
             return file_review_type::cpp;
             }
+        else
+            {
+            return file_review_type::unknown;
+            }
+        }
+
+    /// @brief Determines if a file is a source file, based on extension.
+    /// @param file The file path.
+    /// @returns @c true if a source file.
+    [[nodiscard]]
+    inline bool is_source_file(const std::filesystem::path& file)
+        {
+        const auto fileType{ get_file_type(file) };
+        return (fileType == file_review_type::cpp || fileType == file_review_type::cs);
         }
 
     /// @brief Wrapper class to analyze and summarize a batch of files.

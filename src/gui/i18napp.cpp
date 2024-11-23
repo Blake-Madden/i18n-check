@@ -27,6 +27,8 @@ I18NArtProvider::I18NArtProvider()
                     { wxART_REFRESH, L"images/reload.svg" },
                     { wxART_DELETE, L"images/delete.svg" },
                     { wxART_HELP, L"images/help.svg" },
+                    { L"ID_INSERT", L"images/insert.svg" },
+                    { L"ID_INSERT_TRANSLATOR_COMMENT", L"images/comment.svg" },
                     { L"ID_CODE", L"images/code.svg" },
                     { L"ID_TRANSLATIONS", L"images/translations.svg" },
                     { L"ID_CHECK", L"images/check.svg" },
@@ -121,22 +123,44 @@ void I18NFrame::InitControls()
         m_projectBar->EnableButton(wxID_REFRESH, false);
         m_projectBar->EnableButton(XRCID("ID_IGNORE"), false);
 
-        wxRibbonPanel* helpPanel =
-            new wxRibbonPanel(homePage, wxID_ANY, _(L"General"), wxNullBitmap, wxDefaultPosition,
-                              wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
-        wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(helpPanel);
-        toolbar->AddButton(
-            XRCID("ID_SETTINGS"), _(L"Settings"),
-            wxArtProvider::GetBitmap(L"ID_SETTINGS", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
-                .ConvertToImage());
-        toolbar->AddButton(
-            wxID_HELP, _(L"Help"),
-            wxArtProvider::GetBitmap(wxART_HELP, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
-                .ConvertToImage());
-        toolbar->AddButton(
-            wxID_ABOUT, _(L"About"),
-            wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
-                .ConvertToImage());
+            {
+            wxRibbonPanel* editPanel =
+                new wxRibbonPanel(homePage, wxID_ANY, _(L"Edit"), wxNullBitmap, wxDefaultPosition,
+                                  wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
+            m_editBar = new wxRibbonButtonBar(editPanel);
+            m_editBar->AddDropdownButton(
+                XRCID("ID_INSERT"), _(L"Insert"),
+                wxArtProvider::GetBitmap(L"ID_INSERT", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+            EnableEditBar(false);
+            }
+
+            {
+            wxRibbonPanel* toolsPanel =
+                new wxRibbonPanel(homePage, wxID_ANY, _(L"Tools"), wxNullBitmap, wxDefaultPosition,
+                                  wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
+            wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(toolsPanel);
+            toolbar->AddButton(
+                XRCID("ID_SETTINGS"), _(L"Settings"),
+                wxArtProvider::GetBitmap(L"ID_SETTINGS", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+            }
+
+            {
+            wxRibbonPage* helpPage = new wxRibbonPage(m_ribbon, wxID_ANY, _(L"Help"));
+            wxRibbonPanel* helpPanel = new wxRibbonPanel(
+                helpPage, wxID_ANY, _(L"General"), wxNullBitmap, wxDefaultPosition, wxDefaultSize,
+                wxRIBBON_PANEL_NO_AUTO_MINIMISE);
+            wxRibbonButtonBar* helpbar = new wxRibbonButtonBar(helpPanel);
+            helpbar->AddButton(
+                wxID_HELP, _(L"Help"),
+                wxArtProvider::GetBitmap(wxART_HELP, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+            helpbar->AddButton(
+                wxID_ABOUT, _(L"About"),
+                wxArtProvider::GetBitmap(L"ID_ABOUT", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+            }
         }
 
     if (wxSystemSettings::GetAppearance().IsDark())
@@ -222,7 +246,7 @@ void I18NFrame::InitControls()
     wxNotebook* tabstrip =
         new wxNotebook(splitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_BOTTOM);
 
-    m_editor = new wxStyledTextCtrl(tabstrip);
+    m_editor = new wxStyledTextCtrl(tabstrip, EDITOR_ID);
     m_editor->StyleClearAll();
     const wxFont font{ wxFontInfo().Family(wxFONTFAMILY_MODERN) };
     for (auto i = 0; i < wxSTC_STYLE_LASTPREDEFINED; ++i)
@@ -372,6 +396,7 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnSaveMenu, this, wxID_SAVE);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnRefresh, this, wxID_REFRESH);
     Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnIgnore, this, XRCID("ID_IGNORE"));
+    Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnInsert, this, XRCID("ID_INSERT"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSettings, this, XRCID("ID_SETTINGS"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnHelp, this, wxID_HELP);
@@ -403,6 +428,9 @@ void I18NFrame::InitControls()
     Bind(
         wxEVT_MENU, [this](wxCommandEvent& event) { OnExportResults(event); },
         XRCID("ID_EXPORT_RESULTS"));
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& event) { OnInsertTranslatorComment(event); },
+        XRCID("ID_INSERT_TRANSLATOR_COMMENT"));
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -459,6 +487,29 @@ void I18NFrame::InitControls()
             OnRefresh(event);
         },
         wxID_REFRESH);
+    Bind(wxEVT_CHILD_FOCUS,
+         [this](wxChildFocusEvent& evt)
+         {
+             if (evt.GetWindow()->GetId() == EDITOR_ID)
+                 {
+                 I18NResultsTreeModelNode* node = reinterpret_cast<I18NResultsTreeModelNode*>(
+                     m_resultsDataView->GetSelection().GetID());
+                 if (node != nullptr)
+                     {
+                     // not selecting file name root node and a source file
+                     if (node->m_fileName != node->m_warningId &&
+                         i18n_check::is_source_file(node->m_fileName.wc_string()))
+                         {
+                         EnableEditBar(true);
+                         }
+                     }
+                 }
+             else
+                 {
+                 EnableEditBar(false);
+                 }
+             evt.Skip();
+         });
     Bind(wxEVT_DATAVIEW_ITEM_CONTEXT_MENU,
          [this](wxDataViewEvent& event)
          {
@@ -712,6 +763,19 @@ void I18NFrame::OnSaveMenu(wxRibbonButtonBarEvent& event)
     }
 
 //------------------------------------------------------
+void I18NFrame::OnInsert(wxRibbonButtonBarEvent& event)
+    {
+    wxMenu menu;
+    wxMenuItem* menuItem = new wxMenuItem(&menu, XRCID("ID_INSERT_TRANSLATOR_COMMENT"),
+                                          _(L"Translator Comment"));
+    menuItem->SetBitmap(wxArtProvider::GetBitmap(L"ID_INSERT_TRANSLATOR_COMMENT", wxART_OTHER,
+                                                 FromDIP(wxSize{ 16, 16 })));
+    menu.Append(menuItem);
+
+    event.PopupMenu(&menu);
+    }
+
+//------------------------------------------------------
 void I18NFrame::OnIgnore(wxRibbonButtonBarEvent& event)
     {
     wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
@@ -921,6 +985,22 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
              wxFileName{ m_activeProjectFilePath }.GetFullName());
 
     Process();
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnInsertTranslatorComment([[maybe_unused]] wxCommandEvent&)
+    {
+    wxTextEntryDialog dialog(
+        this, _("Enter an explanation for a string that provides context for the translators:"),
+        _("Translator Comment"), wxString{}, wxTextEntryDialogStyle | wxTE_MULTILINE,
+        wxDefaultPosition, wxWindow::FromDIP(wxSize{ 150, 250 }));
+    if (dialog.ShowModal() != wxID_OK)
+        {
+        return;
+        }
+
+    m_editor->InsertText(m_editor->GetCurrentPos(),
+                         _DT(L"/* TRANSLATORS: ") + dialog.GetValue() + L" */");
     }
 
 //------------------------------------------------------

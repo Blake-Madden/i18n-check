@@ -77,10 +77,12 @@ class I18NFrame : public wxFrame
     void OnOpen([[maybe_unused]] wxCommandEvent&);
     void OnSave([[maybe_unused]] wxCommandEvent&);
     void OnExportResults([[maybe_unused]] wxCommandEvent&);
+    void OnInsertTranslatorComment([[maybe_unused]] wxCommandEvent&);
     void OnSaveMenu(wxRibbonButtonBarEvent& event);
     void OnRefresh([[maybe_unused]] wxCommandEvent&);
     void OnOpenSelectedFile([[maybe_unused]] wxCommandEvent&);
     void OnIgnore(wxRibbonButtonBarEvent& event);
+    void OnInsert(wxRibbonButtonBarEvent& event);
     void OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&);
     void OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&);
     void OnSettings([[maybe_unused]] wxCommandEvent&);
@@ -90,6 +92,8 @@ class I18NFrame : public wxFrame
     void OnClose(wxCloseEvent& event);
 
   private:
+    void EnableEditBar(const bool enable) { m_editBar->EnableButton(XRCID("ID_INSERT"), enable); }
+
     void Process();
 
     void ExpandAll()
@@ -118,6 +122,7 @@ class I18NFrame : public wxFrame
     wxObjectDataPtr<I18NResultsTreeModel> m_resultsModel;
     wxDataViewCtrl* m_resultsDataView{ nullptr };
     wxRibbonButtonBar* m_projectBar{ nullptr };
+    wxRibbonButtonBar* m_editBar{ nullptr };
     wxStyledTextCtrl* m_editor{ nullptr };
     wxTextCtrl* m_logWindow{ nullptr };
     wxString m_activeSourceFile;
@@ -127,6 +132,8 @@ class I18NFrame : public wxFrame
     wxString m_activeProjectFilePath;
 
     wxString m_activeResults;
+
+    constexpr static wxWindowID EDITOR_ID = wxID_HIGHEST;
 
     constexpr static int ERROR_ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 

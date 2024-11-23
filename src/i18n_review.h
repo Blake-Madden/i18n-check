@@ -228,7 +228,9 @@ namespace i18n_check
         /// @brief GNU gettext catalog files.
         po,
         /// @brief C# source files.
-        cs
+        cs,
+        /// @brief Unknown type.
+        unknown
         };
 
     /// @brief Types of printf languages that a PO file can contain.
