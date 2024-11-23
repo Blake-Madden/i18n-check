@@ -92,7 +92,19 @@ class I18NFrame : public wxFrame
     void OnClose(wxCloseEvent& event);
 
   private:
-    void EnableEditBar(const bool enable) { m_editBar->EnableButton(XRCID("ID_INSERT"), enable); }
+
+    void OnEditButtonClicked(wxRibbonButtonBarEvent& event);
+
+    void EnableEditBar(const bool enable)
+        {
+        m_editBar->EnableButton(wxID_UNDO, enable);
+        m_editBar->EnableButton(wxID_REDO, enable);
+        m_editBar->EnableButton(wxID_PASTE, enable);
+        m_editBar->EnableButton(wxID_CUT, enable);
+        m_editBar->EnableButton(wxID_COPY, enable);
+        m_editBar->EnableButton(XRCID("ID_INSERT"), enable);
+        m_editBar->EnableButton(wxID_SELECTALL, enable);
+        }
 
     void Process();
 

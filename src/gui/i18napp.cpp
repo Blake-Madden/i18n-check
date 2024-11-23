@@ -27,6 +27,12 @@ I18NArtProvider::I18NArtProvider()
                     { wxART_REFRESH, L"images/reload.svg" },
                     { wxART_DELETE, L"images/delete.svg" },
                     { wxART_HELP, L"images/help.svg" },
+                    { wxART_CUT, L"images/cut.svg" },
+                    { wxART_COPY, L"images/copy.svg" },
+                    { wxART_PASTE, L"images/paste.svg" },
+                    { wxART_REDO, L"images/redo.svg" },
+                    { wxART_UNDO, L"images/undo.svg" },
+                    { L"ID_SELECT_ALL", L"images/select-all.svg" },
                     { L"ID_INSERT", L"images/insert.svg" },
                     { L"ID_INSERT_TRANSLATOR_COMMENT", L"images/comment.svg" },
                     { L"ID_CODE", L"images/code.svg" },
@@ -128,10 +134,39 @@ void I18NFrame::InitControls()
                 new wxRibbonPanel(homePage, wxID_ANY, _(L"Edit"), wxNullBitmap, wxDefaultPosition,
                                   wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
             m_editBar = new wxRibbonButtonBar(editPanel);
+
+            m_editBar->AddButton(
+                wxID_PASTE, _(L"Paste"),
+                wxArtProvider::GetBitmap(wxART_PASTE, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+            m_editBar->AddButton(
+                wxID_CUT, _(L"Cut"),
+                wxArtProvider::GetBitmap(wxART_CUT, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+            m_editBar->AddButton(
+                wxID_COPY, _(L"Copy"),
+                wxArtProvider::GetBitmap(wxART_COPY, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+
+            m_editBar->AddButton(
+                wxID_UNDO, _(L"Undo"),
+                wxArtProvider::GetBitmap(wxART_UNDO, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+            m_editBar->AddButton(
+                wxID_REDO, _(L"Redo"),
+                wxArtProvider::GetBitmap(wxART_REDO, wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+
             m_editBar->AddDropdownButton(
                 XRCID("ID_INSERT"), _(L"Insert"),
                 wxArtProvider::GetBitmap(L"ID_INSERT", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
                     .ConvertToImage());
+
+            m_editBar->AddButton(
+                wxID_SELECTALL, _(L"Select All"),
+                wxArtProvider::GetBitmap(L"ID_SELECT_ALL", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
+
             EnableEditBar(false);
             }
 
@@ -401,6 +436,12 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnHelp, this, wxID_HELP);
     Bind(wxEVT_CLOSE_WINDOW, &I18NFrame::OnClose, this);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEditButtonClicked, this, wxID_SELECTALL);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEditButtonClicked, this, wxID_UNDO);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEditButtonClicked, this, wxID_REDO);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEditButtonClicked, this, wxID_COPY);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEditButtonClicked, this, wxID_CUT);
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnEditButtonClicked, this, wxID_PASTE);
     Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
@@ -657,6 +698,35 @@ void I18NFrame::InitControls()
     }
 
 //------------------------------------------------------
+void I18NFrame::OnEditButtonClicked(wxRibbonButtonBarEvent& event)
+    {
+    if (event.GetId() == wxID_SELECTALL)
+        {
+        m_editor->SelectAll();
+        }
+    else if (event.GetId() == wxID_UNDO)
+        {
+        m_editor->Undo();
+        }
+    else if (event.GetId() == wxID_REDO)
+        {
+        m_editor->Redo();
+        }
+    else if (event.GetId() == wxID_COPY)
+        {
+        m_editor->Copy();
+        }
+    else if (event.GetId() == wxID_CUT)
+        {
+        m_editor->Cut();
+        }
+    else if (event.GetId() == wxID_PASTE)
+        {
+        m_editor->Paste();
+        }
+    }
+
+//------------------------------------------------------
 void I18NFrame::OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&)
     {
     wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
@@ -766,8 +836,8 @@ void I18NFrame::OnSaveMenu(wxRibbonButtonBarEvent& event)
 void I18NFrame::OnInsert(wxRibbonButtonBarEvent& event)
     {
     wxMenu menu;
-    wxMenuItem* menuItem = new wxMenuItem(&menu, XRCID("ID_INSERT_TRANSLATOR_COMMENT"),
-                                          _(L"Translator Comment"));
+    wxMenuItem* menuItem =
+        new wxMenuItem(&menu, XRCID("ID_INSERT_TRANSLATOR_COMMENT"), _(L"Translator Comment"));
     menuItem->SetBitmap(wxArtProvider::GetBitmap(L"ID_INSERT_TRANSLATOR_COMMENT", wxART_OTHER,
                                                  FromDIP(wxSize{ 16, 16 })));
     menu.Append(menuItem);
