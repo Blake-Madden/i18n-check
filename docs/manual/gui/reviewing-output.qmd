@@ -31,7 +31,17 @@ All instances of this warning will be removed from all files. Also, this check w
 These options are also available by right clicking any warning and selecting them from the popup menu.
 :::
 
-Exporting Results
+## Editing
+
+When a warning for a source file is selected, the **Edit** section of the ribbon will become enabled.
+From here, you can edit the source file in the **Editor** and use these options on the ribbon to edit it.
+For example, to fix warnings about strings needing context, place the cursor into the editor in front of a resource loading call (e.g., `_("TABLE")`).
+Next, click the `r keys("Insert")` button on the ribbon and select **Translator Comment**.
+Enter a comment that will explain to the translators what "TABLE" means in this context, providing guidance for how they should translate it.
+Click `r keys("OK")` and your comment with "TRANSLATORS: " prefixed will be inserted in front of the function call.
+("TRANSLATORS: " is the default tag that **gettext** looks for when extracting translator comments.)
+
+## Exporting Results
 
 To export all warnings, click the `r keys("Save")` button on the ribbon and select **Export Results**.
 From here, you can export the results to either a CSV or tab-delimited text file.
