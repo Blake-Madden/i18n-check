@@ -220,7 +220,7 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
             }
         else
             {
-            variant = wxString{};
+            variant = 0L;
             }
         break;
     case 3:
@@ -230,14 +230,13 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
             }
         else
             {
-            variant = wxString{};
+            variant = 0L;
             }
         break;
     case 4:
         variant = node->m_explaination;
         break;
     default:
-        variant = wxString{};
         wxLogError(L"I18NResultsTreeModel::GetValue(): wrong column %ud", col);
         }
     }
