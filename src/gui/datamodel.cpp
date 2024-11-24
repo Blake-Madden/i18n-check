@@ -132,15 +132,15 @@ int I18NResultsTreeModel::Compare(const wxDataViewItem& item1, const wxDataViewI
         GetValue(value1, item1, 0);
         GetValue(value2, item2, 0);
 
-        int res = value1.GetString().Cmp(value2.GetString());
+        const int res = value1.GetString().Cmp(value2.GetString());
         if (res != 0)
             {
             return res;
             }
 
         // items must be different
-        wxUIntPtr litem1 = reinterpret_cast<wxUIntPtr>(item1.GetID());
-        wxUIntPtr litem2 = reinterpret_cast<wxUIntPtr>(item2.GetID());
+        const wxUIntPtr litem1 = reinterpret_cast<wxUIntPtr>(item1.GetID());
+        const wxUIntPtr litem2 = reinterpret_cast<wxUIntPtr>(item2.GetID());
 
         return litem1 - litem2;
         }
@@ -156,6 +156,12 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
 
     const I18NResultsTreeModelNode* node =
         reinterpret_cast<I18NResultsTreeModelNode*>(item.GetID());
+    if (node == nullptr)
+        {
+        variant = wxString{};
+        return;
+        }
+
     switch (col)
         {
     case 0:
@@ -212,17 +218,26 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
             {
             variant = static_cast<long>(node->m_line);
             }
+        else
+            {
+            variant = wxString{};
+            }
         break;
     case 3:
         if (node->m_column != -1)
             {
             variant = static_cast<long>(node->m_column);
             }
+        else
+            {
+            variant = wxString{};
+            }
         break;
     case 4:
         variant = node->m_explaination;
         break;
     default:
+        variant = wxString{};
         wxLogError(L"I18NResultsTreeModel::GetValue(): wrong column %ud", col);
         }
     }
@@ -234,6 +249,11 @@ bool I18NResultsTreeModel::SetValue(const wxVariant& variant, const wxDataViewIt
     wxASSERT(item.IsOk());
 
     I18NResultsTreeModelNode* node = reinterpret_cast<I18NResultsTreeModelNode*>(item.GetID());
+    if (node == nullptr)
+        {
+        return false;
+        }
+
     switch (col)
         {
     case 0:
@@ -252,7 +272,7 @@ bool I18NResultsTreeModel::SetValue(const wxVariant& variant, const wxDataViewIt
         node->m_explaination = variant.GetString();
         return true;
     default:
-        wxLogError(L"I18NResultsTreeModel::SetValue(): wrong column");
+        wxLogError(L"I18NResultsTreeModel::SetValue(): wrong column %ud", col);
         }
     return false;
     }
