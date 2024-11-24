@@ -1299,7 +1299,7 @@ void I18NFrame::Process()
             filesToAnalyze, m_activeProjectOptions.m_pseudoTranslationMethod,
             m_activeProjectOptions.m_addPseudoTransBrackets,
             m_activeProjectOptions.m_widthPseudoIncrease, m_activeProjectOptions.m_pseudoTrack,
-            [&progressDlg, this](const size_t totalFiles)
+            [&progressDlg](const size_t totalFiles)
             {
                 progressDlg.SetRange(totalFiles);
                 progressDlg.Update(0);
@@ -1343,7 +1343,7 @@ void I18NFrame::Process()
 
     analyzer.analyze(
         filesToAnalyze,
-        [&progressDlg, this](const size_t totalFiles)
+        [&progressDlg](const size_t totalFiles)
         {
             // We set an extra step here so that the dialog doesn't autohide.
             // This is necessary because we need to reuse this dialog for when it analyzes
