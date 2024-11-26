@@ -684,6 +684,53 @@ public:)";
         }
     }
 
+TEST_CASE("Extended ASCII in source", "[cpp][i18n]")
+    {
+    SECTION("Suspect")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(bool MainWindow::importProject()
+{
+    if (true)
+    {
+        QMessageBox::critical(this, tr("Błąd"), tr("Brak elementów do importu. Plik jest pusty albo uszkodzony"), QMessageBox::Ok);
+	    QMessageBox::critical(this, tr("Blad"), tr("Brak elementów do importu. Plik jest pusty albo uszkodzony"), QMessageBox::Ok);
+        return false;
+    }
+})";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 4);
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
+        }
+
+    SECTION("Not available")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(bool MainWindow::importProject()
+{
+    if (true)
+    {
+        QMessageBox::critical(this, "Błąd", "Brak elementów do importu. Plik jest pusty albo uszkodzony", QMessageBox::Ok);
+	    QMessageBox::critical(this, "Blad", tr("Brak elementów do importu. Plik jest pusty albo uszkodzony"), QMessageBox::Ok);
+        return false;
+    }
+})";
+        cpp(code, L"");
+        cpp.set_min_words_for_classifying_unavailable_string(2);
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
+
+        cpp.clear_results();
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 3);
+        }
+    }
+
 TEST_CASE("Deprecated functions & macros", "[cpp][i18n]")
     {
     SECTION("Functions")
