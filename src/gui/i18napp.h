@@ -92,7 +92,6 @@ class I18NFrame : public wxFrame
     void OnClose(wxCloseEvent& event);
 
   private:
-
     void OnEditButtonClicked(wxRibbonButtonBarEvent& event);
 
     void EnableEditBar(const bool enable)
@@ -107,6 +106,10 @@ class I18NFrame : public wxFrame
         }
 
     void Process();
+
+    /// @brief Copies select options (i.e., ignored variable patterns) from a project to
+    ///     the global options.
+    void CopyProjectOptionsToGlobalOptions();
 
     void ExpandAll()
         {

@@ -29,6 +29,11 @@ Run the following checks
 For example, if a list of color names are assigned to a variable named `colorMode` that you wish to ignore, then add "colorMode" to this list.
 You can enter variable names (e.g., "`colorMode`") or regular expressions (e.g., "`(RELEASE|DEBUG)check[0-9]?`") here.
 
+::: {.notesection data-latex=""}
+Adding a new entry here for a project will also add it to the global settings.
+This will ensure that you don't have to re-enter these values for future projects.
+:::
+
 **Translatable strings that shouldn\'t be**: select this to check for translatable strings that should not be (e.g., numbers, keywords, `printf()` commands).
 
 **Translatable strings being used in debug functions**: select this to check for translatable strings being used in internal contexts (e.g., debugging and console functions).

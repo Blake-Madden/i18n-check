@@ -1001,6 +1001,7 @@ void I18NFrame::OnRefresh([[maybe_unused]] wxCommandEvent&)
         SaveSourceFileIfNeeded();
 
         m_activeProjectOptions = projDlg.GetAllOptions();
+        CopyProjectOptionsToGlobalOptions();
 
         Process();
 
@@ -1027,11 +1028,29 @@ void I18NFrame::OnNew([[maybe_unused]] wxCommandEvent&)
     m_projectDirty = true;
 
     m_activeProjectOptions = projDlg.GetAllOptions();
+    CopyProjectOptionsToGlobalOptions();
 
     SetTitle(wxString::Format(
         /* TRANSLATORS: %s is app name */ _(L"%s - Untitled"), wxGetApp().GetAppName()));
 
     Process();
+    }
+
+//------------------------------------------------------
+void I18NFrame::CopyProjectOptionsToGlobalOptions()
+    {
+    // Insert any new var patterns to ignore that user entered from a project settings dialog
+    // into the global options.
+    for (const auto& var : m_activeProjectOptions.m_varsToIgnore)
+        {
+        if (std::find_if(wxGetApp().m_defaultOptions.m_varsToIgnore.cbegin(),
+                         wxGetApp().m_defaultOptions.m_varsToIgnore.cend(),
+                         [&var](const auto& val) { return val == var; }) ==
+            wxGetApp().m_defaultOptions.m_varsToIgnore.cend())
+            {
+            wxGetApp().m_defaultOptions.m_varsToIgnore.push_back(var);
+            }
+        }
     }
 
 //------------------------------------------------------

@@ -269,6 +269,7 @@ void NewProjectDialog::OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEve
     m_excludedPaths.insert(m_excludedPaths.end(), paths.begin(), paths.end());
     m_exclusionList->SetStrings(m_excludedPaths);
 
+    TransferDataToWindow();
     SetFocus();
     }
 
@@ -289,7 +290,57 @@ void NewProjectDialog::OnExcludedFileButtonClick([[maybe_unused]] wxCommandEvent
     m_excludedPaths.insert(m_excludedPaths.end(), paths.begin(), paths.end());
     m_exclusionList->SetStrings(m_excludedPaths);
 
+    TransferDataToWindow();
     SetFocus();
+    }
+
+//-------------------------------------------------------------
+void NewProjectDialog::SetAllOptions(const I18NOptions& options)
+    {
+    SetOptions(static_cast<i18n_check::review_style>(options.m_options));
+    m_filePath = options.m_filePath;
+    m_excludedPaths = options.m_excludedPaths;
+    m_varsToIgnore = options.m_varsToIgnore;
+    m_fuzzyTranslations = options.m_fuzzyTranslations;
+    m_widthPseudoIncrease = options.m_widthPseudoIncrease;
+    m_addPseudoTransBrackets = options.m_addPseudoTransBrackets;
+    m_pseudoTrack = options.m_pseudoTrack;
+    m_pseudoTranslationMethod = static_cast<int>(options.m_pseudoTranslationMethod);
+    m_logMessagesCanBeTranslated = options.m_logMessagesCanBeTranslated;
+    m_allowTranslatingPunctuationOnlyStrings = options.m_allowTranslatingPunctuationOnlyStrings;
+    m_exceptionsShouldBeTranslatable = options.m_exceptionsShouldBeTranslatable;
+    m_verbose = options.m_verbose;
+    m_minWordsForClassifyingUnavailableString = options.m_minWordsForClassifyingUnavailableString;
+    MinCppVersion(options.m_minCppVersion);
+    if (m_pseudoSurroundingBracketsCheckbox != nullptr)
+        {
+        m_pseudoSurroundingBracketsCheckbox->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_pseudoTrackCheckbox != nullptr)
+        {
+        m_pseudoTrackCheckbox->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_pseudoIncreaseSlider != nullptr)
+        {
+        m_pseudoIncreaseSlider->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_pseudoSliderLabel != nullptr)
+        {
+        m_pseudoSliderLabel->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_pseudoSliderPercentLabel != nullptr)
+        {
+        m_pseudoSliderPercentLabel->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_exclusionList != nullptr)
+        {
+        m_exclusionList->SetStrings(m_excludedPaths);
+        }
+    if (m_ignoredVarsList != nullptr)
+        {
+        m_ignoredVarsList->SetStrings(m_varsToIgnore);
+        }
+    TransferDataToWindow();
     }
 
 //-------------------------------------------------------------
