@@ -127,7 +127,7 @@ void I18NOptions::Load(const wxString& filePath)
     m_allowTranslatingPunctuationOnlyStrings = false;
     m_exceptionsShouldBeTranslatable = true;
     m_verbose = false;
-    m_widthPseudoIncrease = 0;
+    m_widthPseudoIncrease = 40;
     m_minWordsForClassifyingUnavailableString = 2;
     m_minCppVersion = 2014;
 

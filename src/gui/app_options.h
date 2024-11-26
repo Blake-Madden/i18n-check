@@ -52,7 +52,7 @@ struct I18NOptions
     bool m_logMessagesCanBeTranslated{ true };
     bool m_allowTranslatingPunctuationOnlyStrings{ false };
     bool m_exceptionsShouldBeTranslatable{ true };
-    int m_widthPseudoIncrease{ 0 };
+    int m_widthPseudoIncrease{ 40 };
     int m_minWordsForClassifyingUnavailableString{ 2 };
     int m_minCppVersion{ 2014 };
     bool m_verbose{ false };

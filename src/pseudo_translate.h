@@ -90,7 +90,7 @@ namespace i18n_check
         std::wstring mutate_message(const std::wstring& msg) const;
         pseudo_translation_method m_trans_type{ pseudo_translation_method::all_caps };
         bool m_add_surrounding_brackets{ false };
-        uint8_t m_width_increase{ 0 };
+        uint8_t m_width_increase{ 40 };
         bool m_track{ false };
         mutable int64_t m_current_id{ 0 };
         };

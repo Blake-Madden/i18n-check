@@ -363,7 +363,7 @@ class NewProjectDialog final : public wxDialog
     bool m_pseudoTrack{ false };
     int m_pseudoTranslationMethod{ 0 };
     bool m_addPseudoTransBrackets{ false };
-    int m_widthPseudoIncrease{ 0 };
+    int m_widthPseudoIncrease{ 40 };
     // formatting options
     bool m_trailingSpaces{ true };
     bool m_tabs{ true };
