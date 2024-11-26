@@ -214,7 +214,7 @@ void I18NFrame::InitControls()
             wxRIBBON_ART_BUTTON_BAR_LABEL_HIGHLIGHT_GRADIENT_TOP_COLOUR,
             wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
         m_ribbon->GetArtProvider()->SetColour(wxRIBBON_ART_BUTTON_BAR_LABEL_HIGHLIGHT_COLOUR,
-                                              *wxBLACK);
+                                              wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
         m_ribbon->GetArtProvider()->SetColour(
             wxRIBBON_ART_BUTTON_BAR_LABEL_HIGHLIGHT_GRADIENT_COLOUR,
             wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
@@ -224,10 +224,12 @@ void I18NFrame::InitControls()
                                               wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
         m_ribbon->GetArtProvider()->SetColour(wxRIBBON_ART_PANEL_MINIMISED_LABEL_COLOUR,
                                               wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
-        m_ribbon->GetArtProvider()->SetColour(wxRIBBON_ART_PANEL_HOVER_LABEL_COLOUR, *wxBLACK);
+        m_ribbon->GetArtProvider()->SetColour(wxRIBBON_ART_PANEL_HOVER_LABEL_COLOUR,
+                                              wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
         m_ribbon->GetArtProvider()->SetColour(wxRIBBON_ART_TAB_LABEL_COLOUR,
                                               wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
-        m_ribbon->GetArtProvider()->SetColour(wxRIBBON_ART_TAB_HOVER_LABEL_COLOUR, *wxBLACK);
+        m_ribbon->GetArtProvider()->SetColour(wxRIBBON_ART_TAB_HOVER_LABEL_COLOUR,
+                                              wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
         }
 
     m_ribbon->Realize();
