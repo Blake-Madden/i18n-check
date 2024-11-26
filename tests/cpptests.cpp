@@ -726,6 +726,15 @@ TEST_CASE("Code generator strings", "[i18n]")
 <body>")";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        // "- Report" will be seen as two words
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+
+        cpp.clear_results();
+        cpp.set_min_words_for_classifying_unavailable_string(12);
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
         CHECK(cpp.get_internal_strings().size() == 1);
@@ -752,6 +761,15 @@ TEST_CASE("Code generator strings", "[i18n]")
 <script src = 'memory:jquery.min.js'></script>
 </head>
 <body>")";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        // "- Report" will be seen as two words
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
+
+        cpp.clear_results();
+        cpp.set_min_words_for_classifying_unavailable_string(12);
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);

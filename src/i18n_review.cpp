@@ -1815,7 +1815,7 @@ namespace i18n_check
             }
 
         std::wstring str{ strToReview };
-        static const std::wregex oneWordRE{ LR"((\b[a-zA-Z&'\-]+([\.\-\/:]*[\w'\-]*)*))" };
+        static const std::wregex oneWordRE{ LR"(([\w&'\-\.@]+))" };
         static const std::wregex loremIpsum(L"Lorem ipsum.*");
 
         i18n_string_util::replace_escaped_control_chars(str);
