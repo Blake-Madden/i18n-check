@@ -145,7 +145,8 @@ class I18NFrame : public wxFrame
 
     wxString m_activeResults;
 
-    constexpr static wxWindowID EDITOR_ID = wxID_HIGHEST;
+    constexpr static wxWindowID DATA_VIEW = wxID_HIGHEST;
+    constexpr static wxWindowID EDITOR_ID = DATA_VIEW + 1;
 
     constexpr static int ERROR_ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 

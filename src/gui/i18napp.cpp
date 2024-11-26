@@ -238,7 +238,7 @@ void I18NFrame::InitControls()
 
     wxSplitterWindow* splitter = new wxSplitterWindow(this);
 
-    m_resultsDataView = new wxDataViewCtrl(splitter, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+    m_resultsDataView = new wxDataViewCtrl(splitter, DATA_VIEW, wxDefaultPosition, wxDefaultSize,
                                            wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_SINGLE);
 
     m_resultsModel = new I18NResultsTreeModel;
@@ -545,7 +545,9 @@ void I18NFrame::InitControls()
                          }
                      }
                  }
-             else
+             else if (evt.GetWindow()->GetId() == DATA_VIEW ||
+                      (evt.GetWindow()->GetParent() != nullptr &&
+                       evt.GetWindow()->GetParent()->GetId() == DATA_VIEW))
                  {
                  EnableEditBar(false);
                  }
