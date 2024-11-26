@@ -1874,7 +1874,7 @@ namespace i18n_check
                     L"");
                 str = std::regex_replace(str, m_xml_element_regex, L"");
                 // strip things like &ldquo;
-                str = std::regex_replace(str, std::wregex(L"&[[:alpha:]]{2,5};"), L"");
+                str = std::regex_replace(str, std::wregex(L"&[a-zA-Z]{2,5};"), L"");
                 str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
                 }
 
