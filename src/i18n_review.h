@@ -1142,6 +1142,7 @@ namespace i18n_check
         static const std::wregex m_html_known_elements_regex;
         static const std::wregex m_angle_braced_one_word_regex;
         static const std::wregex m_2letter_regex;
+        static const std::wregex m_1word_regex;
         static const std::wregex m_hashtag_regex;
         static const std::wregex m_key_shortcut_regex;
         static const std::wregex m_function_signature_regex;
