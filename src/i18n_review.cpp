@@ -21,7 +21,7 @@ namespace i18n_check
         LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"
     };
 
-    const std::wregex i18n_review::m_malformed_html_tag_bad_amp{ LR"(&amp;[[:alpha:]]{3,5};)" };
+    const std::wregex i18n_review::m_malformed_html_tag_bad_amp{ LR"(&amp;[a-zA-Z]{3,5};)" };
 
     const std::wregex i18n_review::m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
 
@@ -41,7 +41,7 @@ namespace i18n_check
 
     const std::wregex i18n_review::m_plural_regex{ LR"([[:alnum:]]{2,}[(]s[)])" };
     const std::wregex i18n_review::m_open_function_signature_regex{ LR"([[:alnum:]]{2,}[(])" };
-    const std::wregex i18n_review::m_html_tag_regex{ LR"(&[[:alpha:]]{2,5};.*)" };
+    const std::wregex i18n_review::m_html_tag_regex{ LR"(&[a-zA-Z]{2,5};.*)" };
     const std::wregex i18n_review::m_html_tag_unicode_regex{ LR"(&#[[:digit:]]{2,4};.*)" };
     const std::wregex i18n_review::m_2letter_regex{ LR"([[:alpha:]]{2,})" };
     const std::wregex i18n_review::m_hashtag_regex{ LR"(#[[:alnum:]]{2,})" };
@@ -519,7 +519,7 @@ namespace i18n_check
             // An opening HTML element
             std::wregex(LR"(<(body|html|img|head|meta|style|span|p|tr|td))"),
             // PostScript element
-            std::wregex(LR"(%%[[:alpha:]]+:.*)"),
+            std::wregex(LR"(%%[a-zA-Z]+:.*)"),
             std::wregex(LR"((<< [\/()A-Za-z0-9[:space:]]*(\\n|[[:space:]])*)+)"),
             std::wregex(
                 LR"((\/[A-Za-z0-9[:space:]]* \[[A-Za-z0-9[:space:]%]+\](\\n|[[:space:]])*)+)"),
@@ -557,7 +557,7 @@ namespace i18n_check
             // program version string
             std::wregex(LR"([a-zA-Z\-]+ v(ersion)?[ ]?[0-9\.]+)"),
             // bash command (e.g., "lpstat -p") and system variables
-            std::wregex(LR"([[:alpha:]]{3,} [\-][[:alpha:]]+)"), std::wregex(LR"(sys[$].*)"),
+            std::wregex(LR"([a-zA-Z]{3,} [\-][a-zA-Z]+)"), std::wregex(LR"(sys[$].*)"),
             // Pascal-case words (e.g., "GetValueFromUser");
             // surrounding punctuation is stripped first.
             std::wregex(LR"([[:punct:]]*[A-Z]+[a-z0-9]+([A-Z]+[a-z0-9]+)+[[:punct:]]*)"),
