@@ -24,6 +24,7 @@
 #include "datamodel.h"
 #include "projectdlg.h"
 #include <wx/aboutdlg.h>
+#include <wx/appprogress.h>
 #include <wx/artprov.h>
 #include <wx/busyinfo.h>
 #include <wx/dataview.h>

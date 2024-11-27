@@ -1295,17 +1295,22 @@ void I18NFrame::Process()
             this,
             wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
                 wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
+        wxAppProgressIndicator progress(this);
 
         analyzer.pseudo_translate(
             filesToAnalyze, m_activeProjectOptions.m_pseudoTranslationMethod,
             m_activeProjectOptions.m_addPseudoTransBrackets,
             m_activeProjectOptions.m_widthPseudoIncrease, m_activeProjectOptions.m_pseudoTrack,
-            [&progressDlg](const size_t totalFiles)
+            [&progressDlg, &progress](const size_t totalFiles)
             {
                 progressDlg.SetRange(totalFiles);
                 progressDlg.Update(0);
+
+                progress.SetRange(totalFiles);
+                progress.SetValue(0);
             },
-            [&progressDlg](const size_t currentFileIndex, const std::filesystem::path& file)
+            [&progressDlg, &progress](const size_t currentFileIndex,
+                                      const std::filesystem::path& file)
             {
                 progressDlg.SetTitle(
                     wxString::Format(_(L"Pseudo-translating %s of %s..."),
@@ -1332,6 +1337,7 @@ void I18NFrame::Process()
                     {
                     return false;
                     }
+                progress.SetValue(currentFileIndex);
                 return true;
             });
         }
@@ -1341,10 +1347,11 @@ void I18NFrame::Process()
                          filesToAnalyze.size(), this,
                          wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
                              wxPD_REMAINING_TIME | wxPD_CAN_ABORT | wxPD_APP_MODAL);
+    wxAppProgressIndicator progress(this);
 
     analyzer.analyze(
         filesToAnalyze,
-        [&progressDlg](const size_t totalFiles)
+        [&progressDlg, &progress](const size_t totalFiles)
         {
             // We set an extra step here so that the dialog doesn't autohide.
             // This is necessary because we need to reuse this dialog for when it analyzes
@@ -1352,8 +1359,11 @@ void I18NFrame::Process()
             // This dialog will close when it goes out of scope (autohiding will take over then).
             progressDlg.SetRange(totalFiles + 1);
             progressDlg.Update(0);
+
+            progress.SetRange(totalFiles);
+            progress.SetValue(0);
         },
-        [&progressDlg](const size_t currentFileIndex, const std::filesystem::path& file)
+        [&progressDlg, &progress](const size_t currentFileIndex, const std::filesystem::path& file)
         {
             progressDlg.Show();
             progressDlg.SetTitle(wxString::Format(
@@ -1378,6 +1388,7 @@ void I18NFrame::Process()
                 {
                 return false;
                 }
+            progress.SetValue(currentFileIndex);
             return true;
         });
 
