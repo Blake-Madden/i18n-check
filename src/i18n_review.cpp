@@ -769,7 +769,8 @@ namespace i18n_check
             L"TAG_HANDLER_BEGIN", L"FDEBUG", L"MDEBUG", L"wxVersionInfo", L"Platform::DebugPrintf",
             L"wxGetCommandOutput", L"SetKeyWords", L"AddDeveloper", L"AddDocWriter", L"AddArtist",
             L"AddTranslator", L"MarkerSetBackground", L"SetProperty", L"SetAppName",
-            L"SetPrintToFile", L"GetAttribute", L"SetAuthor",
+            L"SetPrintToFile", L"GetAttribute", L"SetAuthor", L"GetPropertyAsSize",
+            L"GetPropertyAsInteger",
             // Qt
             L"Q_ASSERT", L"Q_ASSERT_X", L"qSetMessagePattern", L"qmlRegisterUncreatableMetaObject",
             L"addShaderFromSourceCode", L"QStandardPaths::findExecutable", L"QDateTime::fromString",
@@ -1412,6 +1413,14 @@ namespace i18n_check
                 {
                 str.remove_prefix(1);
                 str.remove_suffix(1);
+                }
+            if (str.starts_with(LR"(\")") || str.starts_with(LR"(\')"))
+                {
+                str.remove_prefix(2);
+                }
+            if (str.ends_with(LR"(\")") || str.ends_with(LR"(\')"))
+                {
+                str.remove_suffix(2);
                 }
             if (str.ends_with(L"..."))
                 {
