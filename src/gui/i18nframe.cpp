@@ -1059,7 +1059,7 @@ void I18NFrame::OnInsertEncodedUnicode([[maybe_unused]] wxCommandEvent&)
     if (!encodingRequired)
         {
         wxMessageBox(
-            _(L"No extened ASCII characters found in the selection that need to be encoded."),
+            _(L"No extended ASCII characters found in the selection that need to be encoded."),
             _(L"Encoding Not Required"));
         return;
         }
