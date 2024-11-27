@@ -258,7 +258,7 @@ After building, "cuneiform" will be available in the "bin" folder.
 
 ![](docs/manual/images/main-window.png)
 
-[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version.
+[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.3 or higher is required for building the graphical user interface version.
 
 Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as this project.
 After building wxWidgets, *Cuneiform* can be configured and built with *Cmake*.

@@ -199,7 +199,7 @@ namespace i18n_check
 #ifdef wxVERSION_NUMBER
                             wxString::Format(_(L"Font size %s is non-standard (8 is recommended)."),
                                              fontParts[0])
-                                .wc_str()
+                                .wc_string()
 #else
                             _DT(L"Font size ") + fontParts[0] +
                             _DT(L" is non-standard (8 is recommended).")
@@ -219,7 +219,7 @@ namespace i18n_check
                             wxString::Format(_(L"Font '%s' may not map well on some systems "
                                                "(MS Shell Dlg is recommended)."),
                                              fontParts[1])
-                                .wc_str() },
+                                .wc_string() },
 #else
                         string_info::usage_info{ _DT(L"Font '") + fontParts[1] +
                                                  _DT(L"' may not map well on some systems (MS "

@@ -249,11 +249,9 @@ void I18NFrame::InitControls()
     m_editor->AutoCompSetIgnoreCase(true);
     m_editor->AutoCompSetAutoHide(true);
     // annotations styles
-#if wxCHECK_VERSION(3, 3, 0)
     m_editor->StyleSetBackground(
         ERROR_ANNOTATION_STYLE,
         wxSystemSettings::SelectLightDark(wxColour(244, 220, 220), wxColour(100, 100, 100)));
-#endif
     m_editor->StyleSetSizeFractional(
         ERROR_ANNOTATION_STYLE, (m_editor->StyleGetSizeFractional(wxSTC_STYLE_DEFAULT) * 4) / 5);
     // turn on annotations
@@ -1118,7 +1116,7 @@ void I18NFrame::SaveSourceFileIfNeeded()
         if (wxFileName{ m_activeSourceFile }.GetExt().CmpNoCase(L"rc") == 0)
             {
             std::wstring encoding{ L"utf-8" };
-            const std::wstring fileText = m_editor->GetText().wc_str();
+            const std::wstring& fileText = m_editor->GetText().wc_string();
             const std::wregex codePageRE{ _DT(LR"(#pragma code_page\(([0-9]+)\))") };
             std::wsmatch matchResults;
             if (std::regex_search(fileText.cbegin(), fileText.cend(), matchResults, codePageRE) &&
@@ -1175,12 +1173,12 @@ void I18NFrame::Process()
     m_activeSourceFile.clear();
     m_editor->SetText(wxString{});
 
-    std::filesystem::path inputFolder{ m_activeProjectOptions.m_filePath.wc_str() };
+    std::filesystem::path inputFolder{ m_activeProjectOptions.m_filePath.wc_string() };
 
     std::vector<std::filesystem::path> excludedPaths;
     for (const auto& currentFile : m_activeProjectOptions.m_excludedPaths)
         {
-        excludedPaths.push_back(std::filesystem::path{ currentFile.wc_str() });
+        excludedPaths.push_back(std::filesystem::path{ currentFile.wc_string() });
         }
 
     // input folder
@@ -1210,7 +1208,7 @@ void I18NFrame::Process()
             {
             try
                 {
-                parser.add_variable_name_pattern_to_ignore(std::wregex{ pattern.wc_str() });
+                parser.add_variable_name_pattern_to_ignore(std::wregex{ pattern.wc_string() });
                 }
             catch (...)
                 {

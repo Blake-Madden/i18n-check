@@ -1283,7 +1283,7 @@ namespace i18n_check
                         wxString::Format(_(L"%s assigned to %s; value should be between 1 and "
                                            "0x6FFF if this is an MFC project."),
                                          string2, string1)
-                            .wc_str(),
+                            .wc_string(),
 #else
                         string2 + _DT(L" assigned to ") + string1 +
                             _DT(L"; value should be between 1 and 0x6FFF if "
@@ -1303,7 +1303,7 @@ namespace i18n_check
                         wxString::Format(_(L"%s assigned to %s; value should be between 1 and "
                                            "0x7FFF if this is an MFC project."),
                                          string2, string1)
-                            .wc_str(),
+                            .wc_string(),
 #else
                         string2 + _DT(L" assigned to ") + string1 +
                             _DT(L"; value should be between 1 and 0x7FFF if "
@@ -1324,7 +1324,7 @@ namespace i18n_check
                         wxString::Format(_(L"%s assigned to %s; value should be between 8 and "
                                            "0xDFFF if this is an MFC project."),
                                          string2, string1)
-                            .wc_str(),
+                            .wc_string(),
 #else
                         string2 + _DT(L" assigned to ") + string1 +
                             _DT(L"; value should be between 8 and 0xDFFF if "
@@ -1343,7 +1343,7 @@ namespace i18n_check
                     {
                     m_ids_assigned_number.emplace_back(
 #ifdef wxVERSION_NUMBER
-                        wxString::Format(_(L"%s assigned to %s"), string2, string1).wc_str(),
+                        wxString::Format(_(L"%s assigned to %s"), string2, string1).wc_string(),
 #else
                         string2 + _DT(L" assigned to ") + string1,
 #endif
@@ -1364,7 +1364,7 @@ namespace i18n_check
 #ifdef wxVERSION_NUMBER
                         wxString::Format(_(L"%s has been assigned to multiple ID variables."),
                                          string2)
-                            .wc_str(),
+                            .wc_string(),
 #else
                         string2 + _DT(L" has been assigned to multiple ID variables."),
 #endif
@@ -2470,7 +2470,7 @@ namespace i18n_check
                                 wxString::Format(_(L"('%s': positional argument provided more than "
                                                    "once, but with different data types.)"),
                                                  matches[0].str())
-                                    .wc_str();
+                                    .wc_string();
 #else
                             errorInfo =
                                 L"('" + matches[0].str() +

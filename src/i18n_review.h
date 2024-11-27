@@ -31,11 +31,7 @@
     // for the GUI version, include gettext's translation loading support via wxWidgets
     #if __has_include(<wx/wx.h>)
         #include <wx/wx.h>
-        #if wxCHECK_VERSION(3, 3, 0)
-            #define _WXTRANS_WSTR(s) _(s).wc_string()
-        #else
-            #define _WXTRANS_WSTR(s) _(s).wc_str()
-        #endif
+        #define _WXTRANS_WSTR(s) _(s).wc_string()
     #else
         #define _(s) (s)
         #define _WXTRANS_WSTR(s) (s)
