@@ -48,12 +48,14 @@ namespace i18n_check
     // [:alpha:] supports all languages with MSVC, but GCC and Clang limit this to 7-bit ASCII (even
     // when calling setlocale), so we need to include other charsets explicitly here when trying to
     // include them in source strings.
+    // cuneiform-suppress-begin
     const std::wregex i18n_review::m_2letter_regex{
         LR"([[:alpha:]ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя]{2,})"
     };
     const std::wregex i18n_review::m_1word_regex{
         LR"(([[:alpha:]ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя&'\-\.@]+))"
     };
+    // cuneiform-suppress-end
     const std::wregex i18n_review::m_hashtag_regex{ LR"(#[[:alnum:]]{2,})" };
     const std::wregex i18n_review::m_key_shortcut_regex{
         LR"((CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+)",
