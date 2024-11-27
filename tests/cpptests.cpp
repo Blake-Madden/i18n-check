@@ -694,7 +694,8 @@ TEST_CASE("Extended ASCII in source", "[cpp][i18n]")
     if (true)
     {
         QMessageBox::critical(this, tr("Błąd"), tr("Brak elementów do importu. Plik jest pusty albo uszkodzony"), QMessageBox::Ok);
-	    QMessageBox::critical(this, tr("Blad"), tr("Brak elementów do importu. Plik jest pusty albo uszkodzony"), QMessageBox::Ok);
+	    QMessageBox::critical(this, tr("Bláд")/*not a real word, just testing multiple char sets*/,
+            tr("Brak elementów do importu. Plik jest pusty albo uszkodzony"), QMessageBox::Ok);
         return false;
     }
 })";
@@ -712,7 +713,7 @@ TEST_CASE("Extended ASCII in source", "[cpp][i18n]")
     if (true)
     {
         QMessageBox::critical(this, "Błąd", "Brak elementów do importu. Plik jest pusty albo uszkodzony", QMessageBox::Ok);
-	    QMessageBox::critical(this, "Blad", tr("Brak elementów do importu. Plik jest pusty albo uszkodzony"), QMessageBox::Ok);
+	    QMessageBox::critical(this, "Bláд", tr("Brak elementów do importu. Plik jest pusty albo uszkodzony"), QMessageBox::Ok);
         return false;
     }
 })";
