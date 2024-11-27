@@ -13,7 +13,6 @@
 
 #include "analyze.h"
 #include <iostream>
-#include <sstream>
 
 namespace i18n_check
     {

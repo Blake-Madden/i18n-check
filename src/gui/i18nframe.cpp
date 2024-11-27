@@ -399,6 +399,9 @@ void I18NFrame::InitControls()
         wxEVT_MENU, [this](wxCommandEvent& event) { OnInsertTranslatorComment(event); },
         XRCID("ID_INSERT_TRANSLATOR_COMMENT"));
     Bind(
+        wxEVT_MENU, [this](wxCommandEvent& event) { OnInsertEncodedUnicode(event); },
+        XRCID("ID_CONVERT_TO_ENCODED_UNICODE"));
+    Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
         {
@@ -765,8 +768,14 @@ void I18NFrame::OnInsert(wxRibbonButtonBarEvent& event)
     {
     wxMenu menu;
     wxMenuItem* menuItem =
-        new wxMenuItem(&menu, XRCID("ID_INSERT_TRANSLATOR_COMMENT"), _(L"Translator Comment"));
+        new wxMenuItem(&menu, XRCID("ID_INSERT_TRANSLATOR_COMMENT"), _(L"Translator Comment..."));
     menuItem->SetBitmap(wxArtProvider::GetBitmap(L"ID_INSERT_TRANSLATOR_COMMENT", wxART_OTHER,
+                                                 FromDIP(wxSize{ 16, 16 })));
+    menu.Append(menuItem);
+
+    menuItem = new wxMenuItem(&menu, XRCID("ID_CONVERT_TO_ENCODED_UNICODE"),
+                              _(L"Encode Extended ASCII Characters..."));
+    menuItem->SetBitmap(wxArtProvider::GetBitmap(L"ID_CONVERT_TO_ENCODED_UNICODE", wxART_OTHER,
                                                  FromDIP(wxSize{ 16, 16 })));
     menu.Append(menuItem);
 
@@ -1010,7 +1019,7 @@ void I18NFrame::OnInsertTranslatorComment([[maybe_unused]] wxCommandEvent&)
     wxTextEntryDialog dialog(
         this, _("Enter an explanation for a string that provides context for the translators:"),
         _("Translator Comment"), wxString{}, wxTextEntryDialogStyle | wxTE_MULTILINE,
-        wxDefaultPosition, wxWindow::FromDIP(wxSize{ 150, 250 }));
+        wxDefaultPosition, wxWindow::FromDIP(wxSize{ 175, 250 }));
     if (dialog.ShowModal() != wxID_OK)
         {
         return;
@@ -1018,6 +1027,51 @@ void I18NFrame::OnInsertTranslatorComment([[maybe_unused]] wxCommandEvent&)
 
     m_editor->InsertText(m_editor->GetCurrentPos(),
                          _DT(L"/* TRANSLATORS: ") + dialog.GetValue() + L" */");
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnInsertEncodedUnicode([[maybe_unused]] wxCommandEvent&)
+    {
+    const std::wstring selText{ m_editor->GetSelectedText().wc_string() };
+    if (selText.empty())
+        {
+        wxMessageBox(_(L"No selection found. Please select a string in the editor to encode."),
+                     _(L"No Selection"));
+        return;
+        }
+
+    std::wstringstream encoded;
+    bool encodingRequired{ false };
+    for (const auto& ch : selText)
+        {
+        if (ch > 127)
+            {
+            encoded << LR"(\U)" << std::setfill(L'0') << std::setw(8)
+                                    << std::uppercase << std::hex << static_cast<int>(ch);
+            encodingRequired = true;
+            }
+        else
+            {
+            encoded << ch;
+            }
+        }
+
+    if (!encodingRequired)
+        {
+        wxMessageBox(
+            _(L"No extened ASCII characters found in the selection that need to be encoded."),
+            _(L"Encoding Not Required"));
+        return;
+        }
+
+    if (wxMessageBox(wxString::Format(
+                         _(L"Replace the selected text:\n\n'%s'\n\nwith the following?\n\n'%s'"),
+                         selText, encoded.str()),
+                     _(L"Encode Extended ASCII Characters"),
+                     wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION) == wxYES)
+        {
+        m_editor->ReplaceSelection(encoded.str());
+        }
     }
 
 //------------------------------------------------------
@@ -1116,7 +1170,7 @@ void I18NFrame::SaveSourceFileIfNeeded()
         if (wxFileName{ m_activeSourceFile }.GetExt().CmpNoCase(L"rc") == 0)
             {
             std::wstring encoding{ L"utf-8" };
-            const std::wstring& fileText = m_editor->GetText().wc_string();
+            const std::wstring fileText = m_editor->GetText().wc_string();
             const std::wregex codePageRE{ _DT(LR"(#pragma code_page\(([0-9]+)\))") };
             std::wsmatch matchResults;
             if (std::regex_search(fileText.cbegin(), fileText.cend(), matchResults, codePageRE) &&

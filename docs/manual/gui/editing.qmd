@@ -1,0 +1,41 @@
+```{r}
+#| include: false
+#| eval: true
+
+source('../R/appdown.r')
+```
+
+# Editing
+
+When a source file in the loaded in the editor and the editor is selected, the **Edit** section of the ribbon will become enabled.
+From here, you can edit the source file in the **Editor** and make use of these options from the ribbon.
+
+## Basic Operations
+
+Clipboard operations (e.g., `r keys("Cut")`, `r keys("Copy")`, and `r keys("Paste")`), `r keys("Undo")`, `r keys("Redo")`, and `r keys("Select All")` are all available from this section.
+
+## Insert
+
+From the `r keys("Insert")` button, options are available for inserting and converting content within the editor to fix various warnings.
+
+For example, to fix warnings about strings needing context, place the cursor into the editor in front of a resource loading call (e.g., `_("TABLE")`).
+Next, click the `r keys("Insert")` button on the ribbon and select **Translator Comment...**.
+Enter a comment that will explain to the translators what "TABLE" means in this context, providing guidance for how they should translate it.
+Click `r keys("OK")` and your comment with "TRANSLATORS: " prefixed will be inserted in front of the function call.
+("TRANSLATORS: " is the default tag that **gettext** looks for when extracting translator comments.)
+
+::: {.notesection data-latex=""}
+This warning is emitted when the option **Check for ambiguous strings that lack a translator comment** (from the **Source Code** settings) is checked.
+:::
+
+To fix warnings about extended ASCII characters needing to be encoded, select the text in the editor which contains these characters.
+Next, click the `r keys("Insert")` button on the ribbon and select **Encode Extended ASCII Characters...**.
+You will then be prompted about how the selection will be re-encoded.
+Click `r keys("OK")` and the selection will be replaced with the re-encoded content.
+
+As an example, if you have the string "Błąd" (Polish for "Error") in a source file, some legacy compilers may have difficulty processing it (even if encoded as UTF-8).
+By following the aforementioned steps, this will be re-encoded to "B\\U00000142\\U00000105d."
+
+::: {.notesection data-latex=""}
+This warning is emitted when the option **Unencoded extended ASCII characters** (from the **Additional Checks** settings) is checked.
+:::
