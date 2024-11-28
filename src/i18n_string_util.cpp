@@ -58,7 +58,9 @@ namespace i18n_string_util
         if (firstSlash != std::wstring_view::npos)
             {
             const size_t lastDotPos = text.find_last_of(L'.', firstSlash);
-            if (lastDotPos != std::wstring_view::npos && (lastDotPos + 4 == firstSlash) &&
+            if (lastDotPos != std::wstring_view::npos && lastDotPos > 0 &&
+                (lastDotPos + 4 == firstSlash) &&
+                static_cast<bool>(std::iswalpha(text[lastDotPos - 1])) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 1])) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 2])) &&
                 static_cast<bool>(std::iswalpha(text[lastDotPos + 3])))
@@ -175,6 +177,19 @@ namespace i18n_string_util
             string_util::is_either(text[text.length() - 1], L's', L'S'))
             {
             text.remove_suffix(2);
+            }
+
+        // we will start to review the extension now; if there is no period, then we are done.
+        if (text.find(L'.') == std::wstring_view::npos)
+            {
+            return false;
+            }
+        // Large number of spaces? This is unlikely to be a filepath then.
+        const size_t numberOfSpaces =
+            std::count_if(text.cbegin(), text.cend(), [](const auto chr) { return chr == L' '; });
+        if (numberOfSpaces >= 5)
+            {
+            return false;
             }
 
         // look at extensions now

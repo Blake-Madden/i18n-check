@@ -31,6 +31,8 @@ TEST_CASE("i18n string util", "[i18nstringutil]")
         CHECK_FALSE(is_file_address(L"text"));
         CHECK_FALSE(is_file_address(L"FTPs"));
         CHECK_FALSE(is_file_address(L"wwwhat!"));
+        CHECK_FALSE(is_file_address(L"File Names: (.cpp/.h)"));
+        CHECK_FALSE(is_file_address(L".cpp/.h)"));
         }
     SECTION("Domains")
         {
