@@ -36,6 +36,10 @@ namespace i18n_check
 
         while (cppText != nullptr && std::next(cppText) < endSentinel && *cppText != 0)
             {
+            while (std::next(cppText) < endSentinel && std::iswspace(*cppText))
+                {
+                std::advance(cppText, 1);
+                }
             // if a possible comment, then scan past it
             if (*cppText == L'/')
                 {
