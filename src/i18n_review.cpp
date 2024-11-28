@@ -849,7 +849,7 @@ namespace i18n_check
             // Lua
             L"luaL_error", L"lua_pushstring", L"lua_setglobal",
             // more functions from various apps
-            L"trace", L"ActionFormat", L"ErrorFormat", L"addPositionalArgument", L"DEBUG",
+            L"trace", L"ActionFormat", L"ErrorFormat", L"DEBUG",
             L"setParameters"
         };
 
