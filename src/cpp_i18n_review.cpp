@@ -36,7 +36,7 @@ namespace i18n_check
 
         while (cppText != nullptr && std::next(cppText) < endSentinel && *cppText != 0)
             {
-            while (std::next(cppText) < endSentinel && std::iswspace(*cppText))
+            while (std::next(cppText) < endSentinel && *cppText == L' ')
                 {
                 std::advance(cppText, 1);
                 }
