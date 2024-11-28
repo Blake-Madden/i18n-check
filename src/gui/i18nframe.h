@@ -27,6 +27,7 @@
 #include <wx/appprogress.h>
 #include <wx/artprov.h>
 #include <wx/busyinfo.h>
+#include <wx/clipbrd.h>
 #include <wx/dataview.h>
 #include <wx/filename.h>
 #include <wx/fontenum.h>

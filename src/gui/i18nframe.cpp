@@ -372,6 +372,38 @@ void I18NFrame::InitControls()
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
         {
+            wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
+            if (selectedItem.IsOk())
+                {
+                I18NResultsTreeModelNode* node =
+                    reinterpret_cast<I18NResultsTreeModelNode*>(selectedItem.GetID());
+
+                if (node != nullptr)
+                    {
+                    const wxString rowText =
+                        node->m_warningId + L'\t' + node->m_issue + L'\t' +
+                        std::to_wstring((node->m_line == -1) ? 0 : node->m_line) + L'\t' +
+                        std::to_wstring((node->m_column == -1) ? 0 : node->m_column) + L'\t' +
+                        node->m_explaination;
+                    if (wxTheClipboard->Open())
+                        {
+                        if (rowText.length())
+                            {
+                            wxTheClipboard->Clear();
+                            wxDataObjectComposite* obj = new wxDataObjectComposite();
+                            obj->Add(new wxTextDataObject(rowText));
+                            wxTheClipboard->SetData(obj);
+                            }
+                        wxTheClipboard->Close();
+                        }
+                    }
+                }
+        },
+        wxID_COPY);
+    Bind(
+        wxEVT_MENU,
+        [this]([[maybe_unused]] wxCommandEvent&)
+        {
             wxRibbonButtonBarEvent event;
             OnSettings(event);
         },
@@ -501,6 +533,12 @@ void I18NFrame::InitControls()
                                                      wxFileName{ node->m_fileName }.GetFullName()));
                  menuItem->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_OTHER,
                                                               FromDIP(wxSize{ 16, 16 })));
+                 menu.Append(menuItem);
+                 menu.AppendSeparator();
+
+                 menuItem = new wxMenuItem(&menu, wxID_COPY, _(L"Copy"));
+                 menuItem->SetBitmap(
+                     wxArtProvider::GetBitmap(wxART_COPY, wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
                  menu.Append(menuItem);
                  menu.AppendSeparator();
 
@@ -1046,8 +1084,8 @@ void I18NFrame::OnInsertEncodedUnicode([[maybe_unused]] wxCommandEvent&)
         {
         if (ch > 127)
             {
-            encoded << LR"(\U)" << std::setfill(L'0') << std::setw(8)
-                                    << std::uppercase << std::hex << static_cast<int>(ch);
+            encoded << LR"(\U)" << std::setfill(L'0') << std::setw(8) << std::uppercase << std::hex
+                    << static_cast<int>(ch);
             encodingRequired = true;
             }
         else
