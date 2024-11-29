@@ -30,7 +30,7 @@ After building, "cuneiform" will be available in the "bin" folder.
 Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as this project.
 After building *wxWidgets*, *Cuneiform* can be configured and built with *Cmake*.
 
-On Unix:
+On Linux/macOS:
 
 ``` {.bash filename="Terminal"}
 # download and build wxWidgets one folder above
@@ -38,14 +38,17 @@ cd ..
 git clone https://github.com/wxWidgets/wxWidgets.git --recurse-submodules
 cd wxWidgets
 cmake . -DCMAKE_INSTALL_PREFIX=./wxlib -DwxBUILD_SHARED=OFF \
-      -D"CMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64" -DCMAKE_BUILD_TYPE=Release
-cmake --build . --target install -j $(nproc) --config Release
+    -D"CMAKE_OSX_ARCHITECTURES:STRING=arm64;x86_64" \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 \
+    -DwxBUILD_OPTIMISE=ON -DwxBUILD_STRIPPED_RELEASE=ON \
+    -DCMAKE_BUILD_TYPE=Release
+cmake --build . --target install --config Release
 
 # go back into the project folder and build the GUI version
 cd ..
 cd Cuneiform/gui
 cmake . -DCMAKE_BUILD_TYPE=Release
-cmake --build . --target all -j $(nproc) --config Release
+cmake --build . --target all --config Release
 ```
 
 ::: {.notesection data-latex=""}

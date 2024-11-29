@@ -168,6 +168,7 @@ elseif(APPLE)
                            $<$<CONFIG:Debug>:-Og>
                            $<$<CONFIG:Release>:-O2>)
 elseif(UNIX)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
     target_compile_definitions(${PROJECT_NAME} PUBLIC __WXGTK__
         $<$<CONFIG:Debug>:__WXDEBUG__> $<$<CONFIG:Release>:NDEBUG>)
     target_compile_options(${PROJECT_NAME} PUBLIC -Wall -Wextra -Wpedantic -Wshadow -Werror
