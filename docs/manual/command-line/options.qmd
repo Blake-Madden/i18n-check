@@ -53,6 +53,11 @@ Higher values for this will result in less strings being classified as
 
 (Default is `2`.)
 
+::: {.notesection data-latex=""}
+Words in this context are values that contain at least one letter; numbers, punctuation, and syntax commands are ignored.
+For example, "Printing %s," "Player 1," and "Add +" will be seen as one-word strings.
+:::
+
 ## \-\-cpp-version {-}
 
 The C++ standard that should be assumed when issuing deprecated macro warnings (`deprecatedMacro`).

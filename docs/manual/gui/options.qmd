@@ -81,6 +81,11 @@ Setting this to `true` will suppress warnings about strings such as "*? - ?*" be
 **Minimum words for a string to be considered translatable**: enter into here the minimum number of words that a string must have to be considered translatable.
 Higher values for this will result in less strings being classified as `notL10NAvailable` warnings.
 
+::: {.notesection data-latex=""}
+Words in this context are values that contain at least one letter; numbers, punctuation, and syntax commands are ignored.
+For example, "Printing %s," "Player 1," and "Add +" will be seen as one-word strings.
+:::
+
 **C++ standard when issuing deprecation warnings**: enter into here the C++ standard that should be assumed when issuing deprecated macro warnings (`deprecatedMacro`).
 For example, setting this to `2017` or higher (along with selecting the **Include verbose warnings** option) will issue warnings for `WXUNUSED`, as it can be replaced with `[[maybe_unused]]`.
 If setting this to `2014`, however, `WXUNUSED` will be ignored since `[[maybe_unused]]` requires C++17.
