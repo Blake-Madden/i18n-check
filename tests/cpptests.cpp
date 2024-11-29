@@ -171,7 +171,7 @@ TEST_CASE("Version Info", "[cpp][i18n]")
         }
     }
 
-TEST_CASE("C/C++ code", "[cpp][i18n]")
+TEST_CASE("Raw Strings", "[cpp][i18n]")
     {
     SECTION("Pointer")
         {
@@ -729,6 +729,29 @@ TEST_CASE("Extended ASCII in source", "[cpp][i18n]")
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings().size() == 3);
+        }
+
+    SECTION("Not available 2")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(bool MainWindow::importProject()
+{
+    if (true)
+    {
+    	Application::setName("TEST  1");
+    	Application::setName("TEST  2 test");
+    	Application::setName("TEST  +");	
+    	Application::setName("TEST  \n");
+    	Application::setName("TEST zmiana 1");
+    	Application::setName("łą");
+        return false;
+    }
+})";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 6);
         }
     }
 
