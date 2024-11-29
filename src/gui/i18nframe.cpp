@@ -1491,7 +1491,7 @@ void I18NFrame::Process()
     m_projectBar->EnableButton(wxID_REFRESH, true);
     m_projectBar->EnableButton(XRCID("ID_IGNORE"), true);
 
-    m_logWindow->AppendText(analyzer.format_summary(false).str());
+    m_logWindow->AppendText(analyzer.format_summary(wxGetApp().m_defaultOptions.m_verbose).str());
     m_logWindow->AppendText(L"\n");
     m_logWindow->AppendText(analyzer.get_log_report());
     m_logWindow->AppendText(L"\n");
