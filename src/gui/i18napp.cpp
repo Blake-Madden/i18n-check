@@ -137,7 +137,7 @@ bool I18NApp::OnInit()
         {
         frame->Maximize();
         }
-    frame->SetSize(frame->FromDIP(wxSize{ 1200, 1000 }));
+    frame->SetSize(frame->FromDIP(m_defaultOptions.m_windowSize));
     frame->InitControls();
     frame->CenterOnScreen();
     frame->Show(true);

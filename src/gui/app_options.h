@@ -58,6 +58,7 @@ struct I18NOptions
     bool m_verbose{ false };
 
     bool m_windowMaximized{ false };
+    wxSize m_windowSize{ 1200, 1000 };
     int m_editorHeight{ 200 };
     };
 

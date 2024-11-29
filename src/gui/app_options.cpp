@@ -93,6 +93,14 @@ void I18NOptions::Save(const wxString& filePath)
     node->AddChild(
         new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_windowMaximized ? L"true" : L"false"));
 
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"window-height");
+    node->AddChild(
+        new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_windowSize.GetHeight())));
+
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"window-width");
+    node->AddChild(
+        new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_windowSize.GetWidth())));
+
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"editor-height");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_editorHeight)));
 
@@ -230,6 +238,14 @@ void I18NOptions::Load(const wxString& filePath)
         else if (child->GetName() == L"window-maximized")
             {
             m_windowMaximized = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"window-width")
+            {
+            child->GetNodeContent().ToInt(&m_windowSize.x);
+            }
+        else if (child->GetName() == L"window-height")
+            {
+            child->GetNodeContent().ToInt(&m_windowSize.y);
             }
         else if (child->GetName() == L"editor-height")
             {

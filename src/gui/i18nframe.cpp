@@ -1501,6 +1501,7 @@ void I18NFrame::Process()
 void I18NFrame::OnClose(wxCloseEvent& event)
     {
     wxGetApp().m_defaultOptions.m_windowMaximized = IsMaximized();
-    wxGetApp().m_defaultOptions.m_editorHeight = m_editor->GetSize().GetHeight();
+    wxGetApp().m_defaultOptions.m_windowSize = ToDIP(GetSize());
+    wxGetApp().m_defaultOptions.m_editorHeight = ToDIP(m_editor->GetSize().GetHeight());
     event.Skip();
     }
