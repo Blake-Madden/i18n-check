@@ -13,6 +13,9 @@
 
 #include "analyze.h"
 #include <iostream>
+#ifdef wxVERSION_NUMBER
+    #include <wx/file.h>
+#endif
 
 namespace i18n_check
     {
@@ -196,7 +199,11 @@ namespace i18n_check
                     }
                 else
                     {
+#if CHECK_GCC_VERSION(12, 2, 1)
+                    std::wifstream ifs(std::filesystem::path(file).wstring());
+#else
                     std::wifstream ifs(std::filesystem::path(file).string());
+#endif
                     std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                      std::istreambuf_iterator<wchar_t>());
                     if (fileType == file_review_type::po)
@@ -300,9 +307,33 @@ namespace i18n_check
                         {
                         m_filesThatShouldBeConvertedToUTF8.push_back(file);
                         }
+#ifdef wxVERSION_NUMBER
+                    const std::wstring str = [&file]()
+                    {
+    #if CHECK_GCC_VERSION(12, 2, 1)
+                        wxFile ifs(file.wstring());
+    #else
+                        wxFile ifs(file.string());
+    #endif
+                        wxString fileContents;
+                        if (ifs.IsOpened())
+                            {
+                            if (ifs.ReadAll(&fileContents))
+                                {
+                                return fileContents.wc_str();
+                                }
+                            }
+                        return wxString{}.wc_str();
+                    }();
+#else
+    #if CHECK_GCC_VERSION(12, 2, 1)
+                    std::wifstream ifs(std::filesystem::path(file).wstring());
+    #else
                     std::wifstream ifs(std::filesystem::path(file).string());
+    #endif
                     const std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                            std::istreambuf_iterator<wchar_t>());
+#endif
                     if (fileType == file_review_type::rc)
                         {
                         (*m_rc)(str, file);
