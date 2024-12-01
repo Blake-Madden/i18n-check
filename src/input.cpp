@@ -13,6 +13,7 @@
 
 #include "input.h"
 #include "i18n_review.h"
+#include <iostream>
 
 namespace i18n_check
     {
@@ -38,7 +39,7 @@ namespace i18n_check
                         const auto folderToRecurse{ excResults.m_excludedPaths.back() };
                         // add subdirectories
                         for (const auto& p :
-                            std::filesystem::recursive_directory_iterator(folderToRecurse))
+                             std::filesystem::recursive_directory_iterator(folderToRecurse))
                             {
                             if (std::filesystem::exists(p) && p.is_directory())
                                 {
@@ -53,7 +54,7 @@ namespace i18n_check
                     }
                 // if not a full path, just a subdirectory path
                 else if (const auto relPath = std::filesystem::path{ inputFolder } / excItem;
-                        std::filesystem::exists(relPath))
+                         std::filesystem::exists(relPath))
                     {
                     if (std::filesystem::is_directory(relPath))
                         {
@@ -61,7 +62,7 @@ namespace i18n_check
                         const auto folderToRecurse{ excResults.m_excludedPaths.back() };
                         // add subdirectories
                         for (const auto& p :
-                            std::filesystem::recursive_directory_iterator(folderToRecurse))
+                             std::filesystem::recursive_directory_iterator(folderToRecurse))
                             {
                             if (std::filesystem::exists(p) && p.is_directory())
                                 {
@@ -111,7 +112,7 @@ namespace i18n_check
                     for (const auto& ePath : excludedPaths)
                         {
                         std::filesystem::path excPath(ePath,
-                                                    std::filesystem::path::format::native_format);
+                                                      std::filesystem::path::format::native_format);
                         if (p.exists() && std::filesystem::exists(excPath) &&
                             std::filesystem::equivalent(p.path().parent_path(), excPath))
                             {
@@ -124,8 +125,8 @@ namespace i18n_check
                         {
                         for (const auto& eFile : excludedFiles)
                             {
-                            std::filesystem::path excFile(eFile,
-                                                        std::filesystem::path::format::native_format);
+                            std::filesystem::path excFile(
+                                eFile, std::filesystem::path::format::native_format);
                             if (p.exists() && std::filesystem::exists(excFile) &&
                                 std::filesystem::equivalent(p, excFile))
                                 {
@@ -136,13 +137,13 @@ namespace i18n_check
                         }
                     if (p.exists() && p.is_regular_file() && !inExcludedPath &&
                         (ext.compare(std::filesystem::path(L".rc")) == 0 ||
-                        ext.compare(std::filesystem::path(L".c")) == 0 ||
-                        ext.compare(std::filesystem::path(L".cs")) == 0 ||
-                        ext.compare(std::filesystem::path(L".cpp")) == 0 ||
-                        ext.compare(std::filesystem::path(L".h")) == 0 ||
-                        ext.compare(std::filesystem::path(L".hpp")) == 0 ||
-                        ext.compare(std::filesystem::path(L".po")) == 0 ||
-                        ext.compare(std::filesystem::path(L".pot")) == 0) &&
+                         ext.compare(std::filesystem::path(L".c")) == 0 ||
+                         ext.compare(std::filesystem::path(L".cs")) == 0 ||
+                         ext.compare(std::filesystem::path(L".cpp")) == 0 ||
+                         ext.compare(std::filesystem::path(L".h")) == 0 ||
+                         ext.compare(std::filesystem::path(L".hpp")) == 0 ||
+                         ext.compare(std::filesystem::path(L".po")) == 0 ||
+                         ext.compare(std::filesystem::path(L".pot")) == 0) &&
                         // ignore CMake build files
                         p.path().filename().compare(L"CMakeCXXCompilerId.cpp") != 0 &&
                         p.path().filename().compare(L"CMakeCCompilerId.c") != 0 &&
@@ -151,11 +152,11 @@ namespace i18n_check
                         p.path().filename().compare(L"catch_amalgamated.cpp") != 0 &&
                         p.path().filename().compare(L"catch_amalgamated.hpp") != 0 &&
                     // ignore pseudo-translated message catalogs what we previously generated
-    #if CHECK_GCC_VERSION(12, 2, 1)
+#if CHECK_GCC_VERSION(12, 2, 1)
                         !p.path().filename().wstring().starts_with(L"pseudo_"))
-    #else
+#else
                         !p.path().filename().string().starts_with("pseudo_"))
-    #endif
+#endif
                         {
                         filesToAnalyze.push_back(p.path());
                         }
