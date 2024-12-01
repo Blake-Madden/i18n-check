@@ -131,7 +131,9 @@ bool I18NApp::OnInit()
         wxLogDebug(L"Could not find standard translation catalog.");
         }
 
+#ifdef __WXMSW__
     MSWEnableDarkMode();
+#endif
 
     // create the main application window
     I18NFrame* frame = new I18NFrame(GetAppName());
