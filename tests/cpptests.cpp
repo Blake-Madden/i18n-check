@@ -132,6 +132,22 @@ TEST_CASE("Place holders", "[cpp][i18n]")
         REQUIRE(cpp.get_unsafe_localizable_strings().size() == 1);
         }
 
+    SECTION("Serial numbers")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(auto var = _(L"K65-FR75-6");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_unsafe_localizable_strings().size() == 1);
+        cpp.clear_results();
+
+        code = LR"(auto var = L"K65-FR75-6";)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        }
+
     SECTION("Place holder")
         {
         cpp_i18n_review cpp(false);
@@ -781,7 +797,7 @@ TEST_CASE("Code generator strings", "[i18n]")
     SECTION("HTML CSS style")
         {
         cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(2);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "<!DOCTYPE html>
 <html><head>
 <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
@@ -814,7 +830,7 @@ TEST_CASE("Code generator strings", "[i18n]")
     SECTION("HTML script")
         {
         cpp_i18n_review cpp(false);
-        cpp.set_min_words_for_classifying_unavailable_string(2);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
         const wchar_t* code = LR"(auto var = "(<!DOCTYPE html>
 <html><head>
 <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
@@ -909,6 +925,30 @@ TEST_CASE("Code generator strings", "[i18n]")
         CHECK(cpp.get_internal_strings().size() == 1);
         
         code = LR"(auto var = "CREATE TABLE BUDGETTABLE_V1(BUDGETENTRYID integer primary key, BUDGETYEARID integer, CATEGID integer, PERIOD TEXT NOT NULL /* None, Weekly, Bi-Weekly, Monthly, Monthly, Bi-Monthly, Quarterly, Half-Yearly, Yearly, Daily*/, AMOUNT numeric NOT NULL, NOTES TEXT, ACTIVE integer";)";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        code = LR"(auto var = "DELETE * FROM";)";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        code = LR"(auto var = "Provider=SQLOLEDB.1;User ID=ForumUser;Password=pwd;Persist Security Info=False;Initial Catalog=Forums;Data Source=.\\SQLEXPRESS";)";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        CHECK(cpp.get_internal_strings().size() == 1);
+
+        code = LR"(auto var = "Connection: Keep-Alive";)";
         cpp.clear_results();
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
@@ -1235,31 +1275,6 @@ TEST_CASE("Min words", "[cpp]")
         CHECK(cpp.get_localizable_strings().size() == 0);
         REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
         CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"NETHEREALM'S");
-        CHECK(cpp.get_internal_strings().size() == 0);
-        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
-        }
-
-    SECTION("Min word count hypthen")
-        {
-        // default is to ignore strings with just one word
-        cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(wxMessageBox("part-time");)";
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        REQUIRE(cpp.get_internal_strings().size() == 1);
-        CHECK(cpp.get_internal_strings()[0].m_string == L"part-time");
-        CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
-
-        // now, complain about one-word strings not exposed for l10n
-        cpp.clear_results();
-        cpp.set_min_words_for_classifying_unavailable_string(1);
-        cpp(code, L"");
-        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
-        CHECK(cpp.get_localizable_strings().size() == 0);
-        REQUIRE(cpp.get_not_available_for_localization_strings().size() == 1);
-        CHECK(cpp.get_not_available_for_localization_strings()[0].m_string == L"part-time");
         CHECK(cpp.get_internal_strings().size() == 0);
         CHECK(cpp.get_unsafe_localizable_strings().size() == 0);
         }
@@ -2228,6 +2243,16 @@ TEST_CASE("HTML", "[cpp]")
         REQUIRE(cpp.get_internal_strings().size() == 1);
         CHECK(cpp.get_internal_strings()[0].m_string ==
               std::wstring{ L"text/html; charset=utf-8" });
+
+        code = LR"(var = "text/html")";
+        cpp.clear_results();
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_internal_strings()[0].m_string ==
+              std::wstring{ L"text/html" });
         }
 
     SECTION("Hex color")
@@ -2807,6 +2832,18 @@ TEST_CASE("Casing", "[cpp]")
         CHECK(cpp.get_internal_strings()[0].m_string == L"xmlHttpRequest");
         CHECK(cpp.get_internal_strings()[1].m_string == L"supportsIpv6OnIos");
         CHECK(cpp.get_internal_strings()[2].m_string == L"xml2HttpRequest");
+        }
+
+    SECTION("Camel with Underscore")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_min_words_for_classifying_unavailable_string(1);
+        const wchar_t* code = LR"(value = "get_Digits"; value2 = "put_Digits";)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 2);
         }
     }
 

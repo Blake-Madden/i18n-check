@@ -53,7 +53,7 @@ namespace i18n_check
         LR"([[:alpha:]ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя]{2,})"
     };
     const std::wregex i18n_review::m_1word_regex{
-        LR"(([[:alpha:]ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя&'\-\.@]+))"
+        LR"((\b|\s|^)([[:alpha:]_ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя&'\.@]+)(2D|3D)?(\b|\s|$))"
     };
     // cuneiform-suppress-end
     const std::wregex i18n_review::m_hashtag_regex{ LR"(#[[:alnum:]]{2,})" };
@@ -81,8 +81,8 @@ namespace i18n_check
         std::regex_constants::icase
     };
 
-    // <results>, which should be OK to translate
-    const std::wregex i18n_review::m_angle_braced_one_word_regex{ LR"(<[a-zA-Z0-8\-]+>)" };
+    // <results> or <Results>, which should be OK to translate
+    const std::wregex i18n_review::m_angle_braced_one_word_regex{ LR"(<[a-zA-Z][a-z\-]+>)" };
 
     // allowable HTML-like elements that are known
     const std::wregex i18n_review::m_html_known_elements_regex{
@@ -145,6 +145,7 @@ namespace i18n_check
         L"Liberation Serif",
         L"Sans Serif",
         L"Luxi Serif",
+        L"MS Sans Serif",
         L"Ms Shell Dlg",
         L"Ms Shell Dlg 2",
         L"Bitstream Vera Serif",
@@ -494,9 +495,10 @@ namespace i18n_check
                 LR"([A-Za-z0-9\-]+/[A-Za-z0-9\-]+;[[:space:]]*[A-Za-z0-9\-]+=[A-Za-z0-9\-]+)"),
             // SQL code
             m_sql_code,
-            std::wregex(LR"(^(INSERT INTO|DELETE FROM).*)", std::regex_constants::icase),
+            std::wregex(LR"(^(INSERT INTO|DELETE ([*] )?FROM).*)", std::regex_constants::icase),
             std::wregex(LR"(^ORDER BY.*)"), // more strict
             std::wregex(LR"([(]*^SELECT[[:space:]]+[A-Z_0-9\.]+,.*)"),
+            std::wregex(LR"(^Provider=SQLOLEDB.*)"), std::wregex(LR"(^Connection: Keep-Alive$)"),
             // a regex expression
             std::wregex(LR"([(][?]i[)].*)"),
             // single file filter that just has a file extension as its "name"
@@ -522,6 +524,7 @@ namespace i18n_check
             // HTML comment
             std::wregex(LR"(<![-]{2,}.*)"),
             // CSS
+            std::wregex(LR"(a[:](hover|link))", std::regex_constants::icase),
             std::wregex(
                 LR"([\s\S]*(\{[[:space:]]*[a-zA-Z\-]+[[:space:]]*[:][[:space:]]*[0-9a-zA-Z\- \(\);\:%#'",]+[[:space:]]*\})+[\s\S]*)"),
             std::wregex(
@@ -545,7 +548,9 @@ namespace i18n_check
             std::wregex(LR"([-]D [A-Z_]{2,}[ =].*)"), std::wregex(LR"([-]dynamiclib .*)"),
             std::wregex(LR"([-]{2}[a-z]{2,}[ :].*)"),
             // registry keys
-            std::wregex(LR"(SOFTWARE[\\]{1,2}(Policies|Microsoft))"), std::wregex(LR"(HKEY_.*)"),
+            std::wregex(LR"(SOFTWARE[\\]{1,2}(Policies|Microsoft))", std::regex_constants::icase),
+            std::wregex(LR"(SYSTEM[\\]{1,2}(CurrentControlSet))", std::regex_constants::icase),
+            std::wregex(LR"(HKEY_.*)"),
             // XML elements
             std::wregex(LR"(version[ ]?=\\"[0-9\.]+\\")"),
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
@@ -576,6 +581,7 @@ namespace i18n_check
             // camel-case words (e.g., "getValueFromUser", "unencodedExtASCII");
             // surrounding punctuation is stripped first.
             std::wregex(LR"([[:punct:]]*[a-z]+[[:digit:]]*([A-Z]+[a-z0-9]*)+[[:punct:]]*)"),
+            std::wregex(LR"([[:punct:]]*[a-z]+[[:digit:]]*_([A-Z]+[a-z0-9]*)+[[:punct:]]*)"),
             // reverse camel-case (e.g., "UTF8FileWithBOM")
             std::wregex(LR"([[:punct:]]*[A-Z]+[[:digit:]]*([a-z0-9]+[A-Z]+)+[[:punct:]]*)"),
             // formulas (e.g., ABS(-2.7), POW(-4, 2), =SUM(1; 2) )
@@ -629,13 +635,14 @@ namespace i18n_check
             std::wregex(LR"(^(RCPT TO|MAIL TO|MAIL FROM):.*)"),
             // GUIDs
             std::wregex(
-                LR"(^\{[a-fA-F0-9]{8}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{12}\}$)"),
+                LR"(^(CLSID[\\]{1,2})?[\{]?[a-fA-F0-9]{8}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{12}[\}]?$)"),
             // encoding
             std::wregex(LR"(^(base[0-9]+|uuencode|quoted-printable)$)"),
             std::wregex(LR"(^(250\-AUTH)$)"),
             // MIME headers
             std::wregex(LR"(^MIME-Version:.*)"), std::wregex(LR"(^X-Priority:.*)"),
-            std::wregex(LR"(^(application/octet-stream|text/plain|rawdata)$)"),
+            std::wregex(
+                LR"(^(application\/octet-stream|video\/([:alnum:]+)|audio\/([:alnum:]+)|image\/([:alnum:]+)|text\/(css|csv|plain|html|xml|rawdata|javascript))$)"),
             std::wregex(LR"(.*\bContent-Type:[[:space:]]*[[:alnum:]]+/[[:alnum:]]+;.*)"),
             std::wregex(LR"(.*\bContent-Transfer-Encoding:[[:space:]]*[[:alnum:]]+.*)"),
             // URL
@@ -658,6 +665,8 @@ namespace i18n_check
             std::wregex(
                 LR"((Microsoft )?Windows (95|98|NT|ME|2000|Server|Vista|Longhorn|XP|[[:digit:]]{1,2}[.]?[[:digit:]]{0,2})[[:space:]]*[[:digit:]]{0,4}[[:space:]]*(R|SP)?[[:digit:]]{0,2})"),
             // products and standards
+            std::wregex(LR"(UTF[-](8|16|32)(BE|LE)?)"),
+            std::wregex(LR"(Pentium( (II|III|M|Xeon|Pro))?)"),
             std::wregex(LR"((Misra|MISRA) C( [0-9]+)?)"),
             std::wregex(LR"(Borland C\+\+ Builder( [0-9]+)?)"), std::wregex(LR"(Qt Creator)"),
             std::wregex(LR"((Microsoft )VS Code)"), std::wregex(LR"((Microsoft )?Visual Studio)"),
@@ -735,8 +744,9 @@ namespace i18n_check
             L"std::pmr::u32string", L"pmr::basic_string", L"pmr::string", L"pmr::wstring",
             L"pmr::u8string", L"pmr::u16string", L"pmr::u32string", L"std::ifstream",
             L"std::ofstream",
-            // MFC, ATL
-            L"CString", L"_bstr_t",
+            // MFC, ATL, COM
+            L"CString", L"_bstr_t", L"OLESTR", L"T2COLE", L"T2OLE", L"OLE2CT", L"OLE2T",
+            L"CComBSTR",
             // Java
             L"Locale",
             // formatting functions (not actually a CTOR) that should be skipped over
@@ -825,7 +835,7 @@ namespace i18n_check
             L"popen", L"dlopen", L"dlsym", L"g_signal_connect", L"handle_system_error",
             // macOS calls
             L"CFBundleCopyResourceURL", L"sysctlbyname",
-            // Windows/MFC calls
+            // Windows/MFC/COM/ATL
             L"OutputDebugString", L"OutputDebugStringA", L"OutputDebugStringW", L"QueryValue",
             L"ASSERT", L"_ASSERTE", L"TRACE", L"ATLTRACE", L"TRACE0", L"ATLTRACE2", L"ATLENSURE",
             L"ATLASSERT", L"VERIFY", L"LoadLibrary", L"LoadLibraryEx", L"LoadModule",
@@ -838,7 +848,17 @@ namespace i18n_check
             L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
             L"HasProperty", L"SetRegistryKey", L"CreateDC", L"GetModuleFileName",
             L"GetModuleFileNameEx", L"GetProcessImageFileName", L"GetMappedFileName",
-            L"GetDeviceDriverFileName", L"GetDeviceDriverBaseName",
+            L"GetDeviceDriverFileName", L"GetDeviceDriverBaseName", L"DECLARE_WND_SUPERCLASS",
+            L"DECLARE_WND_CLASS_EX", L"DECLARE_WND_CLASS2", L"DECLARE_WND_CLASS", L"SHGetFileInfo",
+            L"WFCTRACE", L"WFCTRACEVAL", L"WFCTRACEVARIANT", L"WFCLTRACEINIT", L"TRACE", L"TRACE0",
+            L"TRACE1", L"TRACE2", L"TRACE3", L"TRACE4", L"TRACE5", L"TRACEERROR", L"_RPT0",
+            L"_RPT1", L"_RPT2", L"_RPT3", L"_RPT4", L"_RPT5", L"_RPTF0", L"_RPTF1", L"_RPTF2",
+            L"_RPTF3", L"_RPTF4", L"_RPTF5", L"_RPTW0", L"_RPTW1", L"_RPTW2", L"_RPTW3", L"_RPTW4",
+            L"_RPTW5", L"_RPTFW0", L"_RPTFW1", L"_RPTFW2", L"_RPTFW3", L"_RPTFW4", L"_RPTFW5",
+            L"OpenFromInitializationString", L"CreateADOCommand", L"ExecuteSql",
+            L"com_interface_entry", L"uuid", L"idl_quote", L"threading", L"vi_progid", L"progid",
+            L"CreatePointFont", L"CreateFont", L"FindWindow", L"RegisterServer",
+            L"UnregisterServer", L"MIDL_INTERFACE", L"DECLSPEC_UUID",
             // .NET
             L"FindSystemTimeZoneById", L"CreateSpecificCulture", L"DebuggerDisplay", L"Debug.Fail",
             L"DeriveKey", L"Assert.Fail", L"Debug.Assert", L"Debug.Print", L"Debug.WriteLine",
@@ -847,11 +867,16 @@ namespace i18n_check
             L"Directory.EnumerateFiles", L"Utils.RunProcess", L"Utils.TryRunProcess",
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
+            // libpng
+            L"png_debug", L"png_debug1", L"png_debug2", L"png_error", L"png_warning",
+            L"png_chunk_warning", L"png_chunk_error",
             // Lua
             L"luaL_error", L"lua_pushstring", L"lua_setglobal",
             // more functions from various apps
-            L"trace", L"ActionFormat", L"ErrorFormat", L"DEBUG",
-            L"setParameters"
+            L"trace", L"ActionFormat", L"ErrorFormat", L"DEBUG", L"setParameters", L"getopt",
+            L"_PrintEnter", L"_PrintExit", L"ERROR0", L"ERROR1", L"ERROR2", L"ERROR3",
+            // assembly calls
+            L"asm"
         };
 
         m_log_functions = {
@@ -875,13 +900,16 @@ namespace i18n_check
             // actual console (or file) functions
             // (we will consider that most console apps are not localized, or if being used
             //  in a GUI then the message is meant for developers)
-            L"printf", L"Console.WriteLine", L"dprintf", L"WriteLine",
+            L"printf", L"Console.WriteLine", L"dprintf", L"WriteLine", L"System.Console.WriteLine",
+            L"_tprintf", L"wprintf",
             // .NET
             L"LoggerMessage", L"JITDUMP", L"LOG", L"LogSpew", L"LOG_HANDLE_OBJECT_CLASS",
             L"LOG_HANDLE_OBJECT", L"CorDisToolsLogERROR", L"LOG_ERROR", L"LOG_INFO", L"LogError",
             L"LogMessage", L"LogAsErrorException", L"LogVerbose",
+            // TinyXML
+            L"TIXML_LOG",
             // other programs
-            L"log_message", L"outLog", L"Error"
+            L"log_message", L"outLog", L"Error", L"AppendLog"
         };
 
         m_exceptions = {
@@ -892,7 +920,7 @@ namespace i18n_check
             L"underflow_error", L"std::underflow_error", L"range_error", L"std::range_error",
             L"invalid_argument", L"std::invalid_argument", L"exception", L"std::exception",
             // MFC
-            L"AfxThrowOleDispatchException",
+            L"AfxThrowOleDispatchException", L"Win32Exception",
             // Qt
             L"QException",
             // .NET
@@ -936,7 +964,7 @@ namespace i18n_check
         add_variable_name_pattern_to_ignore(std::wregex(LR"(wxColourTable)"));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(QT_MESSAGE_PATTERN)"));
         // console objects
-        add_variable_name_pattern_to_ignore(std::wregex(LR"((std::)?[w]?cout)"));
+        add_variable_name_pattern_to_ignore(std::wregex(LR"((std::)?[w]?(cout|cerr))"));
         }
 
     //--------------------------------------------------
@@ -1884,7 +1912,22 @@ namespace i18n_check
                 if (std::regex_match(str, m_angle_braced_one_word_regex) &&
                     !std::regex_match(str, m_html_known_elements_regex))
                     {
-                    return false;
+                    if (limitWordCount)
+                        {
+                        // see if it has enough words
+                        const auto matchCount{ std::distance(
+                            std::wsregex_iterator(str.cbegin(), str.cend(), m_1word_regex),
+                            std::wsregex_iterator()) };
+                        if (static_cast<size_t>(matchCount) <
+                            get_min_words_for_classifying_unavailable_string())
+                            {
+                            return true;
+                            }
+                        }
+                    else
+                        {
+                        return false;
+                        }
                     }
                 str = std::regex_replace(str, std::wregex(LR"(<script[\d\D]*?>[\d\D]*?</script>)"),
                                          L"");
@@ -1899,12 +1942,16 @@ namespace i18n_check
                 str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
                 }
 
-            if (limitWordCount)
+            // see if it has enough words
+            const auto matchCount{ std::distance(
+                std::wsregex_iterator(str.cbegin(), str.cend(), m_1word_regex),
+                std::wsregex_iterator()) };
+            if (!is_allowing_translating_punctuation_only_strings() && matchCount == 0)
                 {
-                // see if it has enough words
-                const auto matchCount{ std::distance(
-                    std::wsregex_iterator(str.cbegin(), str.cend(), m_1word_regex),
-                    std::wsregex_iterator()) };
+                return true;
+                }
+            else if (limitWordCount)
+                {
                 if (static_cast<size_t>(matchCount) <
                     get_min_words_for_classifying_unavailable_string())
                     {
