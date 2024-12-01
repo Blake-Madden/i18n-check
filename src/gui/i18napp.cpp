@@ -38,6 +38,8 @@ I18NArtProvider::I18NArtProvider()
                     { L"ID_CODE", L"images/code.svg" },
                     { L"ID_TRANSLATIONS", L"images/translations.svg" },
                     { L"ID_CONVERT_TO_ENCODED_UNICODE", L"images/unicode-encoded.svg" },
+                    { L"ID_INSERT_DT", L"images/dt.svg" },
+                    { L"ID_INSERT_GETTEXT", L"images/gettext.svg" },
                     { L"ID_CHECK", L"images/check.svg" },
                     { L"ID_FORMAT", L"images/format.svg" },
                     { L"ID_DEBUG", L"images/bug.svg" },

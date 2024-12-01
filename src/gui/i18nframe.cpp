@@ -434,6 +434,12 @@ void I18NFrame::InitControls()
         wxEVT_MENU, [this](wxCommandEvent& event) { OnInsertEncodedUnicode(event); },
         XRCID("ID_CONVERT_TO_ENCODED_UNICODE"));
     Bind(
+        wxEVT_MENU, [this](wxCommandEvent& event) { OnInsertDTMacro(event); },
+        XRCID("ID_INSERT_DT"));
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& event) { OnInsertTGetTextMacro(event); },
+        XRCID("ID_INSERT_GETTEXT"));
+    Bind(
         wxEVT_MENU,
         [this]([[maybe_unused]] wxCommandEvent&)
         {
@@ -816,6 +822,17 @@ void I18NFrame::OnInsert(wxRibbonButtonBarEvent& event)
     menuItem->SetBitmap(wxArtProvider::GetBitmap(L"ID_CONVERT_TO_ENCODED_UNICODE", wxART_OTHER,
                                                  FromDIP(wxSize{ 16, 16 })));
     menu.Append(menuItem);
+    menu.AppendSeparator();
+
+    menuItem = new wxMenuItem(&menu, XRCID("ID_INSERT_GETTEXT"), _(L"Mark for Translation..."));
+    menuItem->SetBitmap(
+        wxArtProvider::GetBitmap(L"ID_INSERT_GETTEXT", wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
+    menu.Append(menuItem);
+
+    menuItem = new wxMenuItem(&menu, XRCID("ID_INSERT_DT"), _(L"Mark as Non-translatable..."));
+    menuItem->SetBitmap(
+        wxArtProvider::GetBitmap(L"ID_INSERT_DT", wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
+    menu.Append(menuItem);
 
     event.PopupMenu(&menu);
     }
@@ -1110,6 +1127,47 @@ void I18NFrame::OnInsertEncodedUnicode([[maybe_unused]] wxCommandEvent&)
         {
         m_editor->ReplaceSelection(encoded.str());
         }
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnInsertTGetTextMacro([[maybe_unused]] wxCommandEvent&)
+    {
+    const wxString selText{ m_editor->GetSelectedText() };
+    if (selText.empty())
+        {
+        wxMessageBox(_(L"No selection found. Please select a quoted string in the editor."),
+                     _(L"No Selection"));
+        return;
+        }
+    else if (!selText.starts_with(L'"') || !selText.ends_with(L'"'))
+        {
+        wxMessageBox(_(L"Please select a quoted string in the editor to wrap within a _() macro."),
+                     _(L"No Quote Selected"));
+        return;
+        }
+
+    m_editor->ReplaceSelection(L"_(" + selText + ")");
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnInsertDTMacro([[maybe_unused]] wxCommandEvent&)
+    {
+    const wxString selText{ m_editor->GetSelectedText() };
+    if (selText.empty())
+        {
+        wxMessageBox(_(L"No selection found. Please select a quoted string in the editor."),
+                     _(L"No Selection"));
+        return;
+        }
+    else if (!selText.starts_with(L'"') || !selText.ends_with(L'"'))
+        {
+        wxMessageBox(
+            _(L"Please select a quoted string in the editor to wrap within a _DT() macro."),
+            _(L"No Quote Selected"));
+        return;
+        }
+
+    m_editor->ReplaceSelection(L"_DT(" + selText + ")");
     }
 
 //------------------------------------------------------

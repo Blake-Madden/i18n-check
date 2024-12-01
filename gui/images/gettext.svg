@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   id="svg3491"
+   sodipodi:docname="gettext.svg"
+   viewBox="0 0 69.999999 70.000001"
+   version="1.1"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   width="70"
+   height="70"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs3493">
+    <rect
+       x="22.912882"
+       y="16.377592"
+       width="22.676664"
+       height="8.5037498"
+       id="rect2" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     fit-margin-left="0"
+     inkscape:showpageshadow="false"
+     inkscape:zoom="12.70028"
+     borderopacity="1.0"
+     inkscape:current-layer="layer1"
+     inkscape:cx="61.652184"
+     inkscape:cy="34.014998"
+     inkscape:window-maximized="1"
+     showgrid="false"
+     fit-margin-right="0"
+     inkscape:document-units="px"
+     bordercolor="#666666"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="2560"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     pagecolor="#ffffff"
+     inkscape:window-height="1368"
+     showborder="false"
+     fit-margin-top="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     transform="translate(-434.26,-261.72)">
+    <text
+       xml:space="preserve"
+       transform="translate(434.26,261.72)"
+       id="text2"
+       style="font-size:5.33333px;font-family:'Courier New';-inkscape-font-specification:'Courier New';letter-spacing:1.05px;white-space:pre;shape-inside:url(#rect2);display:inline;fill:#00af00;stroke:#007db1;stroke-width:1.88976;paint-order:stroke markers fill" />
+    <g
+       aria-label="_()"
+       id="text4626"
+       style="font-size:40px;line-height:1.25;fill:#008000">
+      <path
+         d="m 467.38892,311.11002 v 2.79296 h -20.78125 v -2.79296 z"
+         style="fill:#00df00"
+         id="path31203" />
+      <path
+         d="m 479.40063,274.11783 q -2.61718,4.49219 -3.88671,8.88672 -1.26954,4.39453 -1.26954,8.90625 0,4.51172 1.26954,8.94531 1.28906,4.41406 3.88671,8.88672 h -3.125 q -2.92968,-4.58985 -4.39453,-9.02344 -1.44531,-4.43359 -1.44531,-8.80859 0,-4.35547 1.44531,-8.76953 1.44532,-4.41407 4.39453,-9.02344 z"
+         style="fill:#00df00"
+         id="path31205" />
+      <path
+         d="m 485.80688,274.11783 h 3.125 q 2.92969,4.60937 4.375,9.02344 1.46485,4.41406 1.46485,8.76953 0,4.375 -1.46485,8.80859 -1.44531,4.43359 -4.375,9.02344 h -3.125 q 2.59766,-4.47266 3.86719,-8.88672 1.28906,-4.43359 1.28906,-8.94531 0,-4.51172 -1.28906,-8.90625 -1.26953,-4.39453 -3.86719,-8.88672 z"
+         style="fill:#00df00"
+         id="path31207" />
+    </g>
+  </g>
+  <metadata
+     id="metadata1">
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
+        <dc:publisher>
+          <cc:Agent
+             rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:date>2012-04-29T23:00:39</dc:date>
+        <dc:description />
+        <dc:source>https://openclipart.org/detail/169752/file-icon-csv-by-jabon</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>jabon</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>csv</rdf:li>
+            <rdf:li>file</rdf:li>
+            <rdf:li>icon</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

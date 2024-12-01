@@ -63,6 +63,8 @@ class I18NFrame : public wxFrame
     void OnExportResults([[maybe_unused]] wxCommandEvent&);
     void OnInsertTranslatorComment([[maybe_unused]] wxCommandEvent&);
     void OnInsertEncodedUnicode([[maybe_unused]] wxCommandEvent&);
+    void OnInsertTGetTextMacro([[maybe_unused]] wxCommandEvent&);
+    void OnInsertDTMacro([[maybe_unused]] wxCommandEvent&);
     void OnSaveMenu(wxRibbonButtonBarEvent& event);
     void OnRefresh([[maybe_unused]] wxCommandEvent&);
     void OnOpenSelectedFile([[maybe_unused]] wxCommandEvent&);
