@@ -59,6 +59,10 @@ namespace i18n_check
 
                     currentTextBlock = currentTextBlock.substr(endPositions.length());
                     }
+                else
+                    {
+                    break;
+                    }
                 }
 
             std::vector<std::pair<size_t, std::wstring>> tableEntries;
