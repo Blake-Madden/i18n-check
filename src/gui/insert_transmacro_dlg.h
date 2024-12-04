@@ -51,6 +51,7 @@ class InsertTransMacroDlg final : public wxDialog
   public:
     /** @brief Constructor.
         @param parent The parent window.
+        @param stringToFormat The original string to wrap in a function call.
         @param id The window ID.
         @param caption The title of the export dialog.
         @param macroType Which type of macro to insert.
@@ -68,6 +69,7 @@ class InsertTransMacroDlg final : public wxDialog
     /// @private
     InsertTransMacroDlg& operator=(const InsertTransMacroDlg&) = delete;
 
+    /// @returns The fully formatted results.
     [[nodiscard]]
     wxString GetFormattedOutput();
 
