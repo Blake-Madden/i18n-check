@@ -1561,8 +1561,7 @@ namespace i18n_check
                     (functionName == L"wxTRANSLATE_IN_CONTEXT" && parameterPosition == 0) ||
                     (functionName == L"wxGETTEXT_IN_CONTEXT_PLURAL" && parameterPosition == 0) ||
                     (functionName == L"wxGETTEXT_IN_CONTEXT" && parameterPosition == 0) ||
-                    (functionName == L"wxGetTranslation" &&
-                     (parameterPosition == 1 || parameterPosition == 3 || parameterPosition == 4)))
+                    (functionName == L"wxGetTranslation" && parameterPosition >= 1))
                     {
                     m_internal_strings.emplace_back(
                         std::wstring(currentTextPos, quoteEnd - currentTextPos),
