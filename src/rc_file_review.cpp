@@ -38,7 +38,7 @@ namespace i18n_check
             const std::wregex stringTableRegEx{
                 LR"(STRINGTABLE[[:space:]]*(BEGIN|\{)[[:space:]]*)"
             };
-            const std::wregex stringTableEndRegEx{ LR"([\r\n]+(END|\}))" };
+            const std::wregex stringTableEndRegEx{ LR"([\r\n]+[[:space:]]*(END|\}))" };
             std::match_results<decltype(rcFileText)::const_iterator> stPositions;
             std::match_results<decltype(rcFileText)::const_iterator> endPositions;
             auto currentTextBlock{ rcFileText };

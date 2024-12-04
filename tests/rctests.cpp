@@ -22,12 +22,25 @@ TEST_CASE("String tables", "[rc][i18n]")
 
 
 STRINGTABLE
+    BEGIN
+		IDS_1a "5\xBC-Inch Floppy Disk"
+		IDS_2 L"Don't confuse \x2229 (intersection) with \x222A (union)."
+		IDS_3 "Copyright \xA92001"
+		IDS_3a L"Copyright \x00a92001"
+		IDS_4 L"%s"
+    END
+
+IDD_ABOUT DIALOG 14, 22, 177, 100
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About..."
+FONT 8, "Helv"
 BEGIN
-IDS_1a "5\xBC-Inch Floppy Disk"
-IDS_2 L"Don't confuse \x2229 (intersection) with \x222A (union)."
-IDS_3 "Copyright \xA92001"
-IDS_3a L"Copyright \x00a92001"
-IDS_4 L"%s"
+    ICON            "Icon", ID_NULL, 20, 9, 18, 16
+    CTEXT           "image.bmp", ID_NULL, 66, 7, 100, 9, NOT
+                    WS_GROUP
+    LTEXT           "70750,2344", ID_NULL, 5, 84, 109, 10, NOT
+                    WS_GROUP
+    DEFPUSHBUTTON   "OK", IDOK, 130, 75, 42, 18
 END)";
 		rc(code, L"");
 		REQUIRE(rc.get_localizable_strings().size() == 6);
