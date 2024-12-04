@@ -209,6 +209,10 @@ int main(int argc, char* argv[])
                 {
                 rs |= i18n_check::review_style::check_suspect_l10n_string_usage;
                 }
+            else if (r == "suspectI18NUsage")
+                {
+                rs |= i18n_check::review_style::check_suspect_i18n_usage;
+                }
             else if (r == "printfMismatch")
                 {
                 rs |= i18n_check::review_style::check_mismatching_printf_commands;
@@ -328,6 +332,10 @@ int main(int argc, char* argv[])
             else if (r == "suspectL10NUsage")
                 {
                 rs = rs & ~i18n_check::review_style::check_suspect_l10n_string_usage;
+                }
+            else if (r == "suspectI18NUsage")
+                {
+                rs = rs & ~i18n_check::review_style::check_suspect_i18n_usage;
                 }
             else if (r == "printfMismatch")
                 {

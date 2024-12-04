@@ -383,6 +383,7 @@ namespace i18n_check
                 << _(L"Checks Performed")
                 << L"\n###################################################\n"
                 << ((m_cpp->get_style() & check_l10n_strings) ? L"suspectL10NString\n" : L"")
+                << ((m_cpp->get_style() & check_suspect_i18n_usage) ? L"suspectI18NUsage\n" : L"")
                 << ((m_cpp->get_style() & check_suspect_l10n_string_usage) ? L"suspectL10NUsage\n" :
                                                                              L"")
                 << ((m_cpp->get_style() & check_mismatching_printf_commands) ? L"printfMismatch\n" :
@@ -602,6 +603,14 @@ namespace i18n_check
                            << val.m_usage.m_value << L"\"\t";
                     }
                 report << L"[urlInL10NString]\n";
+                }
+
+            for (const auto& val : sourceParser->get_suspect_i18n_usuage())
+                {
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t\"";
+                report << val.m_usage.m_value;
+                report << L"\t\"[suspectI18NUsage]\n";
                 }
 
             for (const auto& val :

@@ -10,6 +10,10 @@ Check for translatable strings that should not be (e.g., numbers, keywords, `pri
 
 Check for translatable strings being used in internal contexts (e.g., debugging and console functions).
 
+- `suspectI18NUsage`
+
+Check for suspect usage of i18n functions.
+
 - `urlInL10NString`
 
 Check for translatable strings that contain URLs or email addresses.

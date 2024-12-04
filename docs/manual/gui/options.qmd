@@ -53,6 +53,10 @@ An exception is made for strings that end with a colon followed by a space (": "
 It is assumed that this part of tabular data being concatenated and will be ignored.
 :::
 
+**Suspect i18n function usage**: select this to check for suspect usage of i18n functions.
+For example, this will detect if a string literal is being passed as the string argument to `wxGetTranslation()`.
+This is incorrect, as this function is meant for variables instead of string literals.
+
 **Check for ambiguous strings that lack a translator comment**: select this to check for possibly ambiguous strings that lack a translator comment.
 
 **Deprecated macros and functions**: select this to check for deprecated text macros and functions.

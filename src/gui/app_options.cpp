@@ -119,6 +119,7 @@ void I18NOptions::Load(const wxString& filePath)
     m_varsToIgnore.clear();
     m_options = static_cast<int64_t>(i18n_check::review_style::check_l10n_strings |
                                      i18n_check::review_style::check_suspect_l10n_string_usage |
+                                     i18n_check::review_style::check_suspect_i18n_usage |
                                      i18n_check::review_style::check_not_available_for_l10n |
                                      i18n_check::review_style::check_deprecated_macros |
                                      i18n_check::review_style::check_utf8_encoded |

@@ -737,6 +737,7 @@ void I18NFrame::OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&)
             excludeFlag(L"[suspectL10NString]", i18n_check::review_style::check_l10n_strings);
             excludeFlag(L"[suspectL10NUsage]",
                         i18n_check::review_style::check_suspect_l10n_string_usage);
+            excludeFlag(L"[suspectI18NUsage]", i18n_check::review_style::check_suspect_i18n_usage);
             excludeFlag(L"[printfMismatch]",
                         i18n_check::review_style::check_mismatching_printf_commands);
             excludeFlag(L"[acceleratorMismatch]", i18n_check::review_style::check_accelerators);

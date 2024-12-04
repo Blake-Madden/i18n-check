@@ -288,6 +288,7 @@ class NewProjectDialog final : public wxDialog
     bool m_notL10NAvailable{ true };
     bool m_suspectL10NString{ true };
     bool m_suspectL10NUsage{ true };
+    bool m_suspectI18NUsage{ true };
     bool m_printfMismatch{ true };
     bool m_acceleratorMismatch{ true };
     bool m_transConsistency{ true };

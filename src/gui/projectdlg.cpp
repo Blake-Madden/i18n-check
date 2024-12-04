@@ -75,6 +75,7 @@ void NewProjectDialog::SetOptions(const i18n_check::review_style style)
     m_notL10NAvailable = (m_options & i18n_check::review_style::check_not_available_for_l10n);
     m_suspectL10NString = (m_options & i18n_check::review_style::check_l10n_strings);
     m_suspectL10NUsage = (m_options & i18n_check::review_style::check_suspect_l10n_string_usage);
+    m_suspectI18NUsage = (m_options & i18n_check::review_style::check_suspect_i18n_usage);
     m_printfMismatch = (m_options & i18n_check::review_style::check_mismatching_printf_commands);
     m_acceleratorMismatch = (m_options & i18n_check::review_style::check_accelerators);
     m_transConsistency = (m_options & i18n_check::review_style::check_consistency);
@@ -126,6 +127,10 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
     if (m_suspectL10NUsage)
         {
         m_options |= i18n_check::review_style::check_suspect_l10n_string_usage;
+        }
+    if (m_suspectI18NUsage)
+        {
+        m_options |= i18n_check::review_style::check_suspect_i18n_usage;
         }
     if (m_printfMismatch)
         {
@@ -496,6 +501,14 @@ void NewProjectDialog::CreateControls()
                                     wxGenericValidator(&m_spacesAroundL10NString)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
         gbSizer->Add(buildCodeLabel(L"spacesAroundL10NString", checkOptionsSizer->GetStaticBox()),
+                     wxGBPosition(currentRow++, 1), wxGBSpan{});
+        
+        gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
+                                    _(L"Suspect i18n function usage"),
+                                    wxDefaultPosition, wxDefaultSize, 0,
+                                    wxGenericValidator(&m_suspectI18NUsage)),
+                     wxGBPosition(currentRow, 0), wxGBSpan{});
+        gbSizer->Add(buildCodeLabel(L"suspectI18NUsage", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
         gbSizer->Add(new wxCheckBox(

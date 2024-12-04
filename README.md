@@ -139,6 +139,7 @@ loaded by your application for integration testing.
                           (e.g., numbers, keywords, printf() commands).
   suspectL10NUsage:       Check for translatable strings being used in internal contexts
                           (e.g., debugging functions).
+  suspectI18NUsage:       Check for suspect usage of i18n functions.
   urlInL10NString:        Check for translatable strings that contain URLs or email addresses.
                           It is recommended to dynamically format these into the string so that
                           translators don't have to manage them.

@@ -115,8 +115,8 @@ namespace i18n_check
         check_l10n_has_surrounding_spaces = (static_cast<int64_t>(1) << 13),
         /// @brief Check for ambiguous source strings that are lacking contextual information.
         check_needing_context = (static_cast<int64_t>(1) << 14),
-        /// @private
-        i18n_reserved3 = (static_cast<int64_t>(1) << 15),
+        /// @brief Check for suspect usage of i18n functions.
+        check_suspect_i18n_usage = (static_cast<int64_t>(1) << 15),
         /// @private
         i18n_reserved4 = (static_cast<int64_t>(1) << 16),
         /// @private
@@ -146,11 +146,12 @@ namespace i18n_check
         /// @private
         i18n_reserved17 = (static_cast<int64_t>(1) << 29),
         /// @brief Perform all aforementioned internationalization checks.
-        all_i18n_checks = (check_l10n_strings | check_suspect_l10n_string_usage |
-        check_not_available_for_l10n | check_deprecated_macros | check_utf8_encoded |
-        check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
-        check_number_assigned_to_id | check_duplicate_value_assigned_to_ids |
-        check_malformed_strings | check_utf8_with_signature | check_fonts),
+        all_i18n_checks =
+        (check_l10n_strings | check_suspect_l10n_string_usage | check_not_available_for_l10n |
+        check_deprecated_macros | check_utf8_encoded | check_unencoded_ext_ascii |
+        check_printf_single_number | check_l10n_contains_url | check_number_assigned_to_id |
+        check_duplicate_value_assigned_to_ids | check_malformed_strings |
+        check_utf8_with_signature | check_fonts | check_suspect_i18n_usage),
 
         /// @brief Check for mismatching printf commands between source strings and their
         ///     respective translations.
@@ -488,6 +489,13 @@ namespace i18n_check
         const std::vector<string_info>& get_unsafe_localizable_strings() const noexcept
             {
             return m_unsafe_localizable_strings;
+            }
+
+        /// @returns Suspect usage of i18n functions.
+        [[nodiscard]]
+        const std::vector<string_info>& get_suspect_i18n_usuage() const noexcept
+            {
+            return m_suspect_i18n_usage;
             }
 
         /// @returns The strings that are being extracted as localizable,
@@ -1084,7 +1092,8 @@ namespace i18n_check
             review_style::check_not_available_for_l10n | review_style::check_deprecated_macros |
             review_style::check_utf8_encoded | review_style::check_printf_single_number |
             review_style::check_l10n_contains_url | review_style::check_malformed_strings |
-            review_style::check_fonts | review_style::all_l10n_checks) };
+            review_style::check_suspect_i18n_usage | review_style::check_fonts |
+            review_style::all_l10n_checks) };
 
         bool m_verbose{ false };
 
@@ -1128,6 +1137,7 @@ namespace i18n_check
         std::vector<string_info> m_tabs;
         std::vector<string_info> m_wide_lines;
         std::vector<string_info> m_comments_missing_space;
+        std::vector<string_info> m_suspect_i18n_usage;
 
         bool m_context_comment_active{ false };
 

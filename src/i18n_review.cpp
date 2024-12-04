@@ -1568,6 +1568,45 @@ namespace i18n_check
                         string_info::usage_info(string_info::usage_info::usage_type::function,
                                                 functionName, std::wstring{}),
                         m_file_name, get_line_and_column(currentTextPos - m_file_start));
+
+                    const auto contextLength{ quoteEnd - currentTextPos };
+                    if (static_cast<bool>(m_review_styles & check_suspect_i18n_usage) &&
+                        contextLength > 32)
+                        {
+                        m_suspect_i18n_usage.emplace_back(
+                            functionName,
+                            string_info::usage_info(
+                                string_info::usage_info::usage_type::function,
+#ifdef wxVERSION_NUMBER
+                                wxString::Format(_(L"Context string is considerable long. Are the context and "
+                                      "string arguments to %s possibly transposed?"),
+                                    functionName)
+                                    .wc_str(),
+#else
+                                L"Context string is considerable long. Are the context and string "
+                                "arguments possibly transposed?";
+#endif
+                                std::wstring{}, true),
+                            m_file_name, get_line_and_column(currentTextPos - m_file_start));
+                        }
+                    }
+                else if (static_cast<bool>(m_review_styles & check_suspect_i18n_usage) &&
+                         functionName == L"wxGetTranslation" && parameterPosition == 0)
+                    {
+                    m_suspect_i18n_usage.emplace_back(
+                        functionName,
+                        string_info::usage_info(
+                            string_info::usage_info::usage_type::function,
+#ifdef wxVERSION_NUMBER
+                            _(L"First argument to wxGetTranslation() should not "
+                              "be a literal string.")
+                                .wc_str(),
+#else
+                            L"First argument to wxGetTranslation() should not "
+                            "be a literal string.";
+#endif
+                            std::wstring{}, true),
+                        m_file_name, get_line_and_column(currentTextPos - m_file_start));
                     }
                 else
                     {
@@ -1831,6 +1870,7 @@ namespace i18n_check
         m_tabs.clear();
         m_wide_lines.clear();
         m_comments_missing_space.clear();
+        m_suspect_i18n_usage.clear();
         }
 
     //--------------------------------------------------
