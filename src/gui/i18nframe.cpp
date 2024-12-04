@@ -1135,18 +1135,19 @@ void I18NFrame::OnInsertTGetTextMacro([[maybe_unused]] wxCommandEvent&)
     const wxString selText{ m_editor->GetSelectedText() };
     if (selText.empty())
         {
-        wxMessageBox(_(L"No selection found. Please select a quoted string in the editor."),
+        wxMessageBox(_(L"No selection found. Please select a string in the editor."),
                      _(L"No Selection"));
         return;
         }
-    else if (!selText.starts_with(L'"') || !selText.ends_with(L'"'))
+
+    InsertTransMacroDlg dlg(this, selText, wxID_ANY, _("Mark for Translation"),
+                            TransMacroType::MarkForTranslation);
+    if (dlg.ShowModal() != wxID_OK)
         {
-        wxMessageBox(_(L"Please select a quoted string in the editor to wrap within a _() macro."),
-                     _(L"No Quote Selected"));
         return;
         }
 
-    m_editor->ReplaceSelection(L"_(" + selText + ")");
+    m_editor->ReplaceSelection(dlg.GetFormattedOutput());
     }
 
 //------------------------------------------------------
@@ -1155,19 +1156,19 @@ void I18NFrame::OnInsertDTMacro([[maybe_unused]] wxCommandEvent&)
     const wxString selText{ m_editor->GetSelectedText() };
     if (selText.empty())
         {
-        wxMessageBox(_(L"No selection found. Please select a quoted string in the editor."),
+        wxMessageBox(_(L"No selection found. Please select a string in the editor."),
                      _(L"No Selection"));
         return;
         }
-    else if (!selText.starts_with(L'"') || !selText.ends_with(L'"'))
+
+    InsertTransMacroDlg dlg(this, selText, wxID_ANY, _("Mark as Non-translation"),
+                            TransMacroType::MarkForNoTranslation);
+    if (dlg.ShowModal() != wxID_OK)
         {
-        wxMessageBox(
-            _(L"Please select a quoted string in the editor to wrap within a _DT() macro."),
-            _(L"No Quote Selected"));
         return;
         }
 
-    m_editor->ReplaceSelection(L"_DT(" + selText + ")");
+    m_editor->ReplaceSelection(dlg.GetFormattedOutput());
     }
 
 //------------------------------------------------------

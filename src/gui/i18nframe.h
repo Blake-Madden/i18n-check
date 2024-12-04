@@ -22,6 +22,7 @@
 #include "../input.h"
 #include "app_options.h"
 #include "datamodel.h"
+#include "insert_transmacro_dlg.h"
 #include "projectdlg.h"
 #include <wx/aboutdlg.h>
 #include <wx/appprogress.h>

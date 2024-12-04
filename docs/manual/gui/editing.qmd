@@ -39,3 +39,12 @@ By following the aforementioned steps, this will be re-encoded to "B\\U00000142\
 ::: {.notesection data-latex=""}
 This warning is emitted when the option **Unencoded extended ASCII characters** (from the **Additional Checks** settings) is checked.
 :::
+
+To mark a string as translatable, select the string in the editor and select **Mark for Translation...** from the `r keys("Insert")` button.
+From the **Mark for Translation** dialog, options are available for choosing which translation function to use, along with providing a domain or context (if applicable).
+The translation marking functions available are compatible with **gettext** and **wxWidgets**.
+
+To mark a string as non-translatable, select the string in the editor and select **Mark as Non-translatable...** from the `r keys("Insert")` button.
+From the **Mark as Non-translatable** dialog, options are available for which function to wrap the string in, along with providing an optional context and comment.
+These functions will mark the string as non-translatable and **Cuneiform** will ignore them during an analysis.
+Additionally, these functions and comments decorating a string will inform developers that the string is not meant for translation and why.
