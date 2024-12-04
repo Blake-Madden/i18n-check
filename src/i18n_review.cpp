@@ -1584,7 +1584,7 @@ namespace i18n_check
                                     .wc_str(),
 #else
                                 L"Context string is considerable long. Are the context and string "
-                                "arguments possibly transposed?";
+                                "arguments possibly transposed?",
 #endif
                                 std::wstring{}, true),
                             m_file_name, get_line_and_column(currentTextPos - m_file_start));
@@ -1603,7 +1603,7 @@ namespace i18n_check
                                 .wc_str(),
 #else
                             L"First argument to wxGetTranslation() should not "
-                            "be a literal string.";
+                            "be a literal string.",
 #endif
                             std::wstring{}, true),
                         m_file_name, get_line_and_column(currentTextPos - m_file_start));
