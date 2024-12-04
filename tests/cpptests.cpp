@@ -95,7 +95,7 @@ TEST_CASE("<<", "[cpp][i18n]")
     SECTION("Doesn't support <<")
         {
         cpp_i18n_review cpp(false);
-        const wchar_t* code = LR"(wxGetTranslation("Hello there") << "################### THERE IS A MESSAGE #################";)";
+        const wchar_t* code = LR"(wxTRANSLATE("Hello there") << "################### THERE IS A MESSAGE #################";)";
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         REQUIRE(cpp.get_localizable_strings().size() == 1);
