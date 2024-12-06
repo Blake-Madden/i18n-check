@@ -63,8 +63,13 @@ This will check for issues such as:
   It is recommended to use other functions (e.g., `CString::LoadString()`) that are not limited to fixed buffer sizes; otherwise, translated strings may become truncated.
 - Context arguments passed to l10n functions (e.g., `tr()`) that are longer than 32 characters.\
   This may indicate that the context and translatable string arguments are reversed.
-- Possible strings meant for translation being passed to ID loading functions (e.g., `qtTrId`).
+- Possible strings meant for translation being passed to ID loading functions (e.g., `qtTrId()`).
+::::
 
+:::: {.optionssection data-latex=""}
+::: {.optionssectiontitle data-latex=""}
+Run the following checks (*continued...*)
+:::
 **Check for ambiguous strings that lack a translator comment**: select this to check for possibly ambiguous strings that lack a translator comment.
 
 **Deprecated macros and functions**: select this to check for deprecated text macros and functions.

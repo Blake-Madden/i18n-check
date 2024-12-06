@@ -18,6 +18,8 @@ Clipboard operations (e.g., `r keys("Cut")`, `r keys("Copy")`, and `r keys("Past
 
 From the `r keys("Insert")` button, options are available for inserting and converting content within the editor to fix various warnings.
 
+### Translator Comment {-}
+
 For example, to fix warnings about strings needing context, place the cursor into the editor in front of a resource loading call (e.g., `_("TABLE")`).
 Next, click the `r keys("Insert")` button on the ribbon and select **Translator Comment...**.
 Enter a comment that will explain to the translators what "TABLE" means in this context, providing guidance for how they should translate it.
@@ -27,6 +29,8 @@ Click `r keys("OK")` and your comment with "TRANSLATORS: " prefixed will be inse
 ::: {.notesection data-latex=""}
 This warning is emitted when the option **Check for ambiguous strings that lack a translator comment** (from the **Source Code** settings) is checked.
 :::
+
+### Encode Extended ASCII Characters {-}
 
 To fix warnings about extended ASCII characters needing to be encoded, select the text in the editor which contains these characters.
 Next, click the `r keys("Insert")` button on the ribbon and select **Encode Extended ASCII Characters...**.
@@ -40,9 +44,13 @@ By following the aforementioned steps, this will be re-encoded to "B\\U00000142\
 This warning is emitted when the option **Unencoded extended ASCII characters** (from the **Additional Checks** settings) is checked.
 :::
 
+### Mark for Translation {-}
+
 To mark a string as translatable, select the string in the editor and select **Mark for Translation...** from the `r keys("Insert")` button.
 From the **Mark for Translation** dialog, options are available for choosing which translation function to use, along with providing a domain or context (if applicable).
 The translation marking functions available are compatible with *gettext*, *wxWidgets*, and *Qt*.
+
+### Mark as Non-translatable {-}
 
 To mark a string as non-translatable, select the string in the editor and select **Mark as Non-translatable...** from the `r keys("Insert")` button.
 From the **Mark as Non-translatable** dialog, options are available for which function to wrap the string in, along with providing an optional context and comment.
