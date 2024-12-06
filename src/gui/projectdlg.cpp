@@ -246,12 +246,11 @@ void NewProjectDialog::OnFolderButtonClick([[maybe_unused]] wxCommandEvent&)
 void NewProjectDialog::OnFileButtonClick([[maybe_unused]] wxCommandEvent&)
     {
     TransferDataFromWindow();
-    wxFileDialog dialog(
-        this, _(L"Select Files to Analyze"), wxString{}, wxString{},
-        _(L"Source Files (*.cpp; *.c; *.h; *.hpp)|*.cpp;*.c;*.h;*.hpp|"
-          "gettext Catalogs (*.po)|*.po|Windows Resource Files (*.rc)|*.rc|"
-          "All Supported Files|*.cpp;*.c;*.h;*.hpp;*.po;*.rc"),
-        wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_PREVIEW);
+    wxFileDialog dialog(this, _(L"Select Files to Analyze"), wxString{}, wxString{},
+                        _(L"Source Files (*.cpp; *.c; *.h; *.hpp)|*.cpp;*.c;*.h;*.hpp|"
+                          "gettext Catalogs (*.po)|*.po|Windows Resource Files (*.rc)|*.rc|"
+                          "All Supported Files|*.cpp;*.c;*.h;*.hpp;*.po;*.rc"),
+                        wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_PREVIEW);
     if (dialog.ShowModal() != wxID_OK)
         {
         return;
@@ -502,11 +501,10 @@ void NewProjectDialog::CreateControls()
                      wxGBPosition(currentRow, 0), wxGBSpan{});
         gbSizer->Add(buildCodeLabel(L"spacesAroundL10NString", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
-        
+
         gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
-                                    _(L"Suspect i18n function usage"),
-                                    wxDefaultPosition, wxDefaultSize, 0,
-                                    wxGenericValidator(&m_suspectI18NUsage)),
+                                    _(L"Suspect i18n function usage"), wxDefaultPosition,
+                                    wxDefaultSize, 0, wxGenericValidator(&m_suspectI18NUsage)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});
         gbSizer->Add(buildCodeLabel(L"suspectI18NUsage", checkOptionsSizer->GetStaticBox()),
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
@@ -569,7 +567,7 @@ void NewProjectDialog::CreateControls()
                                            _(L"Minimum words for a string to "
                                              "be considered translatable:"),
                                            wxDefaultPosition, wxDefaultSize),
-                          wxSizerFlags{}.CenterVertical());
+                          wxSizerFlags{}.CenterVertical().Border());
 
         wxSpinCtrl* minWordCtrl =
             new wxSpinCtrl(generalSettingsPage, wxID_ANY,
@@ -585,7 +583,7 @@ void NewProjectDialog::CreateControls()
         cppVersionSizer->Add(new wxStaticText(generalSettingsPage, wxID_STATIC,
                                               _(L"C++ standard when issuing deprecation warnings:"),
                                               wxDefaultPosition, wxDefaultSize),
-                             wxSizerFlags{}.CenterVertical());
+                             wxSizerFlags{}.CenterVertical().Border());
 
         wxArrayString cppVersions;
         cppVersions.Add(L"2011");
