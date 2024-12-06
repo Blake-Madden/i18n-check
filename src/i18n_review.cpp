@@ -1548,6 +1548,13 @@ namespace i18n_check
 
             return false;
             }
+
+        // placeholders that may need an explanation
+        if (str.find(L"###") != std::wstring_view::npos ||
+            str.find(L"XXXX") != std::wstring_view::npos)
+            {
+            return true;
+            }
         // String with many printf commands or a short string with at least one?
         // That could use a context also.
         std::wstring errorInfo;
@@ -1665,6 +1672,31 @@ namespace i18n_check
 #endif
                             std::wstring{}, true),
                         m_file_name, get_line_and_column(currentTextPos - m_file_start));
+                    }
+                else if (static_cast<bool>(m_review_styles & check_suspect_i18n_usage) &&
+                         (functionName == L"QT_TRID_NOOP" || functionName == L"QT_TRID_N_NOOP" ||
+                          functionName == L"qtTrId"))
+                    {
+                    const auto contextLength{ quoteEnd - currentTextPos };
+                    if (static_cast<bool>(m_review_styles & check_suspect_i18n_usage) &&
+                        contextLength > 32)
+                        {
+                        m_suspect_i18n_usage.emplace_back(
+                            functionName,
+                            string_info::usage_info(
+                                string_info::usage_info::usage_type::function,
+#ifdef wxVERSION_NUMBER
+                                _(L"This function is meant for string IDs, "
+                                  "not translatable strings."
+                                  "Are you sure the provided argument is an ID?")
+                                    .wc_str(),
+#else
+                                L"This function is meant for string IDs, not translatable strings."
+                                "Are you sure the provided argument is an ID?",
+#endif
+                                std::wstring{}, true),
+                            m_file_name, get_line_and_column(currentTextPos - m_file_start));
+                    }
                     }
                 else
                     {

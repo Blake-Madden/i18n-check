@@ -61,8 +61,9 @@ This will check for issues such as:
   (This is incorrect, as this function is meant for variables instead of string literals.)
 - Usage of the Win32 function `::LoadString()`.\
   It is recommended to use other functions (e.g., `CString::LoadString()`) that are not limited to fixed buffer sizes; otherwise, translated strings may become truncated.
-- Context arguments to l10n functions that are longer than 32 characters.\
+- Context arguments passed to l10n functions (e.g., `tr()`) that are longer than 32 characters.\
   This may indicate that the context and translatable string arguments are reversed.
+- Possible strings meant for translation being passed to ID loading functions (e.g., `qtTrId`).
 
 **Check for ambiguous strings that lack a translator comment**: select this to check for possibly ambiguous strings that lack a translator comment.
 
