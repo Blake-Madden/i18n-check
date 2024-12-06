@@ -4,7 +4,7 @@
 
 *Cmake* scripts are included for building both the command-line and GUI (graphical user interface) versions. *Cmake* 3.25 or higher is required.
 
-For the GUI version, [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required.
+For the GUI version, [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.3 or higher is required.
 
 ## Command-line Utility
 
@@ -25,7 +25,7 @@ After building, "cuneiform" will be available in the "bin" folder.
 
 ## GUI Version
 
-[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.2 or higher is required for building the graphical user interface version.
+[wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.3 or higher is required for building the graphical user interface version.
 
 Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as this project.
 After building *wxWidgets*, *Cuneiform* can be configured and built with *Cmake*.
