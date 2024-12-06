@@ -184,7 +184,7 @@ This can help with finding where a particular translation is coming from.
 **Increase width**: select how much wider (between 0--100%) to make pseudo-translations.
 This widening is done by padding the strings with hyphens on both sides.
 
-The default is 40, as "German and Spanish translations can sometimes take 40% more screen space than English" [@boyero].
+The default is 40, as "German and Spanish translations can sometimes take 40% more screen space than English" [@boyero:2020].
 
 ::: {.notesection data-latex=""}
 If surrounding brackets or tracking IDs are being included, then their lengths will be factored into the increased width calculation.
