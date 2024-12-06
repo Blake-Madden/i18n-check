@@ -1222,8 +1222,8 @@ namespace i18n_check
                   fileText[currentBlockOffset - 1] == L'.'))
                 {
                 m_suspect_i18n_usage.push_back(string_info(
-                            std::wstring{ currentTextBlock.substr(0, stPositions.length()) },
-                            string_info::usage_info(string_info::usage_info::usage_type::function,
+                    std::wstring{ currentTextBlock.substr(0, stPositions.length()) },
+                    string_info::usage_info(string_info::usage_info::usage_type::function,
 #ifdef wxVERSION_NUMBER
                                             _(L"Prefer using CString::LoadString() (if using MFC) "
                                               "or a different framework's string "
@@ -1236,10 +1236,10 @@ namespace i18n_check
                                             "a different framework's string "
                                             "loading function. Calling ::LoadString() requires a "
                                             "fixed-size buffer and may result "
-     "in truncating translated strings.",
+                                            "in truncating translated strings.",
 #endif
-                                                    std::wstring{}),
-                            fileName, get_line_and_column(currentBlockOffset, fileText.data())));
+                                            std::wstring{}),
+                    fileName, get_line_and_column(currentBlockOffset, fileText.data())));
                 }
             currentTextBlock = currentTextBlock.substr(stPositions.length());
             currentBlockOffset += stPositions.length();
@@ -1696,7 +1696,7 @@ namespace i18n_check
 #endif
                                 std::wstring{}, true),
                             m_file_name, get_line_and_column(currentTextPos - m_file_start));
-                    }
+                        }
                     }
                 else
                     {
