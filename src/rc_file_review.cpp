@@ -39,9 +39,10 @@ namespace i18n_check
                 LR"(STRINGTABLE[[:space:]]*(BEGIN|\{)[[:space:]]*)"
             };
             const std::wregex stringTableEndRegEx{ LR"([\r\n]+[[:space:]]*(END|\}))" };
-            std::match_results<decltype(rcFileText)::const_iterator> stPositions;
-            std::match_results<decltype(rcFileText)::const_iterator> endPositions;
+
             auto currentTextBlock{ rcFileText };
+            std::match_results<decltype(currentTextBlock)::const_iterator> stPositions;
+            std::match_results<decltype(currentTextBlock)::const_iterator> endPositions;
             size_t currentBlockOffset{ 0 };
             while (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(),
                                      stPositions, stringTableRegEx))
@@ -146,8 +147,9 @@ namespace i18n_check
             {
             std::vector<std::pair<size_t, std::wstring>> fontEntries;
             const std::wregex fontRE{ L"\\bFONT[ ]*([0-9]+),[ ]*\"([^\"]*)\"" };
-            std::match_results<decltype(rcFileText)::const_iterator> stPositions;
+
             auto currentTextBlock{ rcFileText };
+            std::match_results<decltype(currentTextBlock)::const_iterator> stPositions;
             size_t currentBlockOffset{ 0 };
             while (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(),
                                      stPositions, fontRE))
