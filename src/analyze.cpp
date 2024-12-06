@@ -320,10 +320,10 @@ namespace i18n_check
                             {
                             if (ifs.ReadAll(&fileContents))
                                 {
-                                return fileContents.wc_str();
+                                return std::wstring{ fileContents.wc_str() };
                                 }
                             }
-                        return wxString{}.wc_str();
+                        return std::wstring{};
                     }();
 #else
     #if CHECK_GCC_VERSION(12, 2, 1)
