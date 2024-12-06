@@ -424,6 +424,7 @@ namespace i18n_check
         // review full content again once comments and preprocessor blocks are cleared
         load_id_assignments(cppBuffer, fileName);
         load_deprecated_functions(cppBuffer, fileName);
+        load_suspect_i18n_ussage(cppBuffer, fileName);
 
         m_file_name.clear();
         m_file_start = nullptr;

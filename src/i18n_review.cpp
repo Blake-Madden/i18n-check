@@ -588,6 +588,7 @@ namespace i18n_check
             std::wregex(LR"((=)?[A-Za-z0-9_]{3,}[(]([RC0-9\-\.,;:\[\] ])*[)])"),
             // formulas (e.g., ComputeNumbers() )
             std::wregex(LR"([A-Za-z0-9_]{3,}[(][)])"),
+            std::wregex(LR"([A-Za-z0-9_]{3,}[:]{2}[A-Za-z0-9_]{3,}[(][)])"),
             // equal sign followed by a single word is probably some sort of
             // config file tag or formula.
             std::wregex(LR"(=[A-Za-z0-9_]+)"),
@@ -655,6 +656,7 @@ namespace i18n_check
                 LR"(^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$)"),
             std::wregex(
                 LR"(^[\w ]*<[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>$)"),
+            std::wregex(LR"(urn[:][a-zA-Z0-9]+)"),
             // Windows HTML clipboard data
             std::wregex(LR"(.*(End|Start)(HTML|Fragment)[:]?[[:digit:]]*.*)"),
             // printer commands (e.g., @PAGECOUNT@)
@@ -746,7 +748,7 @@ namespace i18n_check
             L"std::ofstream",
             // MFC, ATL, COM
             L"CString", L"_bstr_t", L"OLESTR", L"T2COLE", L"T2OLE", L"OLE2CT", L"OLE2T",
-            L"CComBSTR",
+            L"CComBSTR", L"SysAllocString",
             // Java
             L"Locale",
             // formatting functions (not actually a CTOR) that should be skipped over
@@ -786,6 +788,8 @@ namespace i18n_check
             L"addShaderFromSourceCode", L"QStandardPaths::findExecutable", L"QDateTime::fromString",
             L"QFileInfo", L"qCDebug", L"qDebug", L"Q_MOC_INCLUDE", L"Q_CLASSINFO",
             L"setApplicationName", L"QApplication::setApplicationName",
+            // l10n functions that take a string ID, not a literal string meant for translation
+            L"QT_TRID_NOOP", L"QT_TRID_N_NOOP", L"qtTrId",
             // Catch2
             L"TEST_CASE", L"BENCHMARK", L"TEMPLATE_TEST_CASE", L"SECTION", L"DYNAMIC_SECTION",
             L"REQUIRE", L"REQUIRE_THROWS_WITH", L"REQUIRE_THAT", L"CHECK", L"CATCH_ENFORCE",
@@ -858,7 +862,9 @@ namespace i18n_check
             L"OpenFromInitializationString", L"CreateADOCommand", L"ExecuteSql",
             L"com_interface_entry", L"uuid", L"idl_quote", L"threading", L"vi_progid", L"progid",
             L"CreatePointFont", L"CreateFont", L"FindWindow", L"RegisterServer",
-            L"UnregisterServer", L"MIDL_INTERFACE", L"DECLSPEC_UUID",
+            L"UnregisterServer", L"MIDL_INTERFACE", L"DECLSPEC_UUID", L"DebugPrintfW",
+            L"DebugPrintfA", L"DebugPrintfW", L"DEBUGLOGRESULT", L"CreateTextFormat", L"DbgLog",
+            L"GetPrivateProfileString", L"WritePrivateProfileString",
             // .NET
             L"FindSystemTimeZoneById", L"CreateSpecificCulture", L"DebuggerDisplay", L"Debug.Fail",
             L"DeriveKey", L"Assert.Fail", L"Debug.Assert", L"Debug.Print", L"Debug.WriteLine",
@@ -875,6 +881,7 @@ namespace i18n_check
             // more functions from various apps
             L"trace", L"ActionFormat", L"ErrorFormat", L"DEBUG", L"setParameters", L"getopt",
             L"_PrintEnter", L"_PrintExit", L"ERROR0", L"ERROR1", L"ERROR2", L"ERROR3",
+            L"TraceString",
             // assembly calls
             L"asm"
         };
@@ -926,7 +933,7 @@ namespace i18n_check
             // .NET
             L"NotImplementedException", L"ArgumentException", L"InvalidOperationException",
             L"OptionException", L"NotSupportedException", L"Exception", L"BadImageFormatException",
-            L"JsonException"
+            L"JsonException", L"ArgumentOutOfRangeException", L"ArgumentNullException"
         };
 
         // known strings to ignore
@@ -1191,6 +1198,55 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
+    void i18n_review::load_suspect_i18n_ussage(const std::wstring_view fileText,
+                                               const std::filesystem::path& fileName)
+        {
+        if (!static_cast<bool>(m_review_styles & check_suspect_i18n_usage))
+            {
+            return;
+            }
+
+        const std::wregex loadStringRegEx{
+            LR"(([:]{2,2})?LoadString(A|W)?[(](\s*[a-zA-Z0-9_]+\s*,){3}\s*[a-zA-Z0-9_]+[)])"
+        };
+        auto currentTextBlock{ fileText };
+        std::match_results<decltype(currentTextBlock)::const_iterator> stPositions;
+        size_t currentBlockOffset{ 0 };
+        while (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(), stPositions,
+                                 loadStringRegEx))
+            {
+            currentTextBlock = currentTextBlock.substr(stPositions.position());
+            currentBlockOffset += stPositions.position();
+            if (currentBlockOffset == 0 ||
+                !(i18n_string_util::is_alpha_7bit(fileText[currentBlockOffset - 1]) ||
+                  fileText[currentBlockOffset - 1] == L'.'))
+                {
+                m_suspect_i18n_usage.push_back(string_info(
+                            std::wstring{ currentTextBlock.substr(0, stPositions.length()) },
+                            string_info::usage_info(string_info::usage_info::usage_type::function,
+#ifdef wxVERSION_NUMBER
+                                            _(L"Prefer using CString::LoadString() (if using MFC) "
+                                              "or a different framework's string "
+                                              "loading function. Calling ::LoadString() requires a "
+                                              "fixed-size buffer and may result "
+                                              "in truncating translated strings.")
+                                                .wc_str(),
+#else
+                                            L"Prefer using CString::LoadString() (if using MFC) or "
+                                            "a different framework's string "
+                                            "loading function. Calling ::LoadString() requires a "
+                                            "fixed-size buffer and may result "
+     "in truncating translated strings.",
+#endif
+                                                    std::wstring{}),
+                            fileName, get_line_and_column(currentBlockOffset, fileText.data())));
+                }
+            currentTextBlock = currentTextBlock.substr(stPositions.length());
+            currentBlockOffset += stPositions.length();
+            }
+        }
+
+    //--------------------------------------------------
     void i18n_review::load_id_assignments(const std::wstring_view fileText,
                                           const std::filesystem::path& fileName)
         {
@@ -1200,8 +1256,9 @@ namespace i18n_check
             return;
             }
         std::vector<std::pair<size_t, std::wstring>> matches;
-        std::match_results<decltype(fileText)::const_iterator> stPositions;
+
         auto currentTextBlock{ fileText };
+        std::match_results<decltype(currentTextBlock)::const_iterator> stPositions;
         size_t currentBlockOffset{ 0 };
         while (std::regex_search(currentTextBlock.cbegin(), currentTextBlock.cend(), stPositions,
                                  m_id_assignment_regex))
@@ -1578,7 +1635,8 @@ namespace i18n_check
                             string_info::usage_info(
                                 string_info::usage_info::usage_type::function,
 #ifdef wxVERSION_NUMBER
-                                wxString::Format(_(L"Context string is considerable long. Are the context and "
+                                wxString::Format(
+                                    _(L"Context string is considerable long. Are the context and "
                                       "string arguments to %s possibly transposed?"),
                                     functionName)
                                     .wc_str(),

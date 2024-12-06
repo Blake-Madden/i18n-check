@@ -54,8 +54,15 @@ It is assumed that this part of tabular data being concatenated and will be igno
 :::
 
 **Suspect i18n function usage**: select this to check for suspect usage of i18n functions.
-For example, this will detect if a string literal is being passed as the string argument to `wxGetTranslation()`.
-This is incorrect, as this function is meant for variables instead of string literals.
+
+This will check for issues such as:
+
+- String literals being passed as the string argument to `wxGetTranslation()`.\
+  (This is incorrect, as this function is meant for variables instead of string literals.)
+- Usage of the Win32 function `::LoadString()`.\
+  It is recommended to use other functions (e.g., `CString::LoadString()`) that are not limited to fixed buffer sizes; otherwise, translated strings may become truncated.
+- Context arguments to l10n functions that are longer than 32 characters.\
+  This may indicate that the context and translatable string arguments are reversed.
 
 **Check for ambiguous strings that lack a translator comment**: select this to check for possibly ambiguous strings that lack a translator comment.
 

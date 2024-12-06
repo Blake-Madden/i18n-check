@@ -53,6 +53,26 @@ TEST_CASE("Snake case words", "[cpp][i18n]")
         }
     }
 
+TEST_CASE("1i18n Usage", "[cpp][i18n]")
+    {
+    SECTION("LoadString")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = LR"(CString::LoadString(
+
+LoadString(hResModule, myID, lpBuffer, cbBufferSize);
+
+::LoadString(hResModule, myID, lpBuffer, cbBufferSize);
+
+CString::LoadString(ID);
+str.LoadString(ID);
+        )";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        REQUIRE(cpp.get_suspect_i18n_usuage().size() == 2);
+        }
+    }
+
 TEST_CASE("<<", "[cpp][i18n]")
     {
     SECTION("Stream")
@@ -2832,6 +2852,20 @@ TEST_CASE("Casing", "[cpp]")
         CHECK(cpp.get_internal_strings()[0].m_string == L"xmlHttpRequest");
         CHECK(cpp.get_internal_strings()[1].m_string == L"supportsIpv6OnIos");
         CHECK(cpp.get_internal_strings()[2].m_string == L"xml2HttpRequest");
+        }
+
+    SECTION("Camel Case Function Call")
+        {
+        cpp_i18n_review cpp(false);
+        const wchar_t* code = L"value = \"xmlHttpRequest()\"; value = \"support::Ipv6OnIos()\"; value = \"XML::HttpRequest()\";";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings().size() == 0);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
+        REQUIRE(cpp.get_internal_strings().size() == 3);
+        CHECK(cpp.get_internal_strings()[0].m_string == L"xmlHttpRequest()");
+        CHECK(cpp.get_internal_strings()[1].m_string == L"support::Ipv6OnIos()");
+        CHECK(cpp.get_internal_strings()[2].m_string == L"XML::HttpRequest()");
         }
 
     SECTION("Camel with Underscore")

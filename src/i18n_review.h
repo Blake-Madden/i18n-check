@@ -954,6 +954,11 @@ namespace i18n_check
             @param fileName The file name being analyzed.*/
         void load_deprecated_functions(const std::wstring_view fileText,
                                        const std::filesystem::path& fileName);
+        /** @brief Loads any i18n functions being misused.
+            @param fileText The source file's text to analyze.
+            @param fileName The file name being analyzed.*/
+        void load_suspect_i18n_ussage(const std::wstring_view fileText,
+                                      const std::filesystem::path& fileName);
 #ifdef __UNITTEST
       public:
 #endif
