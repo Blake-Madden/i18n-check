@@ -42,7 +42,7 @@ This warning is emitted when the option **Unencoded extended ASCII characters** 
 
 To mark a string as translatable, select the string in the editor and select **Mark for Translation...** from the `r keys("Insert")` button.
 From the **Mark for Translation** dialog, options are available for choosing which translation function to use, along with providing a domain or context (if applicable).
-The translation marking functions available are compatible with **gettext** and **wxWidgets**.
+The translation marking functions available are compatible with *gettext*, *wxWidgets*, and *Qt*.
 
 To mark a string as non-translatable, select the string in the editor and select **Mark as Non-translatable...** from the `r keys("Insert")` button.
 From the **Mark as Non-translatable** dialog, options are available for which function to wrap the string in, along with providing an optional context and comment.

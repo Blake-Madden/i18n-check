@@ -82,7 +82,8 @@ class InsertTransMacroDlg final : public wxDialog
     bool RequiresContext(const wxString& macro)
         {
         // wxGetTranslation has a context param, but it is optional
-        return (macro == L"wxTRANSLATE_IN_CONTEXT" || macro == L"wxGETTEXT_IN_CONTEXT");
+        return (macro == L"wxTRANSLATE_IN_CONTEXT" || macro == L"wxGETTEXT_IN_CONTEXT" ||
+                macro == L"QT_TRANSLATE_NOOP" || macro == L"QT_TRANSLATE_N_NOOP");
         }
 
     [[nodiscard]]
@@ -95,6 +96,20 @@ class InsertTransMacroDlg final : public wxDialog
     bool RequiresDomain(const wxString& macro)
         {
         return (macro == L"wxGetTranslation");
+        }
+
+    [[nodiscard]]
+    bool RequiresComment(const wxString& macro)
+        {
+        // QObject::tr has a disambiguation (comment) param, but it is optional
+        return (macro == L"QT_TRANSLATE_NOOP3" || macro == L"QT_TRANSLATE_N_NOOP3" ||
+                macro == L"QCoreApplication::translate");
+        }
+
+    [[nodiscard]]
+    bool CanIncludeComment(const wxString& macro)
+        {
+        return (macro == L"tr");
         }
 
     void OnOK([[maybe_unused]] wxCommandEvent&);

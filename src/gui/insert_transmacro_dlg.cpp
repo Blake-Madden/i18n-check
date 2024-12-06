@@ -26,10 +26,20 @@ InsertTransMacroDlg::InsertTransMacroDlg(
     wxDialog::Create(parent, id, caption, pos, size, style);
 
     m_transMacros.Add(L"_");
+    // wxWidgets
     m_transMacros.Add(L"wxTRANSLATE");
     m_transMacros.Add(L"wxTRANSLATE_IN_CONTEXT");
     m_transMacros.Add(L"wxGETTEXT_IN_CONTEXT");
     m_transMacros.Add(L"wxGetTranslation");
+    // Qt
+    m_transMacros.Add(L"tr");
+    m_transMacros.Add(L"translate");
+    m_transMacros.Add(L"QT_TR_NOOP");
+    m_transMacros.Add(L"QT_TR_N_NOOP");
+    m_transMacros.Add(L"QT_TRANSLATE_NOOP");
+    m_transMacros.Add(L"QT_TRANSLATE_N_NOOP");
+    m_transMacros.Add(L"QT_TRANSLATE_NOOP3");
+    m_transMacros.Add(L"QT_TRANSLATE_N_NOOP3");
 
     m_noTransMacros.Add(L"_DT");
     m_noTransMacros.Add(L"DONTTRANSLATE");
@@ -111,15 +121,18 @@ void InsertTransMacroDlg::CreateControls()
         mainDlgSizer->Add(domainSzr, wxSizerFlags{}.Expand().Border());
         }
 
+    m_commentLabel = new wxStaticText(this, wxID_STATIC,
+                                      (m_macroType == TransMacroType::MarkForTranslation) ?
+                                          _(L"Explanation for translators:") :
+                                          _(L"Explanation for developers:"));
+    mainDlgSizer->Add(m_commentLabel, wxSizerFlags{}.Border());
+    m_commentEntry =
+        new wxTextCtrl(this, wxID_ANY, wxString{}, wxDefaultPosition, FromDIP(wxSize{ 500, 150 }),
+                       wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP, wxGenericValidator(&m_comment));
+    mainDlgSizer->Add(m_commentEntry, wxSizerFlags{ 1 }.Expand().Border());
+
     if (m_macroType == TransMacroType::MarkForNoTranslation)
         {
-        m_commentLabel = new wxStaticText(this, wxID_STATIC, _(L"Explanation for developers:"));
-        mainDlgSizer->Add(m_commentLabel, wxSizerFlags{}.Border());
-        m_commentEntry = new wxTextCtrl(
-            this, wxID_ANY, wxString{}, wxDefaultPosition, FromDIP(wxSize{ 500, 150 }),
-            wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP, wxGenericValidator(&m_comment));
-        mainDlgSizer->Add(m_commentEntry, wxSizerFlags{ 1 }.Expand().Border());
-
         mainDlgSizer->Add(
             new wxStaticText(
                 this, wxID_STATIC,
@@ -185,6 +198,12 @@ void InsertTransMacroDlg::OnOK([[maybe_unused]] wxCommandEvent&)
                      _(L"Missing Domain"));
         return;
         }
+    if (RequiresComment(m_selectedMacro) && m_comment.empty())
+        {
+        wxMessageBox(wxString::Format(_(L"%s requires a comment/disambiguation."), m_selectedMacro),
+                     _(L"Missing Comment"));
+        return;
+        }
 
     if (IsModal())
         {
@@ -206,6 +225,10 @@ void InsertTransMacroDlg::EnableExtraControls()
         m_contextEntry->Enable(RequiresContext(m_selectedMacro) || RequiresDomain(m_selectedMacro));
         m_domainLabel->Enable(RequiresDomain(m_selectedMacro));
         m_domainEntry->Enable(RequiresDomain(m_selectedMacro));
+        m_commentLabel->Enable(RequiresComment(m_selectedMacro) ||
+                               CanIncludeComment(m_selectedMacro));
+        m_commentEntry->Enable(RequiresComment(m_selectedMacro) ||
+                               CanIncludeComment(m_selectedMacro));
         }
     }
 
@@ -223,6 +246,11 @@ wxString InsertTransMacroDlg::GetFormattedOutput()
             return m_selectedMacro + L"(" + m_stringToFormat + L", " + quoteStart + m_domain +
                    L"\", " + quoteStart + m_context + "\")";
             }
+        else if (RequiresComment(m_selectedMacro))
+            {
+            return m_selectedMacro + L"(" + quoteStart + m_context + L"\", " + m_stringToFormat +
+                   L", " + quoteStart + m_comment + "\")";
+            }
         else if (RequiresContext(m_selectedMacro))
             {
             return m_selectedMacro + L"(" + quoteStart + m_context + L"\", " + m_stringToFormat +
@@ -230,7 +258,16 @@ wxString InsertTransMacroDlg::GetFormattedOutput()
             }
         else
             {
-            return m_selectedMacro + L"(" + m_stringToFormat + ")";
+            // tr() can take an optional disambiguation
+            if (m_selectedMacro == L"tr" && !m_comment.empty())
+                {
+                return m_selectedMacro + L"(" + m_stringToFormat + L", " + quoteStart + m_comment +
+                       "\")";
+                }
+            else
+                {
+                return m_selectedMacro + L"(" + m_stringToFormat + ")";
+                }
             }
         }
     else
