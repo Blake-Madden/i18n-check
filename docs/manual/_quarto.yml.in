@@ -1,6 +1,7 @@
 project:
   type: book
   output-dir: "book"
+biblio-title: References
 bibliography: cites.bib
 biblio-style: mla
 link-citations: true
