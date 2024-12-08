@@ -34,6 +34,7 @@ namespace i18n_check
         static const std::wstring_view MSGSTR{ L"msgstr \"" };
         static const std::wstring_view MSGSTR0{ L"msgstr[0] \"" };
         static const std::wstring_view MSGSTR1{ L"msgstr[1] \"" };
+        static const std::wstring_view MSGCTXT{ L"msgctxt \"" };
         // type of printf formatting the string uses, and its fuzzy status
         static const std::wregex entryLineRegEx{ LR"(^#, ([,a-z \-]+)+$)",
         // MSVC doesn't have the std::regex::multiline flag, but behaves like multiline implicitly.
@@ -139,7 +140,7 @@ namespace i18n_check
                           entry.cbegin(), entry.cend(), commentLineRegEx, 1),
                       std::regex_token_iterator<decltype(entry)::const_iterator>{},
                       std::back_inserter(commentLines));
-            const std::wstring comment = [&commentLines]()
+            std::wstring comment = [&commentLines]()
             {
                 std::wstring fullComment;
                 for (const auto& str : commentLines)
@@ -149,6 +150,12 @@ namespace i18n_check
                 string_util::trim(fullComment);
                 return fullComment;
             }();
+            // also look for a context string
+            auto [msgCTextFound, msgCText, msgCTextPos, msgCTextLen] = read_po_msg(entry, MSGCTXT);
+            if (msgCTextFound)
+                {
+                comment.append(msgCText);
+                }
 
             // read section from catalog entry
             auto [msgIdFound, msgId, msgPos, msgLen] = read_po_msg(entry, MSGID);

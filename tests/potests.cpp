@@ -8,12 +8,37 @@ using namespace i18n_check;
 using namespace Catch::Matchers;
 
 // clang-format off
+TEST_CASE("Context", "[po][l10n]")
+	{
+	SECTION("msgctxt")
+		{
+		po_file_review po(false);
+		po.set_style(check_needing_context);
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
+#, qt-format
+msgctxt "Auto-generated info"
+msgid "<%1> text"
+msgstr "<%1> text")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+	}
+
 TEST_CASE("Accelerator Mismatch", "[po][l10n]")
 	{
 	SECTION("Real")
 		{
 		po_file_review po(false);
-		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
 msgid "&Server"
 msgstr "&Сервер"
 
@@ -33,7 +58,9 @@ msgstr "Сервер")";
 	SECTION("No Hot Keys")
 		{
 		po_file_review po(false);
-		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
 msgid "Server & Internet"
 msgstr "Сервер & Internet"
 
@@ -53,7 +80,9 @@ msgstr "Сервер & Internet")";
 	SECTION("No Hot Keys HTML")
 		{
 		po_file_review po(false);
-		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
 msgid "Server & Internet"
 msgstr "Сервер & Internet"
 
@@ -76,7 +105,9 @@ TEST_CASE("Printf c-format", "[po][l10n]")
 	SECTION("Ignore fuzzy and non-formats")
 		{
 		po_file_review po(false);
-		const wchar_t* code = LR"(#: ../src/common/file.cpp:604
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
 msgid "The server doesn't support the PORT command %s."
 msgstr "Сервер не поддерживает команду PORT."
 
