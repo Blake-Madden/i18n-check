@@ -27,6 +27,11 @@ TEST_CASE("untranslatable", "[i18nreview]")
     CHECK_FALSE(reviewer.is_untranslatable_string(L"100%", false));
     CHECK_FALSE(reviewer.is_untranslatable_string(L"{n}%", false));
     CHECK_FALSE(reviewer.is_untranslatable_string(L"%d%", false));
+    // HTML anchors
+    CHECK(reviewer.is_untranslatable_string(L"#something", false));
+    CHECK(reviewer.is_untranslatable_string(L"#Something-else", false));
+    CHECK(reviewer.is_untranslatable_string(L"#something-else", false));
+    CHECK(reviewer.is_untranslatable_string(L"#somethingElse", false));
     }
 
 TEST_CASE("i18n string util", "[i18nstringutil]")

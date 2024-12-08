@@ -534,6 +534,8 @@ namespace i18n_check
             std::wregex(LR"(&[#]?[xX]?[A-Za-z0-9]+;)"), std::wregex(LR"(<a href=.*)"),
             // HTML comment
             std::wregex(LR"(<![-]{2,}.*)"),
+            // anchor
+            std::wregex(LR"(#[a-zA-Z0-9\-]{3,})"),
             // CSS
             std::wregex(LR"(a[:](hover|link))", std::regex_constants::icase),
             std::wregex(
