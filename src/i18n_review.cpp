@@ -2773,12 +2773,10 @@ namespace i18n_check
         std::wregex positionalRegex{ L"[%][L]?[0-9]{1,}" };
         std::wstring_view::const_iterator searchStart{ resource.cbegin() };
         std::match_results<std::wstring_view::const_iterator> res;
-        size_t commandPosition{ 0 };
         size_t previousLength{ 0 };
         while (std::regex_search(searchStart, resource.cend(), res, positionalRegex))
             {
             searchStart += res.position() + res.length();
-            commandPosition += res.position() + previousLength;
             previousLength = res.length();
 
             results.push_back(res.str(0));
