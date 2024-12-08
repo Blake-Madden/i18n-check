@@ -33,7 +33,7 @@ namespace i18n_check
       public:
         /// @brief Constructor.
         /// @param verbose @c true to include verbose warnings.
-        po_file_review(const bool verbose) : translation_catalog_review(verbose) {}
+        explicit po_file_review(const bool verbose) : translation_catalog_review(verbose) {}
 
         /** @brief Main interface for extracting resource text from C++ source code.
             @param poFileText The PO file's text to analyze.

@@ -33,7 +33,7 @@ namespace i18n_check
       public:
         /// @brief Constructor.
         /// @param verbose @c true to include verbose warnings.
-        translation_catalog_review(const bool verbose) : i18n_review(verbose) {}
+        explicit translation_catalog_review(const bool verbose) : i18n_review(verbose) {}
 
         /// @returns All loaded catalog entries (and any detected errors connected to them).\n
         ///     The first key is the filepath, and the second is all catalog entries in that file.
