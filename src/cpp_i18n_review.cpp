@@ -46,7 +46,16 @@ namespace i18n_check
                 // see if a block comment (/*comment*/)
                 if (*std::next(cppText) == L'*')
                     {
-                    m_context_comment_active = is_translator_comment(
+                    // Qt translator comments are left open until the next
+                    // tr-like function is encountered, so if that is what we
+                    // are on then we are done for now
+                    const bool isQtTransComment = is_qt_translator_comment(
+                        { std::next(cppText, 2),
+                          static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
+
+                    // gettext translator comments must be right in front of the _() call,
+                    // so for those we need to scan ahead here
+                    m_context_comment_active = is_gettext_translator_comment(
                         { std::next(cppText, 2),
                           static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
 
@@ -82,7 +91,7 @@ namespace i18n_check
                         }
                     // look ahead and see if next function is a translation function
                     // if we have a translator comment to connect to it
-                    if (m_context_comment_active)
+                    if (m_context_comment_active && !isQtTransComment)
                         {
                         const wchar_t* openingParen = std::wcschr(cppText, L'(');
                         if (openingParen != nullptr && openingParen < endSentinel)
@@ -91,11 +100,19 @@ namespace i18n_check
                                 { cppText, static_cast<size_t>(openingParen - cppText) });
                             }
                         }
+                    else if (isQtTransComment)
+                        {
+                        m_context_comment_active = isQtTransComment;
+                        }
                     }
                 // or a single line comment
                 else if (*std::next(cppText) == L'/' && std::next(cppText, 2) < endSentinel)
                     {
-                    m_context_comment_active = is_translator_comment(
+                    const bool isQtTransComment = is_qt_translator_comment(
+                        { std::next(cppText, 2),
+                          static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
+
+                    m_context_comment_active = is_gettext_translator_comment(
                         { std::next(cppText, 2),
                           static_cast<size_t>(endSentinel - std::next(cppText, 2)) });
 
@@ -128,7 +145,7 @@ namespace i18n_check
                         }
                     // look ahead and see if next function is a translation function
                     // if we have a translator comment to connect to it
-                    if (m_context_comment_active)
+                    if (m_context_comment_active && !isQtTransComment)
                         {
                         const wchar_t* openingParen = std::wcschr(cppText, L'(');
                         if (openingParen != nullptr && openingParen < endSentinel)
@@ -136,6 +153,10 @@ namespace i18n_check
                             m_context_comment_active = is_i18n_function(
                                 { cppText, static_cast<size_t>(openingParen - cppText) });
                             }
+                        }
+                    else if (isQtTransComment)
+                        {
+                        m_context_comment_active = isQtTransComment;
                         }
                     }
                 // not a comment
