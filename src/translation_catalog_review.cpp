@@ -22,6 +22,10 @@ namespace i18n_check
         std::vector<std::wstring> printfStrings1, printfStrings2;
         std::wstring errorInfo;
 
+        std::vector<std::wstring> srcResults;
+        std::vector<std::wstring> transResults;
+        std::wsmatch reMatches;
+
         resetCallback(m_catalog_entries.size());
         size_t currentCatalogIndex{ 0 };
         for (auto& catEntry : m_catalog_entries)
@@ -175,14 +179,28 @@ namespace i18n_check
 
                 if (!catEntry.second.m_translation.empty())
                     {
-                    std::wsmatch srcMatches, transMatches;
-                    std::regex_search(catEntry.second.m_source, srcMatches,
-                                      keyboardAcceleratorRegex);
-                    std::regex_search(catEntry.second.m_translation, transMatches,
-                                      keyboardAcceleratorRegex);
+                    srcResults.clear();
+                    transResults.clear();
+                    std::wstring::const_iterator searchSrcStart{
+                        catEntry.second.m_source.cbegin()
+                    };
+                    std::wstring::const_iterator searchTransStart(
+                        catEntry.second.m_translation.cbegin());
+                    while (std::regex_search(searchSrcStart, catEntry.second.m_source.cend(),
+                                             reMatches, keyboardAcceleratorRegex))
+                        {
+                        srcResults.push_back(reMatches[0]);
+                        searchSrcStart = reMatches.suffix().first;
+                        }
+                    while (std::regex_search(searchTransStart, catEntry.second.m_translation.cend(),
+                                             reMatches, keyboardAcceleratorRegex))
+                        {
+                        transResults.push_back(reMatches[0]);
+                        searchTransStart = reMatches.suffix().first;
+                        }
 
-                    if ((srcMatches.size() == 1 && transMatches.size() != 1) ||
-                        (srcMatches.size() != 1 && transMatches.size() == 1))
+                    if ((srcResults.size() == 1 && transResults.size() != 1) ||
+                        (srcResults.size() != 1 && transResults.size() == 1))
                         {
                         catEntry.second.m_issues.emplace_back(
                             translation_issue::accelerator_issue,
@@ -193,14 +211,29 @@ namespace i18n_check
 
                 if (!catEntry.second.m_translation_plural.empty())
                     {
-                    std::wsmatch srcMatches, transMatches;
-                    std::regex_search(catEntry.second.m_source_plural, srcMatches,
-                                      keyboardAcceleratorRegex);
-                    std::regex_search(catEntry.second.m_translation_plural, transMatches,
-                                      keyboardAcceleratorRegex);
+                    srcResults.clear();
+                    transResults.clear();
+                    std::wstring::const_iterator searchSrcStart{
+                        catEntry.second.m_source_plural.cbegin()
+                    };
+                    std::wstring::const_iterator searchTransStart(
+                        catEntry.second.m_translation_plural.cbegin());
+                    while (std::regex_search(searchSrcStart, catEntry.second.m_source_plural.cend(),
+                                             reMatches, keyboardAcceleratorRegex))
+                        {
+                        srcResults.push_back(reMatches[0]);
+                        searchSrcStart = reMatches.suffix().first;
+                        }
+                    while (std::regex_search(searchTransStart,
+                                             catEntry.second.m_translation_plural.cend(),
+                                             reMatches, keyboardAcceleratorRegex))
+                        {
+                        transResults.push_back(reMatches[0]);
+                        searchTransStart = reMatches.suffix().first;
+                        }
 
-                    if ((srcMatches.size() == 1 && transMatches.size() != 1) ||
-                        (srcMatches.size() != 1 && transMatches.size() == 1))
+                    if ((srcResults.size() == 1 && transResults.size() != 1) ||
+                        (srcResults.size() != 1 && transResults.size() == 1))
                         {
                         catEntry.second.m_issues.emplace_back(
                             translation_issue::accelerator_issue,
