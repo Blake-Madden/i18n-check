@@ -20,6 +20,8 @@ namespace i18n_check
         {
         m_file_name = fileName;
 
+        get_catalog_entries().clear();
+
         const std::wstring_view originalPoFileText{ poFileText };
 
         if (poFileText.empty())
@@ -106,6 +108,12 @@ namespace i18n_check
                     if (formatFlag == L"c-format" || formatFlag == L"cpp-format")
                         {
                         pofs = po_format_string::cpp_format;
+                        formatSpecFound = true;
+                        }
+                    else if (formatFlag == L"qt-format" || formatFlag == L"qt-plural-format" ||
+                        formatFlag == L"kde-format")
+                        {
+                        pofs = po_format_string::qt_format;
                         formatSpecFound = true;
                         }
                     else if (!is_reviewing_fuzzy_translations() && formatFlag == _DT(L"fuzzy"))

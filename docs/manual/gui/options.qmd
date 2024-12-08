@@ -71,6 +71,15 @@ This will check for issues such as:
 Run the following checks (*continued...*)
 :::
 **Check for ambiguous strings that lack a translator comment**: select this to check for possibly ambiguous strings that lack a translator comment.
+*gettext*- and *Qt*-style comments are searched for, which includes formats such as "// TRANSLATORS: " and "//:".
+
+A string will be considered ambiguous if:
+
+- A single word in all caps.
+- A single word with multiple punctuation marks embedded in it
+- It contains placeholder text (e.g., "###").
+- A short string with a `printf` or positional argument (e.g., "%2").
+- A longer string with three or more `printf` or positional arguments.
 
 **Deprecated macros and functions**: select this to check for deprecated text macros and functions.
 This will detect the usage of functions that are no longer relevant, and provide a suggested replacement.
