@@ -504,9 +504,8 @@ void I18NFrame::InitControls()
                      m_resultsDataView->GetSelection().GetID());
                  if (node != nullptr)
                      {
-                     // not selecting file name root node and a source file
-                     if (node->m_fileName != node->m_warningId &&
-                         i18n_check::is_source_file(node->m_fileName.wc_string()))
+                     // not selecting file name root node
+                     if (node->m_fileName != node->m_warningId)
                          {
                          EnableEditBar(true);
                          }
