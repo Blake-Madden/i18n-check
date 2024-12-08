@@ -661,7 +661,9 @@ void NewProjectDialog::CreateControls()
 
             wxArrayString pseudoOptions;
             pseudoOptions.Add(_(L"None (do not generate anything)"));
-            pseudoOptions.Add(_(L"UPPERCASE"));
+            pseudoOptions.Add(
+                /* TRANSLATORS: Only in uppercase to show what uppercase looks like. */
+                _(L"UPPERCASE"));
             pseudoOptions.Add(_(L"European characters"));
             pseudoOptions.Add(_(L"Fill with 'X'es"));
             pseudoTransMethodSizer->Add(
