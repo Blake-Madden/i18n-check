@@ -40,6 +40,11 @@ InsertTransMacroDlg::InsertTransMacroDlg(
     m_transMacros.Add(L"QT_TRANSLATE_N_NOOP");
     m_transMacros.Add(L"QT_TRANSLATE_NOOP3");
     m_transMacros.Add(L"QT_TRANSLATE_N_NOOP3");
+    // KDE
+    m_transMacros.Add(L"i18n");
+    m_transMacros.Add(L"i18nc");
+    m_transMacros.Add(L"ki18n");
+    m_transMacros.Add(L"ki18nc");
 
     m_noTransMacros.Add(L"_DT");
     m_noTransMacros.Add(L"DONTTRANSLATE");

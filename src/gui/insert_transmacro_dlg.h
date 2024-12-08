@@ -83,7 +83,10 @@ class InsertTransMacroDlg final : public wxDialog
         {
         // wxGetTranslation has a context param, but it is optional
         return (macro == L"wxTRANSLATE_IN_CONTEXT" || macro == L"wxGETTEXT_IN_CONTEXT" ||
-                macro == L"QT_TRANSLATE_NOOP" || macro == L"QT_TRANSLATE_N_NOOP");
+                macro == L"QT_TRANSLATE_NOOP" || macro == L"QT_TRANSLATE_N_NOOP" ||
+                // KDE docs call the first parameter of these functions context,
+                // but they actually can much more expressive strings.
+                macro == L"i18nc" || macro == L"ki18nc");
         }
 
     [[nodiscard]]
