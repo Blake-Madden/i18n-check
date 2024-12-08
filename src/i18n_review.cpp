@@ -55,6 +55,9 @@ namespace i18n_check
     const std::wregex i18n_review::m_1word_regex{
         LR"((\b|\s|^)([[:alpha:]_ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя&'\.@]+)(2D|3D)?(\b|\s|$))"
     };
+    const std::wregex i18n_review::m_keyboard_accelerator_regex{
+        LR"(&[[:alpha:]_ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя])"
+    };
     // cuneiform-suppress-end
     const std::wregex i18n_review::m_hashtag_regex{ LR"(#[[:alnum:]]{2,})" };
     const std::wregex i18n_review::m_key_shortcut_regex{

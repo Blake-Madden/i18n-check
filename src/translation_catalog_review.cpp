@@ -175,8 +175,6 @@ namespace i18n_check
 
             if (static_cast<bool>(m_review_styles & check_accelerators))
                 {
-                const std::wregex keyboardAcceleratorRegex{ L"&[[:alnum:]]" };
-
                 if (!catEntry.second.m_translation.empty())
                     {
                     srcResults.clear();
@@ -187,13 +185,13 @@ namespace i18n_check
                     std::wstring::const_iterator searchTransStart(
                         catEntry.second.m_translation.cbegin());
                     while (std::regex_search(searchSrcStart, catEntry.second.m_source.cend(),
-                                             reMatches, keyboardAcceleratorRegex))
+                                             reMatches, m_keyboard_accelerator_regex))
                         {
                         srcResults.push_back(reMatches[0]);
                         searchSrcStart = reMatches.suffix().first;
                         }
                     while (std::regex_search(searchTransStart, catEntry.second.m_translation.cend(),
-                                             reMatches, keyboardAcceleratorRegex))
+                                             reMatches, m_keyboard_accelerator_regex))
                         {
                         transResults.push_back(reMatches[0]);
                         searchTransStart = reMatches.suffix().first;
@@ -219,14 +217,14 @@ namespace i18n_check
                     std::wstring::const_iterator searchTransStart(
                         catEntry.second.m_translation_plural.cbegin());
                     while (std::regex_search(searchSrcStart, catEntry.second.m_source_plural.cend(),
-                                             reMatches, keyboardAcceleratorRegex))
+                                             reMatches, m_keyboard_accelerator_regex))
                         {
                         srcResults.push_back(reMatches[0]);
                         searchSrcStart = reMatches.suffix().first;
                         }
                     while (std::regex_search(searchTransStart,
-                                             catEntry.second.m_translation_plural.cend(),
-                                             reMatches, keyboardAcceleratorRegex))
+                                             catEntry.second.m_translation_plural.cend(), reMatches,
+                                             m_keyboard_accelerator_regex))
                         {
                         transResults.push_back(reMatches[0]);
                         searchTransStart = reMatches.suffix().first;
