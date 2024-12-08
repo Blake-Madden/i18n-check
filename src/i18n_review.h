@@ -239,7 +239,9 @@ namespace i18n_check
         /// @brief C/C++ style `printf()`.
         cpp_format,
         /// @brief Objective-C.
-        objc_format
+        objc_format,
+        /// @brief KDE/Qt
+        qt_format
         };
 
     /// @brief An entry in a PO file, which contains source and translation strings,
@@ -791,9 +793,13 @@ namespace i18n_check
         /// @param commentBlock The comment to review (should be after the starting comment tag).
         static std::pair<bool, size_t> is_block_suppressed(std::wstring_view commentBlock);
 
-        /// @returns @c true if a strings starts with a translator attention strings.
+        /// @returns @c true if a strings starts with a translator attention string (for gettext).
         /// @param commentBlock The comment to review (should be after the starting comment tag).
-        static bool is_translator_comment(std::wstring_view commentBlock);
+        static bool is_gettext_translator_comment(std::wstring_view commentBlock);
+
+        /// @returns @c true if a strings starts with a translator attention string (for Qt).
+        /// @param commentBlock The comment to review (should be after the starting comment tag).
+        static bool is_qt_translator_comment(std::wstring_view commentBlock);
 
         // traditionally, 80 chars is the recommended line width,
         // but 120 is a bit more reasonable
@@ -931,6 +937,12 @@ namespace i18n_check
         [[nodiscard]]
         static std::vector<std::wstring> load_cpp_printf_commands(std::wstring_view resource,
                                                                   std::wstring& errorInfo);
+
+        /** @brief Loads all positional format commands (e.g., "%1") from a string.
+            @param resource The string to parse.
+            @returns All positional format commands from @c resource.*/
+        [[nodiscard]]
+        static std::vector<std::wstring> load_positional_commands(std::wstring_view resource);
 
         /** @brief Logs a debug message.
             @param info Information, such as a string causing a parsing error.

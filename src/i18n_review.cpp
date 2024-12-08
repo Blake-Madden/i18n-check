@@ -975,7 +975,7 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    bool i18n_review::is_translator_comment(std::wstring_view commentBlock)
+    bool i18n_review::is_gettext_translator_comment(std::wstring_view commentBlock)
         {
         const std::wstring_view translatorKey{ _DT(L"TRANSLATORS:") };
 
@@ -987,6 +987,12 @@ namespace i18n_check
         commentBlock.remove_prefix(firstNonSpace);
         return (commentBlock.length() > translatorKey.length() &&
                 commentBlock.compare(0, translatorKey.length(), translatorKey) == 0);
+        }
+
+    //--------------------------------------------------
+    bool i18n_review::is_qt_translator_comment(std::wstring_view commentBlock)
+        {
+        return (!commentBlock.empty() && commentBlock[0] == L':');
         }
 
     //--------------------------------------------------
@@ -1555,6 +1561,7 @@ namespace i18n_check
             {
             return true;
             }
+
         // String with many printf commands or a short string with at least one?
         // That could use a context also.
         std::wstring errorInfo;
@@ -1563,6 +1570,14 @@ namespace i18n_check
             {
             return true;
             }
+
+        // String with many "%1" commands or a short string with at least one?
+        const auto posCmds = load_positional_commands(str);
+        if (posCmds.size() >= 3 || (!posCmds.empty() && str.length() < 16))
+            {
+            return true;
+            }
+
         return false;
         }
 
@@ -1784,6 +1799,8 @@ namespace i18n_check
                             }
                         }
                     }
+                // we processed the active translation function, so switch this state back off
+                m_context_comment_active = false;
                 }
             else if (is_non_i18n_function(functionName))
                 {
@@ -2704,6 +2721,28 @@ namespace i18n_check
             }
 
         return adjustedCommands;
+        }
+
+    //------------------------------------------------
+    std::vector<std::wstring> i18n_review::load_positional_commands(std::wstring_view resource)
+        {
+        std::vector<std::wstring> results;
+
+        std::wregex positionalRegex{ L"[%][L]?[0-9]{1,}" };
+        std::wstring_view::const_iterator searchStart{ resource.cbegin() };
+        std::match_results<std::wstring_view::const_iterator> res;
+        size_t commandPosition{ 0 };
+        size_t previousLength{ 0 };
+        while (std::regex_search(searchStart, resource.cend(), res, positionalRegex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(res.str(0));
+            }
+        std::sort(results.begin(), results.end());
+        return results;
         }
 
     //------------------------------------------------

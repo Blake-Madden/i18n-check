@@ -121,7 +121,8 @@ The following options are available for resource files (i.e., \*.po and \*.rc).
 Translation catalogs
 :::
 
-**Check for inconsistent printf format specifiers**: select this to check for mismatching `printf()` commands between source and translation strings.
+**Check for inconsistent printf format specifiers**: select this to check for mismatching `printf()` and positional commands between source and translation strings.
+(This will review "c-format," "kde-format," and "qt-format" strings in *gettext* files.)
 
 ::: {.warningsection data-latex=""}
 The checks performed here are strict; all `printf()` commands in translations must match

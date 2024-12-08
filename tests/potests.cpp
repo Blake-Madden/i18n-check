@@ -61,6 +61,56 @@ msgstr "Неправильный размер кадра (%d, %s) для frame #
 		CHECK(issues == 2);
 		}
 
+	SECTION("qt-format")
+		{
+		po_file_review po(false);
+		const wchar_t* code = LR"(
+
+#: ../src/common/decod.cpp:826
+#, qt-format
+msgid "Incorrect frame size (%1, %2) for the frame %3"
+msgstr "Неправильный размер кадра (%1) для frame %3")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 1); // translation is missing %2
+		po.clear_results();
+
+		// different order is OK
+		code = LR"(
+
+#: ../src/common/decod.cpp:826
+#, qt-format
+msgid "Incorrect frame size (%1, %2) for the frame %3"
+msgstr "Неправильный размер кадра (%2, %1) для frame %3")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		po.clear_results();
+
+		// has an extra %1, missing %2
+		code = LR"(
+
+#: ../src/common/decod.cpp:826
+#, qt-format
+msgid "Incorrect frame size (%1, %2) for the frame %3"
+msgstr "Неправильный размер кадра (%1, %1) для frame %3")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 1);
+		}
+
 	SECTION("C-format spaces malformed")
 		{
 		po_file_review po(false);
