@@ -572,9 +572,8 @@ namespace i18n_check
             std::wregex(LR"(<[A-Za-z]+([A-Za-z0-9_\-\.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*)"),
             std::wregex(LR"(^[[:space:]]*xmlns(:[[:alnum:]]+)?=.*)"),
             std::wregex(LR"(^[[:space:]]*<soap:[[:alnum:]]+.*)"),
-            std::wregex(LR"(^[[:space:]]*<port\b.*)"),
-            std::wregex(LR"(ms-app(data|x))"),
-            std::wregex(LR"(^\{\{.*)"), // soap syntax
+            std::wregex(LR"(^[[:space:]]*<port\b.*)"), std::wregex(LR"(ms-app(data|x))"),
+            std::wregex(LR"(^\{\{.*)"),                      // soap syntax
             std::wregex(LR"(&[a-zA-Z0-9]+=[a-zA-Z0-9]+.*)"), // args passed to an URL
             std::wregex(LR"([cC]ontent-[tT]ype: [a-zA-Z]{3,}\/.*)"),
             std::wregex(LR"([cC]ontent-[dD]isposition: [a-zA-Z\-]{3,};.*)"),
@@ -657,8 +656,7 @@ namespace i18n_check
             std::wregex(LR"(^(250\-AUTH)$)"),
             // MIME types
             std::wregex(LR"((application|text)\/(x\-)?[a-z\-]+)"),
-            std::wregex(LR"(image\/(x\-)?[a-z\-]+)"),
-            std::wregex(LR"(video\/(x\-)?[a-z\-]+)"),
+            std::wregex(LR"(image\/(x\-)?[a-z\-]+)"), std::wregex(LR"(video\/(x\-)?[a-z\-]+)"),
             // MIME headers
             std::wregex(LR"(^MIME-Version:.*)"), std::wregex(LR"(^X-Priority:.*)"),
             std::wregex(
@@ -714,20 +712,19 @@ namespace i18n_check
             L"tr", L"trUtf8", L"translate", L"QT_TR_NOOP", L"QT_TRANSLATE_NOOP",
             L"QApplication::translate", L"QApplication::tr", L"QApplication::trUtf8",
             // KDE (ki18n)
-            L"i18n", L"i18np", L"i18ncp", L"i18nc", L"xi18n", L"xi18nc",
+            L"i18n", L"i18np", L"i18ncp", L"i18nc", L"xi18n", L"xi18nc", L"ki18n", L"ki18np",
+            L"ki18ncp", L"ki18nc",
             // our own functions
             L"_WXTRANS_WSTR"
         };
 
         m_localization_with_context_functions = { _DT(L"translate"),
+                                                  L"i18nc",
+                                                  L"i18ncp",
+                                                  L"ki18ncp",
+                                                  L"ki18nc",
                                                   L"QApplication::translate",
-                                                  L"QApplication::tr",
-                                                  L"QApplication::trUtf8",
                                                   L"QCoreApplication::translate",
-                                                  L"QCoreApplication::tr",
-                                                  L"QCoreApplication::trUtf8",
-                                                  L"tr",
-                                                  L"trUtf8",
                                                   L"QT_TRANSLATE_NOOP",
                                                   L"wxTRANSLATE_IN_CONTEXT",
                                                   L"wxGETTEXT_IN_CONTEXT_PLURAL",
@@ -883,9 +880,10 @@ namespace i18n_check
             L"CreatePointFont", L"CreateFont", L"FindWindow", L"RegisterServer",
             L"UnregisterServer", L"MIDL_INTERFACE", L"DECLSPEC_UUID", L"DebugPrintfW",
             L"DebugPrintfA", L"DebugPrintfW", L"DEBUGLOGRESULT", L"CreateTextFormat", L"DbgLog",
-            L"GetPrivateProfileString", L"WritePrivateProfileString", L"RegDeleteKey", L"RegDeleteKeyEx",
-            L"RegDeleteKeyValue", L"RegDeleteTree", L"RegLoadAppKey", L"RegOpenKey", L"RegRenameKey",
-            L"RegSaveKey", L"RegSaveKeyEx", L"RegSetKeyValue", L"RegSetKeyValueEx", L"RegOpenKeyTransactedA",
+            L"GetPrivateProfileString", L"WritePrivateProfileString", L"RegDeleteKey",
+            L"RegDeleteKeyEx", L"RegDeleteKeyValue", L"RegDeleteTree", L"RegLoadAppKey",
+            L"RegOpenKey", L"RegRenameKey", L"RegSaveKey", L"RegSaveKeyEx", L"RegSetKeyValue",
+            L"RegSetKeyValueEx", L"RegOpenKeyTransactedA",
             // .NET
             L"FindSystemTimeZoneById", L"CreateSpecificCulture", L"DebuggerDisplay", L"Debug.Fail",
             L"DeriveKey", L"Assert.Fail", L"Debug.Assert", L"Debug.Print", L"Debug.WriteLine",
@@ -1661,6 +1659,12 @@ namespace i18n_check
                     (functionName == L"wxTRANSLATE_IN_CONTEXT" && parameterPosition == 0) ||
                     (functionName == L"wxGETTEXT_IN_CONTEXT_PLURAL" && parameterPosition == 0) ||
                     (functionName == L"wxGETTEXT_IN_CONTEXT" && parameterPosition == 0) ||
+                    (functionName == L"i18nc" && parameterPosition == 0) ||
+                    (functionName == L"i18ncp" && parameterPosition == 0) ||
+                    (functionName == L"ki18nc" && parameterPosition == 0) ||
+                    (functionName == L"ki18ncp" && parameterPosition == 0) ||
+                    (functionName == L"i18n" && parameterPosition > 0) ||  // acts like printf
+                    (functionName == L"ki18n" && parameterPosition > 0) || // acts like printf
                     (functionName == L"wxGetTranslation" && parameterPosition >= 1))
                     {
                     m_internal_strings.emplace_back(
@@ -1671,10 +1675,14 @@ namespace i18n_check
 
                     const auto contextLength{ quoteEnd - currentTextPos };
                     if (static_cast<bool>(m_review_styles & check_suspect_i18n_usage) &&
-                        contextLength > 32)
+                        contextLength > 32 &&
+                        // although these are called context parameters,
+                        // they really comments in // practice
+                        !functionName.starts_with(L"i18n") && !functionName.starts_with(L"ki18n"))
                         {
                         m_suspect_i18n_usage.emplace_back(
-                            functionName,
+                            std::wstring{ currentTextPos,
+                                          static_cast<size_t>(quoteEnd - currentTextPos) },
                             string_info::usage_info(
                                 string_info::usage_info::usage_type::function,
 #ifdef wxVERSION_NUMBER
@@ -2034,7 +2042,7 @@ namespace i18n_check
         std::wstring str{ strToReview };
         static const std::wregex loremIpsum(L"Lorem ipsum.*");
         static const std::wregex percentageRegEx(LR"(([0-9]+|\{[a-z0-9]\}|%[udil]{1,2})%)");
-         if (std::regex_match(str, percentageRegEx))
+        if (std::regex_match(str, percentageRegEx))
             {
             return false;
             }
