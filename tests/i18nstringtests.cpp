@@ -1,4 +1,5 @@
 ﻿#include "../src/i18n_string_util.h"
+#include "../src/cpp_i18n_review.h"
 #include <algorithm>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -12,6 +13,22 @@ using namespace i18n_string_util;
 using namespace Catch::Matchers;
 
 // clang-format off
+TEST_CASE("untranslatable", "[i18nreview]")
+    {
+    i18n_check::cpp_i18n_review reviewer{ false };
+    CHECK(reviewer.is_untranslatable_string(L"application/x-photoshop-style-library", false));
+    CHECK(reviewer.is_untranslatable_string(L"image/webp", false));
+    CHECK(reviewer.is_untranslatable_string(L"ms-appdata", false));
+    CHECK(reviewer.is_untranslatable_string(L"&perms=write&frob=", false));
+    CHECK(reviewer.is_untranslatable_string(L"Content-Type: multipart/form-data; boundary=EBA799EB-D9A2-472B-AE86-568D4645707E\r\n", false));
+    CHECK(reviewer.is_untranslatable_string(L"Content-Disposition: form-data; name=\"photo\"; filename=\"", false));
+    CHECK_FALSE(reviewer.is_untranslatable_string(L"<No Name Specified>", false));
+    // percentages can be translatable as the ordering of the number and % can be changed
+    CHECK_FALSE(reviewer.is_untranslatable_string(L"100%", false));
+    CHECK_FALSE(reviewer.is_untranslatable_string(L"{n}%", false));
+    CHECK_FALSE(reviewer.is_untranslatable_string(L"%d%", false));
+    }
+
 TEST_CASE("i18n string util", "[i18nstringutil]")
     {
     SECTION("Null")
@@ -93,7 +110,7 @@ TEST_CASE("i18n string util", "[i18nstringutil]")
         CHECK(is_file_address(L"libreoffice.tar.xz"));
         }
 
-    SECTION("Is Short Url")
+    SECTION("Short Url")
         {
         CHECK(i18n_string_util::is_url(L"amazon.com"));
         CHECK(i18n_string_util::is_url(L"shop.amazon.com"));
@@ -106,7 +123,15 @@ TEST_CASE("i18n string util", "[i18nstringutil]")
         CHECK(!i18n_string_util::is_url(L"amazon.a"));
         }
 
-    SECTION("Is Short File")
+     SECTION("Bogus Url/File")
+        {
+        CHECK_FALSE(i18n_string_util::is_url(L"Return to this window after you have finished the authorization process on Flickr.com"));
+        CHECK_FALSE(i18n_string_util::is_file_address(L"Insert .tga"));
+        CHECK_FALSE(i18n_string_util::is_file_address(L"Insert .baml"));
+        CHECK_FALSE(i18n_string_util::is_file_address(L"Insert .html"));
+        }
+
+    SECTION("Short File")
         {
         CHECK(i18n_string_util::is_file_address(L"stdafx.h"));
         CHECK(i18n_string_util::is_file_address(L"stdafx.h's"));

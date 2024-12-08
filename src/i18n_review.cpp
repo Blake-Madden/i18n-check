@@ -77,7 +77,13 @@ namespace i18n_check
 
     // <s:complex name=\"{{GetFunctionName}}_{{GetParameterName}}_Array\">
     const std::wregex i18n_review::m_xml_element_regex{
-        LR"(<[/]?[a-zA-Z0-9_:'"\.\[\]\/\{\}\-\\=][a-zA-Z0-9_:'"\.\[\]\/\{\}\- \\=]+[/]?>)",
+        LR"(<\/?[a-zA-Z0-9_:'"\.\[\]\/\{\}\-\\=][a-zA-Z0-9_:'"\.\[\]\/\{\}\- \\=]+\/?>)",
+        std::regex_constants::icase
+    };
+
+    // not really XML/HTMl ("<No Name Specified>")
+    const std::wregex i18n_review::m_not_xml_element_regex{
+        LR"(<\/?(([a-zA-Z0-9]){2,}\s+){1,}([a-zA-Z0-9]){2,}[[:punct:]]?\/?>)",
         std::regex_constants::icase
     };
 
@@ -173,7 +179,12 @@ namespace i18n_check
         L"Franklin Gothic",
         L"Aptos",
         L"Grandview",
-        L"Bierstadt"
+        L"Bierstadt",
+        L"Tahoma",
+        L"MingLiU",
+        L"MS PGothic",
+        L"Gulim",
+        L"NSimSun"
     };
 
     // documents
@@ -562,7 +573,11 @@ namespace i18n_check
             std::wregex(LR"(^[[:space:]]*xmlns(:[[:alnum:]]+)?=.*)"),
             std::wregex(LR"(^[[:space:]]*<soap:[[:alnum:]]+.*)"),
             std::wregex(LR"(^[[:space:]]*<port\b.*)"),
+            std::wregex(LR"(ms-app(data|x))"),
             std::wregex(LR"(^\{\{.*)"), // soap syntax
+            std::wregex(LR"(&[a-zA-Z0-9]+=[a-zA-Z0-9]+.*)"), // args passed to an URL
+            std::wregex(LR"([cC]ontent-[tT]ype: [a-zA-Z]{3,}\/.*)"),
+            std::wregex(LR"([cC]ontent-[dD]isposition: [a-zA-Z\-]{3,};.*)"),
             // <image x=%d y=\"%d\" width = '%dpx' height="%dpx"
             std::wregex(
                 LR"(<[A-Za-z0-9_\-\.]+[[:space:]]*([A-Za-z0-9_\-\.]+[[:space:]]*=[[:space:]]*[\"'\\]{0,2}[a-zA-Z0-9\-]*[\"'\\]{0,2}[[:space:]]*)+)"),
@@ -626,10 +641,10 @@ namespace i18n_check
             std::wregex(LR"(([[:alnum:]_-]+[\\/]){1,2}[[:alnum:]_-]+([.][a-zA-Z0-9]{1,4})+)"),
             std::wregex(LR"(\*[.][a-zA-Z0-9]{1,5})"), // wild card file extension
             // UNIX or web folder (needs at least 1 folder in path)
-            std::wregex(LR"(([/]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\[\]\-]+){2,}/?)"),
+            std::wregex(LR"((\/{1,2}[[:alnum:]_~!@#$%&;',+={}().^\[\]\-]+){2,}/?)"),
             // Windows folder
             std::wregex(LR"([a-zA-Z][:]([\\]{1,2}[[:alnum:]_~!@#$%&;',+={}().^\[\]\-]*)+)"),
-            std::wregex(LR"([/]?sys\$.*)"),
+            std::wregex(LR"(\/?sys\$.*)"),
             // Debug message
             std::wregex(LR"(^DEBUG:[\s\S].*)"),
             // mail protocols
@@ -640,6 +655,10 @@ namespace i18n_check
             // encoding
             std::wregex(LR"(^(base[0-9]+|uuencode|quoted-printable)$)"),
             std::wregex(LR"(^(250\-AUTH)$)"),
+            // MIME types
+            std::wregex(LR"((application|text)\/(x\-)?[a-z\-]+)"),
+            std::wregex(LR"(image\/(x\-)?[a-z\-]+)"),
+            std::wregex(LR"(video\/(x\-)?[a-z\-]+)"),
             // MIME headers
             std::wregex(LR"(^MIME-Version:.*)"), std::wregex(LR"(^X-Priority:.*)"),
             std::wregex(
@@ -864,7 +883,9 @@ namespace i18n_check
             L"CreatePointFont", L"CreateFont", L"FindWindow", L"RegisterServer",
             L"UnregisterServer", L"MIDL_INTERFACE", L"DECLSPEC_UUID", L"DebugPrintfW",
             L"DebugPrintfA", L"DebugPrintfW", L"DEBUGLOGRESULT", L"CreateTextFormat", L"DbgLog",
-            L"GetPrivateProfileString", L"WritePrivateProfileString",
+            L"GetPrivateProfileString", L"WritePrivateProfileString", L"RegDeleteKey", L"RegDeleteKeyEx",
+            L"RegDeleteKeyValue", L"RegDeleteTree", L"RegLoadAppKey", L"RegOpenKey", L"RegRenameKey",
+            L"RegSaveKey", L"RegSaveKeyEx", L"RegSetKeyValue", L"RegSetKeyValueEx", L"RegOpenKeyTransactedA",
             // .NET
             L"FindSystemTimeZoneById", L"CreateSpecificCulture", L"DebuggerDisplay", L"Debug.Fail",
             L"DeriveKey", L"Assert.Fail", L"Debug.Assert", L"Debug.Print", L"Debug.WriteLine",
@@ -2012,6 +2033,11 @@ namespace i18n_check
 
         std::wstring str{ strToReview };
         static const std::wregex loremIpsum(L"Lorem ipsum.*");
+        static const std::wregex percentageRegEx(LR"(([0-9]+|\{[a-z0-9]\}|%[udil]{1,2})%)");
+         if (std::regex_match(str, percentageRegEx))
+            {
+            return false;
+            }
 
         i18n_string_util::replace_escaped_control_chars(str);
         string_util::trim(str);
@@ -2052,6 +2078,12 @@ namespace i18n_check
                 std::regex_match(str, m_html_tag_regex) ||
                 std::regex_match(str, m_html_tag_unicode_regex))
                 {
+                // it's really something like "<enter comment.>", which can be translatable
+                if (std::regex_match(str, m_not_xml_element_regex))
+                    {
+                    return false;
+                    }
+
                 // Avoid a false positive for single words in braces.
                 // It may be an HTML/XML element, but it may also be a user-facing string,
                 // so error on the side of that.

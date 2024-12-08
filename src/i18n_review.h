@@ -1166,6 +1166,7 @@ namespace i18n_check
         static const std::wregex m_html_tag_regex;
         static const std::wregex m_html_tag_unicode_regex;
         static const std::wregex m_xml_element_regex;
+        static const std::wregex m_not_xml_element_regex;
         static const std::wregex m_html_known_elements_regex;
         static const std::wregex m_angle_braced_one_word_regex;
         static const std::wregex m_2letter_regex;

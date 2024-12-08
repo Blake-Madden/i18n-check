@@ -985,8 +985,8 @@ TEST_CASE("Code generator strings", "[i18n]")
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings().size() == 0);
-        CHECK(cpp.get_not_available_for_localization_strings().size() == 0);
-        CHECK(cpp.get_internal_strings().size() == 1);
+        CHECK(cpp.get_not_available_for_localization_strings().size() == 1);
+        CHECK(cpp.get_internal_strings().size() == 0);
 
         code = LR"(auto var = "version=\"1.0\"")";
         cpp.clear_results();
@@ -3029,7 +3029,7 @@ TEST_CASE("CPP Tests", "[cpp]")
 
 TEST_CASE("Context", "[cpp][i18n]")
     {
-    SECTION("Comment")
+    SECTION("gettext Comment")
         {
         cpp_i18n_review cpp(false);
         cpp.set_style(check_needing_context);
@@ -3062,6 +3062,39 @@ TEST_CASE("Context", "[cpp][i18n]")
         cpp(code, L"");
         cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
         CHECK(cpp.get_localizable_strings_ambiguous_needing_context().size() == 1);
+        }
+
+    SECTION("Qt Comment")
+        {
+        cpp_i18n_review cpp(false);
+        cpp.set_style(check_needing_context);
+        const wchar_t* code = LR"(//: This name refers to a host name.
+hostNameLabel->setText(tr("UNTITLED:"));
+
+/*: This text refers to a C++ code example. */
+QString example = tr("UNTITLED");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().empty());
+        cpp.clear_results();
+
+        code = LR"(QString example = tr("UNTITLED");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().size() == 1);
+        cpp.clear_results();
+
+        code = LR"(QString example = tr("%1 of %2 files copied.");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().empty());
+        cpp.clear_results();
+
+        code = LR"(QString example = tr("%1 of %2 files copied.\nCopying: %3");)";
+        cpp(code, L"");
+        cpp.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+        CHECK(cpp.get_localizable_strings_ambiguous_needing_context().size() == 1);
+        cpp.clear_results();
         }
 
     SECTION("Ambiguous CAPPED")
