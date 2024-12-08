@@ -88,6 +88,15 @@ namespace i18n_string_util
                     std::wstring(text.data() + periodPos, text.length() - periodPos)) !=
                 knownWebExtensions.cend())
                 {
+                const size_t numberOfSpaces = std::count_if(
+                    text.cbegin(), text.cend(), [](const auto chr) { return chr == L' '; });
+                // Has a suffix like ".com" but is lengthy and has not slash in it?
+                // Probably not really an URL then (may be a sentence missing a period).
+                if (firstSlash == std::wstring_view::npos && text.length() > 64 &&
+                    numberOfSpaces > 5)
+                    {
+                    return false;
+                    }
                 return true;
                 }
             }
@@ -199,6 +208,12 @@ namespace i18n_string_util
             static_cast<bool>(std::iswalpha(text[text.length() - 2])) &&
             static_cast<bool>(std::iswalpha(text[text.length() - 1])))
             {
+            // Space followed by extension is probably not a file name,
+            // but something referring to a file extension instead.
+            if (text.length() >= 5 && text[text.length() - 5] == L' ')
+                {
+                return false;
+                }
             // see if it is really a typo (missing space after a sentence).
             if (static_cast<bool>(std::iswupper(text[text.length() - 3])) &&
                 !static_cast<bool>(std::iswupper(text[text.length() - 2])))
@@ -222,6 +237,11 @@ namespace i18n_string_util
             static_cast<bool>(std::iswalpha(text[text.length() - (fileAddressMinLength - 3)])) &&
             string_util::is_either(text[text.length() - 1], L'x', L'X'))
             {
+            if (text.length() >= 6 && text[text.length() - 6] == L' ')
+                {
+                return false;
+                }
+
             // see if it is really a typo (missing space after a sentence)
             if (static_cast<bool>(
                     std::iswupper(text[text.length() - (fileAddressMinLength - 1)])) &&
@@ -241,7 +261,8 @@ namespace i18n_string_util
             string_util::strnicmp(text.substr(text.length() - (fileAddressMinLength - 1)),
                                   std::wstring_view{ L"html" }) == 0)
             {
-            if (text.length() >= 6 && text[text.length() - 6] == L'*')
+            if (text.length() >= 6 &&
+                (text[text.length() - 6] == L'*' || text[text.length() - 6] == L' '))
                 {
                 return false;
                 }
