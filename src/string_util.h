@@ -557,8 +557,8 @@ namespace string_util
     /// @returns The comparison result.
     template<typename T>
     [[nodiscard]]
-    int strnicmp(const std::basic_string_view<T>& first,
-                 const std::basic_string_view<T>& second) noexcept
+    int strnicmp(const std::basic_string_view<T> first,
+                 const std::basic_string_view<T> second) noexcept
         {
         return strnicmp(first.data(), second.data(), second.length());
         }
