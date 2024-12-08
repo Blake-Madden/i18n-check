@@ -46,13 +46,13 @@ This warning is emitted when the option **Unencoded extended ASCII characters** 
 
 ### Mark Selection for Translation {-}
 
-To mark a string as translatable, select the string in the editor and select **Mark for Translation...** from the `r keys("Insert")` button.
-From the **Mark for Translation** dialog, options are available for choosing which translation function to use, along with providing a domain or context (if applicable).
+To mark a string as translatable, select the string in the editor and select **Mark Selection for Translation...** from the `r keys("Insert")` button.
+From the **Mark Selection for Translation** dialog, options are available for choosing which translation function to use, along with providing a domain or context (if applicable).
 The translation marking functions available are compatible with *gettext*, *wxWidgets*, *Qt*, and *KDE*.
 
 ### Mark Selection as Non-translatable {-}
 
-To mark a string as non-translatable, select the string in the editor and select **Mark as Non-translatable...** from the `r keys("Insert")` button.
-From the **Mark as Non-translatable** dialog, options are available for which function to wrap the string in, along with providing an optional context and comment.
+To mark a string as non-translatable, select the string in the editor and select **Mark Selection as Non-translatable...** from the `r keys("Insert")` button.
+From the **Mark Selection as Non-translatable** dialog, options are available for which function to wrap the string in, along with providing an optional context and comment.
 These functions will mark the string as non-translatable and **Cuneiform** will ignore them during an analysis.
 Additionally, these functions and comments decorating a string will inform developers that the string is not meant for translation and why.
