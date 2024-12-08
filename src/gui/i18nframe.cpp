@@ -825,12 +825,14 @@ void I18NFrame::OnInsert(wxRibbonButtonBarEvent& event)
     menu.Append(menuItem);
     menu.AppendSeparator();
 
-    menuItem = new wxMenuItem(&menu, XRCID("ID_INSERT_GETTEXT"), _(L"Mark for Translation..."));
+    menuItem =
+        new wxMenuItem(&menu, XRCID("ID_INSERT_GETTEXT"), _(L"Mark Selection for Translation..."));
     menuItem->SetBitmap(
         wxArtProvider::GetBitmap(L"ID_INSERT_GETTEXT", wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
     menu.Append(menuItem);
 
-    menuItem = new wxMenuItem(&menu, XRCID("ID_INSERT_DT"), _(L"Mark as Non-translatable..."));
+    menuItem =
+        new wxMenuItem(&menu, XRCID("ID_INSERT_DT"), _(L"Mark Selection as Non-translatable..."));
     menuItem->SetBitmap(
         wxArtProvider::GetBitmap(L"ID_INSERT_DT", wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
     menu.Append(menuItem);
@@ -1072,17 +1074,13 @@ void I18NFrame::OnOpen([[maybe_unused]] wxCommandEvent&)
 //------------------------------------------------------
 void I18NFrame::OnInsertTranslatorComment([[maybe_unused]] wxCommandEvent&)
     {
-    wxTextEntryDialog dialog(
-        this, _("Enter an explanation for a string that provides context for the translators:"),
-        _("Translator Comment"), wxString{}, wxTextEntryDialogStyle | wxTE_MULTILINE,
-        wxDefaultPosition, wxWindow::FromDIP(wxSize{ 175, 250 }));
+    InsertTransCommentDlg dialog(this);
     if (dialog.ShowModal() != wxID_OK)
         {
         return;
         }
 
-    m_editor->InsertText(m_editor->GetCurrentPos(),
-                         _DT(L"/* TRANSLATORS: ") + dialog.GetValue() + L" */");
+    m_editor->InsertText(m_editor->GetCurrentPos(), dialog.GetFormattedOutput());
     }
 
 //------------------------------------------------------
@@ -1141,7 +1139,7 @@ void I18NFrame::OnInsertTGetTextMacro([[maybe_unused]] wxCommandEvent&)
         return;
         }
 
-    InsertTransMacroDlg dlg(this, selText, wxID_ANY, _("Mark for Translation"),
+    InsertTransMacroDlg dlg(this, selText, wxID_ANY, _("Mark Selection for Translation"),
                             TransMacroType::MarkForTranslation);
     if (dlg.ShowModal() != wxID_OK)
         {
@@ -1162,7 +1160,7 @@ void I18NFrame::OnInsertDTMacro([[maybe_unused]] wxCommandEvent&)
         return;
         }
 
-    InsertTransMacroDlg dlg(this, selText, wxID_ANY, _("Mark as Non-translation"),
+    InsertTransMacroDlg dlg(this, selText, wxID_ANY, _("Mark Selection as Non-translable"),
                             TransMacroType::MarkForNoTranslation);
     if (dlg.ShowModal() != wxID_OK)
         {
