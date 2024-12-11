@@ -1079,7 +1079,24 @@ void I18NFrame::OnInsertTranslatorComment([[maybe_unused]] wxCommandEvent&)
         return;
         }
 
+    if (!dialog.IsMultilineComment())
+        {
+        int linePos{ 0 };
+        const wxString lineText = m_editor->GetCurLine(&linePos);
+        if (!lineText.empty() && static_cast<size_t>(linePos) < (lineText.length() - 1))
+            {
+            m_editor->InsertText(m_editor->GetCurrentPos(),
+                                 dialog.GetFormattedOutput() + L"\n" + wxString{}.Pad(linePos));
+            }
+        else
+            {
+            m_editor->InsertText(m_editor->GetCurrentPos(), dialog.GetFormattedOutput());
+            }
+        }
+    else
+        {
     m_editor->InsertText(m_editor->GetCurrentPos(), dialog.GetFormattedOutput());
+    }
     }
 
 //------------------------------------------------------
