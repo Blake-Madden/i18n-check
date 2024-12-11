@@ -1095,8 +1095,8 @@ void I18NFrame::OnInsertTranslatorComment([[maybe_unused]] wxCommandEvent&)
         }
     else
         {
-    m_editor->InsertText(m_editor->GetCurrentPos(), dialog.GetFormattedOutput());
-    }
+        m_editor->InsertText(m_editor->GetCurrentPos(), dialog.GetFormattedOutput());
+        }
     }
 
 //------------------------------------------------------
@@ -1288,7 +1288,9 @@ void I18NFrame::SaveSourceFileIfNeeded()
             if (std::regex_search(fileText.cbegin(), fileText.cend(), matchResults, codePageRE) &&
                 matchResults.size() >= 2)
                 {
-                encoding = _DT(L"Windows-") + matchResults.str(1);
+                encoding = (matchResults.str(1) == L"65001") ?
+                               L"utf-8" :
+                               _DT(L"Windows-") + matchResults.str(1);
                 }
             wxFile outFile{ m_activeSourceFile, wxFile::write };
             if (outFile.IsOpened())
