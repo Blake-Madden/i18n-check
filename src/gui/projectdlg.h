@@ -19,6 +19,7 @@
 #define __I18N_PROJECT_DLG_H__
 
 #include "../i18n_review.h"
+#include "../pseudo_translate.h"
 #include "app_options.h"
 #include <wx/artprov.h>
 #include <wx/choice.h>
@@ -312,12 +313,12 @@ class NewProjectDialog final : public wxDialog
     int m_minCppVersion{ 1 };
     // RC options
     bool m_fontIssue{ true };
-    // PO options
+    // pseudo-translation options
     bool m_fuzzyTranslations{ true };
     bool m_pseudoTrack{ false };
     int m_pseudoTranslationMethod{ 0 };
     bool m_addPseudoTransBrackets{ false };
-    int m_widthPseudoIncrease{ 40 };
+    int m_widthPseudoChange{ 40 };
     // formatting options
     bool m_trailingSpaces{ true };
     bool m_tabs{ true };

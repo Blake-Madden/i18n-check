@@ -130,7 +130,7 @@ The following options are available for resource files (i.e., \*.po and \*.rc).
 Translation catalogs
 :::
 
-**Check for inconsistent printf format specifiers**: select this to check for mismatching `printf()` and positional commands between source and translation strings.
+**Check for inconsistent printf & positional format specifiers**: select this to check for mismatching `printf()` and positional commands between source and translation strings.
 (This will review "c-format," "kde-format," and "qt-format" strings in *gettext* files.)
 
 ::: {.warningsection data-latex=""}
@@ -151,7 +151,6 @@ commonly use question and exclamation marks as much as English.
 
 **Review fuzzy translations**: select this to review fuzzy translations. This should only be selected if you intend to review translations
 that still require approval and are likely unfinished.
-
 ::::
 
 :::: {.optionssection data-latex=""}
@@ -191,13 +190,14 @@ This can help with identifying truncation and strings being pieced together at r
 **Add tracking IDs**: select this to add a unique ID number (inside or square brackets) in front of every pseudo-translation.
 This can help with finding where a particular translation is coming from.
 
-**Increase width**: select how much wider (between 0--100%) to make pseudo-translations.
-This widening is done by padding the strings with hyphens on both sides.
+**Expand/contract width**: select how much wider and shorter (between -50--100%) to make pseudo-translations.
+For widening, strings are padded with hyphens on both sides.
+For shortening, as many characters from the translatable sections of the string will be removed to meet the requested percentage.
 
-The default is 40, as "German and Spanish translations can sometimes take 40% more screen space than English" [@boyero:2020].
+The default is a 40% increase, as "German and Spanish translations can sometimes take 40% more screen space than English" [@boyero:2020].
 
 ::: {.notesection data-latex=""}
-If surrounding brackets or tracking IDs are being included, then their lengths will be factored into the increased width calculation.
+If surrounding brackets or tracking IDs are being included, then their lengths will be factored into the increased/decreased width calculation.
 :::
 ::::
 

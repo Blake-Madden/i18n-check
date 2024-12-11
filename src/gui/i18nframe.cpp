@@ -1395,7 +1395,7 @@ void I18NFrame::Process()
         analyzer.pseudo_translate(
             filesToAnalyze, m_activeProjectOptions.m_pseudoTranslationMethod,
             m_activeProjectOptions.m_addPseudoTransBrackets,
-            m_activeProjectOptions.m_widthPseudoIncrease, m_activeProjectOptions.m_pseudoTrack,
+            m_activeProjectOptions.m_widthPseudoChange, m_activeProjectOptions.m_pseudoTrack,
             [&progressDlg, &progress](const size_t totalFiles)
             {
                 progressDlg.SetRange(totalFiles);

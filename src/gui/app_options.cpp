@@ -63,9 +63,9 @@ void I18NOptions::Save(const wxString& filePath)
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"pseudo-track");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_pseudoTrack ? L"true" : L"false"));
 
-    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"pseudo-width-increase");
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"pseudo-width-change");
     node->AddChild(
-        new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_widthPseudoIncrease)));
+        new wxXmlNode(wxXML_TEXT_NODE, wxString{}, std::to_wstring(m_widthPseudoChange)));
 
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"log-messages-can-be-translated");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
@@ -136,7 +136,7 @@ void I18NOptions::Load(const wxString& filePath)
     m_allowTranslatingPunctuationOnlyStrings = false;
     m_exceptionsShouldBeTranslatable = true;
     m_verbose = false;
-    m_widthPseudoIncrease = 40;
+    m_widthPseudoChange = 40;
     m_minWordsForClassifyingUnavailableString = 2;
     m_minCppVersion = 2014;
 
@@ -208,9 +208,9 @@ void I18NOptions::Load(const wxString& filePath)
             {
             m_pseudoTrack = (child->GetNodeContent() == L"true");
             }
-        else if (child->GetName() == L"pseudo-width-increase")
+        else if (child->GetName() == L"pseudo-width-change")
             {
-            child->GetNodeContent().ToInt(&m_widthPseudoIncrease);
+            child->GetNodeContent().ToInt(&m_widthPseudoChange);
             }
         else if (child->GetName() == L"log-messages-can-be-translated")
             {

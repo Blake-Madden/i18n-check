@@ -70,12 +70,12 @@ namespace i18n_check
             m_add_surrounding_brackets = addBrackets;
             }
 
-        /** @brief Increases the width of each pseudo-translation.
-            @param increasedWidth The percent to increase the widths of the pseudo-translation\n
-                (should be between 0-100).*/
-        void increase_width(const uint8_t increasedWidth) noexcept
+        /** @brief Increases or decreases the width of each pseudo-translation.
+            @param changedWidth The percent to increase or decrease the widths of the\n
+                pseudo-translation (should be between -50 and 100).*/
+        void change_width(const int8_t changedWidth) noexcept
             {
-            m_width_increase = std::clamp<uint8_t>(increasedWidth, 0, 100);
+            m_width_change = std::clamp<int8_t>(changedWidth, -50, 100);
             }
 
         /// @brief Adds a unique ID in front of every pseudo-tranlated string.
@@ -85,12 +85,16 @@ namespace i18n_check
         /// @brief If tracking is enabled, then resets the ID incrementer to zero.
         void reset_tracking() noexcept { m_current_id = 0; }
 
+        /// @brief Psuudo-translates @c msg using the current settings.
+        /// @param msg The string to pseudo-translate.
+        /// @returns The pseudo-translated string.
+        std::wstring mutate_message(const std::wstring& msg) const;
+
       private:
         static const std::map<wchar_t, wchar_t> m_euro_char_map;
-        std::wstring mutate_message(const std::wstring& msg) const;
         pseudo_translation_method m_trans_type{ pseudo_translation_method::all_caps };
         bool m_add_surrounding_brackets{ false };
-        uint8_t m_width_increase{ 40 };
+        int8_t m_width_change{ 40 };
         bool m_track{ false };
         mutable int64_t m_current_id{ 0 };
         };

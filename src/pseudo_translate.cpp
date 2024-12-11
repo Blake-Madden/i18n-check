@@ -193,6 +193,21 @@ namespace i18n_check
             return msg;
             }
 
+        // build the tracking prefix so that we can take its length into
+        // account when increasing/decreasing the width of the message
+        const std::wstring trackPrefix = [this]()
+        {
+            if (m_track)
+                {
+#if __cpp_lib_format > 201907L
+                return L"[" + std::format(L"{:06X}", m_current_id++) + L"]";
+#else
+                return L"[" + std::to_wstring(m_current_id++) + L"]";
+#endif
+                }
+            return std::wstring{};
+        }();
+
         const auto printfSpecifiers = i18n_review::load_cpp_printf_command_positions(msg);
         const auto fileFilters = i18n_review::load_file_filter_positions(msg);
 
@@ -251,9 +266,45 @@ namespace i18n_check
             }
 
         std::wstring newMsg;
-        newMsg.reserve(msg.size() +
-                       static_cast<size_t>(std::ceil(
-                           msg.length() * (static_cast<double>(m_width_increase) / 100))));
+        newMsg.reserve(msg.size() * 2);
+
+        // If decreasing the width of the string, then we will copy only as much as necessary
+        // from the translatable sections of the string and also take the length of ID tracking and
+        // surrounding brackets into account.
+        int64_t charCountToCopy{ 0 };
+        if (m_width_change < 0)
+            {
+            int64_t charCountToRemove = static_cast<int64_t>(
+                std::ceil(msg.length() * (static_cast<double>(-m_width_change) / 100)));
+            charCountToRemove += trackPrefix.length();
+            if (m_add_surrounding_brackets)
+                {
+                charCountToRemove += 2;
+                }
+            if (charCountToRemove >= static_cast<int64_t>(msg.length()))
+                {
+                charCountToRemove = (static_cast<int64_t>(msg.length()) - 1);
+                }
+            charCountToCopy = std::max(static_cast<int64_t>(1),
+                                       static_cast<int64_t>(msg.length()) - charCountToRemove);
+            }
+
+        const auto appendChar = [&newMsg, &charCountToCopy, this](const auto chr)
+        {
+            if (m_width_change < 0)
+                {
+                if (charCountToCopy > 0)
+                    {
+                    newMsg += chr;
+                    }
+                --charCountToCopy;
+                }
+            else
+                {
+                newMsg += chr;
+                }
+        };
+
         for (size_t i = startPos; i < endPos; /* handled in loop*/)
             {
             // step over escaped characters
@@ -286,21 +337,21 @@ namespace i18n_check
                 {
                 if (m_trans_type == pseudo_translation_method::all_caps)
                     {
-                    newMsg += std::towupper(msg[i]);
+                    appendChar(std::towupper(msg[i]));
                     }
                 else if (m_trans_type == pseudo_translation_method::Xx_es)
                     {
                     if (std::iswupper(msg[i]))
                         {
-                        newMsg += L'X';
+                        appendChar(L'X');
                         }
                     else if (std::iswlower(msg[i]))
                         {
-                        newMsg += L'x';
+                        appendChar(L'x');
                         }
                     else
                         {
-                        newMsg += msg[i];
+                        appendChar(msg[i]);
                         }
                     }
                 else if (m_trans_type == pseudo_translation_method::european_characters)
@@ -308,52 +359,34 @@ namespace i18n_check
                     const auto charPos = m_euro_char_map.find(msg[i]);
                     if (charPos != m_euro_char_map.cend())
                         {
-                        newMsg += charPos->second;
+                        appendChar(charPos->second);
                         }
                     else
                         {
-                        newMsg += msg[i];
+                        appendChar(msg[i]);
                         }
                     }
                 else
                     {
-                    newMsg += msg[i];
+                    appendChar(msg[i]);
                     }
                 }
             else
                 {
-                newMsg += msg[i];
+                appendChar(msg[i]);
                 }
             ++i;
             }
 
-        // build the tracking prefix here so that we can take its length into
-        // account when increasing the width of the message later
-        const std::wstring trackPrefix = [this]()
-        {
-            if (m_track)
+        if (m_width_change > 0)
                 {
-#if __cpp_lib_format > 201907L
-                return L"[" + std::format(L"{:06X}", m_current_id++) + L"]";
-#else
-                return L"[" + std::to_wstring(m_current_id++) + L"]";
-#endif
-                }
-            return std::wstring{};
-        }();
-
-        if (m_width_increase > 0)
-            {
             int64_t newCharCountToAdd = static_cast<int64_t>(
-                std::ceil(msg.length() * (static_cast<double>(m_width_increase) / 100)));
+                std::ceil(msg.length() * (static_cast<double>(m_width_change) / 100)));
             if (m_add_surrounding_brackets && newCharCountToAdd >= 2)
                 {
                 newCharCountToAdd -= 2;
                 }
-            if (!trackPrefix.empty())
-                {
                 newCharCountToAdd -= trackPrefix.length();
-                }
             if (newCharCountToAdd > 0)
                 {
                 newMsg.insert(0, static_cast<size_t>(newCharCountToAdd) / 2, L'-');

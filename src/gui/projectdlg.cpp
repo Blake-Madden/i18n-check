@@ -310,7 +310,7 @@ void NewProjectDialog::SetAllOptions(const I18NOptions& options)
     m_excludedPaths = options.m_excludedPaths;
     m_varsToIgnore = options.m_varsToIgnore;
     m_fuzzyTranslations = options.m_fuzzyTranslations;
-    m_widthPseudoIncrease = options.m_widthPseudoIncrease;
+    m_widthPseudoChange = options.m_widthPseudoChange;
     m_addPseudoTransBrackets = options.m_addPseudoTransBrackets;
     m_pseudoTrack = options.m_pseudoTrack;
     m_pseudoTranslationMethod = static_cast<int>(options.m_pseudoTranslationMethod);
@@ -619,8 +619,9 @@ void NewProjectDialog::CreateControls()
             wxGridBagSizer* gbSizer = new wxGridBagSizer(wxSizerFlags::GetDefaultBorder());
             size_t currentRow{ 0 };
 
-            gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
-                                        _(L"Check for inconsistent printf format specifiers"),
+            gbSizer->Add(
+                new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
+                               _(L"Check for inconsistent printf & positional format specifiers"),
                                         wxDefaultPosition, wxDefaultSize, 0,
                                         wxGenericValidator(&m_printfMismatch)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
