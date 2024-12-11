@@ -125,6 +125,11 @@ namespace i18n_check
         LR"((^|\b|[%]{2}|[^%])[%]([%]([[:digit:]]+[$])?p))"
     };
 
+    // %1, %L1, %n, %Ln
+    const std::wregex i18n_review::m_positional_command_regex{
+        LR"([%](n|[L]?[0-9]+|Ln))"
+    };
+
     // common font faces that we would usually ignore (client can add to this)
     std::set<string_util::case_insensitive_wstring> i18n_review::m_font_names = { // NOLINT
         L"Arial",
@@ -2932,6 +2937,32 @@ namespace i18n_check
             previousLength = res.length(2);
 
             results.push_back(std::make_pair(commandPosition, res.length(2)));
+            }
+
+        // sort by position
+        std::sort(results.begin(), results.end(),
+                  [](const auto& lhv, const auto& rhv) noexcept { return lhv.first < rhv.first; });
+
+        return results;
+        }
+
+    //--------------------------------------------------
+    std::vector<std::pair<size_t, size_t>>
+    i18n_review::load_positional_command_positions(const std::wstring& resource)
+        {
+        std::vector<std::pair<size_t, size_t>> results;
+
+        std::wstring::const_iterator searchStart{ resource.cbegin() };
+        std::wsmatch res;
+        size_t commandPosition{ 0 };
+        size_t previousLength{ 0 };
+        while (std::regex_search(searchStart, resource.cend(), res, m_positional_command_regex))
+            {
+            searchStart += res.position() + res.length();
+            commandPosition += res.position() + previousLength;
+            previousLength = res.length();
+
+            results.push_back(std::make_pair(commandPosition, res.length()));
             }
 
         // sort by position

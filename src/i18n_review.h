@@ -770,6 +770,14 @@ namespace i18n_check
         static std::vector<std::pair<size_t, size_t>>
         load_file_filter_positions(const std::wstring& resource);
 
+         /** @brief Loads all positional format commands from a string.
+            @param resource The string to parse.
+            @returns A vector of positions and lengths of all
+                positional format commands from the string.*/
+        [[nodiscard]]
+        static std::vector<std::pair<size_t, size_t>>
+        load_positional_command_positions(const std::wstring& resource);
+
         /** @brief Finds and returns the next translation entry in a gettext po file.
             @param poFileText the po file content to parse.
             @returns If an entry is found, returns @c true, a view of the block, and its
@@ -1186,6 +1194,7 @@ namespace i18n_check
         static const std::wregex m_printf_cpp_float_regex;
         static const std::wregex m_printf_cpp_string_regex;
         static const std::wregex m_printf_cpp_pointer_regex;
+        static const std::wregex m_positional_command_regex;
         static const std::wregex m_file_filter_regex;
         std::vector<std::wregex> m_untranslatable_regexes;
         std::vector<std::wregex> m_translatable_regexes;

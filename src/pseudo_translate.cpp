@@ -209,6 +209,7 @@ namespace i18n_check
         }();
 
         const auto printfSpecifiers = i18n_review::load_cpp_printf_command_positions(msg);
+        const auto positionalSpecifiers = i18n_review::load_positional_command_positions(msg);
         const auto fileFilters = i18n_review::load_file_filter_positions(msg);
 
         // Get the position of the first character that is not a space or whitespace control
@@ -332,6 +333,15 @@ namespace i18n_check
                 i += foundPos->second;
                 continue;
                 }
+            // step over positional commands
+            foundPos = std::find_if(positionalSpecifiers.cbegin(), positionalSpecifiers.cend(),
+                                    [i](auto val) noexcept { return val.first == i; });
+            if (foundPos != positionalSpecifiers.cend())
+                {
+                newMsg += msg.substr(i, foundPos->second);
+                i += foundPos->second;
+                continue;
+                }
 
             if (std::iswalnum(msg[i]))
                 {
@@ -379,14 +389,14 @@ namespace i18n_check
             }
 
         if (m_width_change > 0)
-                {
+            {
             int64_t newCharCountToAdd = static_cast<int64_t>(
                 std::ceil(msg.length() * (static_cast<double>(m_width_change) / 100)));
             if (m_add_surrounding_brackets && newCharCountToAdd >= 2)
                 {
                 newCharCountToAdd -= 2;
                 }
-                newCharCountToAdd -= trackPrefix.length();
+            newCharCountToAdd -= trackPrefix.length();
             if (newCharCountToAdd > 0)
                 {
                 newMsg.insert(0, static_cast<size_t>(newCharCountToAdd) / 2, L'-');
