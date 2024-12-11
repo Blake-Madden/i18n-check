@@ -77,7 +77,7 @@ class NewProjectDialog final : public wxDialog
         options.m_fuzzyTranslations = UseFuzzyTranslations();
         options.m_addPseudoTransBrackets = m_addPseudoTransBrackets;
         options.m_pseudoTrack = m_pseudoTrack;
-        options.m_widthPseudoIncrease = m_widthPseudoIncrease;
+        options.m_widthPseudoChange = m_widthPseudoChange;
         options.m_pseudoTranslationMethod =
             static_cast<i18n_check::pseudo_translation_method>(m_pseudoTranslationMethod);
         options.m_logMessagesCanBeTranslated = LogMessagesCanBeTranslated();
@@ -247,6 +247,7 @@ class NewProjectDialog final : public wxDialog
     void OnFileButtonClick([[maybe_unused]] wxCommandEvent&);
     void OnExcludedFolderButtonClick([[maybe_unused]] wxCommandEvent&);
     void OnExcludedFileButtonClick([[maybe_unused]] wxCommandEvent&);
+    void OnSampleTextChanged([[maybe_unused]] wxCommandEvent&);
     void OnOK([[maybe_unused]] wxCommandEvent&);
 
     void OnHelpClicked([[maybe_unused]] wxCommandEvent& event)
@@ -274,11 +275,17 @@ class NewProjectDialog final : public wxDialog
         OnHelpClicked(cmd);
         }
 
+    void UpdatePseudoTransOptions();
+
     constexpr static int ID_FOLDER_BROWSE_BUTTON = wxID_HIGHEST;
     constexpr static int ID_FILE_BROWSE_BUTTON = wxID_HIGHEST + 1;
     constexpr static int ID_EXCLUDED_FOLDERS_BROWSE_BUTTON = wxID_HIGHEST + 2;
     constexpr static int ID_EXCLUDED_FILES_BROWSE_BUTTON = wxID_HIGHEST + 3;
     constexpr static int ID_PSEUDO_METHODS = wxID_HIGHEST + 4;
+    constexpr static int ID_SAMPLE_TEXT = wxID_HIGHEST + 5;
+    constexpr static int ID_PSEUDO_BRACKETS_CHECK = wxID_HIGHEST + 6;
+    constexpr static int ID_PSEUDO_TRACK_IDS_CHECK = wxID_HIGHEST + 7;
+    constexpr static int ID_PSEUDO_WIDTH_SLIDER = wxID_HIGHEST + 8;
 
     bool m_showFileOptions{ true };
 
@@ -327,6 +334,9 @@ class NewProjectDialog final : public wxDialog
     // checks
     int64_t m_options{ i18n_check::review_style::no_checks };
 
+    wxString m_sampleText{ _DT(L"Sample Text") };
+    wxString m_previewText;
+
     wxCheckBox* m_pseudoSurroundingBracketsCheckbox{ nullptr };
     wxCheckBox* m_pseudoTrackCheckbox{ nullptr };
     wxStaticText* m_pseudoSliderLabel{ nullptr };
@@ -334,6 +344,8 @@ class NewProjectDialog final : public wxDialog
     wxSlider* m_pseudoIncreaseSlider{ nullptr };
     wxEditableListBox* m_exclusionList{ nullptr };
     wxEditableListBox* m_ignoredVarsList{ nullptr };
+    wxStaticBoxSizer* m_previewSizer{ nullptr };
+    wxTextCtrl* m_previewTextWindow{ nullptr };
     };
 
     /** @}*/

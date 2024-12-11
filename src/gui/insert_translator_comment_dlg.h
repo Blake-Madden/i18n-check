@@ -34,7 +34,6 @@
 #include <wx/stdpaths.h>
 #include <wx/string.h>
 #include <wx/valgen.h>
-#include <wx/valgen.h>
 #include <wx/valtext.h>
 #include <wx/wx.h>
 
@@ -49,11 +48,12 @@ class InsertTransCommentDlg final : public wxDialog
         @param pos The screen position of the window.
         @param size The window size.
         @param style The window style (i.e., decorations and flags).*/
-    explicit InsertTransCommentDlg(
-        wxWindow* parent, wxWindowID id = wxID_ANY,
-        const wxString& caption = _(L"Insert Translator Comment"),
-        const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
-        long style = wxDEFAULT_DIALOG_STYLE | wxCLIP_CHILDREN | wxRESIZE_BORDER);
+    explicit InsertTransCommentDlg(wxWindow* parent, wxWindowID id = wxID_ANY,
+                                   const wxString& caption = _(L"Insert Translator Comment"),
+                                   const wxPoint& pos = wxDefaultPosition,
+                                   const wxSize& size = wxDefaultSize,
+                                   long style = wxDEFAULT_DIALOG_STYLE | wxCLIP_CHILDREN |
+                                                wxRESIZE_BORDER);
     /// @private
     InsertTransCommentDlg(const InsertTransCommentDlg&) = delete;
     /// @private
@@ -63,9 +63,18 @@ class InsertTransCommentDlg final : public wxDialog
     [[nodiscard]]
     wxString GetFormattedOutput();
 
+    /// @returns @c true if the selected comment is multiline.
+    [[nodiscard]]
+    bool IsMultilineComment()
+        {
+        TransferDataFromWindow();
+        return m_selectedTag.starts_with(L"/*");
+        }
+
   private:
     void CreateControls();
     void OnOK([[maybe_unused]] wxCommandEvent&);
+
     void OnHelpClicked([[maybe_unused]] wxCommandEvent& event)
         {
         const wxString docPath = []()

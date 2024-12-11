@@ -39,32 +39,68 @@ NewProjectDialog::NewProjectDialog(
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnExcludedFileButtonClick, this,
          NewProjectDialog::ID_EXCLUDED_FILES_BROWSE_BUTTON);
     Bind(wxEVT_BUTTON, &NewProjectDialog::OnOK, this, wxID_OK);
+    Bind(wxEVT_TEXT, &NewProjectDialog::OnSampleTextChanged, this, ID_SAMPLE_TEXT);
     Bind(
-        wxEVT_CHOICE,
-        [this](wxCommandEvent& evt)
-        {
-            if (m_pseudoSurroundingBracketsCheckbox != nullptr)
-                {
-                m_pseudoSurroundingBracketsCheckbox->Enable(evt.GetSelection() != 0);
-                }
-            if (m_pseudoTrackCheckbox != nullptr)
-                {
-                m_pseudoTrackCheckbox->Enable(evt.GetSelection() != 0);
-                }
-            if (m_pseudoIncreaseSlider != nullptr)
-                {
-                m_pseudoIncreaseSlider->Enable(evt.GetSelection() != 0);
-                }
-            if (m_pseudoSliderLabel != nullptr)
-                {
-                m_pseudoSliderLabel->Enable(evt.GetSelection() != 0);
-                }
-            if (m_pseudoSliderPercentLabel != nullptr)
-                {
-                m_pseudoSliderPercentLabel->Enable(evt.GetSelection() != 0);
-                }
-        },
+        wxEVT_CHOICE, [this]([[maybe_unused]] wxCommandEvent&) { UpdatePseudoTransOptions(); },
         ID_PSEUDO_METHODS);
+    Bind(
+        wxEVT_CHECKBOX, [this]([[maybe_unused]] wxCommandEvent&) { UpdatePseudoTransOptions(); },
+        ID_PSEUDO_BRACKETS_CHECK);
+    Bind(
+        wxEVT_CHECKBOX, [this]([[maybe_unused]] wxCommandEvent&) { UpdatePseudoTransOptions(); },
+        ID_PSEUDO_TRACK_IDS_CHECK);
+    Bind(
+        wxEVT_SLIDER, [this]([[maybe_unused]] wxCommandEvent&) { UpdatePseudoTransOptions(); },
+        ID_PSEUDO_WIDTH_SLIDER);
+    }
+
+//-------------------------------------------------------------
+void NewProjectDialog::OnSampleTextChanged([[maybe_unused]] wxCommandEvent&)
+    {
+    UpdatePseudoTransOptions();
+    }
+
+//-------------------------------------------------------------
+void NewProjectDialog::UpdatePseudoTransOptions()
+    {
+    TransferDataFromWindow();
+    if (m_pseudoSurroundingBracketsCheckbox != nullptr)
+        {
+        m_pseudoSurroundingBracketsCheckbox->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_pseudoTrackCheckbox != nullptr)
+        {
+        m_pseudoTrackCheckbox->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_pseudoIncreaseSlider != nullptr)
+        {
+        m_pseudoIncreaseSlider->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_pseudoSliderLabel != nullptr)
+        {
+        m_pseudoSliderLabel->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_pseudoSliderPercentLabel != nullptr)
+        {
+        m_pseudoSliderPercentLabel->Enable(m_pseudoTranslationMethod != 0);
+        }
+    if (m_previewSizer != nullptr)
+        {
+        m_previewSizer->GetStaticBox()->Enable(m_pseudoTranslationMethod != 0);
+        }
+    // do not call TransferDataToWindow() in here, as that will cause
+    // this event handler to be called in an infinite loop
+    if (m_previewTextWindow != nullptr)
+        {
+        i18n_check::pseudo_translater ptrans;
+        ptrans.set_pseudo_method(
+            static_cast<i18n_check::pseudo_translation_method>(m_pseudoTranslationMethod));
+        ptrans.change_width(m_widthPseudoChange);
+        ptrans.enable_tracking(m_pseudoTrack);
+        ptrans.add_surrounding_brackets(m_addPseudoTransBrackets);
+        wxString mutatedValue = ptrans.mutate_message(m_sampleText.wc_string());
+        m_previewTextWindow->SetValue(mutatedValue);
+        }
     }
 
 //-------------------------------------------------------------
@@ -99,6 +135,8 @@ void NewProjectDialog::SetOptions(const i18n_check::review_style style)
     m_commentMissingSpace = (m_options & i18n_check::review_style::check_space_after_comment);
 
     TransferDataToWindow();
+
+    UpdatePseudoTransOptions();
     }
 
 //-------------------------------------------------------------
@@ -320,35 +358,9 @@ void NewProjectDialog::SetAllOptions(const I18NOptions& options)
     m_verbose = options.m_verbose;
     m_minWordsForClassifyingUnavailableString = options.m_minWordsForClassifyingUnavailableString;
     MinCppVersion(options.m_minCppVersion);
-    if (m_pseudoSurroundingBracketsCheckbox != nullptr)
-        {
-        m_pseudoSurroundingBracketsCheckbox->Enable(m_pseudoTranslationMethod != 0);
-        }
-    if (m_pseudoTrackCheckbox != nullptr)
-        {
-        m_pseudoTrackCheckbox->Enable(m_pseudoTranslationMethod != 0);
-        }
-    if (m_pseudoIncreaseSlider != nullptr)
-        {
-        m_pseudoIncreaseSlider->Enable(m_pseudoTranslationMethod != 0);
-        }
-    if (m_pseudoSliderLabel != nullptr)
-        {
-        m_pseudoSliderLabel->Enable(m_pseudoTranslationMethod != 0);
-        }
-    if (m_pseudoSliderPercentLabel != nullptr)
-        {
-        m_pseudoSliderPercentLabel->Enable(m_pseudoTranslationMethod != 0);
-        }
-    if (m_exclusionList != nullptr)
-        {
-        m_exclusionList->SetStrings(m_excludedPaths);
-        }
-    if (m_ignoredVarsList != nullptr)
-        {
-        m_ignoredVarsList->SetStrings(m_varsToIgnore);
-        }
     TransferDataToWindow();
+
+    UpdatePseudoTransOptions();
     }
 
 //-------------------------------------------------------------
@@ -622,9 +634,9 @@ void NewProjectDialog::CreateControls()
             gbSizer->Add(
                 new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
                                _(L"Check for inconsistent printf & positional format specifiers"),
-                                        wxDefaultPosition, wxDefaultSize, 0,
-                                        wxGenericValidator(&m_printfMismatch)),
-                         wxGBPosition(currentRow, 0), wxGBSpan{});
+                               wxDefaultPosition, wxDefaultSize, 0,
+                               wxGenericValidator(&m_printfMismatch)),
+                wxGBPosition(currentRow, 0), wxGBSpan{});
             gbSizer->Add(buildCodeLabel(L"printfMismatch", poOptionsSizer->GetStaticBox()),
                          wxGBPosition(currentRow++, 1), wxGBSpan{});
 
@@ -671,33 +683,35 @@ void NewProjectDialog::CreateControls()
                 new wxChoice(pseudoTransSizer->GetStaticBox(), ID_PSEUDO_METHODS, wxDefaultPosition,
                              wxDefaultSize, pseudoOptions, 0,
                              wxGenericValidator(&m_pseudoTranslationMethod)),
-                wxSizerFlags{}.Border(wxLEFT).Left().CenterVertical());
+                wxSizerFlags{}.Border(wxLEFT | wxBOTTOM).Left().CenterVertical());
 
             pseudoTransSizer->Add(pseudoTransMethodSizer, wxSizerFlags{}.Expand().Border());
 
-            m_pseudoSurroundingBracketsCheckbox = new wxCheckBox(
-                pseudoTransSizer->GetStaticBox(), wxID_ANY, _(L"Add surrounding brackets"),
-                wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_addPseudoTransBrackets));
+            m_pseudoSurroundingBracketsCheckbox =
+                new wxCheckBox(pseudoTransSizer->GetStaticBox(), ID_PSEUDO_BRACKETS_CHECK,
+                               _(L"Add surrounding brackets"), wxDefaultPosition, wxDefaultSize, 0,
+                               wxGenericValidator(&m_addPseudoTransBrackets));
             m_pseudoSurroundingBracketsCheckbox->Enable(m_pseudoTranslationMethod != 0);
             pseudoTransSizer->Add(m_pseudoSurroundingBracketsCheckbox,
-                                  wxSizerFlags{}.Expand().Border());
+                                  wxSizerFlags{}.Expand().Border(wxLEFT | wxBOTTOM));
 
             m_pseudoTrackCheckbox = new wxCheckBox(
-                pseudoTransSizer->GetStaticBox(), wxID_ANY, _(L"Add tracking IDs"),
+                pseudoTransSizer->GetStaticBox(), ID_PSEUDO_TRACK_IDS_CHECK, _(L"Add tracking IDs"),
                 wxDefaultPosition, wxDefaultSize, 0, wxGenericValidator(&m_pseudoTrack));
             m_pseudoTrackCheckbox->Enable(m_pseudoTranslationMethod != 0);
-            pseudoTransSizer->Add(m_pseudoTrackCheckbox, wxSizerFlags{}.Expand().Border());
+            pseudoTransSizer->Add(m_pseudoTrackCheckbox,
+                                  wxSizerFlags{}.Expand().Border(wxLEFT | wxBOTTOM));
 
             wxBoxSizer* pseudoWidthSizer = new wxBoxSizer(wxHORIZONTAL);
 
             m_pseudoSliderLabel =
                 new wxStaticText(pseudoTransSizer->GetStaticBox(), wxID_STATIC,
-                                 _(L"Increase width:"), wxDefaultPosition, wxDefaultSize);
+                                 _(L"Expand/contract width:"), wxDefaultPosition, wxDefaultSize);
 
             m_pseudoIncreaseSlider = new wxSlider(
-                pseudoTransSizer->GetStaticBox(), wxID_ANY, m_widthPseudoIncrease, 0, 100,
-                wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_MIN_MAX_LABELS,
-                wxGenericValidator(&m_widthPseudoIncrease));
+                pseudoTransSizer->GetStaticBox(), ID_PSEUDO_WIDTH_SLIDER, m_widthPseudoChange, -50,
+                100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_MIN_MAX_LABELS,
+                wxGenericValidator(&m_widthPseudoChange));
 
             m_pseudoSliderPercentLabel =
                 new wxStaticText(pseudoTransSizer->GetStaticBox(), wxID_STATIC, L"%",
@@ -709,7 +723,41 @@ void NewProjectDialog::CreateControls()
             pseudoWidthSizer->Add(m_pseudoSliderPercentLabel,
                                   wxSizerFlags{}.Border(wxLEFT).Left().CenterVertical());
 
-            pseudoTransSizer->Add(pseudoWidthSizer, wxSizerFlags{}.Expand().Border());
+            pseudoTransSizer->Add(pseudoWidthSizer,
+                                  wxSizerFlags{}.Expand().Border(wxLEFT | wxBOTTOM | wxRIGHT));
+
+            wxFlexGridSizer* gbPreviewSizer = new wxFlexGridSizer(
+                2, 2, wxSize{ wxSizerFlags::GetDefaultBorder(), wxSizerFlags::GetDefaultBorder() });
+            gbPreviewSizer->AddGrowableCol(1, 1);
+            gbPreviewSizer->SetFlexibleDirection(wxHORIZONTAL);
+
+            m_previewSizer =
+                new wxStaticBoxSizer(wxVERTICAL, pseudoTransSizer->GetStaticBox(), _(L"Preview"));
+
+            gbPreviewSizer->Add(new wxStaticText(m_previewSizer->GetStaticBox(), wxID_STATIC,
+                                                 _(L"Sample Text:"), wxDefaultPosition,
+                                                 wxDefaultSize),
+                                wxSizerFlags{}.CenterVertical());
+            gbPreviewSizer->Add(new wxTextCtrl(m_previewSizer->GetStaticBox(), ID_SAMPLE_TEXT,
+                                               wxString{}, wxDefaultPosition, wxDefaultSize,
+                                               wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP,
+                                               wxGenericValidator(&m_sampleText)),
+                                wxSizerFlags{}.Expand());
+
+            gbPreviewSizer->Add(new wxStaticText(m_previewSizer->GetStaticBox(), wxID_STATIC,
+                                                 _(L"Pseudo-translation:"), wxDefaultPosition,
+                                                 wxDefaultSize),
+                                wxSizerFlags{}.CenterVertical());
+            m_previewTextWindow = new wxTextCtrl(
+                m_previewSizer->GetStaticBox(), wxID_ANY, wxString{}, wxDefaultPosition,
+                wxDefaultSize, wxTE_RICH2 | wxBORDER_THEME | wxTE_BESTWRAP | wxTE_READONLY,
+                wxGenericValidator(&m_previewText));
+            gbPreviewSizer->Add(m_previewTextWindow, wxSizerFlags{}.Expand());
+
+            m_previewSizer->Add(gbPreviewSizer, wxSizerFlags{ 1 }.Expand().Border());
+
+            pseudoTransSizer->Add(m_previewSizer,
+                                  wxSizerFlags{}.Expand().Border(wxLEFT | wxBOTTOM | wxRIGHT));
 
             poOptionsSizer->Add(gbSizer, wxSizerFlags{}.Expand().Border());
             poOptionsSizer->Add(pseudoTransSizer, wxSizerFlags{}.Expand().Border());
