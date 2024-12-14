@@ -1052,9 +1052,7 @@ EXCLUDE                = ../src/unicode_extract_text.h \
                          ../src/extract_text.h \
                          ../src/extract_text.h \
                          ../src/char_traits.h \
-                         ../src/i18n_review.cpp \
-                         ../gui/CMakeLists.txt \
-                         ../CMakeLists.txt
+                         ../src/i18n_review.cpp
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -1071,6 +1069,7 @@ EXCLUDE_SYMLINKS       = NO
 # exclude all test directories for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = i18n_review.cpp \
+                         CMakeLists.txt \
                          subset.cpp
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
