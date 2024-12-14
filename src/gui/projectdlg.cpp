@@ -290,9 +290,10 @@ void NewProjectDialog::OnFileButtonClick([[maybe_unused]] wxCommandEvent&)
     {
     TransferDataFromWindow();
     wxFileDialog dialog(this, _(L"Select Files to Analyze"), wxString{}, wxString{},
-                        _(L"Source Files (*.cpp; *.c; *.h; *.hpp)|*.cpp;*.c;*.h;*.hpp|"
-                          "gettext Catalogs (*.po)|*.po|Windows Resource Files (*.rc)|*.rc|"
-                          "All Supported Files|*.cpp;*.c;*.h;*.hpp;*.po;*.rc"),
+                        _(L"All Supported Files|*.cpp;*.c;*.h;*.hpp;*.po;*.rc|"
+                          "Source Files (*.cpp; *.c; *.h; *.hpp)|*.cpp;*.c;*.h;*.hpp|"
+                          "gettext Catalogs (*.po)|*.po|"
+                          "Windows Resource Files (*.rc)|*.rc"),
                         wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_PREVIEW);
     if (dialog.ShowModal() != wxID_OK)
         {
@@ -638,7 +639,7 @@ void NewProjectDialog::CreateControls()
 
             gbSizer->Add(
                 new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
-                               _(L"Check for inconsistent printf & positional format specifiers"),
+                               _(L"Check for inconsistent printf && positional format specifiers"),
                                wxDefaultPosition, wxDefaultSize, 0,
                                wxGenericValidator(&m_printfMismatch)),
                 wxGBPosition(currentRow, 0), wxGBSpan{});
