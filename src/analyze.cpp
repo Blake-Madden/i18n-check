@@ -322,11 +322,7 @@ namespace i18n_check
                         return std::wstring{};
                     }();
 #else
-    #if CHECK_GCC_VERSION(12, 2, 1)
-                    std::wifstream ifs(std::filesystem::path(file).wstring());
-    #else
-                    std::wifstream ifs(std::filesystem::path(file).string());
-    #endif
+                    std::wifstream ifs(file);
                     const std::wstring str((std::istreambuf_iterator<wchar_t>(ifs)),
                                            std::istreambuf_iterator<wchar_t>());
 #endif
