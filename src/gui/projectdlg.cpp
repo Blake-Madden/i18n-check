@@ -115,6 +115,7 @@ void NewProjectDialog::SetOptions(const i18n_check::review_style style)
     m_printfMismatch = (m_options & i18n_check::review_style::check_mismatching_printf_commands);
     m_acceleratorMismatch = (m_options & i18n_check::review_style::check_accelerators);
     m_transConsistency = (m_options & i18n_check::review_style::check_consistency);
+    m_numberInconsistency = (m_options & i18n_check::review_style::check_numbers);
     m_needsContext = (m_options & i18n_check::review_style::check_needing_context);
     m_urlInL10NString = (m_options & i18n_check::review_style::check_l10n_contains_url);
     m_spacesAroundL10NString =
@@ -181,6 +182,10 @@ void NewProjectDialog::OnOK([[maybe_unused]] wxCommandEvent&)
     if (m_transConsistency)
         {
         m_options |= i18n_check::review_style::check_consistency;
+        }
+    if (m_numberInconsistency)
+        {
+        m_options |= i18n_check::review_style::check_numbers;
         }
     if (m_needsContext)
         {
@@ -655,6 +660,14 @@ void NewProjectDialog::CreateControls()
                                         wxGenericValidator(&m_transConsistency)),
                          wxGBPosition(currentRow, 0), wxGBSpan{});
             gbSizer->Add(buildCodeLabel(L"transInconsistency", poOptionsSizer->GetStaticBox()),
+                         wxGBPosition(currentRow++, 1), wxGBSpan{});
+
+            gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
+                                        _(L"Check for inconsistent numbers"),
+                                        wxDefaultPosition, wxDefaultSize, 0,
+                                        wxGenericValidator(&m_numberInconsistency)),
+                         wxGBPosition(currentRow, 0), wxGBSpan{});
+            gbSizer->Add(buildCodeLabel(L"numberInconsistency", poOptionsSizer->GetStaticBox()),
                          wxGBPosition(currentRow++, 1), wxGBSpan{});
 
             gbSizer->Add(new wxCheckBox(poOptionsSizer->GetStaticBox(), wxID_ANY,
