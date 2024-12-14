@@ -173,6 +173,7 @@ void I18NResultsTreeModel::GetValue(wxVariant& variant, const wxDataViewItem& it
             }
         else if (node->m_warningId == L"[printfMismatch]" ||
                  node->m_warningId == L"[acceleratorMismatch]" ||
+                 node->m_warningId == L"[numberInconsistency]" ||
                  node->m_warningId == L"[transInconsistency]" ||
                  node->m_warningId == L"[suspectL10NString]" ||
                  node->m_warningId == L"[suspectL10NUsage]" ||

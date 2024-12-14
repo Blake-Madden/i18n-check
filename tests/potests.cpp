@@ -100,6 +100,191 @@ msgstr "Сервер")";
 		}
 	}
 
+TEST_CASE("Numbers", "[po][l10n]")
+	{
+	SECTION("Integers Different Order OK")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
+msgid "The 650 server doesn't support the PORT command 8."
+msgstr "PORT 8: 650 Сервер не поддерживает команду.")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
+	SECTION("Integers Mismatch")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
+msgid "The 650 server doesn't support the PORT command 8."
+msgstr "PORT 9: 650 Сервер не поддерживает команду.")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 1);
+		}
+
+	SECTION("Integers with Spaces")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
+msgid "DIB Header: Image height > 32767 pixels for file."
+msgstr ""
+"En-tête DIB : hauteur de l'image supérieure à 32 767 pixels pour le fichier.")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
+	SECTION("Integers with Xes")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
+msgid "DIB Header: 256 x 256."
+msgstr ""
+"En-tête DIB : 256x256.")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
+	SECTION("Integers Count Mismatch")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
+msgid "The 650 server doesn't support the PORT command 8."
+msgstr "PORT 8: 650 Сервер не поддерживает команду 72.")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 1);
+		}
+
+	SECTION("FP Integers OK")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
+msgid "The 650 server doesn't support the PORT command 8.7."
+msgstr "PORT 8,7: 650 Сервер не поддерживает команду.")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
+	SECTION("False Spaces")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/paper.cpp:103
+msgid "A3 sheet, 297 x 420 mm"
+msgstr "Лист A3 297 x 420 мм")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
+	SECTION("False Period")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/paper.cpp:113
+msgid "#9 Envelope, 3 7/8 x 8 7/8 in"
+msgstr "Koevert nr.9, 3 7/8 x 8 7/8 duim")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
+	SECTION("FP Integers Mantissa")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
+msgid "The 650 server doesn't support the PORT command 8.7."
+msgstr "PORT 8,7: 650 Сервер не поддерживает команду.")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 0);
+		}
+
+	SECTION("FP Integers Mantissa Mismatch")
+		{
+		po_file_review po(false);
+		po.set_style(check_numbers);
+		const wchar_t* code = LR"(
+
+#: ../src/common/file.cpp:604
+msgid "The 650 server doesn't support the PORT command 8.7."
+msgstr "PORT 8,6: 650 Сервер не поддерживает команду.")";
+		po(code, L"");
+		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+
+		const auto issues = std::count_if(
+			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
+			{ return ent.second.m_issues.size() > 0; });
+		CHECK(issues == 1);
+		}
+	}
+
 TEST_CASE("Printf c-format", "[po][l10n]")
 	{
 	SECTION("Ignore fuzzy and non-formats")
@@ -182,12 +367,14 @@ msgid "Incorrect frame size (%1, %2) for the frame %3"
 msgstr "Неправильный размер кадра (%2, %1) для frame %3")";
 		po(code, L"");
 		po.review_strings([](size_t){}, [](size_t, const std::filesystem::path&){ return true; });
+		po.get_catalog_entries().clear();
 
 		issues = std::count_if(
 			po.get_catalog_entries().cbegin(), po.get_catalog_entries().cend(), [](const auto& ent)
 			{ return ent.second.m_issues.size() > 0; });
 		CHECK(issues == 0);
 		po.clear_results();
+		po.get_catalog_entries().clear();
 
 		// has an extra %1, missing %2
 		code = LR"(

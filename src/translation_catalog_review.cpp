@@ -26,6 +26,20 @@ namespace i18n_check
         std::vector<std::wstring> transResults;
         std::wsmatch reMatches;
 
+        const auto unrollStrings = [](const auto& strs)
+            {
+            std::wstring result;
+            for (const auto& str : strs)
+                {
+                result.append(str).append(L"; ");
+                }
+            if (result.length() >= 2)
+                {
+                result.erase(result.length() - 2);
+                }
+            return result;
+            };
+
         resetCallback(m_catalog_entries.size());
         size_t currentCatalogIndex{ 0 };
         for (auto& catEntry : m_catalog_entries)
@@ -239,6 +253,166 @@ namespace i18n_check
                                 catEntry.second.m_translation_plural + L"'" + errorInfo);
                         }
                     }
+                }
+
+            if (static_cast<bool>(m_review_styles & check_numbers))
+                {
+                const auto reviewNumbers =
+                    [&catEntry, &printfStrings1, &printfStrings2, &unrollStrings](auto src, auto trans)
+                    {
+                    // only look at strings that have a translation
+                    if (!trans.empty())
+                        {
+                        std::for_each(src.begin(), src.end(), [](wchar_t& chr){
+                            chr = std::towlower(chr);
+                        });
+                        std::for_each(trans.begin(), trans.end(), [](wchar_t& chr){
+                            chr = std::towlower(chr);
+                        });
+                        printfStrings1 = load_numbers(src);
+                        printfStrings2 = load_numbers(trans);
+
+                        if (printfStrings1.size() || printfStrings2.size())
+                            {
+                            if (printfStrings1 != printfStrings2)
+                                {
+                                if (src == L"translator-credits")
+                                    {
+                                    return;
+                                    }
+                                // ignore where source is an imperial measurement and translation is metric
+                                if ((src.ends_with(L" in") || src.ends_with(L" inch") || src.ends_with(L" inches")) &&
+                                    (trans.ends_with(L" cm") || trans.ends_with(L" mm")))
+                                    {
+                                    return;
+                                    }
+                                // common word to number translations can be ignored
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"1" &&
+                                    (src.find(L"once") != std::wstring::npos || src.find(L"first") != std::wstring::npos || src.find(L"single") != std::wstring::npos))
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"2" &&
+                                    (src.find(L"twice") != std::wstring::npos || src.find(L"second") != std::wstring::npos || src.find(L"half") != std::wstring::npos || src.find(L"double") != std::wstring::npos))
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"3" &&
+                                    (src.find(L"thrice") != std::wstring::npos || src.find(L"third") != std::wstring::npos || src.find(L"triple") != std::wstring::npos))
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 2 && printfStrings2[0] == L"1" && printfStrings2[1] == L"3" &&
+                                    src.find(L"third") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"4" &&
+                                    (src.find(L"fourth") != std::wstring::npos || src.find(L"quarter") != std::wstring::npos))
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 2 && printfStrings2[0] == L"1" && printfStrings2[1] == L"4" &&
+                                    (src.find(L"fourth") != std::wstring::npos || src.find(L"quarter") != std::wstring::npos))
+                                    {
+                                    return;
+                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"5" &&
+                                    src.find(L"fifth") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"6" &&
+                                    src.find(L"sixth") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"7" &&
+                                    src.find(L"seventh") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"8" &&
+                                    src.find(L"eighth") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"9" &&
+                                    src.find(L"ninth") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"10" &&
+                                    src.find(L"tenth") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 2 && printfStrings2[0] == L"1" && printfStrings2[1] == L"10" &&
+                                    src.find(L"tenths") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"11" &&
+                                    src.find(L"eleven") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"12" &&
+                                    (src.find(L"twelve") != std::wstring::npos || src.find(L"twelfth") != std::wstring::npos))
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"13" &&
+                                    src.find(L"thirteen") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"14" &&
+                                    src.find(L"fourteen") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"15" &&
+                                    src.find(L"fifteen") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"16" &&
+                                    src.find(L"sixteen") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"17" &&
+                                    src.find(L"seventeen") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"18" &&
+                                    src.find(L"eighteen") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"19" &&
+                                    src.find(L"nineteen") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                if (printfStrings2.size() == 1 && printfStrings2[0] == L"20" &&
+                                    src.find(L"twent") != std::wstring::npos)
+                                    {
+                                    return;
+                                    }
+                                catEntry.second.m_issues.emplace_back(
+                                    translation_issue::number_issue,
+                                    _WXTRANS_WSTR(L"Number differences: '") + unrollStrings(printfStrings1) + _WXTRANS_WSTR(L"' vs. '") +
+                                        unrollStrings(printfStrings2)  + L"'");
+                                }
+                            }
+                        }
+                    };
+
+                reviewNumbers(catEntry.second.m_source, catEntry.second.m_translation);
+                reviewNumbers(catEntry.second.m_source_plural, catEntry.second.m_translation_plural);
                 }
 
             if (static_cast<bool>(m_review_styles & check_consistency))

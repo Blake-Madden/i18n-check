@@ -126,9 +126,7 @@ namespace i18n_check
     };
 
     // %1, %L1, %n, %Ln
-    const std::wregex i18n_review::m_positional_command_regex{
-        LR"([%](n|[L]?[0-9]+|Ln))"
-    };
+    const std::wregex i18n_review::m_positional_command_regex{ LR"([%](n|[L]?[0-9]+|Ln))" };
 
     // common font faces that we would usually ignore (client can add to this)
     std::set<string_util::case_insensitive_wstring> i18n_review::m_font_names = { // NOLINT
@@ -2771,6 +2769,56 @@ namespace i18n_check
             }
 
         return adjustedCommands;
+        }
+
+    //------------------------------------------------
+    std::vector<std::wstring> i18n_review::load_numbers(std::wstring_view resource)
+        {
+        std::vector<std::wstring> results;
+
+        // This will grab numbers like "36 600" (non-breaking space only, not regular space),
+        // "36,600", and "36.600".
+        // Also, 7-bit, full-width, and Hindi numbers will be extracted.
+        const std::wregex numberRegex{
+            LR"([[:digit:]\u0966-\u096F\uFF10-\uFF19]+([ ,\.][[:digit:]\u0966-\u096F\uFF10-\uFF19]+)*)"
+        };
+        // this will then normalize them all to 36600
+        const std::wregex separatorsRegex{ LR"([ ,\.]*)" };
+        std::wstring_view::const_iterator searchStart{ resource.cbegin() };
+        std::match_results<std::wstring_view::const_iterator> res;
+        while (std::regex_search(searchStart, resource.cend(), res, numberRegex))
+            {
+            searchStart += res.position();
+            if (searchStart == resource.cbegin() || *std::prev(searchStart) != L'%')
+                {
+                const bool isPrintfOrPositional{ (
+                    std::distance(resource.cbegin(), searchStart) >= 2 &&
+                    // ignore what may be printf or positional commands, not user-facing numbers
+                    *std::prev(searchStart) == L'.' &&
+                    (*std::prev(searchStart, 2) == L'$' || *std::prev(searchStart, 2) == L'%')) };
+                const bool isHexPrefix{
+                    (std::next(searchStart) < resource.cend()) && *searchStart == L'0' &&
+                    (*std::next(searchStart) == L'x' || *std::next(searchStart) == L'X')
+                };
+                if (!isPrintfOrPositional && !isHexPrefix)
+                    {
+                    // remove all decimal and thousand separators and
+                    // convert full-width numbers to 7-bit numbers
+                    std::wstring strippedText{ std::regex_replace(res.str(0), separatorsRegex,
+                                                                  L"") };
+                    std::for_each(strippedText.begin(), strippedText.end(),
+                                  [](wchar_t& chr)
+                                  {
+                                      chr = i18n_string_util::devanagari_number_to_7bit(
+                                          i18n_string_util::full_width_number_to_7bit(chr));
+                                  });
+                    results.push_back(std::move(strippedText));
+                    }
+                }
+            searchStart += res.length();
+            }
+        std::sort(results.begin(), results.end());
+        return results;
         }
 
     //------------------------------------------------

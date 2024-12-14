@@ -161,6 +161,12 @@ Check for inconsistent casing or trailing punctuation, spaces, or newlines betwe
 
 This is performed on *gettext* \*.po files.
 
+- `numberInconsistency`
+
+Check for mismatching numbers between the source and target strings.
+
+This is performed on *gettext* \*.po files.
+
 - `allCodeFormatting`
 
 Check all code formatting issues (see below).

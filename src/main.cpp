@@ -225,6 +225,10 @@ int main(int argc, char* argv[])
                 {
                 rs |= i18n_check::review_style::check_consistency;
                 }
+            else if (r == "numberInconsistency")
+                {
+                rs |= i18n_check::review_style::check_numbers;
+                }
             else if (r == "L10NStringNeedsContext")
                 {
                 rs |= i18n_check::review_style::check_needing_context;
@@ -348,6 +352,10 @@ int main(int argc, char* argv[])
             else if (r == "transInconsistency")
                 {
                 rs = rs & ~i18n_check::review_style::check_consistency;
+                }
+            else if (r == "numberInconsistency")
+                {
+                rs = rs & ~i18n_check::review_style::check_numbers;
                 }
             else if (r == "L10NStringNeedsContext")
                 {

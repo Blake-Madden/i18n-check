@@ -54,7 +54,7 @@ namespace i18n_string_util
     /** @returns Whether a character is a number (narrow [0-9] characters only).
         @param ch The letter to be reviewed.*/
     [[nodiscard]]
-    constexpr static bool is_numeric(const wchar_t ch) noexcept
+    constexpr static bool is_numeric_7bit(const wchar_t ch) noexcept
         {
         return (ch >= L'0' && ch <= L'9') ? true : false;
         }
@@ -142,6 +142,43 @@ namespace i18n_string_util
             true : (ch == 0xFF09) ? // fullwidth
             true : false;
         // clang-format on
+        }
+
+    /** @returns @c a full-width number converted to its 7-bit counterpart.
+        @note Will return the original character if it cannot be converted.
+        @param chr The letter to be converted.*/
+    [[nodiscard]]
+    constexpr static wchar_t full_width_number_to_7bit(const wchar_t chr) noexcept
+        {
+        return (chr >= 0xFF10 && chr <= 0xFF19) ? (chr - 65248) : chr;
+        }
+
+    /** @returns @c a 7-bit number converted to its full-width counterpart.
+        @note Will return the original character if it cannot be converted.
+        @param chr The letter to be converted.*/
+    [[nodiscard]]
+    constexpr static wchar_t seven_bit_number_to_full_width(const wchar_t chr) noexcept
+        {
+        return (chr >= 0x0030 && chr <= 0x0039) ? (chr + 65248) : chr;
+        }
+
+    /** @returns @c a Devanagari (char set for languages such as Hindi) number
+            converted to its 7-bit counterpart.
+        @note Will return the original character if it cannot be converted.
+        @param chr The letter to be converted.*/
+    [[nodiscard]]
+    constexpr static wchar_t devanagari_number_to_7bit(const wchar_t chr) noexcept
+        {
+        return (chr >= 0x0966 && chr <= 0x096F) ? (chr - 2358) : chr;
+        }
+
+    /** @returns @c a 7-bit number converted to its Devanagari counterpart.
+        @note Will return the original character if it cannot be converted.
+        @param chr The letter to be converted.*/
+    [[nodiscard]]
+    constexpr static wchar_t seven_bit_number_to_devanagari(const wchar_t chr) noexcept
+        {
+        return (chr >= 0x0030 && chr <= 0x0039) ? (chr + 2358) : chr;
         }
 
     /// @brief Removes printf commands in @c str (in-place).

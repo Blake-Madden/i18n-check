@@ -1,5 +1,6 @@
-﻿#include "../src/i18n_string_util.h"
-#include "../src/cpp_i18n_review.h"
+﻿#include "../src/cpp_i18n_review.h"
+#include "../src/i18n_review.h"
+#include "../src/i18n_string_util.h"
 #include <algorithm>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -10,6 +11,7 @@
 
 // NOLINTBEGIN
 using namespace i18n_string_util;
+using namespace i18n_check;
 using namespace Catch::Matchers;
 
 // clang-format off
@@ -34,7 +36,47 @@ TEST_CASE("untranslatable", "[i18nreview]")
     CHECK(reviewer.is_untranslatable_string(L"#somethingElse", false));
     }
 
-TEST_CASE("i18n string util", "[i18nstringutil]")
+TEST_CASE("i18n string utils", "[i18nstringutil]")
+    {
+    SECTION("Conversions to 7-bit")
+        {
+        CHECK(full_width_number_to_7bit(L'０') == L'0');
+        CHECK(full_width_number_to_7bit(L'９') == L'9');
+        CHECK(full_width_number_to_7bit(L'9') == L'9');
+        CHECK(full_width_number_to_7bit(L'w') == L'w');
+
+        CHECK(devanagari_number_to_7bit(L'०') == L'0');
+        CHECK(devanagari_number_to_7bit(L'९') == L'9');
+
+        // wrong converter will return unaltered value
+        CHECK(full_width_number_to_7bit(L'९') == L'९');
+
+        // pass through multiple converters
+        CHECK(devanagari_number_to_7bit(full_width_number_to_7bit(L'९')) == L'9');
+
+        // integration
+        const auto numbers = i18n_review::load_numbers(L"८८५९-१");
+        REQUIRE(numbers.size() == 2);
+        CHECK(numbers[0] == std::wstring{ L"1" });
+        CHECK(numbers[1] == std::wstring{ L"8859" });
+        }
+
+    SECTION("Conversions from 7-bit")
+        {
+        CHECK(seven_bit_number_to_full_width(L'0') == L'０');
+        CHECK(seven_bit_number_to_full_width(L'9') == L'９');
+        CHECK(seven_bit_number_to_full_width(L'９') == L'９');
+        CHECK(seven_bit_number_to_full_width(L'w') == L'w');
+
+        CHECK(seven_bit_number_to_devanagari(L'0') == L'०');
+        CHECK(seven_bit_number_to_devanagari(L'9') == L'९');
+
+        // wrong converter will return unaltered value
+        CHECK(seven_bit_number_to_full_width(L'९') == L'९');
+        }
+    }
+
+TEST_CASE("File Paths", "[i18nstringutil]")
     {
     SECTION("Null")
         {

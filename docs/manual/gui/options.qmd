@@ -149,6 +149,20 @@ In regards to punctuation, terminating characters such as periods, exclamation p
 has a terminating mark and the translation does not have either a terminating mark or closing parenthesis. All types of terminating marks are treated interchangeably, as not all languages
 commonly use question and exclamation marks as much as English.
 
+**Check for inconsistent numbers**: select this to check for mismatching numbers between the source and target strings.
+
+Devanagari and full-width numbers will be converted to 7-bit ASCII numbers during the comparison.
+This ensures that "8859-1," "८८५९-१," and "８８５９-１" will be seen as the same number sequences.
+
+::: {.notesection data-latex=""}
+Numbers will have all commas, periods, and non-breaking spaces removed when being compared.
+This is done to normalize any differences in locale-specific formatting and provide more accurate comparisons.
+Because of this, the list of numbers shown in these warnings will not include any decimal or thousands separators.\
+
+Also, the sequence of mismatching numbers in the warning message will be displayed in lexicographical order, not the order that they appear in the strings.
+It is assumed that the ordering of numbers can change in the translation; thus, the ordering of numbers is normalized and shown in this way in the warning.
+:::
+
 **Review fuzzy translations**: select this to review fuzzy translations. This should only be selected if you intend to review translations
 that still require approval and are likely unfinished.
 ::::

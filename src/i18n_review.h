@@ -162,8 +162,8 @@ namespace i18n_check
         /// @brief Check for mismatching trailing newlines or punctuation
         ///     between the source and target strings.
         check_consistency = (static_cast<int64_t>(1) << 32),
-        /// @private
-        l10n_reserved3 = (static_cast<int64_t>(1) << 33),
+        /// @brief Check for mismatching numbers between the source and target strings.
+        check_numbers = (static_cast<int64_t>(1) << 33),
         /// @private
         l10n_reserved4 = (static_cast<int64_t>(1) << 34),
         l10n_reserved5 = (static_cast<int64_t>(1) << 35),
@@ -212,7 +212,9 @@ namespace i18n_check
         /// @brief Localizable strings that begin or end with a space.
         source_surrounding_spaces_issue,
         /// @brief Ambiguous source string that is lacking contextual information.
-        source_needing_context_issue
+        source_needing_context_issue,
+        /// @brief Inconsistent numbers.
+        number_issue
         };
 
     /// @brief File types that can be analyzed.
@@ -795,6 +797,38 @@ namespace i18n_check
         static std::tuple<bool, std::wstring, size_t, size_t>
         read_po_msg(std::wstring_view& poCatalogEntry, const std::wstring_view msgTag);
 
+        /** @brief Loads all `printf` format commands from a string.
+            @param resource The string to parse.
+            @param[out] errorInfo Information about any bad printf commands\n
+                (e.g., positional and regular commands in the same string).
+            @returns All `printf` format commands from @c resource.
+            @details `printf` syntax:
+
+             https://en.cppreference.com/w/c/io/fprintf
+
+             `printf` positional arguments:
+
+             https://learn.microsoft.com/en-us/cpp/c-runtime-library/printf-p-positional-parameters?view=msvc-170*/
+        [[nodiscard]]
+        static std::vector<std::wstring> load_cpp_printf_commands(std::wstring_view resource,
+                                                                  std::wstring& errorInfo);
+
+        /** @brief Loads all positional format commands (e.g., "%1") from a string.
+            @param resource The string to parse.
+            @returns All positional format commands from @c resource.*/
+        [[nodiscard]]
+        static std::vector<std::wstring> load_positional_commands(std::wstring_view resource);
+
+        /** @brief Loads all numbers from a string.
+            @warning All commas, periods, and spaces will be removed from the numbers.
+                This means that floating-point numbers will be returned as different values
+                that look like an integer. This is intentional, as this is meant for a locale
+                independent way to compare strings.
+            @param resource The string to parse.
+            @returns All numbers from @c resource.*/
+        [[nodiscard]]
+        static std::vector<std::wstring> load_numbers(std::wstring_view resource);
+
       protected:
         /// @returns @c true if the next word in @c commentBlock is a suppression command,
         ///     along with the position of the end of the suppressed block of code.
@@ -930,28 +964,6 @@ namespace i18n_check
             return m_keywords.find(str) != m_keywords.cend();
             }
 
-        /** @brief Loads all `printf` format commands from a string.
-            @param resource The string to parse.
-            @param[out] errorInfo Information about any bad printf commands\n
-                (e.g., positional and regular commands in the same string).
-            @returns All `printf` format commands from @c resource.
-            @details `printf` syntax:
-
-             https://en.cppreference.com/w/c/io/fprintf
-
-             `printf` positional arguments:
-
-             https://learn.microsoft.com/en-us/cpp/c-runtime-library/printf-p-positional-parameters?view=msvc-170*/
-        [[nodiscard]]
-        static std::vector<std::wstring> load_cpp_printf_commands(std::wstring_view resource,
-                                                                  std::wstring& errorInfo);
-
-        /** @brief Loads all positional format commands (e.g., "%1") from a string.
-            @param resource The string to parse.
-            @returns All positional format commands from @c resource.*/
-        [[nodiscard]]
-        static std::vector<std::wstring> load_positional_commands(std::wstring_view resource);
-
         /** @brief Logs a debug message.
             @param info Information, such as a string causing a parsing error.
             @param message An informational message.
@@ -1008,7 +1020,7 @@ namespace i18n_check
         [[nodiscard]]
         static bool is_valid_name_char(const wchar_t wc) noexcept
             {
-            return (i18n_string_util::is_numeric(wc) || i18n_string_util::is_alpha_7bit(wc) ||
+            return (i18n_string_util::is_numeric_7bit(wc) || i18n_string_util::is_alpha_7bit(wc) ||
                     wc == L'_');
             }
 
@@ -1020,7 +1032,7 @@ namespace i18n_check
         [[nodiscard]]
         static bool is_valid_name_char_ex(const wchar_t wc) noexcept
             {
-            return (i18n_string_util::is_numeric(wc) || i18n_string_util::is_alpha_7bit(wc) ||
+            return (i18n_string_util::is_numeric_7bit(wc) || i18n_string_util::is_alpha_7bit(wc) ||
                     wc == L'_' || wc == L'.' || wc == L':' || wc == L'<' || wc == L'>');
             }
 

@@ -390,6 +390,7 @@ namespace i18n_check
                                                                                L"")
                 << ((m_cpp->get_style() & check_accelerators) ? L"acceleratorMismatch\n" : L"")
                 << ((m_cpp->get_style() & check_consistency) ? L"transInconsistency\n" : L"")
+                << ((m_cpp->get_style() & check_numbers) ? L"numberInconsistency\n" : L"")
                 << ((m_cpp->get_style() & check_needing_context) ? L"L10NStringNeedsContext\n" :
                                                                    L"")
                 << ((m_cpp->get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
@@ -534,6 +535,14 @@ namespace i18n_check
                            << _(L"Mismatching keyboard accelerators between source "
                                 "and translation strings.")
                            << "\"\t[acceleratorMismatch]\n";
+                    }
+                else if (issue.first == translation_issue::number_issue)
+                    {
+                    report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t\""
+                           << issue.second << L"\"\t\""
+                           << _(L"Mismatching numbers between source "
+                                "and translation strings.")
+                           << "\"\t[numberInconsistency]\n";
                     }
                 else if (issue.first == translation_issue::consistency_issue)
                     {
