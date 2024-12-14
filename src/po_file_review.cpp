@@ -20,8 +20,6 @@ namespace i18n_check
         {
         m_file_name = fileName;
 
-        get_catalog_entries().clear();
-
         const std::wstring_view originalPoFileText{ poFileText };
 
         if (poFileText.empty())
