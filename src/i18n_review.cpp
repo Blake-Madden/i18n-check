@@ -2783,7 +2783,7 @@ namespace i18n_check
             LR"([[:digit:]\u0966-\u096F\uFF10-\uFF19]+([ ,\.][[:digit:]\u0966-\u096F\uFF10-\uFF19]+)*)"
         };
         // this will then normalize them all to 36600
-        const std::wregex separatorsRegex{ LR"([ ,\.]*)" };
+        const std::wregex separatorsRegex{ LR"([ ,\.])" };
         std::wstring_view::const_iterator searchStart{ resource.cbegin() };
         std::match_results<std::wstring_view::const_iterator> res;
         while (std::regex_search(searchStart, resource.cend(), res, numberRegex))
