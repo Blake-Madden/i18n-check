@@ -101,6 +101,10 @@ void I18NFrame::InitControls()
                 new wxRibbonPanel(homePage, wxID_ANY, _(L"Tools"), wxNullBitmap, wxDefaultPosition,
                                   wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
             wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(toolsPanel);
+            toolbar->AddButton(XRCID("ID_CONVERT_STRING"), _(L"Convert String"),
+                               wxArtProvider::GetBitmap(L"ID_CONVERT_STRING", wxART_OTHER,
+                                                        FromDIP(wxSize{ 32, 32 }))
+                                   .ConvertToImage());
             toolbar->AddButton(
                 XRCID("ID_SETTINGS"), _(L"Settings"),
                 wxArtProvider::GetBitmap(L"ID_SETTINGS", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
@@ -358,6 +362,8 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnRefresh, this, wxID_REFRESH);
     Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnIgnore, this, XRCID("ID_IGNORE"));
     Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnInsert, this, XRCID("ID_INSERT"));
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnConvertString, this,
+         XRCID("ID_CONVERT_STRING"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSettings, this, XRCID("ID_SETTINGS"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnHelp, this, wxID_HELP);
@@ -935,6 +941,13 @@ void I18NFrame::OnSettings([[maybe_unused]] wxCommandEvent&)
         {
         wxGetApp().m_defaultOptions = projDlg.GetAllOptions();
         }
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnConvertString([[maybe_unused]] wxCommandEvent&)
+    {
+    ConvertStringDlg csDlg(this);
+    csDlg.ShowModal();
     }
 
 //------------------------------------------------------

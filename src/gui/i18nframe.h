@@ -21,6 +21,7 @@
 #include "../analyze.h"
 #include "../input.h"
 #include "app_options.h"
+#include "convert_string_dlg.h"
 #include "datamodel.h"
 #include "insert_translator_comment_dlg.h"
 #include "insert_transmacro_dlg.h"
@@ -75,6 +76,7 @@ class I18NFrame : public wxFrame
     void OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&);
     void OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&);
     void OnSettings([[maybe_unused]] wxCommandEvent&);
+    void OnConvertString([[maybe_unused]] wxCommandEvent&);
     void OnAbout([[maybe_unused]] wxCommandEvent&);
     void OnHelp([[maybe_unused]] wxCommandEvent&);
 
