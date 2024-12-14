@@ -27,7 +27,7 @@ namespace i18n_check
         std::wsmatch reMatches;
 
         const auto unrollStrings = [](const auto& strs)
-            {
+        {
             std::wstring result;
             for (const auto& str : strs)
                 {
@@ -38,7 +38,7 @@ namespace i18n_check
                 result.erase(result.length() - 2);
                 }
             return result;
-            };
+        };
 
         resetCallback(m_catalog_entries.size());
         size_t currentCatalogIndex{ 0 };
@@ -149,41 +149,34 @@ namespace i18n_check
 
                 if (catEntry.second.m_po_format == po_format_string::qt_format)
                     {
-                    // only look at strings that have a translation
-                    if (!catEntry.second.m_translation.empty())
-                        {
-                        printfStrings1 = load_positional_commands(catEntry.second.m_source);
-                        printfStrings2 = load_positional_commands(catEntry.second.m_translation);
-
-                        if (printfStrings1.size() || printfStrings2.size())
+                    const auto reviewPositionals =
+                        [&catEntry, &printfStrings1, &printfStrings2,
+                         &unrollStrings](const auto& src, const auto& trans)
+                    {
+                        // only look at strings that have a translation
+                        if (!trans.empty())
                             {
-                            if (printfStrings1 != printfStrings2)
+                            printfStrings1 = load_positional_commands(src);
+                            printfStrings2 = load_positional_commands(trans);
+
+                            if (printfStrings1.size() || printfStrings2.size())
                                 {
-                                catEntry.second.m_issues.emplace_back(
-                                    translation_issue::printf_issue,
-                                    L"'" + catEntry.second.m_source + L"' vs. '" +
-                                        catEntry.second.m_translation + L"'");
+                                if (printfStrings1 != printfStrings2)
+                                    {
+                                    catEntry.second.m_issues.emplace_back(
+                                        translation_issue::printf_issue,
+                                        _WXTRANS_WSTR(L"Positional values differences: '") +
+                                            unrollStrings(printfStrings1) +
+                                            _WXTRANS_WSTR(L"' vs. '") +
+                                            unrollStrings(printfStrings2) + L"'");
+                                    }
                                 }
                             }
-                        }
+                    };
 
-                    if (!catEntry.second.m_translation_plural.empty())
-                        {
-                        printfStrings1 = load_positional_commands(catEntry.second.m_source_plural);
-                        printfStrings2 =
-                            load_positional_commands(catEntry.second.m_translation_plural);
-
-                        if (printfStrings1.size() || printfStrings2.size())
-                            {
-                            if (printfStrings1 != printfStrings2)
-                                {
-                                catEntry.second.m_issues.emplace_back(
-                                    translation_issue::printf_issue,
-                                    L"'" + catEntry.second.m_source_plural + L"' vs. '" +
-                                        catEntry.second.m_translation_plural + L"'");
-                                }
-                            }
-                        }
+                    reviewPositionals(catEntry.second.m_source, catEntry.second.m_translation);
+                    reviewPositionals(catEntry.second.m_source_plural,
+                                      catEntry.second.m_translation_plural);
                     }
                 }
 
@@ -257,18 +250,16 @@ namespace i18n_check
 
             if (static_cast<bool>(m_review_styles & check_numbers))
                 {
-                const auto reviewNumbers =
-                    [&catEntry, &printfStrings1, &printfStrings2, &unrollStrings](auto src, auto trans)
-                    {
+                const auto reviewNumbers = [&catEntry, &printfStrings1, &printfStrings2,
+                                            &unrollStrings](auto src, auto trans)
+                {
                     // only look at strings that have a translation
                     if (!trans.empty())
                         {
-                        std::for_each(src.begin(), src.end(), [](wchar_t& chr){
-                            chr = std::towlower(chr);
-                        });
-                        std::for_each(trans.begin(), trans.end(), [](wchar_t& chr){
-                            chr = std::towlower(chr);
-                        });
+                        std::for_each(src.begin(), src.end(),
+                                      [](wchar_t& chr) { chr = std::towlower(chr); });
+                        std::for_each(trans.begin(), trans.end(),
+                                      [](wchar_t& chr) { chr = std::towlower(chr); });
                         printfStrings1 = load_numbers(src);
                         printfStrings2 = load_numbers(trans);
 
@@ -280,43 +271,56 @@ namespace i18n_check
                                     {
                                     return;
                                     }
-                                // ignore where source is an imperial measurement and translation is metric
-                                if ((src.ends_with(L" in") || src.ends_with(L" inch") || src.ends_with(L" inches")) &&
+                                // ignore where source is an imperial measurement and translation is
+                                // metric
+                                if ((src.ends_with(L" in") || src.ends_with(L" inch") ||
+                                     src.ends_with(L" inches")) &&
                                     (trans.ends_with(L" cm") || trans.ends_with(L" mm")))
                                     {
                                     return;
                                     }
                                 // common word to number translations can be ignored
                                 if (printfStrings2.size() == 1 && printfStrings2[0] == L"1" &&
-                                    (src.find(L"once") != std::wstring::npos || src.find(L"first") != std::wstring::npos || src.find(L"single") != std::wstring::npos))
+                                    (src.find(L"once") != std::wstring::npos ||
+                                     src.find(L"first") != std::wstring::npos ||
+                                     src.find(L"single") != std::wstring::npos))
                                     {
                                     return;
                                     }
                                 if (printfStrings2.size() == 1 && printfStrings2[0] == L"2" &&
-                                    (src.find(L"twice") != std::wstring::npos || src.find(L"second") != std::wstring::npos || src.find(L"half") != std::wstring::npos || src.find(L"double") != std::wstring::npos))
+                                    (src.find(L"twice") != std::wstring::npos ||
+                                     src.find(L"second") != std::wstring::npos ||
+                                     src.find(L"half") != std::wstring::npos ||
+                                     src.find(L"double") != std::wstring::npos))
                                     {
                                     return;
                                     }
                                 if (printfStrings2.size() == 1 && printfStrings2[0] == L"3" &&
-                                    (src.find(L"thrice") != std::wstring::npos || src.find(L"third") != std::wstring::npos || src.find(L"triple") != std::wstring::npos))
+                                    (src.find(L"thrice") != std::wstring::npos ||
+                                     src.find(L"third") != std::wstring::npos ||
+                                     src.find(L"triple") != std::wstring::npos))
                                     {
                                     return;
                                     }
-                                if (printfStrings2.size() == 2 && printfStrings2[0] == L"1" && printfStrings2[1] == L"3" &&
+                                if (printfStrings2.size() == 2 && printfStrings2[0] == L"1" &&
+                                    printfStrings2[1] == L"3" &&
                                     src.find(L"third") != std::wstring::npos)
                                     {
                                     return;
                                     }
                                 if (printfStrings2.size() == 1 && printfStrings2[0] == L"4" &&
-                                    (src.find(L"fourth") != std::wstring::npos || src.find(L"quarter") != std::wstring::npos))
+                                    (src.find(L"fourth") != std::wstring::npos ||
+                                     src.find(L"quarter") != std::wstring::npos))
                                     {
                                     return;
                                     }
-                                if (printfStrings2.size() == 2 && printfStrings2[0] == L"1" && printfStrings2[1] == L"4" &&
-                                    (src.find(L"fourth") != std::wstring::npos || src.find(L"quarter") != std::wstring::npos))
+                                if (printfStrings2.size() == 2 && printfStrings2[0] == L"1" &&
+                                    printfStrings2[1] == L"4" &&
+                                    (src.find(L"fourth") != std::wstring::npos ||
+                                     src.find(L"quarter") != std::wstring::npos))
                                     {
                                     return;
-                    }
+                                    }
                                 if (printfStrings2.size() == 1 && printfStrings2[0] == L"5" &&
                                     src.find(L"fifth") != std::wstring::npos)
                                     {
@@ -347,7 +351,8 @@ namespace i18n_check
                                     {
                                     return;
                                     }
-                                if (printfStrings2.size() == 2 && printfStrings2[0] == L"1" && printfStrings2[1] == L"10" &&
+                                if (printfStrings2.size() == 2 && printfStrings2[0] == L"1" &&
+                                    printfStrings2[1] == L"10" &&
                                     src.find(L"tenths") != std::wstring::npos)
                                     {
                                     return;
@@ -358,7 +363,8 @@ namespace i18n_check
                                     return;
                                     }
                                 if (printfStrings2.size() == 1 && printfStrings2[0] == L"12" &&
-                                    (src.find(L"twelve") != std::wstring::npos || src.find(L"twelfth") != std::wstring::npos))
+                                    (src.find(L"twelve") != std::wstring::npos ||
+                                     src.find(L"twelfth") != std::wstring::npos))
                                     {
                                     return;
                                     }
@@ -404,15 +410,17 @@ namespace i18n_check
                                     }
                                 catEntry.second.m_issues.emplace_back(
                                     translation_issue::number_issue,
-                                    _WXTRANS_WSTR(L"Number differences: '") + unrollStrings(printfStrings1) + _WXTRANS_WSTR(L"' vs. '") +
-                                        unrollStrings(printfStrings2)  + L"'");
+                                    _WXTRANS_WSTR(L"Number differences: '") +
+                                        unrollStrings(printfStrings1) + _WXTRANS_WSTR(L"' vs. '") +
+                                        unrollStrings(printfStrings2) + L"'");
                                 }
                             }
                         }
-                    };
+                };
 
                 reviewNumbers(catEntry.second.m_source, catEntry.second.m_translation);
-                reviewNumbers(catEntry.second.m_source_plural, catEntry.second.m_translation_plural);
+                reviewNumbers(catEntry.second.m_source_plural,
+                              catEntry.second.m_translation_plural);
                 }
 
             if (static_cast<bool>(m_review_styles & check_consistency))
