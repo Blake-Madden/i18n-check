@@ -139,7 +139,7 @@ TEST_CASE("Place holders", "[cpp][i18n]")
         cpp_i18n_review cpp(false);
         std::wstring str;
         str = L" xx xx x";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         }
 
 
@@ -1457,19 +1457,19 @@ TEST_CASE("File Paths", "[cpp]")
         {
         cpp_i18n_review cpp(false);
         std::wstring code = LR"("Rich Text Format (*.rtf)|*.rtf")";
-        CHECK_FALSE(cpp.is_untranslatable_string(code, false));
+        CHECK_FALSE(cpp.is_untranslatable_string(code, false).first);
         }
 
     SECTION("Unix path")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs", false));
-        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs/", false));
-        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs/info.so", false));
-        CHECK(cpp.is_untranslatable_string(str = L"/usr/libs/info folder", false));
+        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs/", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"/usr/myfolder/libs/info.so", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"/usr/libs/info folder", false).first);
         // not enough slashes to make it appear like a file path
-        CHECK_FALSE(cpp.is_untranslatable_string(str = L"/usr is a root folder", false));
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L"/usr is a root folder", false).first);
         }
 
     SECTION("File filter")
@@ -1516,33 +1516,33 @@ TEST_CASE("File Paths", "[cpp]")
         cpp_i18n_review cpp(false);
         std::wstring str;
         str = L"Log_Rep[o]rt-1.log";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"c:\\Reports\\Log_Report-1.log";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"c:\\src-stuff,files\\Log_Reporter.h";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"c:\\users\\yam\\documents&files\\audacity\\mixer\\n\\audacity\\src\\dither.cpp";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"/src/Log_Reporter.sps9";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         // double extensions (common on UNIX files)
         str = L"dynlib.so.o";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         // file extension
         str = L".sps9";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"*.sps9";
-        CHECK(cpp.is_untranslatable_string(str, false)); // wild card
+        CHECK(cpp.is_untranslatable_string(str, false).first); // wild card
         str = L"Log-Report-1.log";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         // ultra simple relative file path
         str = L"shaders/player1.vert";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"resources\\shaders\\player1.vert";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         // not really a file name, the ending is deceptively like a file extension
         str = L"The maximum number of notes must be in the range 1..128";
-        CHECK_FALSE(cpp.is_untranslatable_string(str, false));
+        CHECK_FALSE(cpp.is_untranslatable_string(str, false).first);
         }
 
     SECTION("Filename")
@@ -1590,9 +1590,9 @@ TEST_CASE("Command lines", "[cpp]")
     {
     cpp_i18n_review cpp(false);
     std::wstring str;
-    CHECK(cpp.is_untranslatable_string(str = L"-D HOST_APPLE_MOBILE=1", false));
-    CHECK(cpp.is_untranslatable_string(str = L"-dynamiclib -o {libraryName}", false));
-    CHECK(cpp.is_untranslatable_string(str = LR"(--jitpath:\"{jitPath}\")", false));
+    CHECK(cpp.is_untranslatable_string(str = L"-D HOST_APPLE_MOBILE=1", false).first);
+    CHECK(cpp.is_untranslatable_string(str = L"-dynamiclib -o {libraryName}", false).first);
+    CHECK(cpp.is_untranslatable_string(str = LR"(--jitpath:\"{jitPath}\")", false).first);
     }
 
 TEST_CASE("Macros", "[cpp]")
@@ -1863,7 +1863,7 @@ TEST_CASE("Preprocessor", "[cpp]")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"#define {resourceDataSymbol}_data_len_val", false));
+        CHECK(cpp.is_untranslatable_string(str = L"#define {resourceDataSymbol}_data_len_val", false).first);
         }
 
     SECTION("C header include")
@@ -2279,75 +2279,75 @@ TEST_CASE("HTML", "[cpp]")
         {
         cpp_i18n_review cpp(false);
         std::wstring str = L"&	c #437A40";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         }
 
     SECTION("HTML")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = LR"(<tt><span style = 'font-weight:bold;'>)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<table style=\\\"width:100%;\"><tr><td width=\"33%\">", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<p style=\\\"font-family: %s; font-size: %dpt; color: rgb(%u, %u, %u)\\\">\n", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n<head>\n<meta content=\"text/html; charset=UTF-8\"/>\n<title></title>\n<link href=\"stylesheet.css\" type=\"text/css\" rel=\"stylesheet\" />\n<link rel=\"stylesheet\" type=\"application/vnd.adobe-page-template+xml\" href=\"page-template.xpgt\"/>\n</head>)", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<br />&nbsp;&nbsp;&nbsp;&nbsp;&ldquo;<span style="font-style:italic;">%s</span>&rdquo;)", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<!-- BEGIN {marker} -->)", false));
+        CHECK(cpp.is_untranslatable_string(str = LR"(<tt><span style = 'font-weight:bold;'>)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<table style=\\\"width:100%;\"><tr><td width=\"33%\">", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<p style=\\\"font-family: %s; font-size: %dpt; color: rgb(%u, %u, %u)\\\">\n", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n<head>\n<meta content=\"text/html; charset=UTF-8\"/>\n<title></title>\n<link href=\"stylesheet.css\" type=\"text/css\" rel=\"stylesheet\" />\n<link rel=\"stylesheet\" type=\"application/vnd.adobe-page-template+xml\" href=\"page-template.xpgt\"/>\n</head>)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(<br />&nbsp;&nbsp;&nbsp;&nbsp;&ldquo;<span style="font-style:italic;">%s</span>&rdquo;)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(<!-- BEGIN {marker} -->)", false).first);
         }
 
     SECTION("Internal CSS Strings")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"font-style: italic;", false));
-        CHECK(cpp.is_untranslatable_string(str = L"  font-style: italic;  ", false));
-        CHECK(cpp.is_untranslatable_string(str = L"font-weight: bold", false));
-        CHECK(cpp.is_untranslatable_string(str = L" color:red", false));
-        CHECK(cpp.is_untranslatable_string(str = L"background-COLOR:red, false", false));
-        CHECK(cpp.is_untranslatable_string(str = L" style = 'color: red", false));
+        CHECK(cpp.is_untranslatable_string(str = L"font-style: italic;", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"  font-style: italic;  ", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"font-weight: bold", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L" color:red", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"background-COLOR:red, false", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L" style = 'color: red", false).first);
         }
 
     SECTION("Internal HTML Strings")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"<html>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<!--commment>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<SPAN style=", false));
-        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<HTML>hello", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<HTML = "hello"></html>)", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<a href="website"><br>)", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(]]</center>\n)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"&amp;", false));
-        CHECK(cpp.is_untranslatable_string(str = L"&#107;", false));
-        CHECK(cpp.is_untranslatable_string(str = L"&#xF8;", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(charset = \"%s\"\n)", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<html>", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<!--commment>", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<SPAN style=", false).first);
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<HTML>hello", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(<HTML = "hello"></html>)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(<a href="website"><br>)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(]]</center>\n)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"&amp;", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"&#107;", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"&#xF8;", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(charset = \"%s\"\n)", false).first);
         }
 
     SECTION("Internal XML Strings")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<?xml>hello", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<?XML>7</XML>", false));
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<?xml>hello", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<?XML>7</XML>", false).first);
         // generic tags
-        CHECK(cpp.is_untranslatable_string(str = L"<doc-val>&entity;</doc-val>", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<comment =\")", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<startdoctype name=\"%s\")", false));
-        CHECK(cpp.is_untranslatable_string(str = LR"(<image x=%d y=\"%d\" width = '%dpx' height=\"%dpx\")", false));
+        CHECK(cpp.is_untranslatable_string(str = L"<doc-val>&entity;</doc-val>", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(<comment =\")", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(<startdoctype name=\"%s\")", false).first);
+        CHECK(cpp.is_untranslatable_string(str = LR"(<image x=%d y=\"%d\" width = '%dpx' height=\"%dpx\")", false).first);
         }
 
     SECTION("Custom XML")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<ice>", false)); // this can be translatable
-        CHECK(cpp.is_untranslatable_string(str = L"</ice>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<ice> 9, </ice>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<ice><ice>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<ice-level><ice-level>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<ice> <ice>", false));
-        CHECK(cpp.is_untranslatable_string(str = L"<unrecognized version=\"3\">", false));
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L"<ice>", false).first); // this can be translatable
+        CHECK(cpp.is_untranslatable_string(str = L"</ice>", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<ice> 9, </ice>", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<>", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<ice><ice>", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<ice-level><ice-level>", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<ice> <ice>", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"<unrecognized version=\"3\">", false).first);
         }
     }
 
@@ -2520,15 +2520,15 @@ TEST_CASE("Formulas", "[cpp]")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"=color", false));
-        CHECK(cpp.is_untranslatable_string(str = L"=small", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Open()", false));
-        CHECK(cpp.is_untranslatable_string(str = L"ABS(-2.7)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"POW(-4, 2)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"SUM(5,6)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"SUM(5;6)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"SUM(R[-4]C:R[-1]C)", false));
-        CHECK(cpp.is_untranslatable_string(str = L"=SUM(R[-4]C:R[-1]C)", false));
+        CHECK(cpp.is_untranslatable_string(str = L"=color", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"=small", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Open()", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"ABS(-2.7)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"POW(-4, 2)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"SUM(5,6)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"SUM(5;6)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"SUM(R[-4]C:R[-1]C)", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"=SUM(R[-4]C:R[-1]C)", false).first);
         }
 
     SECTION("Not formula")
@@ -2601,34 +2601,34 @@ TEST_CASE("Internal Strings", "[cpp]")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 3.1", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 98", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 2000", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows NT", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows NT SP4", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows XP", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows XP SP3", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows Server", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows Server 2012", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows Server 2012 R2", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows Vista", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 8", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 8.1", false));
-        CHECK(cpp.is_untranslatable_string(str = L"Windows 10", false));
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 3.1", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 98", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 2000", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows NT", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows NT SP4", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows XP", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows XP SP3", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows Server", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows Server 2012", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows Server 2012 R2", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows Vista", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 8", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 8.1", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"Windows 10", false).first);
         }
 
     SECTION("Internal Strings")
         {
         cpp_i18n_review cpp(false);
         std::wstring str;
-        CHECK(cpp.is_untranslatable_string(str = L"", false));
-        CHECK(cpp.is_untranslatable_string(str = L" ", false));
-        CHECK(cpp.is_untranslatable_string(str = L"  \t", false));
-        CHECK(cpp.is_untranslatable_string(str = L"1", false));
-        CHECK(cpp.is_untranslatable_string(str = L"1.0", false));
-        CHECK(cpp.is_untranslatable_string(str = L">", false));
-        CHECK(cpp.is_untranslatable_string(str = L"> ", false));
-        CHECK(cpp.is_untranslatable_string(str = L"\\n\\t\\r ", false));
+        CHECK(cpp.is_untranslatable_string(str = L"", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L" ", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"  \t", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"1", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"1.0", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L">", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"> ", false).first);
+        CHECK(cpp.is_untranslatable_string(str = L"\\n\\t\\r ", false).first);
         }
 
     SECTION("Encodings")
@@ -2636,21 +2636,21 @@ TEST_CASE("Internal Strings", "[cpp]")
         cpp_i18n_review cpp(false);
         std::wstring str;
         str = L"UTF-8";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"utf8";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"shift-jis";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"shift_jis";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"windows-1252";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"Big5";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"iso-8859-1";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         str = L"iso-8859-13";
-        CHECK(cpp.is_untranslatable_string(str, false));
+        CHECK(cpp.is_untranslatable_string(str, false).first);
         }
 
     SECTION("Clipboard")
@@ -2902,9 +2902,9 @@ TEST_CASE("CPP Tests", "[cpp]")
         cpp_i18n_review cpp(false);
         std::wstring str;
         cpp.allow_translating_punctuation_only_strings(false);
-        CHECK(cpp.is_untranslatable_string(str = L" % ", false));
+        CHECK(cpp.is_untranslatable_string(str = L" % ", false).first);
         cpp.allow_translating_punctuation_only_strings(true);
-        CHECK_FALSE(cpp.is_untranslatable_string(str = L" % ", false));
+        CHECK_FALSE(cpp.is_untranslatable_string(str = L" % ", false).first);
         }
 
     SECTION("Quote in single quotes")
@@ -3011,7 +3011,7 @@ TEST_CASE("CPP Tests", "[cpp]")
         {
         cpp_i18n_review cpp(false);
         std::wstring code = LR"("An error report has been saved to : \n\"%s\".\n\nPlease email this file to support@company.com to have this issue reviewed. Thank you for your patience.")";
-        CHECK_FALSE(cpp.is_untranslatable_string(code, false));
+        CHECK_FALSE(cpp.is_untranslatable_string(code, false).first);
         }
 
     SECTION("String in parameters")

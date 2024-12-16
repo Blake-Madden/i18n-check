@@ -34,6 +34,7 @@ book:
       - gui/new-project.qmd
       - gui/reviewing-output.qmd
       - gui/editing.qmd
+      - gui/tools.qmd
       - gui/options.qmd
     - part: "Additional Features"
       chapters:

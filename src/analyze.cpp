@@ -387,6 +387,9 @@ namespace i18n_check
                 << ((m_cpp->get_style() & check_needing_context) ? L"L10NStringNeedsContext\n" :
                                                                    L"")
                 << ((m_cpp->get_style() & check_l10n_contains_url) ? L"urlInL10NString\n" : L"")
+                << ((m_cpp->get_style() & check_l10n_contains_excessive_nonl10n_content) ?
+                        L"excessiveNonL10NContent\n" :
+                        L"")
                 << ((m_cpp->get_style() & check_l10n_has_surrounding_spaces) ?
                         L"spacesAroundL10NString\n" :
                         L"")
@@ -457,6 +460,15 @@ namespace i18n_check
                    << L"\"\t[urlInL10NString]\n";
             }
 
+        for (const auto& val : m_rc->get_localizable_strings_with_unlocalizable_content())
+            {
+            report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
+                   << replaceSpecialSpaces(val.m_string) << L"\"\t\""
+                   << _(L"String available for translation that contains a "
+                        "large amount of non-translatable content")
+                   << L"\"\t[excessiveNonL10NContent]\n";
+            }
+
         for (const auto& val : m_rc->get_localizable_strings_with_surrounding_spaces())
             {
             report << val.m_file_name << L"\t" << val.m_line << L"\t\t\""
@@ -503,6 +515,14 @@ namespace i18n_check
                            << _(L"String available for translation that probably should not be, or "
                                 "contains a hard-coded URL or email address.")
                            << "\"\t[suspectL10NString]\n";
+                    }
+                else if (issue.first == translation_issue::excessive_nonl10n_content)
+                    {
+                    report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t\""
+                           << issue.second << L"\"\t\""
+                           << _(L"String available for translation that contains a "
+                                "large amount of non-translatable content.")
+                           << "\"\t[excessiveNonL10NContent]\n";
                     }
                 else if (issue.first == translation_issue::source_surrounding_spaces_issue)
                     {
@@ -612,6 +632,16 @@ namespace i18n_check
                            << val.m_usage.m_value << L"\"\t";
                     }
                 report << L"[urlInL10NString]\n";
+                }
+
+            for (const auto& val :
+                 sourceParser->get_localizable_strings_with_unlocalizable_content())
+                {
+                report << val.m_file_name << L"\t" << val.m_line << L"\t" << val.m_column << L"\t"
+                       << L"\"" << replaceSpecialSpaces(val.m_string) << L"\"\t\"";
+                    report << _(L"String available for translation that contains a "
+                                "large amount of non-translatable.");
+                report << L"\t\"[excessiveNonL10NContent]\n";
                 }
 
             for (const auto& val : sourceParser->get_suspect_i18n_usuage())

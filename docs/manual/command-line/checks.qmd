@@ -21,6 +21,10 @@ Check for translatable strings that contain URLs or email addresses.
 It is recommended to dynamically format these into the string so that translators
 do not have to manage them.
 
+- `excessiveNonL10NContent`
+
+Check for translatable strings that contain large blocks on non-translatable content.
+
 - `spacesAroundL10NString`
 
 Check for strings that start or end with spaces. (This is limited to actual space characters, and does not include tabs or newlines.)

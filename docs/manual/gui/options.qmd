@@ -41,6 +41,15 @@ This will ensure that you don't have to re-enter these values for future project
 **Translatable strings that contain URLs or email addresses**: select this to check for translatable strings that contain URLs or email addresses.
 It is recommended to dynamically format these into the string so that translators do not have to manage them.
 
+**Translatable strings that contain an excessive amount of non-translatable content**: select this to check for translatable strings that contain large blocks on non-translatable content.
+As an example, this will detect strings with large blocks of HTML tags that may make the string complicated to translate.
+In this case, it may be recommended to format the string, replacing the HTML content with placeholders (e.g., `printf` commands).
+Another option is to concatenate the HTML tags with the localizable string at runtime.
+
+::: {.notesection data-latex=""}
+Adding a context to the string resource (e.g., a translator comment) will suppress this warning.
+:::
+
 **Translatable strings that are surrounded by spaces**: select this to check for translatable strings that start or begin with spaces.
 (This is limited to actual space characters, and does not include tabs or newlines.)
 

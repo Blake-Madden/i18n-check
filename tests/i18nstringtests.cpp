@@ -18,22 +18,22 @@ using namespace Catch::Matchers;
 TEST_CASE("untranslatable", "[i18nreview]")
     {
     i18n_check::cpp_i18n_review reviewer{ false };
-    CHECK(reviewer.is_untranslatable_string(L"application/x-photoshop-style-library", false));
-    CHECK(reviewer.is_untranslatable_string(L"image/webp", false));
-    CHECK(reviewer.is_untranslatable_string(L"ms-appdata", false));
-    CHECK(reviewer.is_untranslatable_string(L"&perms=write&frob=", false));
-    CHECK(reviewer.is_untranslatable_string(L"Content-Type: multipart/form-data; boundary=EBA799EB-D9A2-472B-AE86-568D4645707E\r\n", false));
-    CHECK(reviewer.is_untranslatable_string(L"Content-Disposition: form-data; name=\"photo\"; filename=\"", false));
-    CHECK_FALSE(reviewer.is_untranslatable_string(L"<No Name Specified>", false));
+    CHECK(reviewer.is_untranslatable_string(L"application/x-photoshop-style-library", false).first);
+    CHECK(reviewer.is_untranslatable_string(L"image/webp", false).first);
+    CHECK(reviewer.is_untranslatable_string(L"ms-appdata", false).first);
+    CHECK(reviewer.is_untranslatable_string(L"&perms=write&frob=", false).first);
+    CHECK(reviewer.is_untranslatable_string(L"Content-Type: multipart/form-data; boundary=EBA799EB-D9A2-472B-AE86-568D4645707E\r\n", false).first);
+    CHECK(reviewer.is_untranslatable_string(L"Content-Disposition: form-data; name=\"photo\"; filename=\"", false).first);
+    CHECK_FALSE(reviewer.is_untranslatable_string(L"<No Name Specified>", false).first);
     // percentages can be translatable as the ordering of the number and % can be changed
-    CHECK_FALSE(reviewer.is_untranslatable_string(L"100%", false));
-    CHECK_FALSE(reviewer.is_untranslatable_string(L"{n}%", false));
-    CHECK_FALSE(reviewer.is_untranslatable_string(L"%d%", false));
+    CHECK_FALSE(reviewer.is_untranslatable_string(L"100%", false).first);
+    CHECK_FALSE(reviewer.is_untranslatable_string(L"{n}%", false).first);
+    CHECK_FALSE(reviewer.is_untranslatable_string(L"%d%", false).first);
     // HTML anchors
-    CHECK(reviewer.is_untranslatable_string(L"#something", false));
-    CHECK(reviewer.is_untranslatable_string(L"#Something-else", false));
-    CHECK(reviewer.is_untranslatable_string(L"#something-else", false));
-    CHECK(reviewer.is_untranslatable_string(L"#somethingElse", false));
+    CHECK(reviewer.is_untranslatable_string(L"#something", false).first);
+    CHECK(reviewer.is_untranslatable_string(L"#Something-else", false).first);
+    CHECK(reviewer.is_untranslatable_string(L"#something-else", false).first);
+    CHECK(reviewer.is_untranslatable_string(L"#somethingElse", false).first);
     }
 
 TEST_CASE("i18n string utils", "[i18nstringutil]")

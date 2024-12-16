@@ -117,8 +117,9 @@ namespace i18n_check
         check_needing_context = (static_cast<int64_t>(1) << 14),
         /// @brief Check for suspect usage of i18n functions.
         check_suspect_i18n_usage = (static_cast<int64_t>(1) << 15),
-        /// @private
-        i18n_reserved4 = (static_cast<int64_t>(1) << 16),
+        /// @@brief Check for translatable strings that contain
+        ///     large blocks on non-translatable content.
+        check_l10n_contains_excessive_nonl10n_content = (static_cast<int64_t>(1) << 16),
         /// @private
         i18n_reserved5 = (static_cast<int64_t>(1) << 17),
         /// @private
@@ -151,7 +152,8 @@ namespace i18n_check
         check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
         check_number_assigned_to_id | check_duplicate_value_assigned_to_ids |
         check_malformed_strings | check_utf8_with_signature | check_fonts |
-        check_l10n_has_surrounding_spaces | check_needing_context | check_suspect_i18n_usage),
+        check_l10n_has_surrounding_spaces | check_needing_context | check_suspect_i18n_usage |
+        check_l10n_contains_excessive_nonl10n_content),
 
         /// @brief Check for mismatching printf commands between source strings and their
         ///     respective translations.
@@ -216,7 +218,9 @@ namespace i18n_check
         /// @brief Inconsistent numbers.
         number_issue,
         /// @brief Translation is suspicously longer than the source string.
-        length_issue
+        length_issue,
+        /// @brief Translation contains large blocks on non-translatable content.
+        excessive_nonl10n_content
         };
 
     /// @brief File types that can be analyzed.
@@ -510,6 +514,15 @@ namespace i18n_check
         const std::vector<string_info>& get_localizable_strings_with_urls() const noexcept
             {
             return m_localizable_strings_with_urls;
+            }
+
+        /// @returns The strings that are being extracted as localizable,
+        ///     but contain large blocks of untranslatable content (e.g., HTML tags).
+        [[nodiscard]]
+        const std::vector<string_info>&
+        get_localizable_strings_with_unlocalizable_content() const noexcept
+            {
+            return m_localizable_strings_with_unlocalizable_content;
             }
 
         /// @returns The strings that are being extracted as localizable,
@@ -1014,7 +1027,8 @@ namespace i18n_check
 #ifdef __UNITTEST
       public:
 #endif
-        /// @returns Whether @c str is a string that should probably not be translated.
+        /// @returns Whether @c str is a string that should probably not be translated and the
+        ///     length of the string after untranslatable content has been removed.
         /// @param strToReview The string to review.\n
         ///     This string may have text like HTML and CSS tags removed, as well as being trimmed.
         /// @param limitWordCount If @c true, will consider a word as
@@ -1024,8 +1038,8 @@ namespace i18n_check
         ///     for l10n as these strings should always be reviewed for safety reasons,
         ///     regardless of length.
         [[nodiscard]]
-        bool is_untranslatable_string(const std::wstring& strToReview,
-                                      const bool limitWordCount) const;
+        std::pair<bool, size_t> is_untranslatable_string(std::wstring strToReview,
+                                                         const bool limitWordCount) const;
         /// @returns Whether @c functionName is a diagnostic function (e.g., ASSERT) whose
         ///     string parameters shouldn't be translatable.
         /// @param functionName The name of the function to review.
@@ -1180,6 +1194,7 @@ namespace i18n_check
         std::vector<string_info> m_internal_strings;
         // results that are probably issues
         std::vector<string_info> m_unsafe_localizable_strings;
+        std::vector<string_info> m_localizable_strings_with_unlocalizable_content;
         std::vector<string_info> m_localizable_strings_with_urls;
         std::vector<string_info> m_localizable_strings_ambiguous_needing_context;
         std::vector<string_info> m_localizable_strings_in_internal_call;

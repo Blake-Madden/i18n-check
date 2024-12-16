@@ -752,6 +752,8 @@ void I18NFrame::OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&)
             excludeFlag(L"[L10NStringNeedsContext]",
                         i18n_check::review_style::check_needing_context);
             excludeFlag(L"[urlInL10NString]", i18n_check::review_style::check_l10n_contains_url);
+            excludeFlag(L"[excessiveNonL10NContent]",
+                        i18n_check::review_style::check_l10n_contains_excessive_nonl10n_content);
             excludeFlag(L"[spacesAroundL10NString]",
                         i18n_check::review_style::check_l10n_has_surrounding_spaces);
             excludeFlag(L"[deprecatedMacro]", i18n_check::review_style::check_deprecated_macros);

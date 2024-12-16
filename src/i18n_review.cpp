@@ -1059,8 +1059,16 @@ namespace i18n_check
         std::wsmatch results;
         for (const auto& str : m_localizable_strings)
             {
+            const auto [isunTranslatable, translatableContentLength] =
+                is_untranslatable_string(str.m_string, false);
+            if ((m_review_styles & check_l10n_contains_excessive_nonl10n_content) &&
+                !isunTranslatable && str.m_string.length() > (translatableContentLength * 3) &&
+                !str.m_usage.m_hasContext)
+                {
+                m_localizable_strings_with_unlocalizable_content.push_back(str);
+                }
             if ((m_review_styles & check_l10n_strings) && str.m_string.length() > 0 &&
-                is_untranslatable_string(str.m_string, false))
+                isunTranslatable)
                 {
                 m_unsafe_localizable_strings.push_back(str);
                 }
@@ -1074,13 +1082,11 @@ namespace i18n_check
                 {
                 m_localizable_strings_ambiguous_needing_context.push_back(str);
                 }
-#if __cplusplus >= 202002L
             if ((m_review_styles & check_l10n_has_surrounding_spaces) &&
                 has_surrounding_spaces(str.m_string))
                 {
                 m_localizable_strings_with_surrounding_spaces.push_back(str);
                 }
-#endif
             }
 
         if (m_review_styles & check_malformed_strings)
@@ -1166,7 +1172,7 @@ namespace i18n_check
                 return;
                 }
 
-            if (is_untranslatable_string(str.m_string, true))
+            if (is_untranslatable_string(str.m_string, true).first)
                 {
                 m_internal_strings.push_back(str);
                 }
@@ -1996,6 +2002,7 @@ namespace i18n_check
     void i18n_review::clear_results() noexcept
         {
         m_localizable_strings.clear();
+        m_localizable_strings_with_unlocalizable_content.clear();
         m_localizable_strings_with_urls.clear();
         m_localizable_strings_ambiguous_needing_context.clear();
         m_localizable_strings_in_internal_call.clear();
@@ -2038,47 +2045,46 @@ namespace i18n_check
         }
 
     //--------------------------------------------------
-    bool i18n_review::is_untranslatable_string(const std::wstring& strToReview,
-                                               const bool limitWordCount) const
+    std::pair<bool, size_t> i18n_review::is_untranslatable_string(std::wstring strToReview,
+                                                                  const bool limitWordCount) const
         {
         // if no spaces but lengthy, then this is probably some sort of GUID
         if (strToReview.find(L' ') == std::wstring::npos && strToReview.length() > 100)
             {
-            return true;
+            return std::make_pair(true, strToReview.length());
             }
 
-        std::wstring str{ strToReview };
         static const std::wregex loremIpsum(L"Lorem ipsum.*");
         static const std::wregex percentageRegEx(LR"(([0-9]+|\{[a-z0-9]\}|%[udil]{1,2})%)");
-        if (std::regex_match(str, percentageRegEx))
+        if (std::regex_match(strToReview, percentageRegEx))
             {
-            return false;
+            return std::make_pair(false, strToReview.length());
             }
 
-        i18n_string_util::replace_escaped_control_chars(str);
-        string_util::trim(str);
+        i18n_string_util::replace_escaped_control_chars(strToReview);
+        string_util::trim(strToReview);
         // see if a function signature before stripping printf commands and whatnot
-        if ((std::regex_match(str, m_function_signature_regex) ||
-             std::regex_match(str, m_open_function_signature_regex)) &&
+        if ((std::regex_match(strToReview, m_function_signature_regex) ||
+             std::regex_match(strToReview, m_open_function_signature_regex)) &&
             // but allow something like "Item(s)"
-            !std::regex_match(str, m_plural_regex))
+            !std::regex_match(strToReview, m_plural_regex))
             {
-            return true;
+            return std::make_pair(true, strToReview.length());
             }
 
-        i18n_string_util::remove_hex_color_values(str);
-        i18n_string_util::remove_printf_commands(str);
-        i18n_string_util::remove_escaped_unicode_values(str);
-        string_util::trim(str);
+        i18n_string_util::remove_hex_color_values(strToReview);
+        i18n_string_util::remove_printf_commands(strToReview);
+        i18n_string_util::remove_escaped_unicode_values(strToReview);
+        string_util::trim(strToReview);
         // strip control characters (these wreak havoc with the regex parser)
-        for (auto& chr : str)
+        for (auto& chr : strToReview)
             {
             if (chr == L'\n' || chr == L'\t' || chr == L'\r')
                 {
                 chr = L' ';
                 }
             }
-        string_util::trim(str);
+        string_util::trim(strToReview);
 
         try
             {
@@ -2087,176 +2093,186 @@ namespace i18n_check
             // Note that we skip any punctuation (not word characters, excluding '<')
             // in front of the initial '<' (sometimes there are braces and brackets
             // in front of the HTML tags).
-            str = std::regex_replace(str, std::wregex(LR"(<br[[:space:]]*\/>)"), L"\n");
-            string_util::trim(str);
-            if (std::regex_match(str, m_xml_element_regex) || std::regex_match(str, m_html_regex) ||
-                std::regex_match(str, m_html_element_with_content_regex) ||
-                std::regex_match(str, m_html_tag_regex) ||
-                std::regex_match(str, m_html_tag_unicode_regex))
+            strToReview =
+                std::regex_replace(strToReview, std::wregex(LR"(<br[[:space:]]*\/>)"), L"\n");
+            string_util::trim(strToReview);
+            if (std::regex_match(strToReview, m_xml_element_regex) ||
+                std::regex_match(strToReview, m_html_regex) ||
+                std::regex_match(strToReview, m_html_element_with_content_regex) ||
+                std::regex_match(strToReview, m_html_tag_regex) ||
+                std::regex_match(strToReview, m_html_tag_unicode_regex))
                 {
                 // it's really something like "<enter comment.>", which can be translatable
-                if (std::regex_match(str, m_not_xml_element_regex))
+                if (std::regex_match(strToReview, m_not_xml_element_regex))
                     {
-                    return false;
+                    return std::make_pair(false, strToReview.length());
                     }
 
                 // Avoid a false positive for single words in braces.
                 // It may be an HTML/XML element, but it may also be a user-facing string,
                 // so error on the side of that.
-                if (std::regex_match(str, m_angle_braced_one_word_regex) &&
-                    !std::regex_match(str, m_html_known_elements_regex))
+                if (std::regex_match(strToReview, m_angle_braced_one_word_regex) &&
+                    !std::regex_match(strToReview, m_html_known_elements_regex))
                     {
                     if (limitWordCount)
                         {
                         // see if it has enough words
                         const auto matchCount{ std::distance(
-                            std::wsregex_iterator(str.cbegin(), str.cend(), m_1word_regex),
+                            std::wsregex_iterator(strToReview.cbegin(), strToReview.cend(),
+                                                  m_1word_regex),
                             std::wsregex_iterator()) };
                         if (static_cast<size_t>(matchCount) <
                             get_min_words_for_classifying_unavailable_string())
                             {
-                            return true;
+                            return std::make_pair(true, strToReview.length());
                             }
                         }
                     else
                         {
-                        return false;
+                        return std::make_pair(false, strToReview.length());
                         }
                     }
-                str = std::regex_replace(str, std::wregex(LR"(<script[\d\D]*?>[\d\D]*?</script>)"),
-                                         L"");
-                str = std::regex_replace(str, std::wregex(LR"(<style[\d\D]*?>[\d\D]*?</style>)"),
-                                         L"");
-                str = std::regex_replace(
-                    str, std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"),
-                    L"");
-                str = std::regex_replace(str, m_xml_element_regex, L"");
+                strToReview = std::regex_replace(
+                    strToReview, std::wregex(LR"(<script[\d\D]*?>[\d\D]*?</script>)"), L"");
+                strToReview = std::regex_replace(
+                    strToReview, std::wregex(LR"(<style[\d\D]*?>[\d\D]*?</style>)"), L"");
+                strToReview = std::regex_replace(
+                    strToReview,
+                    std::wregex(L"<[?]?[A-Za-z0-9+_/\\-\\.'\"=;:!%[:space:]\\\\,()]+[?]?>"), L"");
+                strToReview = std::regex_replace(strToReview, m_xml_element_regex, L"");
                 // strip things like &ldquo;
-                str = std::regex_replace(str, std::wregex(L"&[a-zA-Z]{2,5};"), L"");
-                str = std::regex_replace(str, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
+                strToReview = std::regex_replace(strToReview, std::wregex(L"&[a-zA-Z]{2,5};"), L"");
+                strToReview =
+                    std::regex_replace(strToReview, std::wregex(L"&#[[:digit:]]{2,4};"), L"");
                 }
 
             // see if it has enough words
             const auto matchCount{ std::distance(
-                std::wsregex_iterator(str.cbegin(), str.cend(), m_1word_regex),
+                std::wsregex_iterator(strToReview.cbegin(), strToReview.cend(), m_1word_regex),
                 std::wsregex_iterator()) };
             if (!is_allowing_translating_punctuation_only_strings() && matchCount == 0)
                 {
-                return true;
+                return std::make_pair(true, strToReview.length());
                 }
             else if (limitWordCount)
                 {
                 if (static_cast<size_t>(matchCount) <
                     get_min_words_for_classifying_unavailable_string())
                     {
-                    return true;
+                    return std::make_pair(true, strToReview.length());
                     }
                 }
 
             // Nothing but punctuation? If that's OK to allow, then let it through.
             if (is_allowing_translating_punctuation_only_strings() &&
-                std::regex_match(str, std::wregex(L"[[:punct:]]+")))
+                std::regex_match(strToReview, std::wregex(L"[[:punct:]]+")))
                 {
-                return false;
+                return std::make_pair(false, strToReview.length());
                 }
 
             // "N/A", "O&n", and "O&K" are OK to translate, but it won't meet the criterion of at
             // least two consecutive letters, so check for that first.
-            if (str.length() == 3 &&
-                ((string_util::is_either(str[0], L'N', L'n') && str[1] == L'/' &&
-                  string_util::is_either(str[2], L'A', L'a')) ||
-                 (string_util::is_either(str[0], L'O', L'o') && str[1] == L'&' &&
-                  (string_util::is_either(str[2], L'N', L'n') ||
-                   string_util::is_either(str[2], L'K', L'k')))))
+            if (strToReview.length() == 3 &&
+                ((string_util::is_either(strToReview[0], L'N', L'n') && strToReview[1] == L'/' &&
+                  string_util::is_either(strToReview[2], L'A', L'a')) ||
+                 (string_util::is_either(strToReview[0], L'O', L'o') && strToReview[1] == L'&' &&
+                  (string_util::is_either(strToReview[2], L'N', L'n') ||
+                   string_util::is_either(strToReview[2], L'K', L'k')))))
                 {
-                return false;
+                return std::make_pair(false, strToReview.length());
                 }
             constexpr size_t maxWordSize{ 20 };
-            if (str.length() <= 1 ||
+            if (strToReview.length() <= 1 ||
                 // not at least two letters together
-                !std::regex_search(str, m_2letter_regex) ||
+                !std::regex_search(strToReview, m_2letter_regex) ||
                 // single word (no spaces or word separators) and more than 20 characters--
                 // doesn't seem like a real word meant for translation
-                (str.length() > maxWordSize &&
-                 str.find_first_of(L" \n\t\r/-") == std::wstring::npos &&
-                 str.find(L"\\n") == std::wstring::npos && str.find(L"\\r") == std::wstring::npos &&
-                 str.find(L"\\t") == std::wstring::npos) ||
-                m_known_internal_strings.find(str.c_str()) != m_known_internal_strings.end() ||
+                (strToReview.length() > maxWordSize &&
+                 strToReview.find_first_of(L" \n\t\r/-") == std::wstring::npos &&
+                 strToReview.find(L"\\n") == std::wstring::npos &&
+                 strToReview.find(L"\\r") == std::wstring::npos &&
+                 strToReview.find(L"\\t") == std::wstring::npos) ||
+                m_known_internal_strings.find(strToReview.c_str()) !=
+                    m_known_internal_strings.end() ||
                 // a string like "_tcscoll" be odd to be in string, but just in case it
                 // should not be localized
-                m_deprecated_string_functions.find(str.c_str()) !=
+                m_deprecated_string_functions.find(strToReview.c_str()) !=
                     m_deprecated_string_functions.end() ||
-                m_deprecated_string_macros.find(str.c_str()) != m_deprecated_string_macros.end())
+                m_deprecated_string_macros.find(strToReview.c_str()) !=
+                    m_deprecated_string_macros.end())
                 {
-                return true;
+                return std::make_pair(true, strToReview.length());
                 }
             // RTF text
-            if (str.compare(0, 3, LR"({\\)") == 0)
+            if (strToReview.compare(0, 3, LR"({\\)") == 0)
                 {
-                return true;
+                return std::make_pair(true, strToReview.length());
                 }
             // social media hashtag (or formatting code of some sort)
-            if (std::regex_match(str, m_hashtag_regex))
+            if (std::regex_match(strToReview, m_hashtag_regex))
                 {
-                return true;
+                return std::make_pair(true, strToReview.length());
                 }
-            if (std::regex_match(str, m_key_shortcut_regex))
+            if (std::regex_match(strToReview, m_key_shortcut_regex))
                 {
-                return true;
+                return std::make_pair(true, strToReview.length());
                 }
             constexpr size_t minMessageLength{ 200 };
             // if we know it had at least one word (and spaces) at this point,
             // then it being more than 200 characters means that it probably is
             // a real user-message (not an internal string)
-            if (str.length() > minMessageLength && !std::regex_match(str, loremIpsum) &&
-                !std::regex_match(str, m_sql_code))
+            if (strToReview.length() > minMessageLength &&
+                !std::regex_match(strToReview, loremIpsum) &&
+                !std::regex_match(strToReview, m_sql_code))
                 {
-                return false;
+                return std::make_pair(false, strToReview.length());
                 }
 
-            if (m_untranslatable_exceptions.find(str) != m_untranslatable_exceptions.cend())
+            if (m_untranslatable_exceptions.find(strToReview) != m_untranslatable_exceptions.cend())
                 {
-                return false;
+                return std::make_pair(false, strToReview.length());
                 }
 
             // strings that may look like they should not be translatable, but are actually OK
             for (const auto& reg : m_translatable_regexes)
                 {
-                if (std::regex_match(str, reg))
+                if (std::regex_match(strToReview, reg))
                     {
 #ifndef NDEBUG
-                    if (str.length() > m_longest_internal_string.first.length())
+                    if (strToReview.length() > m_longest_internal_string.first.length())
                         {
-                        m_longest_internal_string.first = str;
+                        m_longest_internal_string.first = strToReview;
                         m_longest_internal_string.second = reg;
                         }
 #endif
-                    return false;
+                    return std::make_pair(false, strToReview.length());
                     }
                 }
 
             for (const auto& reg : m_untranslatable_regexes)
                 {
-                if (std::regex_match(str, reg))
+                if (std::regex_match(strToReview, reg))
                     {
 #ifndef NDEBUG
-                    if (str.length() > m_longest_internal_string.first.length())
+                    if (strToReview.length() > m_longest_internal_string.first.length())
                         {
-                        m_longest_internal_string.first = str;
+                        m_longest_internal_string.first = strToReview;
                         m_longest_internal_string.second = reg;
                         }
 #endif
-                    return true;
+                    return std::make_pair(true, strToReview.length());
                     }
                 }
-            return (is_font_name(str.c_str()) || is_file_extension(str.c_str()) ||
-                    i18n_string_util::is_file_address(str));
+            return std::make_pair((is_font_name(strToReview.c_str()) ||
+                                   is_file_extension(strToReview.c_str()) ||
+                                   i18n_string_util::is_file_address(strToReview)),
+                                  strToReview.length());
             }
         catch (const std::exception& exp)
             {
-            log_message(str, i18n_string_util::lazy_string_to_wstring(exp.what()),
+            log_message(strToReview, i18n_string_util::lazy_string_to_wstring(exp.what()),
                         std::wstring::npos);
-            return false;
+            return std::make_pair(false, strToReview.length());
             }
         }
 

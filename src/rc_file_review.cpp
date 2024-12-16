@@ -90,7 +90,7 @@ namespace i18n_check
                     {
                     tableEntry.second.pop_back();
                     }
-                if (is_untranslatable_string(tableEntry.second, false))
+                if (is_untranslatable_string(tableEntry.second, false).first)
                     {
                     m_unsafe_localizable_strings.emplace_back(
                         tableEntry.second,
@@ -126,7 +126,24 @@ namespace i18n_check
                         }
                     }
 
-#if __cplusplus >= 202002L
+                if (m_review_styles & check_l10n_contains_excessive_nonl10n_content)
+                    {
+                    const auto [isunTranslatable, translatableContentLength] =
+                        is_untranslatable_string(tableEntry.second, false);
+                    if ((m_review_styles & check_l10n_contains_excessive_nonl10n_content) &&
+                        !isunTranslatable &&
+                        tableEntry.second.length() > (translatableContentLength * 3))
+                        {
+                        m_localizable_strings_with_unlocalizable_content.emplace_back(
+                            tableEntry.second,
+                            string_info::usage_info(string_info::usage_info::usage_type::orphan,
+                                                    std::wstring{}, std::wstring{}),
+                            m_file_name,
+                            std::make_pair(get_line_and_column(tableEntry.first, rcFileText).first,
+                                           std::wstring::npos));
+                        }
+                    }
+
                 if ((m_review_styles & check_l10n_has_surrounding_spaces) &&
                     has_surrounding_spaces(tableEntry.second))
                     {
@@ -138,7 +155,6 @@ namespace i18n_check
                         std::make_pair(get_line_and_column(tableEntry.first, rcFileText).first,
                                        std::wstring::npos));
                     }
-#endif
                 }
             }
 

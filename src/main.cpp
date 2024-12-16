@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
          "allI18N, allL10N, allCodeFormatting, suspectL10NString, suspectL10NUsage, suspectI18NUsage, "
          "urlInL10NString, notL10NAvailable, deprecatedMacro, nonUTF8File, transInconsistency, "
          "numberInconsistency, lengthInconsistency, L10NStringNeedsContext, UTF8FileWithBOM, "
-         "unencodedExtASCII, printfSingleNumber, spacesAroundL10NString, "
+         "unencodedExtASCII, printfSingleNumber, spacesAroundL10NString, excessiveNonL10NContent,"
          "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue, printfMismatch, "
          "acceleratorMismatch, trailingSpaces, tabs, wideLine, commentMissingSpace)",
          cxxopts::value<std::vector<std::string>>())
@@ -242,6 +242,10 @@ int main(int argc, char* argv[])
                 {
                 rs |= i18n_check::review_style::check_l10n_contains_url;
                 }
+            else if (r == "excessiveNonL10NContent")
+                {
+                rs |= i18n_check::review_style::check_l10n_contains_excessive_nonl10n_content;
+                }
             else if (r == "spacesAroundL10NString")
                 {
                 rs |= i18n_check::review_style::check_l10n_has_surrounding_spaces;
@@ -373,6 +377,10 @@ int main(int argc, char* argv[])
             else if (r == "urlInL10NString")
                 {
                 rs = rs & ~i18n_check::review_style::check_l10n_contains_url;
+                }
+            else if (r == "excessiveNonL10NContent")
+                {
+                rs = rs & ~i18n_check::review_style::check_l10n_contains_excessive_nonl10n_content;
                 }
             else if (r == "spacesAroundL10NString")
                 {

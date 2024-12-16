@@ -50,13 +50,13 @@ namespace i18n_check
                 }
             if (static_cast<bool>(m_review_styles & check_l10n_strings))
                 {
-                if (is_untranslatable_string(catEntry.second.m_source, false))
+                if (is_untranslatable_string(catEntry.second.m_source, false).first)
                     {
                     catEntry.second.m_issues.emplace_back(translation_issue::suspect_source_issue,
                                                           catEntry.second.m_source);
                     }
                 if (!catEntry.second.m_source_plural.empty() &&
-                    is_untranslatable_string(catEntry.second.m_source_plural, false))
+                    is_untranslatable_string(catEntry.second.m_source_plural, false).first)
                     {
                     catEntry.second.m_issues.emplace_back(translation_issue::suspect_source_issue,
                                                           catEntry.second.m_source_plural);
@@ -76,6 +76,31 @@ namespace i18n_check
                     {
                     catEntry.second.m_issues.emplace_back(translation_issue::suspect_source_issue,
                                                           catEntry.second.m_source_plural);
+                    }
+                }
+            if (static_cast<bool>(m_review_styles & check_l10n_contains_excessive_nonl10n_content))
+                {
+                if (const auto [isunTranslatable, translatableContentLength] =
+                        is_untranslatable_string(catEntry.second.m_source, false);
+                    (m_review_styles & check_l10n_contains_excessive_nonl10n_content) &&
+                    !isunTranslatable &&
+                    catEntry.second.m_source.length() > (translatableContentLength * 3) &&
+                    catEntry.second.m_comment.empty())
+                    {
+                    catEntry.second.m_issues.emplace_back(
+                        translation_issue::excessive_nonl10n_content, catEntry.second.m_source);
+                    }
+
+                if (const auto [isunTranslatable, translatableContentLength] =
+                        is_untranslatable_string(catEntry.second.m_source_plural, false);
+                    (m_review_styles & check_l10n_contains_excessive_nonl10n_content) &&
+                    !isunTranslatable &&
+                    catEntry.second.m_source_plural.length() > (translatableContentLength * 3) &&
+                    catEntry.second.m_comment.empty())
+                    {
+                    catEntry.second.m_issues.emplace_back(
+                        translation_issue::excessive_nonl10n_content,
+                        catEntry.second.m_source_plural);
                     }
                 }
             if (static_cast<bool>(m_review_styles & check_l10n_has_surrounding_spaces))
@@ -251,23 +276,26 @@ namespace i18n_check
             if (static_cast<bool>(m_review_styles & check_length))
                 {
                 // the length that a translation can be longer than the source
-                const double lengthFactor{ (get_translation_length_threshold() + 100) / static_cast<double>(100) };
-                if (catEntry.second.m_source !=  L"translator-credits" &&
-                    catEntry.second.m_translation.length() > (catEntry.second.m_source.length() * lengthFactor))
+                const double lengthFactor{ (get_translation_length_threshold() + 100) /
+                                           static_cast<double>(100) };
+                if (catEntry.second.m_source != L"translator-credits" &&
+                    catEntry.second.m_translation.length() >
+                        (catEntry.second.m_source.length() * lengthFactor))
                     {
-                    catEntry.second.m_issues.emplace_back(
-                                translation_issue::length_issue,
-                                L"'" + catEntry.second.m_source + _WXTRANS_WSTR(L"' vs. '") +
-                                    catEntry.second.m_translation + L"'");
+                    catEntry.second.m_issues.emplace_back(translation_issue::length_issue,
+                                                          L"'" + catEntry.second.m_source +
+                                                              _WXTRANS_WSTR(L"' vs. '") +
+                                                              catEntry.second.m_translation + L"'");
                     }
 
-                if (catEntry.second.m_source_plural !=  L"translator-credits" &&
-                    catEntry.second.m_translation_plural.length() > (catEntry.second.m_source_plural.length() * lengthFactor))
+                if (catEntry.second.m_source_plural != L"translator-credits" &&
+                    catEntry.second.m_translation_plural.length() >
+                        (catEntry.second.m_source_plural.length() * lengthFactor))
                     {
                     catEntry.second.m_issues.emplace_back(
-                                translation_issue::length_issue,
-                                L"'" + catEntry.second.m_source_plural + _WXTRANS_WSTR(L"' vs. '") +
-                                    catEntry.second.m_translation_plural + L"'");
+                        translation_issue::length_issue,
+                        L"'" + catEntry.second.m_source_plural + _WXTRANS_WSTR(L"' vs. '") +
+                            catEntry.second.m_translation_plural + L"'");
                     }
                 }
 
