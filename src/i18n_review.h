@@ -217,7 +217,7 @@ namespace i18n_check
         source_needing_context_issue,
         /// @brief Inconsistent numbers.
         number_issue,
-        /// @brief Translation is suspicously longer than the source string.
+        /// @brief Translation is suspiciously longer than the source string.
         length_issue,
         /// @brief Translation contains large blocks on non-translatable content.
         excessive_nonl10n_content

@@ -561,7 +561,7 @@ namespace i18n_check
                     {
                     report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t\""
                            << issue.second << L"\"\t\""
-                           << _(L"Translation is suspicously longer than the source string.")
+                           << _(L"Translation is suspiciously longer than the source string.")
                            << "\"\t[lengthInconsistency]\n";
                     }
                 else if (issue.first == translation_issue::consistency_issue)
