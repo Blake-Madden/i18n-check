@@ -146,12 +146,12 @@ namespace i18n_check
         /// @private
         i18n_reserved17 = (static_cast<int64_t>(1) << 29),
         /// @brief Perform all aforementioned internationalization checks.
-        all_i18n_checks =
-        (check_l10n_strings | check_suspect_l10n_string_usage | check_not_available_for_l10n |
-        check_deprecated_macros | check_utf8_encoded | check_unencoded_ext_ascii |
-        check_printf_single_number | check_l10n_contains_url | check_number_assigned_to_id |
-        check_duplicate_value_assigned_to_ids | check_malformed_strings |
-        check_utf8_with_signature | check_fonts | check_suspect_i18n_usage),
+        all_i18n_checks = (check_l10n_strings | check_suspect_l10n_string_usage |
+        check_not_available_for_l10n | check_deprecated_macros | check_utf8_encoded |
+        check_unencoded_ext_ascii | check_printf_single_number | check_l10n_contains_url |
+        check_number_assigned_to_id | check_duplicate_value_assigned_to_ids |
+        check_malformed_strings | check_utf8_with_signature | check_fonts |
+        check_l10n_has_surrounding_spaces | check_needing_context | check_suspect_i18n_usage),
 
         /// @brief Check for mismatching printf commands between source strings and their
         ///     respective translations.
@@ -164,8 +164,8 @@ namespace i18n_check
         check_consistency = (static_cast<int64_t>(1) << 32),
         /// @brief Check for mismatching numbers between the source and target strings.
         check_numbers = (static_cast<int64_t>(1) << 33),
-        /// @private
-        l10n_reserved4 = (static_cast<int64_t>(1) << 34),
+        /// @brief Check for suspect lengths of translations compared to their source strings.
+        check_length = (static_cast<int64_t>(1) << 34),
         l10n_reserved5 = (static_cast<int64_t>(1) << 35),
         l10n_reserved6 = (static_cast<int64_t>(1) << 36),
         l10n_reserved7 = (static_cast<int64_t>(1) << 37),
@@ -182,8 +182,8 @@ namespace i18n_check
         l10n_reserved18 = (static_cast<int64_t>(1) << 48),
         l10n_reserved19 = (static_cast<int64_t>(1) << 49),
         /// @brief Perform all aforementioned localization checks.
-        all_l10n_checks =
-        (check_mismatching_printf_commands | check_accelerators | check_consistency),
+        all_l10n_checks = (check_mismatching_printf_commands | check_accelerators |
+        check_consistency | check_numbers | check_length),
 
         /// @brief Check for trailing spaces at the end of each line.
         check_trailing_spaces = (static_cast<int64_t>(1) << 50),
@@ -214,7 +214,9 @@ namespace i18n_check
         /// @brief Ambiguous source string that is lacking contextual information.
         source_needing_context_issue,
         /// @brief Inconsistent numbers.
-        number_issue
+        number_issue,
+        /// @brief Translation is suspicously longer than the source string.
+        length_issue
         };
 
     /// @brief File types that can be analyzed.
@@ -726,7 +728,25 @@ namespace i18n_check
         /// @brief Sets the C++ standard that should be assumed when issuing
         ///     deprecated macro warnings.
         /// @param version The C++ standard that controls deprecation warnings.
-        void set_min_cpp_version(const int version) { m_min_cpp_version = version; }
+        void set_min_cpp_version(const int version) noexcept { m_min_cpp_version = version; }
+
+        /// @returns The maximum percent that a translation can be longer than the source string
+        ///     without emitting a warning.
+        uint16_t get_translation_length_threshold() const noexcept
+            {
+            return m_translation_length_threshold;
+            }
+
+        /// @brief Sets the maximum percent that a translation can be longer than the source string
+        ///     without emitting a warning.
+        /// @details For example, `100` would mean that the translation can be 100% longer than the
+        ///     source string (i.e., double its size). `0` would mean that the translation
+        ///     must be the same length (or shorter) than the source string.
+        /// @param threshold The maximum percent before an warning is emitted.
+        void set_translation_length_threshold(const uint16_t threshold) noexcept
+            {
+            m_translation_length_threshold = threshold;
+            }
 
         /** @brief Adds a font face to be ignored if found as a string.
             @param str The font face name.*/
@@ -772,10 +792,10 @@ namespace i18n_check
         static std::vector<std::pair<size_t, size_t>>
         load_file_filter_positions(const std::wstring& resource);
 
-         /** @brief Loads all positional format commands from a string.
-            @param resource The string to parse.
-            @returns A vector of positions and lengths of all
-                positional format commands from the string.*/
+        /** @brief Loads all positional format commands from a string.
+           @param resource The string to parse.
+           @returns A vector of positions and lengths of all
+               positional format commands from the string.*/
         [[nodiscard]]
         static std::vector<std::pair<size_t, size_t>>
         load_positional_command_positions(const std::wstring& resource);
@@ -1123,6 +1143,7 @@ namespace i18n_check
         size_t m_min_words_for_unavailable_string{ 2 };
 
         int m_min_cpp_version{ 2014 };
+        uint16_t m_translation_length_threshold{ 400 };
 
         review_style m_review_styles{ static_cast<review_style>(
             review_style::check_l10n_strings | review_style::check_suspect_l10n_string_usage |

@@ -162,15 +162,25 @@ Because of this, the list of numbers shown in these warnings will not include an
 Also, the sequence of mismatching numbers in the warning message will be displayed in lexicographical order, not the order that they appear in the strings.
 It is assumed that the ordering of numbers can change in the translation; thus, the ordering of numbers is normalized and shown in this way in the warning.
 :::
-
-**Review fuzzy translations**: select this to review fuzzy translations. This should only be selected if you intend to review translations
-that still require approval and are likely unfinished.
 ::::
 
 :::: {.optionssection data-latex=""}
 ::: {.optionssectiontitle data-latex=""}
 Translation catalogs (*continued...*)
 :::
+
+**Check for inconsistent translation lengths**: select this to check for suspect lengths of translations compared to their source strings.
+
+The default is 400%, meaning that a translation can be four times longer than the source string before emitting a warning.
+This value can be changed by adjustsing the **Translation length threshold** slider.
+
+::: {.notesection data-latex=""}
+Setting this to 0% will instruct the program to warn if any translation is longer than the source string.
+This is useful for legacy software where resource-loading routines are using hardcoded string lengths.
+:::
+
+**Review fuzzy translations**: select this to review fuzzy translations. This should only be selected if you intend to review translations
+that still require approval and are likely unfinished.
 
 **Pseudo-translation**
 

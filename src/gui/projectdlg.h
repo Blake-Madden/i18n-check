@@ -78,6 +78,7 @@ class NewProjectDialog final : public wxDialog
         options.m_addPseudoTransBrackets = m_addPseudoTransBrackets;
         options.m_pseudoTrack = m_pseudoTrack;
         options.m_widthPseudoChange = m_widthPseudoChange;
+        options.m_maxTranslationLongerThreshold = m_maxTranslationLongerThreshold;
         options.m_pseudoTranslationMethod =
             static_cast<i18n_check::pseudo_translation_method>(m_pseudoTranslationMethod);
         options.m_logMessagesCanBeTranslated = LogMessagesCanBeTranslated();
@@ -286,6 +287,7 @@ class NewProjectDialog final : public wxDialog
     constexpr static int ID_PSEUDO_BRACKETS_CHECK = wxID_HIGHEST + 6;
     constexpr static int ID_PSEUDO_TRACK_IDS_CHECK = wxID_HIGHEST + 7;
     constexpr static int ID_PSEUDO_WIDTH_SLIDER = wxID_HIGHEST + 8;
+    constexpr static int ID_CHECK_TRANS_LONGER_CHECK = wxID_HIGHEST + 9;
 
     bool m_showFileOptions{ true };
 
@@ -301,6 +303,7 @@ class NewProjectDialog final : public wxDialog
     bool m_acceleratorMismatch{ true };
     bool m_transConsistency{ true };
     bool m_numberInconsistency{ false };
+    bool m_lengthInconsistency{ false };
     bool m_needsContext{ false };
     bool m_urlInL10NString{ true };
     bool m_spacesAroundL10NString{ false };
@@ -320,6 +323,7 @@ class NewProjectDialog final : public wxDialog
     bool m_dupValAssignedToIds{ true };
     int m_minCppVersion{ 1 };
     // RC options
+    int m_maxTranslationLongerThreshold{ 400 };
     bool m_fontIssue{ true };
     // pseudo-translation options
     bool m_fuzzyTranslations{ true };
@@ -338,6 +342,9 @@ class NewProjectDialog final : public wxDialog
     wxString m_sampleText{ _DT(L"Sample Text") };
     wxString m_previewText;
 
+    wxStaticText* m_transLongerThresholdLabel{ nullptr };
+    wxStaticText* m_transLongerThresholdtLabel{ nullptr };
+    wxSlider* m_transLongerThresholdSlider{ nullptr };
     wxCheckBox* m_pseudoSurroundingBracketsCheckbox{ nullptr };
     wxCheckBox* m_pseudoTrackCheckbox{ nullptr };
     wxStaticText* m_pseudoSliderLabel{ nullptr };

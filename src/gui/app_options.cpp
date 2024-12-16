@@ -52,6 +52,10 @@ void I18NOptions::Save(const wxString& filePath)
     node->AddChild(
         new wxXmlNode(wxXML_TEXT_NODE, wxString{}, m_fuzzyTranslations ? L"true" : L"false"));
 
+    node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"translation-longer-threshold");
+    node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
+                                 std::to_wstring(m_maxTranslationLongerThreshold)));
+
     node = new wxXmlNode(root, wxXML_ELEMENT_NODE, L"pseudo-translation-method");
     node->AddChild(new wxXmlNode(wxXML_TEXT_NODE, wxString{},
                                  std::to_wstring(static_cast<int>(m_pseudoTranslationMethod))));
@@ -136,6 +140,7 @@ void I18NOptions::Load(const wxString& filePath)
     m_allowTranslatingPunctuationOnlyStrings = false;
     m_exceptionsShouldBeTranslatable = true;
     m_verbose = false;
+    m_maxTranslationLongerThreshold = 400;
     m_widthPseudoChange = 40;
     m_minWordsForClassifyingUnavailableString = 2;
     m_minCppVersion = 2014;
@@ -207,6 +212,10 @@ void I18NOptions::Load(const wxString& filePath)
         else if (child->GetName() == L"pseudo-track")
             {
             m_pseudoTrack = (child->GetNodeContent() == L"true");
+            }
+        else if (child->GetName() == L"translation-longer-threshold")
+            {
+            child->GetNodeContent().ToInt(&m_maxTranslationLongerThreshold);
             }
         else if (child->GetName() == L"pseudo-width-change")
             {

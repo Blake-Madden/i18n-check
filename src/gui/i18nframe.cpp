@@ -748,6 +748,7 @@ void I18NFrame::OnIgnoreSelectedWarning([[maybe_unused]] wxCommandEvent&)
             excludeFlag(L"[acceleratorMismatch]", i18n_check::review_style::check_accelerators);
             excludeFlag(L"[transInconsistency]", i18n_check::review_style::check_consistency);
             excludeFlag(L"[numberInconsistency]", i18n_check::review_style::check_numbers);
+            excludeFlag(L"[lengthInconsistency]", i18n_check::review_style::check_length);
             excludeFlag(L"[L10NStringNeedsContext]",
                         i18n_check::review_style::check_needing_context);
             excludeFlag(L"[urlInL10NString]", i18n_check::review_style::check_l10n_contains_url);
@@ -1412,6 +1413,7 @@ void I18NFrame::Process()
     i18n_check::po_file_review po(m_activeProjectOptions.m_verbose);
     po.set_style(static_cast<i18n_check::review_style>(m_activeProjectOptions.m_options));
     po.review_fuzzy_translations(m_activeProjectOptions.m_fuzzyTranslations);
+    po.set_translation_length_threshold(m_activeProjectOptions.m_maxTranslationLongerThreshold);
 
     i18n_check::batch_analyze analyzer(&cpp, &rc, &po, &csharp);
 

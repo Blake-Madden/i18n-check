@@ -24,16 +24,17 @@ namespace fs = std::filesystem;
 int main(int argc, char* argv[])
     {
     cxxopts::Options options("Cuneiform", "Cuneiform: Internationalization/localization analysis "
-                                           "system, (c) 2021-2024 Blake Madden");
+                                          "system, (c) 2021-2024 Blake Madden");
     // clang-format off
     options.add_options()
         ("input", "The folder (or file) to analyze",
          cxxopts::value<std::string>())
         ("enable",
          "Which checks to perform (any combination of: "
-         "allI18N, allL10N, allCodeFormatting, suspectL10NString, suspectL10NUsage, "
-         "rlInL10NString, notL10NAvailable, deprecatedMacro, nonUTF8File, transInconsistency, "
-         "UTF8FileWithBOM, unencodedExtASCII, printfSingleNumber, spacesAroundL10NString, "
+         "allI18N, allL10N, allCodeFormatting, suspectL10NString, suspectL10NUsage, suspectI18NUsage, "
+         "urlInL10NString, notL10NAvailable, deprecatedMacro, nonUTF8File, transInconsistency, "
+         "numberInconsistency, lengthInconsistency, L10NStringNeedsContext, UTF8FileWithBOM, "
+         "unencodedExtASCII, printfSingleNumber, spacesAroundL10NString, "
          "numberAssignedToId, dupValAssignedToIds, malformedString, fontIssue, printfMismatch, "
          "acceleratorMismatch, trailingSpaces, tabs, wideLine, commentMissingSpace)",
          cxxopts::value<std::vector<std::string>>())
@@ -229,6 +230,10 @@ int main(int argc, char* argv[])
                 {
                 rs |= i18n_check::review_style::check_numbers;
                 }
+            else if (r == "lengthInconsistency")
+                {
+                rs |= i18n_check::review_style::check_length;
+                }
             else if (r == "L10NStringNeedsContext")
                 {
                 rs |= i18n_check::review_style::check_needing_context;
@@ -356,6 +361,10 @@ int main(int argc, char* argv[])
             else if (r == "numberInconsistency")
                 {
                 rs = rs & ~i18n_check::review_style::check_numbers;
+                }
+            else if (r == "lengthInconsistency")
+                {
+                rs = rs & ~i18n_check::review_style::check_length;
                 }
             else if (r == "L10NStringNeedsContext")
                 {

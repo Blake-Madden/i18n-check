@@ -248,6 +248,29 @@ namespace i18n_check
                     }
                 }
 
+            if (static_cast<bool>(m_review_styles & check_length))
+                {
+                // the length that a translation can be longer than the source
+                const double lengthFactor{ (get_translation_length_threshold() + 100) / static_cast<double>(100) };
+                if (catEntry.second.m_source !=  L"translator-credits" &&
+                    catEntry.second.m_translation.length() > (catEntry.second.m_source.length() * lengthFactor))
+                    {
+                    catEntry.second.m_issues.emplace_back(
+                                translation_issue::length_issue,
+                                L"'" + catEntry.second.m_source + _WXTRANS_WSTR(L"' vs. '") +
+                                    catEntry.second.m_translation + L"'");
+                    }
+
+                if (catEntry.second.m_source_plural !=  L"translator-credits" &&
+                    catEntry.second.m_translation_plural.length() > (catEntry.second.m_source_plural.length() * lengthFactor))
+                    {
+                    catEntry.second.m_issues.emplace_back(
+                                translation_issue::length_issue,
+                                L"'" + catEntry.second.m_source_plural + _WXTRANS_WSTR(L"' vs. '") +
+                                    catEntry.second.m_translation_plural + L"'");
+                    }
+                }
+
             if (static_cast<bool>(m_review_styles & check_numbers))
                 {
                 const auto reviewNumbers = [&catEntry, &printfStrings1, &printfStrings2,

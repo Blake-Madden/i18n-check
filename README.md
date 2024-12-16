@@ -173,6 +173,7 @@ loaded by your application for integration testing.
   acceleratorMismatch:    Check for mismatching keyboard accelerators between source and translation strings.
   transInconsistency:     Check for inconsistent trailing punctuation, spaces, or newlines.
   numberInconsistency:    Check for mismatching numbers between the source and target strings.
+  lengthInconsistency:    Check for suspect lengths of translations compared to their source strings.
 
 --disable: Which checks to not perform. (Refer to options available above.)
            This will override any options passed to "--enable".
