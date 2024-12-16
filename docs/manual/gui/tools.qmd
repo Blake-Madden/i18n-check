@@ -1,0 +1,20 @@
+﻿
+```{r}
+#| include: false
+#| eval: true
+
+source('../R/appdown.r')
+```
+
+# Tools {#sec-gui-tools}
+
+A selection of tools are available for examining and converting text from the **Tools** section of the ribbon.
+
+## Convert String
+
+The **Convert String** dialog provides the ability to convert numbers within a string to different character sets.
+As an example, this can be useful for translating Latin-1 (i.e, 7-bit ASCII) into Japanese (i.e., full-width) numbers.
+
+::: {.notesection data-latex=""}
+If text is selected in the editor, then that will be used as the initial source string when opening this dialog.
+:::

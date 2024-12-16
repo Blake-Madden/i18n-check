@@ -24,10 +24,22 @@ ConvertStringDlg::ConvertStringDlg(
     wxDialog::Create(parent, id, caption, pos, size, style);
 
     // bind events
+    Bind(wxEVT_BUTTON, &ConvertStringDlg::OnHelpClicked, this, wxID_HELP);
     Bind(wxEVT_HELP, &ConvertStringDlg::OnContextHelp, this);
     Bind(wxEVT_TEXT, &ConvertStringDlg::OnTextChanged, this, ID_SOURCE_TEXT);
     Bind(wxEVT_TEXT, &ConvertStringDlg::OnTextChanged, this, ID_SOURCE_TEXT);
     Bind(wxEVT_CHOICE, &ConvertStringDlg::OnTextChanged, this, ID_SELECTIONS);
+    Bind(wxEVT_BUTTON, [this]([[maybe_unused]] wxCommandEvent&){
+    TransferDataFromWindow();
+    if (wxTheClipboard->Open() && m_outputTextCtrl != nullptr)
+        {
+        wxTheClipboard->Clear();
+        wxDataObjectComposite* obj = new wxDataObjectComposite();
+        obj->Add(new wxTextDataObject(m_outputTextCtrl->GetValue()));
+        wxTheClipboard->SetData(obj);
+        wxTheClipboard->Close();
+        }
+    }, wxID_COPY);
 
     CreateControls();
 
@@ -66,12 +78,19 @@ void ConvertStringDlg::CreateControls()
 
     mainDlgSizer->Add(new wxStaticText(this, wxID_STATIC, _(L"Conversion:")),
                       wxSizerFlags{}.Border());
+    wxBoxSizer* outputSizer = new wxBoxSizer(wxHORIZONTAL);
     m_outputTextCtrl = new wxTextCtrl(
         this, wxID_ANY, wxString{}, wxDefaultPosition, FromDIP(wxSize{ 500, 150 }),
         wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP | wxTE_READONLY);
-    mainDlgSizer->Add(m_outputTextCtrl, wxSizerFlags{ 1 }.Expand().Border());
+    outputSizer->Add(m_outputTextCtrl, wxSizerFlags{ 1 }.Expand());
+    auto* copyButton = new wxBitmapButton(this, wxID_COPY,
+                                        wxArtProvider::GetBitmap(wxART_COPY, wxART_OTHER,
+                                                                 FromDIP(wxSize{ 16, 16 })));
+    copyButton->SetToolTip(_("Copy"));
+    outputSizer->Add(copyButton, wxSizerFlags{}.Top());
+    mainDlgSizer->Add(outputSizer, wxSizerFlags{ 1 }.Expand().Border());
 
-    mainDlgSizer->Add(CreateSeparatedButtonSizer(wxCLOSE), wxSizerFlags{}.Expand().Border());
+    mainDlgSizer->Add(CreateSeparatedButtonSizer(wxCLOSE | wxHELP), wxSizerFlags{}.Expand().Border());
 
     TransferDataToWindow();
 

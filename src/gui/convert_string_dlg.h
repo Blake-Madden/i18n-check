@@ -21,7 +21,9 @@
 #include "../i18n_review.h"
 #include "app_options.h"
 #include <wx/artprov.h>
+#include <wx/bmpbuttn.h>
 #include <wx/choice.h>
+#include <wx/clipbrd.h>
 #include <wx/combobox.h>
 #include <wx/dirdlg.h>
 #include <wx/editlbox.h>
@@ -58,6 +60,15 @@ class ConvertStringDlg final : public wxDialog
     ConvertStringDlg(const ConvertStringDlg&) = delete;
     /// @private
     ConvertStringDlg& operator=(const ConvertStringDlg&) = delete;
+
+    /// @brief Sets the input string.
+    /// @param str The input string to assign.
+    void SetInput(const wxString& str)
+        {
+        TransferDataFromWindow();
+        m_input = str;
+        TransferDataToWindow();
+        }
 
   private:
     void CreateControls();

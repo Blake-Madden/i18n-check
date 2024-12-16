@@ -948,6 +948,7 @@ void I18NFrame::OnSettings([[maybe_unused]] wxCommandEvent&)
 void I18NFrame::OnConvertString([[maybe_unused]] wxCommandEvent&)
     {
     ConvertStringDlg csDlg(this);
+    csDlg.SetInput(m_editor->GetSelectedText());
     csDlg.ShowModal();
     }
 
@@ -1505,7 +1506,7 @@ void I18NFrame::Process()
                                             wxNumberFormatter::Style::Style_NoTrailingZeroes |
                                                 wxNumberFormatter::Style::Style_WithThousandsSep)));
 #ifndef NDEBUG
-            std::wcout << L"Analyzing " << file << L"\n";
+            std::wcout << L"Processing " << file << L"\n";
 #endif
             if (!progressDlg.Update(currentFileIndex,
                                     file.empty() ? _(L"Processing...") :

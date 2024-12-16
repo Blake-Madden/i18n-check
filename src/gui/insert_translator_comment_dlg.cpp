@@ -32,6 +32,7 @@ InsertTransCommentDlg::InsertTransCommentDlg(
 
     // bind events
     Bind(wxEVT_HELP, &InsertTransCommentDlg::OnContextHelp, this);
+    Bind(wxEVT_BUTTON, &InsertTransCommentDlg::OnHelpClicked, this, wxID_HELP);
     Bind(wxEVT_BUTTON, &InsertTransCommentDlg::OnOK, this, wxID_OK);
 
     CreateControls();
@@ -61,7 +62,7 @@ void InsertTransCommentDlg::CreateControls()
                                      wxGenericValidator(&m_comment)),
                       wxSizerFlags{ 1 }.Expand().Border());
 
-    mainDlgSizer->Add(CreateSeparatedButtonSizer(wxOK | wxCANCEL),
+    mainDlgSizer->Add(CreateSeparatedButtonSizer(wxOK | wxCANCEL | wxHELP),
                       wxSizerFlags{}.Expand().Border());
 
     TransferDataToWindow();

@@ -65,6 +65,7 @@ InsertTransMacroDlg::InsertTransMacroDlg(
 
     // bind events
     Bind(wxEVT_HELP, &InsertTransMacroDlg::OnContextHelp, this);
+    Bind(wxEVT_BUTTON, &InsertTransMacroDlg::OnHelpClicked, this, wxID_HELP);
     Bind(wxEVT_BUTTON, &InsertTransMacroDlg::OnOK, this, wxID_OK);
     Bind(wxEVT_CHOICE, [this](wxCommandEvent&) { EnableExtraControls(); }, ID_MACRO_COMBO);
 
@@ -145,7 +146,7 @@ void InsertTransMacroDlg::CreateControls()
             wxSizerFlags{}.Expand().Border());
         }
 
-    mainDlgSizer->Add(CreateSeparatedButtonSizer(wxOK | wxCANCEL),
+    mainDlgSizer->Add(CreateSeparatedButtonSizer(wxOK | wxCANCEL | wxHELP),
                       wxSizerFlags{}.Expand().Border());
 
     TransferDataToWindow();
