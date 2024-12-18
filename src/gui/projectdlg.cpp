@@ -332,9 +332,9 @@ void NewProjectDialog::OnFileButtonClick([[maybe_unused]] wxCommandEvent&)
     {
     TransferDataFromWindow();
     wxFileDialog dialog(this, _(L"Select Files to Analyze"), wxString{}, wxString{},
-                        _(L"All Supported Files|*.cpp;*.c;*.h;*.hpp;*.po;*.rc|"
+                        _(L"All Supported Files|*.cpp;*.c;*.h;*.hpp;*.po;*.pot;*.rc|"
                           "Source Files (*.cpp; *.c; *.h; *.hpp)|*.cpp;*.c;*.h;*.hpp|"
-                          "gettext Catalogs (*.po)|*.po|"
+                          "gettext Catalogs (*.po; *.pot)|*.po;*.pot|"
                           "Windows Resource Files (*.rc)|*.rc"),
                         wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_PREVIEW);
     if (dialog.ShowModal() != wxID_OK)
