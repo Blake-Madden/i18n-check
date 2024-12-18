@@ -2,7 +2,7 @@
 
 ## Open-Source Libraries {-}
 
-The 3^rd^ party, open-source libraries that *Cuneiform* includes (or links with) are listed below (along with their respective licenses).
+The 3^rd^ party, open-source libraries that *Quneiform* includes (or links with) are listed below (along with their respective licenses).
 
 ### cxxopts {-}
 

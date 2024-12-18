@@ -1,6 +1,6 @@
 # Building
 
-`Cuneiform` requires a C++20 compiler and can be built on Windows, macOS, and Linux.
+`Quneiform` requires a C++20 compiler and can be built on Windows, macOS, and Linux.
 
 *Cmake* scripts are included for building both the command-line and GUI (graphical user interface) versions. *Cmake* 3.25 or higher is required.
 
@@ -8,7 +8,7 @@ For the GUI version, [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.3 or 
 
 ## Command-line Utility
 
-`Cuneiform` can be configured and built with *Cmake*.
+`Quneiform` can be configured and built with *Cmake*.
 
 On Unix:
 
@@ -19,7 +19,7 @@ cmake --build . --target all -j $(nproc) --config Release
 
 On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
 
-After building, "cuneiform" will be available in the "bin" folder.
+After building, "quneiform" will be available in the "bin" folder.
 
 {{< pagebreak >}}
 
@@ -28,7 +28,7 @@ After building, "cuneiform" will be available in the "bin" folder.
 [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.3 or higher is required for building the graphical user interface version.
 
 Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as this project.
-After building *wxWidgets*, *Cuneiform* can be configured and built with *Cmake*.
+After building *wxWidgets*, *Quneiform* can be configured and built with *Cmake*.
 
 On Linux/macOS:
 
@@ -46,7 +46,7 @@ cmake --build . --target install --config Release
 
 # go back into the project folder and build the GUI version
 cd ..
-cd Cuneiform/gui
+cd Quneiform/gui
 cmake . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target all --config Release
 ```
@@ -60,4 +60,4 @@ On Windows with Visual Studio, build wxWidgets with the defaults, except `wxBUIL
 
 Open "gui/CMakeLists.txt" in Visual Studio, setting the *CMake* setting's configuration type to "Release" for a release build.
 
-After building, "cuneiform" will be available in the "bin" folder.
+After building, "quneiform" will be available in the "bin" folder.

@@ -23,7 +23,7 @@ namespace fs = std::filesystem;
 //-------------------------------------------------
 int main(int argc, char* argv[])
     {
-    cxxopts::Options options("Cuneiform", "Cuneiform: Internationalization/localization analysis "
+    cxxopts::Options options("Quneiform", "Quneiform: Internationalization/localization analysis "
                                           "system, (c) 2021-2024 Blake Madden");
     // clang-format off
     options.add_options()

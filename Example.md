@@ -4,7 +4,7 @@ After building, go into the "bin" folder and run this command
 to analyze the sample file:
 
 ```shellscript
-cuneiform ../samples -o results.txt
+quneiform ../samples -o results.txt
 ```
 
 This will produce a "results.txt" file in the "bin" folder with
@@ -43,45 +43,45 @@ To look only for suspect strings that are exposed for translation and show the r
 in the console window:
 
 ```shellscript
-cuneiform ../samples --enable=suspectL10NString,suspectL10NUsage
+quneiform ../samples --enable=suspectL10NString,suspectL10NUsage
 ```
 
 To look for all issues except for deprecated macros:
 
 ```shellscript
-cuneiform ../samples --disable=deprecatedMacros
+quneiform ../samples --disable=deprecatedMacros
 ```
 
-By default, `Cuneiform` will assume that messages inside of various exceptions should be translatable.
+By default, `Quneiform` will assume that messages inside of various exceptions should be translatable.
 If these messages are not exposed for localization, then a warning will be issued.
 
 To consider exception messages as internal (and suppress warnings about their messages not being localizable)
 do the following:
 
 ```shellscript
-cuneiform ../samples --exceptions-l10n-required=false
+quneiform ../samples --exceptions-l10n-required=false
 ```
 
-Similarity, `Cuneiform` will also consider messages inside of various logging functions to be allowable
+Similarity, `Quneiform` will also consider messages inside of various logging functions to be allowable
 for translation. A difference is that it will not warn if a message is not exposed for translation. This is because
 log messages can serve a dual role of user-facing messages and internal messages meant for developers.
 
 To consider all log messages to never be appropriate for translation, do the following:
 
 ```shellscript
-cuneiform ../samples --log-l10n-allowed=false
+quneiform ../samples --log-l10n-allowed=false
 ```
 
 To display any code-formatting issues, enable them explicitly:
 
 ```shellscript
-cuneiform ../samples --enable=allI18N,trailingSpaces,tabs,wideLine
+quneiform ../samples --enable=allI18N,trailingSpaces,tabs,wideLine
 ```
 
 or
 
 ```shellscript
-cuneiform ../samples --enable=allI18N,allCodeFormatting
+quneiform ../samples --enable=allI18N,allCodeFormatting
 ```
 
 This will emit the following warnings:

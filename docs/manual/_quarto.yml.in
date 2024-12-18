@@ -13,13 +13,13 @@ pdf-cover-author-color: "0, 0, 0"
 pdf-cover-font-color: "255, 255, 255"
 pdf-cover-color: "111, 144, 132"
 book:
-  title: "${cuneiform_DESCRIPTION} ${FULL_DISPLAY_VERSION}"
+  title: "${quneiform_DESCRIPTION} ${FULL_DISPLAY_VERSION}"
   subtitle: "User Manual"
   description: "${PROGRAM_COMMENTS}"
   author: "${PROGRAM_AUTHOR}"
   date: today
   date-format: "YYYY"
-  output-file: "cuneiform"
+  output-file: "quneiform"
   language: en
   chapters:
     - index.qmd

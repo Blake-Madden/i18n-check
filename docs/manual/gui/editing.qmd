@@ -54,5 +54,5 @@ The translation marking functions available are compatible with *gettext*, *wxWi
 
 To mark a string as non-translatable, select the string in the editor and select **Mark Selection as Non-translatable...** from the `r keys("Insert")` button.
 From the **Mark Selection as Non-translatable** dialog, options are available for which function to wrap the string in, along with providing an optional context and comment.
-These functions will mark the string as non-translatable and **Cuneiform** will ignore them during an analysis.
+These functions will mark the string as non-translatable and **Quneiform** will ignore them during an analysis.
 Additionally, these functions and comments decorating a string will inform developers that the string is not meant for translation and why.

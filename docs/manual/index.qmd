@@ -2,7 +2,7 @@
 <!-- Just want this preface in the gitbook.
      PDF output will have its own copyright page after the title.-->
 
-This book is the guide to using *Cuneiform*, an internationalization & localization analysis system for C++ code and translation resources.
+This book is the guide to using *Quneiform*, an internationalization & localization analysis system for C++ code and translation resources.
 
 ![](images/CC_BY-NC-ND.png)
 
@@ -11,13 +11,13 @@ This book is licensed under the [Creative Commons Attribution-NonCommercial-NoDe
 
 # Overview
 
-`Cuneiform` is a command-line utility and graphical user interface that scans source and resource files to check for
+`Quneiform` is a command-line utility and graphical user interface that scans source and resource files to check for
 various i18n and l10n issues. Additionally, the GUI version provides pseudo-translation support for
 *gettext* catalogs (\*.po files).
 
 ## File Support
 
-`Cuneiform` supports static analysis for the following:
+`Quneiform` supports static analysis for the following:
 
 - C code
 - C++ code ('98 and modern C++)

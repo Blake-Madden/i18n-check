@@ -3,17 +3,17 @@
 The following example will analyze the folder "wxWidgets/src" (but ignore the subfolders "expat" and "zlib"). It will only check for suspect translatable strings, and then send the output to "results.txt".
 
 ``` {.bash filename="Terminal"}
-cuneiform wxWidgets/src -i expat,zlib --enable=suspectL10NString -o results.txt
+quneiform wxWidgets/src -i expat,zlib --enable=suspectL10NString -o results.txt
 ```
 
 This example will only check for `suspectL10NUsage` and `suspectL10NString` and not show any progress messages.
 
 ``` {.bash filename="Terminal"}
-cuneiform wxWidgets/samples -q --enable=suspectL10NUsage,suspectL10NString
+quneiform wxWidgets/samples -q --enable=suspectL10NUsage,suspectL10NString
 ```
 
 This example will ignore multiple folders (and files) and output the results to "results.txt."
 
 ``` {.bash filename="Terminal"}
-cuneiform src --ignore=easyexif,base/colors.cpp,base/colors.h -o results.txt
+quneiform src --ignore=easyexif,base/colors.cpp,base/colors.h -o results.txt
 ```

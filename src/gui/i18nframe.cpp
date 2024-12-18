@@ -960,13 +960,13 @@ void I18NFrame::OnHelp([[maybe_unused]] wxCommandEvent&)
     const wxString docPath = []()
     {
         if (wxFile::Exists(wxStandardPaths::Get().GetResourcesDir() +
-                           wxFileName::GetPathSeparator() + L"cuneiform.pdf"))
+                           wxFileName::GetPathSeparator() + L"quneiform.pdf"))
             {
             return wxStandardPaths::Get().GetResourcesDir() + wxFileName::GetPathSeparator() +
-                   L"cuneiform.pdf";
+                   L"quneiform.pdf";
             }
         return wxFileName{ wxStandardPaths::Get().GetExecutablePath() }.GetPath() +
-               wxFileName::GetPathSeparator() + L"cuneiform.pdf";
+               wxFileName::GetPathSeparator() + L"quneiform.pdf";
     }();
     if (wxFile::Exists(docPath))
         {

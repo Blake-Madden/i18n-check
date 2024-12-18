@@ -2,14 +2,14 @@
 
 ## Code Blocks
 
-Warnings can be suppressed for blocks of source code by placing `cuneiform-suppress-begin` and `cuneiform-suppress-end` comments around them.
+Warnings can be suppressed for blocks of source code by placing `quneiform-suppress-begin` and `quneiform-suppress-end` comments around them.
 For example:
 
 ``` {.cpp}
-// cuneiform-suppress-begin
+// quneiform-suppress-begin
 if (_debug && allocFailed)
     AfxMessageBox("Allocation failed!");
-// cuneiform-suppress-end
+// quneiform-suppress-end
 ```
 
 This will prevent a warning from being emitted about "Allocation failed" not being available for localization.
@@ -68,6 +68,6 @@ auto command = _DT("open ") + fileName;
 ```
 
 ::: {.notesection data-latex=""}
-`_DT()` and `DONTTRANSLATE()` do not have any effect on the code and would normally be compiled out. Their purpose is only to inform `Cuneiform`
+`_DT()` and `DONTTRANSLATE()` do not have any effect on the code and would normally be compiled out. Their purpose is only to inform `Quneiform`
 that their arguments should not be translatable.
 :::

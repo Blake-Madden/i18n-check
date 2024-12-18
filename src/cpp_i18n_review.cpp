@@ -300,13 +300,15 @@ namespace i18n_check
                                 }
                             // if a \ at the end of the line, then step over that and
                             // restart stepping over an more spaces on the next line
-                            if (std::next(connectedQuote) < endSentinel && *connectedQuote == L'\\' &&
-                                (*std::next(connectedQuote) == L'\r' || *std::next(connectedQuote) == L'\n'))
+                            if (std::next(connectedQuote) < endSentinel &&
+                                *connectedQuote == L'\\' &&
+                                (*std::next(connectedQuote) == L'\r' ||
+                                 *std::next(connectedQuote) == L'\n'))
                                 {
                                 clear_section(connectedQuote, std::next(connectedQuote));
                                 end = std::next(connectedQuote, 2);
                                 while (connectedQuote < endSentinel &&
-                                   static_cast<bool>(std::iswspace(*connectedQuote)))
+                                       static_cast<bool>(std::iswspace(*connectedQuote)))
                                     {
                                     std::advance(connectedQuote, 1);
                                     }
@@ -316,8 +318,8 @@ namespace i18n_check
                                 end = std::next(connectedQuote);
                                 continue;
                                 }
-                            if (std::next(connectedQuote) < endSentinel && *connectedQuote == L'L' &&
-                                *std::next(connectedQuote) == L'\"')
+                            if (std::next(connectedQuote) < endSentinel &&
+                                *connectedQuote == L'L' && *std::next(connectedQuote) == L'\"')
                                 {
                                 end = std::next(connectedQuote, 2);
                                 continue;
@@ -759,8 +761,8 @@ namespace i18n_check
             return blockEnd;
             }
 
-         // skip directives
-         const std::wstring_view directive{ directiveStart };
+        // skip directives
+        const std::wstring_view directive{ directiveStart };
         if (directive.starts_with(L"include") || directive.starts_with(L"if") ||
             directive.starts_with(L"ifdef") || directive.starts_with(L"ifndef") ||
             directive.starts_with(L"else") || directive.starts_with(L"elif") ||

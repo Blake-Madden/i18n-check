@@ -1,23 +1,23 @@
 <img src="app-logo.svg" width="150" />
 
-Cuneiform
+Quneiform
 =============================
 
-<a href="docs/manual/book/cuneiform.pdf"><img alt="Manual" src="docs/manual/images/cover-thumnail.png" width="200" align="right"/></a>
+<a href="docs/manual/book/quneiform.pdf"><img alt="Manual" src="docs/manual/images/cover-thumnail.png" width="200" align="right"/></a>
 
 Internationalization & localization analysis system for C++ code, *gettext* catalogs, and Windows&reg; RC files.
 
-`Cuneiform` is a command-line utility and graphical user interface that scans source and resource files to check for
+`Quneiform` is a command-line utility and graphical user interface that scans source and resource files to check for
 various i18n and l10n issues.
 
 Additionally, the GUI version provides pseudo-translation support for
 *gettext* catalogs (\*.po files).
 
-Refer to the [manual](docs/manual/book/cuneiform.pdf) for full documentation.
+Refer to the [manual](docs/manual/book/quneiform.pdf) for full documentation.
 
 ## File Support
 
-`Cuneiform` supports static analysis for the following:
+`Quneiform` supports static analysis for the following:
 
 - C code
 - C++ code ('98 and modern C++)
@@ -121,11 +121,11 @@ loaded by your application for integration testing.
 
 [![doxygen](https://github.com/Blake-Madden/Cuneiform/actions/workflows/doxygen.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/doxygen.yml)
 [![Check Spelling](https://github.com/Blake-Madden/Cuneiform/actions/workflows/spell-check.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/spell-check.yml)
-[![Cuneiform](https://github.com/Blake-Madden/Cuneiform/actions/workflows/i18n-check.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/i18n-check.yml)
+[![Quneiform](https://github.com/Blake-Madden/Cuneiform/actions/workflows/i18n-check.yml/badge.svg)](https://github.com/Blake-Madden/Cuneiform/actions/workflows/i18n-check.yml)
 
 # Usage
 
-`Cuneiform` accepts the following arguments:
+`Quneiform` accepts the following arguments:
 
 ```shellscript
 [input]: The folder to analyze.
@@ -140,7 +140,7 @@ loaded by your application for integration testing.
   suspectL10NUsage:        Check for translatable strings being used in internal contexts
                            (e.g., debugging functions).
   suspectI18NUsage:        Check for suspect usage of i18n functions.
-  urlInL10NString:         Check for translatable strings that contain URLs or email addresses.
+  urlInL10NString:         Check for translatable strings that contain URLs, email addresses, or phone numbers.
                            It is recommended to dynamically format these into the string so that
                            translators don't have to manage them.
   spacesAroundL10NString:  Check for strings that start or end with spaces.
@@ -225,27 +225,27 @@ suspect translatable strings, and then send the output to "results.txt"
 in the current working directory. 
 
 ```shellscript
-cuneiform C:\src\wxWidgets\src -i expat -i zlib --enable=suspectL10NString -o results.txt
+quneiform C:\src\wxWidgets\src -i expat -i zlib --enable=suspectL10NString -o results.txt
 ```
 
 This example will only check for `suspectL10NUsage` and `suspectL10NString` and not show
 any progress messages.
 
 ```shellscript
-cuneiform C:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
+quneiform C:\src\wxWidgets\samples -q --enable=suspectL10NUsage,suspectL10NString
 ```
 
 This example will ignore multiple folders (and files) and output the results to "WDVResults.txt."
 
 ```shellscript
-cuneiform C:\src\Wisteria-dataviz\src --ignore=import,wxsimplejson,wxStartPage,math,easyexif,debug,utfcpp,CRCpp,base/colors.cpp,base/colors.h -o WDVresults.txt
+quneiform C:\src\Wisteria-dataviz\src --ignore=import,wxsimplejson,wxStartPage,math,easyexif,debug,utfcpp,CRCpp,base/colors.cpp,base/colors.h -o WDVresults.txt
 ```
 
 Refer [here](Example.md) for more examples.
 
 # Building (command line tool)
 
-`Cuneiform` can be configured and built with *Cmake*.
+`Quneiform` can be configured and built with *Cmake*.
 
 On Unix:
 
@@ -256,7 +256,7 @@ cmake --build . --target all -j $(nproc) --config Release
 
 On Windows, "CMakeLists.txt" can be opened and built directly in Visual Studio.
 
-After building, "cuneiform" will be available in the "bin" folder.
+After building, "quneiform" will be available in the "bin" folder.
 
 # Building (GUI)
 
@@ -265,7 +265,7 @@ After building, "cuneiform" will be available in the "bin" folder.
 [wxWidgets](https://github.com/wxWidgets/wxWidgets) 3.3 or higher is required for building the graphical user interface version.
 
 Download [wxWidgets](https://github.com/wxWidgets/wxWidgets), placing it at the same folder level as this project.
-After building wxWidgets, *Cuneiform* can be configured and built with *Cmake*.
+After building wxWidgets, *Quneiform* can be configured and built with *Cmake*.
 
 On Unix:
 
@@ -280,7 +280,7 @@ cmake . -DCMAKE_INSTALL_PREFIX=./wxlib -DwxBUILD_SHARED=OFF \
     -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target install --config Release
 cd ..
-cd Cuneiform/gui
+cd Quneiform/gui
 cmake . -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target all --config Release
 ```
@@ -290,38 +290,38 @@ On Windows with Visual Studio, build wxWidgets with the defaults, except `wxBUIL
 
 Open "gui/CMakeLists.txt" in Visual Studio, setting the *CMake* setting's configuration type to "Release" for a release build.
 
-After building, "cuneiform" will be available in the "bin" folder.
+After building, "quneiform" will be available in the "bin" folder.
 
 # GitHub Action
 
-You can also create a `Cuneiform` GitHub action to make it part of your CI.
-For example, create a new workflow called "cuneiform.yml" and enter the following:
+You can also create a `Quneiform` GitHub action to make it part of your CI.
+For example, create a new workflow called "quneiform.yml" and enter the following:
 
 ```shellscript
-name: Cuneiform
+name: Quneiform
 on: [push]
 
 jobs:
   build:
-    name: Cuneiform
+    name: Quneiform
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: install Cuneiform
+      - name: install Quneiform
         run: |
-             git clone https://github.com/Blake-Madden/Cuneiform.git --recurse-submodules
-             cd Cuneiform
+             git clone https://github.com/Blake-Madden/Quneiform.git --recurse-submodules
+             cd Quneiform
              cmake ./
              make -j4
              cd ..
 
       - name: analyze
         run: |
-             # Ignore Cuneiform's own folder.
+             # Ignore Quneiform's own folder.
              # You can ignore other folders by adding a comma and the folder name
-             # after "--ignore=Cuneiform".
-             ./Cuneiform/bin/cuneiform ./ --ignore=Cuneiform -q -o i18nresults.txt
+             # after "--ignore=Quneiform".
+             ./Quneiform/bin/quneiform ./ --ignore=Quneiform -q -o i18nresults.txt
 
       - name: review results
         run: |

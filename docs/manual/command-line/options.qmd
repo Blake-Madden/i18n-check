@@ -1,6 +1,6 @@
 # Options
 
-`Cuneiform` accepts the following arguments:
+`Quneiform` accepts the following arguments:
 
 ## [input] {-}
 

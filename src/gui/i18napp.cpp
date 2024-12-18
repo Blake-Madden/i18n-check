@@ -102,7 +102,7 @@ bool I18NApp::OnInit()
         return false;
         }
 
-    SetAppName(L"Cuneiform");
+    SetAppName(L"Quneiform");
 
     wxArtProvider::Push(new I18NArtProvider);
 
