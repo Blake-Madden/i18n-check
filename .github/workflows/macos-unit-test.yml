@@ -14,7 +14,7 @@ jobs:
              brew install grep
              cd ..
              git clone https://github.com/catchorg/Catch2.git
-             cd Cuneiform/tests
+             cd Quneiform/tests
              cmake ./
              make -j4
              cd bin
