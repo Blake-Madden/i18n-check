@@ -27,4 +27,4 @@ jobs:
              cmake ./
       - name: Build Solution (windows)
         run: |
-          msbuild cuneiform.sln
+          msbuild quneiform.sln
