@@ -1217,6 +1217,8 @@ namespace i18n_check
         std::filesystem::path m_file_name;
 
         static const std::wregex m_url_email_regex;
+        static const std::wregex m_us_phone_number_regex;
+        static const std::wregex m_non_us_phone_number_regex;
         static const std::wregex m_html_regex;
         static const std::wregex m_html_element_with_content_regex;
         static const std::wregex m_html_tag_regex;

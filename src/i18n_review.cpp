@@ -21,6 +21,14 @@ namespace i18n_check
         LR"(((http|ftp)s?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))"
     };
 
+    const std::wregex i18n_review::m_us_phone_number_regex{
+        LR"((\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4})"
+    };
+
+    const std::wregex i18n_review::m_non_us_phone_number_regex{
+        LR"((\+0?1\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4})"
+    };
+
     const std::wregex i18n_review::m_malformed_html_tag_bad_amp{ LR"(&amp;[a-zA-Z]{3,5};)" };
 
     const std::wregex i18n_review::m_malformed_html_tag{ LR"(&(nbsp|amp|quot)[^;])" };
@@ -1073,7 +1081,9 @@ namespace i18n_check
                 m_unsafe_localizable_strings.push_back(str);
                 }
             if ((m_review_styles & check_l10n_contains_url) &&
-                std::regex_search(str.m_string, results, m_url_email_regex))
+                (std::regex_search(str.m_string, results, m_url_email_regex) ||
+                 std::regex_search(str.m_string, results, m_us_phone_number_regex) ||
+                 std::regex_search(str.m_string, results, m_non_us_phone_number_regex)))
                 {
                 m_localizable_strings_with_urls.push_back(str);
                 }

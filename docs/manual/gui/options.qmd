@@ -38,8 +38,9 @@ This will ensure that you don't have to re-enter these values for future project
 
 **Translatable strings being used in debug functions**: select this to check for translatable strings being used in internal contexts (e.g., debugging and console functions).
 
-**Translatable strings that contain URLs or email addresses**: select this to check for translatable strings that contain URLs or email addresses.
-It is recommended to dynamically format these into the string so that translators do not have to manage them.
+**Translatable strings that contain URLs, email addresses, or phone numbers**: select this to check for translatable strings that contain URLs, email addresses, or phone numbers.
+For situations such as a regional offices needing to use their own contact information in a localized product, it is recommended to leave this unchecked.
+Otherwise, it is recommended perform this check and to dynamically format these items into the string so that translators do not have to manage them.
 
 **Translatable strings that contain an excessive amount of non-translatable content**: select this to check for translatable strings that contain large blocks on non-translatable content.
 As an example, this will detect strings with large blocks of HTML tags that may make the string complicated to translate.

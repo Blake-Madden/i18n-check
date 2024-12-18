@@ -59,7 +59,7 @@ The command line and GUI versions provide the following checks:
   - Strings inside of debug functions
   - Formulas
   - Code (used for code generators)
-  - Strings that contain URLs or email addresses
+  - Strings that contain URLs, email addresses, or phone numbers
 - Strings not available for translation that possibly should be.
 - Strings that contain extended ASCII characters that are not encoded.
   ("Danke schön" instead of "Danke sch\U000000F6n".)<br />

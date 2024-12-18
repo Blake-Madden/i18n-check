@@ -547,8 +547,8 @@ void NewProjectDialog::CreateControls()
                      wxGBPosition(currentRow++, 1), wxGBSpan{});
 
         gbSizer->Add(new wxCheckBox(checkOptionsSizer->GetStaticBox(), wxID_ANY,
-                                    _(L"Translatable strings that contain URLs or "
-                                      "email addresses"),
+                                    _(L"Translatable strings that contain URLs, "
+                                      "email addresses, or phone numbers"),
                                     wxDefaultPosition, wxDefaultSize, 0,
                                     wxGenericValidator(&m_urlInL10NString)),
                      wxGBPosition(currentRow, 0), wxGBSpan{});

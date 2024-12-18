@@ -16,7 +16,7 @@ Check for suspect usage of i18n functions.
 
 - `urlInL10NString`
 
-Check for translatable strings that contain URLs or email addresses.
+Check for translatable strings that contain URLs, email addresses, or phone numbers.
 
 It is recommended to dynamically format these into the string so that translators
 do not have to manage them.
