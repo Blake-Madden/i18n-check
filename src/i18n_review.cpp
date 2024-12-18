@@ -56,7 +56,7 @@ namespace i18n_check
     // [:alpha:] supports all languages with MSVC, but GCC and Clang limit this to 7-bit ASCII (even
     // when calling setlocale), so we need to include other charsets explicitly here when trying to
     // include them in source strings.
-    // cuneiform-suppress-begin
+    // quneiform-suppress-begin
     const std::wregex i18n_review::m_2letter_regex{
         LR"([[:alpha:]ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя]{2,})"
     };
@@ -66,7 +66,7 @@ namespace i18n_check
     const std::wregex i18n_review::m_keyboard_accelerator_regex{
         LR"(&[[:alpha:]_ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя])"
     };
-    // cuneiform-suppress-end
+    // quneiform-suppress-end
     const std::wregex i18n_review::m_hashtag_regex{ LR"(#[[:alnum:]]{2,})" };
     const std::wregex i18n_review::m_key_shortcut_regex{
         LR"((CTRL|SHIFT|CMD|ALT)([+](CTRL|SHIFT|CMD|ALT))*([+][[:alnum:]])+)",
@@ -166,6 +166,7 @@ namespace i18n_check
         L"Sans Serif",
         L"Luxi Serif",
         L"MS Sans Serif",
+        L"Microsoft Sans Serif",
         L"Ms Shell Dlg",
         L"Ms Shell Dlg 2",
         L"Bitstream Vera Serif",
@@ -261,6 +262,7 @@ namespace i18n_check
         L"wxColour",
         L"wxFont",
         L"LOGFONTW",
+        L"Font",
         L"SecretSchema",
         L"GtkTypeInfo",
         L"QKeySequence",
@@ -455,7 +457,8 @@ namespace i18n_check
                   "wxFileName::GetFullPath(wxPATH_DOS) instead of using wxUnix2DosFilename.") },
             { L"wxSplitPath",
               _WXTRANS_WSTR(
-                  L"wxSplitPath is obsolete, please use wxFileName::SplitPath() instead.") }
+                  L"wxSplitPath is obsolete, please use wxFileName::SplitPath() instead.") },
+            { L"*wxConvCurrent", _WXTRANS_WSTR(L"Prefer using a wxConvAuto object instead.") }
         };
 
         if (verbose)
@@ -522,8 +525,9 @@ namespace i18n_check
             m_sql_code,
             std::wregex(LR"(^(INSERT INTO|DELETE ([*] )?FROM).*)", std::regex_constants::icase),
             std::wregex(LR"(^ORDER BY.*)"), // more strict
-            std::wregex(LR"([(]*^SELECT[[:space:]]+[A-Z_0-9\.]+,.*)"),
-            std::wregex(LR"(^Provider=SQLOLEDB.*)"), std::wregex(LR"(^Connection: Keep-Alive$)"),
+            std::wregex(LR"([(]*^SELECT[[:space:]]+[A-Z_0-9\.]+,.*)"), std::wregex(LR"(^DSN=.*)"),
+            std::wregex(LR"(^Provider=(SQLOLEDB|Search).*)"),
+            std::wregex(LR"(^Connection: Keep-Alive$)"),
             // a regex expression
             std::wregex(LR"([(][?]i[)].*)"),
             // single file filter that just has a file extension as its "name"
@@ -575,9 +579,12 @@ namespace i18n_check
             std::wregex(LR"([-]D [A-Z_]{2,}[ =].*)"), std::wregex(LR"([-]dynamiclib .*)"),
             std::wregex(LR"([-]{2}[a-z]{2,}[ :].*)"),
             // registry keys
-            std::wregex(LR"(SOFTWARE[\\]{1,2}(Policies|Microsoft))", std::regex_constants::icase),
-            std::wregex(LR"(SYSTEM[\\]{1,2}(CurrentControlSet))", std::regex_constants::icase),
+            std::wregex(LR"(SOFTWARE[\\]{1,2}(Policies|Microsoft|Classes).*)",
+                        std::regex_constants::icase),
+            std::wregex(LR"(SYSTEM[\\]{1,2}(CurrentControlSet).*)", std::regex_constants::icase),
             std::wregex(LR"(HKEY_.*)"),
+            // web query
+            std::wregex(LR"(search.aspx\?.*)"),
             // XML elements
             std::wregex(LR"(version[ ]?=\\"[0-9\.]+\\")"),
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
@@ -587,7 +594,7 @@ namespace i18n_check
                 LR"(<[A-Za-z]+[A-Za-z0-9_/\\\-\.'"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\-.']*>)"),
             std::wregex(LR"(<[A-Za-z]+([A-Za-z0-9_\-\.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*)"),
             std::wregex(LR"(^[[:space:]]*xmlns(:[[:alnum:]]+)?=.*)"),
-            std::wregex(LR"(^[[:space:]]*<soap:[[:alnum:]]+.*)"),
+            std::wregex(LR"(^[[:space:]]*<soap(\.udp)?\:[[:alnum:]]+.*)"),
             std::wregex(LR"(^[[:space:]]*<port\b.*)"), std::wregex(LR"(ms-app(data|x))"),
             std::wregex(LR"(^\{\{.*)"),                      // soap syntax
             std::wregex(LR"(&[a-zA-Z0-9]+=[a-zA-Z0-9]+.*)"), // args passed to an URL
@@ -667,11 +674,13 @@ namespace i18n_check
             // GUIDs
             std::wregex(
                 LR"(^(CLSID[\\]{1,2})?[\{]?[a-fA-F0-9]{8}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{12}[\}]?$)"),
+            std::wregex(LR"(CLSID[\\]{1,2}.*)"),
             // encoding
             std::wregex(LR"(^(base[0-9]+|uuencode|quoted-printable)$)"),
             std::wregex(LR"(^(250\-AUTH)$)"),
             // MIME types
             std::wregex(LR"((application|text)\/(x\-)?[a-z\-]+)"),
+            std::wregex(LR"(application\/(x\-)?[a-z\-]+\+[a-z\-]+)"),
             std::wregex(LR"(image\/(x\-)?[a-z\-]+)"), std::wregex(LR"(video\/(x\-)?[a-z\-]+)"),
             // MIME headers
             std::wregex(LR"(^MIME-Version:.*)"), std::wregex(LR"(^X-Priority:.*)"),
@@ -689,7 +698,7 @@ namespace i18n_check
                 LR"(^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$)"),
             std::wregex(
                 LR"(^[\w ]*<[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*>$)"),
-            std::wregex(LR"(urn[:][a-zA-Z0-9]+)"),
+            std::wregex(LR"(urn[:][a-zA-Z0-9]+.*)"),
             // Windows HTML clipboard data
             std::wregex(LR"(.*(End|Start)(HTML|Fragment)[:]?[[:digit:]]*.*)"),
             // printer commands (e.g., @PAGECOUNT@)
@@ -873,24 +882,26 @@ namespace i18n_check
             L"CFBundleCopyResourceURL", L"sysctlbyname",
             // Windows/MFC/COM/ATL
             L"OutputDebugString", L"OutputDebugStringA", L"OutputDebugStringW", L"QueryValue",
-            L"ASSERT", L"_ASSERTE", L"TRACE", L"ATLTRACE", L"TRACE0", L"ATLTRACE2", L"ATLENSURE",
-            L"ATLASSERT", L"VERIFY", L"LoadLibrary", L"LoadLibraryEx", L"LoadModule",
-            L"GetModuleHandle", L"QueryDWORDValue", L"GetTempFileName", L"QueryMultiStringValue",
-            L"SetMultiStringValue", L"GetTempDirectory", L"FormatGmt", L"GetProgIDVersion",
-            L"GetProfileInt", L"WriteProfileInt", L"RegOpenKeyEx", L"QueryStringValue", L"lpVerb",
-            L"Invoke", L"Invoke0", L"ShellExecute", L"GetProfileString", L"GetProcAddress",
-            L"RegisterClipboardFormat", L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue",
-            L"CLSIDFromProgID", L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
-            L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
-            L"HasProperty", L"SetRegistryKey", L"CreateDC", L"GetModuleFileName",
-            L"GetModuleFileNameEx", L"GetProcessImageFileName", L"GetMappedFileName",
-            L"GetDeviceDriverFileName", L"GetDeviceDriverBaseName", L"DECLARE_WND_SUPERCLASS",
-            L"DECLARE_WND_CLASS_EX", L"DECLARE_WND_CLASS2", L"DECLARE_WND_CLASS", L"SHGetFileInfo",
-            L"WFCTRACE", L"WFCTRACEVAL", L"WFCTRACEVARIANT", L"WFCLTRACEINIT", L"TRACE", L"TRACE0",
-            L"TRACE1", L"TRACE2", L"TRACE3", L"TRACE4", L"TRACE5", L"TRACEERROR", L"_RPT0",
-            L"_RPT1", L"_RPT2", L"_RPT3", L"_RPT4", L"_RPT5", L"_RPTF0", L"_RPTF1", L"_RPTF2",
-            L"_RPTF3", L"_RPTF4", L"_RPTF5", L"_RPTW0", L"_RPTW1", L"_RPTW2", L"_RPTW3", L"_RPTW4",
-            L"_RPTW5", L"_RPTFW0", L"_RPTFW1", L"_RPTFW2", L"_RPTFW3", L"_RPTFW4", L"_RPTFW5",
+            L"OutputFormattedDebugString", L"dbgprint", L"ASSERT", L"_ASSERTE", L"TRACE",
+            L"ATLTRACE", L"TRACE0", L"ATLTRACE2", L"ATLENSURE", L"ATLASSERT", L"VERIFY",
+            L"LoadLibrary", L"LoadLibraryEx", L"LoadModule", L"GetModuleHandle", L"QueryDWORDValue",
+            L"GetTempFileName", L"QueryMultiStringValue", L"SetMultiStringValue",
+            L"GetTempDirectory", L"FormatGmt", L"GetProgIDVersion", L"RegCreateKeyEx",
+            L"GetProfileInt", L"WriteProfileInt", L"RegOpenKeyEx", L"RegOpenKeyExW",
+            L"RegOpenKeyExA", L"QueryStringValue", L"lpVerb", L"Invoke", L"Invoke0",
+            L"ShellExecute", L"GetProfileString", L"GetProcAddress", L"RegisterClipboardFormat",
+            L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue", L"CLSIDFromProgID",
+            L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement", L"CreateStorage",
+            L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty", L"HasProperty",
+            L"SetRegistryKey", L"CreateDC", L"GetModuleFileName", L"GetModuleFileNameEx",
+            L"GetProcessImageFileName", L"GetMappedFileName", L"GetDeviceDriverFileName",
+            L"GetDeviceDriverBaseName", L"DECLARE_WND_SUPERCLASS", L"DECLARE_WND_CLASS_EX",
+            L"DECLARE_WND_CLASS2", L"DECLARE_WND_CLASS", L"SHGetFileInfo", L"WFCTRACE",
+            L"WFCTRACEVAL", L"WFCTRACEVARIANT", L"WFCLTRACEINIT", L"TRACE", L"TRACE0", L"TRACE1",
+            L"TRACE2", L"TRACE3", L"TRACE4", L"TRACE5", L"TRACEERROR", L"_RPT0", L"_RPT1", L"_RPT2",
+            L"_RPT3", L"_RPT4", L"_RPT5", L"_RPTF0", L"_RPTF1", L"_RPTF2", L"_RPTF3", L"_RPTF4",
+            L"_RPTF5", L"_RPTW0", L"_RPTW1", L"_RPTW2", L"_RPTW3", L"_RPTW4", L"_RPTW5", L"_RPTFW0",
+            L"_RPTFW1", L"_RPTFW2", L"_RPTFW3", L"_RPTFW4", L"_RPTFW5",
             L"OpenFromInitializationString", L"CreateADOCommand", L"ExecuteSql",
             L"com_interface_entry", L"uuid", L"idl_quote", L"threading", L"vi_progid", L"progid",
             L"CreatePointFont", L"CreateFont", L"FindWindow", L"RegisterServer",
@@ -899,13 +910,14 @@ namespace i18n_check
             L"GetPrivateProfileString", L"WritePrivateProfileString", L"RegDeleteKey",
             L"RegDeleteKeyEx", L"RegDeleteKeyValue", L"RegDeleteTree", L"RegLoadAppKey",
             L"RegOpenKey", L"RegRenameKey", L"RegSaveKey", L"RegSaveKeyEx", L"RegSetKeyValue",
-            L"RegSetKeyValueEx", L"RegOpenKeyTransactedA",
+            L"RegSetKeyValueEx", L"RegOpenKeyTransactedA", L"GetDataSource", L"TraceMsg",
             // .NET
             L"FindSystemTimeZoneById", L"CreateSpecificCulture", L"DebuggerDisplay", L"Debug.Fail",
             L"DeriveKey", L"Assert.Fail", L"Debug.Assert", L"Debug.Print", L"Debug.WriteLine",
             L"Debug.Write", L"Debug.WriteIf", L"Debug.WriteLineIf", L"Assert.Equal", L"DEBUGARG",
             L"noway_assert", L"DISASM_DUMP", L"NO_WAY", L"printfAlloc", L"Directory.GetFiles",
             L"Directory.EnumerateFiles", L"Utils.RunProcess", L"Utils.TryRunProcess",
+            L"System.Diagnostics.Debug.Print",
             // zlib
             L"Tracev", L"Trace", L"Tracevv",
             // libpng
@@ -947,11 +959,11 @@ namespace i18n_check
             // .NET
             L"LoggerMessage", L"JITDUMP", L"LOG", L"LogSpew", L"LOG_HANDLE_OBJECT_CLASS",
             L"LOG_HANDLE_OBJECT", L"CorDisToolsLogERROR", L"LOG_ERROR", L"LOG_INFO", L"LogError",
-            L"LogMessage", L"LogAsErrorException", L"LogVerbose",
+            L"LogMessage", L"LogAsErrorException", L"LogVerbose", L"LogEvent", L"LogLine", L"Log",
             // TinyXML
             L"TIXML_LOG",
             // other programs
-            L"log_message", L"outLog", L"Error", L"AppendLog"
+            L"log_message", L"outLog", L"Error", L"AppendLog", L"DBG_PRINT"
         };
 
         m_exceptions = {
@@ -968,7 +980,8 @@ namespace i18n_check
             // .NET
             L"NotImplementedException", L"ArgumentException", L"InvalidOperationException",
             L"OptionException", L"NotSupportedException", L"Exception", L"BadImageFormatException",
-            L"JsonException", L"ArgumentOutOfRangeException", L"ArgumentNullException"
+            L"JsonException", L"ArgumentOutOfRangeException", L"ArgumentNullException",
+            L"InvalidCastException"
         };
 
         // known strings to ignore
@@ -1002,6 +1015,7 @@ namespace i18n_check
             std::wregex(LR"((sql|db|database)(Table|Update|Query|Command|Upgrade)?[[:alnum:]_\-]*)",
                         std::regex_constants::icase));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(log)"));
+        add_variable_name_pattern_to_ignore(std::wregex(LR"([Cc]ommand(_)?[Ss]tring)"));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(wxColourDialogNames)"));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(wxColourTable)"));
         add_variable_name_pattern_to_ignore(std::wregex(LR"(QT_MESSAGE_PATTERN)"));
@@ -1033,8 +1047,8 @@ namespace i18n_check
     //--------------------------------------------------
     std::pair<bool, size_t> i18n_review::is_block_suppressed(std::wstring_view commentBlock)
         {
-        const std::wstring_view SUPPRESS_BEGIN{ L"cuneiform-suppress-begin" };
-        const std::wstring_view SUPPRESS_END{ L"cuneiform-suppress-end" };
+        const std::wstring_view SUPPRESS_BEGIN{ L"quneiform-suppress-begin" };
+        const std::wstring_view SUPPRESS_END{ L"quneiform-suppress-end" };
 
         const size_t firstNonSpace = commentBlock.find_first_not_of(L" \t\n\r");
         if (firstNonSpace == std::wstring_view::npos)

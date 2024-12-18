@@ -47,6 +47,10 @@ namespace i18n_string_util
             {
             return true;
             }
+        if (string_util::strnicmp(text, std::wstring_view{ L"local://" }) == 0)
+            {
+            return true;
+            }
         // relic from the '90s
         if (string_util::strnicmp(text, std::wstring_view{ L"gopher://" }) == 0)
             {
