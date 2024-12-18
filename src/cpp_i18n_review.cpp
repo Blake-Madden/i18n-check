@@ -291,12 +291,6 @@ namespace i18n_check
                                 continue;
                                 }
 
-                            // Format macros for the std::fprintf family of functions that may
-                            // appear between quoted sections that will actually join the two quotes
-                            const std::wregex intPrintfMacro{
-                                LR"(PR[IN][uidoxX](8|16|32|64|FAST8|FAST16|FAST32|FAST64|LEAST8|LEAST16|LEAST32|LEAST64|MAX|PTR))"
-                            };
-                            constexpr size_t int64PrintfMacroLength{ 6 };
                             // see if there is more to this string on another line
                             wchar_t* connectedQuote = std::next(end);
                             while (connectedQuote < endSentinel &&
@@ -304,12 +298,37 @@ namespace i18n_check
                                 {
                                 std::advance(connectedQuote, 1);
                                 }
+                            // if a \ at the end of the line, then step over that and
+                            // restart stepping over an more spaces on the next line
+                            if (std::next(connectedQuote) < endSentinel && *connectedQuote == L'\\' &&
+                                (*std::next(connectedQuote) == L'\r' || *std::next(connectedQuote) == L'\n'))
+                                {
+                                clear_section(connectedQuote, std::next(connectedQuote));
+                                end = std::next(connectedQuote, 2);
+                                while (connectedQuote < endSentinel &&
+                                   static_cast<bool>(std::iswspace(*connectedQuote)))
+                                    {
+                                    std::advance(connectedQuote, 1);
+                                    }
+                                }
                             if (connectedQuote < endSentinel && *connectedQuote == L'\"')
                                 {
                                 end = std::next(connectedQuote);
                                 continue;
                                 }
+                            if (std::next(connectedQuote) < endSentinel && *connectedQuote == L'L' &&
+                                *std::next(connectedQuote) == L'\"')
+                                {
+                                end = std::next(connectedQuote, 2);
+                                continue;
+                                }
                             // step over PRIu64 macro that appears between printf strings
+                            // Format macros for the std::fprintf family of functions that may
+                            // appear between quoted sections that will actually join the two quotes
+                            const std::wregex intPrintfMacro{
+                                LR"(PR[IN][uidoxX](8|16|32|64|FAST8|FAST16|FAST32|FAST64|LEAST8|LEAST16|LEAST32|LEAST64|MAX|PTR))"
+                            };
+                            constexpr size_t int64PrintfMacroLength{ 6 };
                             if (std::next(connectedQuote, int64PrintfMacroLength) < endSentinel &&
                                 std::regex_match(
                                     std::wstring{ connectedQuote, int64PrintfMacroLength },
@@ -740,25 +759,14 @@ namespace i18n_check
             return blockEnd;
             }
 
-        // skip single-line directives
-        if (std::wstring_view{ directiveStart }.starts_with(L"pragma") ||
-            std::wstring_view{ directiveStart }.starts_with(L"include"))
-            {
-            const size_t end = std::wcscspn(directiveStart, L"\n\r");
-            clear_section(originalStart,
-                          std::next(directiveStart, static_cast<ptrdiff_t>(end + 1)));
-            return std::next(directiveStart, static_cast<ptrdiff_t>(end + 1));
-            }
-        if (std::wstring_view{ directiveStart }.starts_with(L"if") ||
-            std::wstring_view{ directiveStart }.starts_with(L"ifdef") ||
-            std::wstring_view{ directiveStart }.starts_with(L"ifndef") ||
-            std::wstring_view{ directiveStart }.starts_with(L"else") ||
-            std::wstring_view{ directiveStart }.starts_with(L"elif") ||
-            std::wstring_view{ directiveStart }.starts_with(L"endif") ||
-            std::wstring_view{ directiveStart }.starts_with(L"undef") ||
-            std::wstring_view{ directiveStart }.starts_with(L"define") ||
-            std::wstring_view{ directiveStart }.starts_with(L"error") ||
-            std::wstring_view{ directiveStart }.starts_with(L"warning"))
+         // skip directives
+         const std::wstring_view directive{ directiveStart };
+        if (directive.starts_with(L"include") || directive.starts_with(L"if") ||
+            directive.starts_with(L"ifdef") || directive.starts_with(L"ifndef") ||
+            directive.starts_with(L"else") || directive.starts_with(L"elif") ||
+            directive.starts_with(L"endif") || directive.starts_with(L"undef") ||
+            directive.starts_with(L"define") || directive.starts_with(L"error") ||
+            directive.starts_with(L"warning") || directive.starts_with(L"pragma"))
             {
             wchar_t* end = directiveStart;
             while (*end != 0)
@@ -795,7 +803,7 @@ namespace i18n_check
             bool shouldClearSection{ true };
             // special parsing logic for #define sections
             // (try to review strings in here as best we can)
-            const std::wstring defineCommand{ L"define" };
+            const std::wstring_view defineCommand{ L"define" };
             if (std::wstring_view{ directiveStart }.starts_with(defineCommand))
                 {
                 std::advance(directiveStart, defineCommand.length());
