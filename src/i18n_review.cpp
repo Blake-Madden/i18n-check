@@ -52,20 +52,18 @@ namespace i18n_check
     const std::wregex i18n_review::m_html_tag_regex{ LR"(&[a-zA-Z]{2,5};.*)" };
     const std::wregex i18n_review::m_html_tag_unicode_regex{ LR"(&#[[:digit:]]{2,4};.*)" };
     // contains Western European, Czech, Polish, and Russian extended ASCII characters:
-    // ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя
+    // ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюяІі
     // [:alpha:] supports all languages with MSVC, but GCC and Clang limit this to 7-bit ASCII (even
     // when calling setlocale), so we need to include other charsets explicitly here when trying to
     // include them in source strings.
     // quneiform-suppress-begin
     const std::wregex i18n_review::m_2letter_regex{
-        LR"([[:alpha:]ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя]{2,})"
+        LR"([[:alpha:]ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюяІі]{2,})"
     };
     const std::wregex i18n_review::m_1word_regex{
-        LR"((\b|\s|^)([[:alpha:]_ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя&'\.@]+)(2D|3D)?(\b|\s|$))"
+        LR"((\b|\s|^)([[:alpha:]_ŽžŸÀ-ÖØ-öø-ÿżźćńółęąśŻŹĆĄŚĘŁÓŃěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюяІі&'\.@]+)(2D|3D)?(\b|\s|$))"
     };
-    const std::wregex i18n_review::m_keyboard_accelerator_regex{
-        LR"((^|[^&])&[^\s&])"
-    };
+    const std::wregex i18n_review::m_keyboard_accelerator_regex{ LR"((^|[^&])&[^\s&])" };
     // quneiform-suppress-end
     const std::wregex i18n_review::m_hashtag_regex{ LR"(#[[:alnum:]]{2,})" };
     const std::wregex i18n_review::m_key_shortcut_regex{
@@ -517,7 +515,8 @@ namespace i18n_check
             // nothing but numbers, punctuation, or control characters?
             std::wregex(LR"(([[:digit:][:space:][:punct:][:cntrl:]]|\\[rnt])+)"),
             // placeholder text
-            std::wregex(LR"(Lorem ipsum.*)"),
+            std::wregex(LR"(Lorem ipsum.*)", std::regex_constants::icase),
+            std::wregex(LR"(The quick brown fox.*)", std::regex_constants::icase),
             // webpage content type
             std::wregex(
                 LR"([A-Za-z0-9\-]+/[A-Za-z0-9\-]+;[[:space:]]*[A-Za-z0-9\-]+=[A-Za-z0-9\-]+)"),
@@ -525,9 +524,10 @@ namespace i18n_check
             m_sql_code,
             std::wregex(LR"(^(INSERT INTO|DELETE ([*] )?FROM).*)", std::regex_constants::icase),
             std::wregex(LR"(^ORDER BY.*)"), // more strict
-            std::wregex(LR"([(]*^SELECT[[:space:]]+[A-Z_0-9\.]+,.*)"), std::wregex(LR"(^DSN=.*)"),
+            std::wregex(LR"([(]*SELECT[[:space:]]+(COUNT|MIN|MAX|SUM|AVG)[(].*)"),
+            std::wregex(LR"([(]*SELECT[[:space:]]+[A-Z_0-9\.]+,.*)"), std::wregex(LR"(^DSN=.*)"),
             std::wregex(LR"(^Provider=(SQLOLEDB|Search).*)"),
-            std::wregex(LR"(^Connection: Keep-Alive$)"),
+            std::wregex(LR"(^Connection: Keep-Alive$)"), std::wregex(LR"(ODBC;DSN=.*)"),
             // a regex expression
             std::wregex(LR"([(][?]i[)].*)"),
             // single file filter that just has a file extension as its "name"
@@ -557,7 +557,7 @@ namespace i18n_check
             // CSS
             std::wregex(LR"(a[:](hover|link))", std::regex_constants::icase),
             std::wregex(
-                LR"([\s\S]*(\{[[:space:]]*[a-zA-Z\-]+[[:space:]]*[:][[:space:]]*[0-9a-zA-Z\- \(\);\:%#'",]+[[:space:]]*\})+[\s\S]*)"),
+                LR"([\s\S]*(\{[[:space:]]*[a-zA-Z\-]+[[:space:]]*[:][[:space:]]*[0-9a-zA-Z\- \(\)\\;\:%#'",]+[[:space:]]*\})+[\s\S]*)"),
             std::wregex(
                 LR"((margin[-](top|bottom|left|right)|text[-]indent)[:][[:space:]]*[[:alnum:]%]+;)"),
             // JS
@@ -589,7 +589,8 @@ namespace i18n_check
             std::wregex(LR"(version[ ]?=\\"[0-9\.]+\\")"),
             std::wregex(LR"(<([A-Za-z])+([A-Za-z0-9_/\\\-\.'"=;:#[:space:]])+[>]?)"),
             std::wregex(LR"(xml[ ]*version[ ]*=[ ]*\\["'][0-9\.]+\\["'][>]?)"), // partial header
-            std::wregex(LR"(<[\\]?\?xml[ a-zA-Z0-9=\\"'%\.\-]*[\?]?>)"),        // full header
+            std::wregex(LR"(<[\\]?\?xml[ a-zA-Z0-9=\\"'%\.\-]*[\?]?>.*)"),      // full header and
+                                                                                // content after it
             std::wregex(
                 LR"(<[A-Za-z]+[A-Za-z0-9_/\\\-\.'"=;:[:space:]]+>[[:space:][:digit:][:punct:]]*<[A-Za-z0-9_/\-.']*>)"),
             std::wregex(LR"(<[A-Za-z]+([A-Za-z0-9_\-\.]+[[:space:]]*){1,2}=[[:punct:]A-Za-z0-9]*)"),
@@ -644,9 +645,26 @@ namespace i18n_check
             std::wregex(LR"([_]*[A-Z0-9][a-z0-9]+(_[A-Z0-9][a-z0-9]+)+[_]*)"), // Config_File_Path
             // CSS strings
             std::wregex(
-                LR"(font-(style|weight|family|size|face-name|underline|point-size)[[:space:]]*[:]?.*)",
+                LR"(font-(style|weight|family|size|face-name|underline|point-size|variant)[[:space:]]*[:]?.*)",
                 std::regex_constants::icase),
-            std::wregex(LR"(text-decoration[[:space:]]*[:]?.*)", std::regex_constants::icase),
+            std::wregex(
+                LR"(border-(block|bottom|color|collapse|right|left|top|collapse|image|inline|start|end|width|style)[[:space:]]*[:]?.*)",
+                std::regex_constants::icase),
+            std::wregex(
+                LR"(background-(clip|color|image|origin|position|repeat|size)[[:space:]]*[:]?.*)",
+                std::regex_constants::icase),
+            std::wregex(LR"(padding-(block|inline|left|right|top|bottom)[[:space:]]*[:]?.*)",
+                std::regex_constants::icase),
+            std::wregex(LR"(page-break[[:space:]]*[:]?.*)", std::regex_constants::icase),
+            std::wregex(LR"(line-(break|height|style|through)[[:space:]]*[:]?.*)",
+                std::regex_constants::icase),
+            std::wregex(LR"((vertical|horizontal)-align[[:space:]]*[:]?.*)",
+                std::regex_constants::icase),
+            std::wregex(LR"(flex-(basis|direction|flow|grow|shrink|wrap)[[:space:]]*[:]?.*)",
+                std::regex_constants::icase),
+            std::wregex(
+                LR"(text-(color|background|decoration|align|size|layout|transform|indent|justify|orientation|overflow|underline|shadow|emphasis)[[:space:]]*[:]?.*)",
+                std::regex_constants::icase),
             std::wregex(LR"((background-)?color[[:space:]]*:.*)", std::regex_constants::icase),
             std::wregex(LR"(style[[:space:]]*=["']?.*)", std::regex_constants::icase),
             // local file paths & file names
@@ -875,7 +893,8 @@ namespace i18n_check
             L"check_assertion", L"print_debug", L"DPRINTF", L"print_warning", L"perror",
             L"LogDebug", L"DebugMsg",
             // system functions that don't process user messages
-            L"fopen", L"getenv", L"setenv", L"system", L"run", L"exec", L"execute",
+            L"fopen", L"getenv", L"setenv", L"system", L"run", L"exec", L"execute", L"_tfopen",
+            L"_wfopen", L"_fdopen", L"_sopen", L"_wsopen",
             // Unix calls
             L"popen", L"dlopen", L"dlsym", L"g_signal_connect", L"handle_system_error",
             // macOS calls
@@ -887,21 +906,21 @@ namespace i18n_check
             L"LoadLibrary", L"LoadLibraryEx", L"LoadModule", L"GetModuleHandle", L"QueryDWORDValue",
             L"GetTempFileName", L"QueryMultiStringValue", L"SetMultiStringValue",
             L"GetTempDirectory", L"FormatGmt", L"GetProgIDVersion", L"RegCreateKeyEx",
-            L"GetProfileInt", L"WriteProfileInt", L"RegOpenKeyEx", L"RegOpenKeyExW",
-            L"RegOpenKeyExA", L"QueryStringValue", L"lpVerb", L"Invoke", L"Invoke0",
-            L"ShellExecute", L"GetProfileString", L"GetProcAddress", L"RegisterClipboardFormat",
-            L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue", L"CLSIDFromProgID",
-            L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement", L"CreateStorage",
-            L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty", L"HasProperty",
-            L"SetRegistryKey", L"CreateDC", L"GetModuleFileName", L"GetModuleFileNameEx",
-            L"GetProcessImageFileName", L"GetMappedFileName", L"GetDeviceDriverFileName",
-            L"GetDeviceDriverBaseName", L"DECLARE_WND_SUPERCLASS", L"DECLARE_WND_CLASS_EX",
-            L"DECLARE_WND_CLASS2", L"DECLARE_WND_CLASS", L"SHGetFileInfo", L"WFCTRACE",
-            L"WFCTRACEVAL", L"WFCTRACEVARIANT", L"WFCLTRACEINIT", L"TRACE", L"TRACE0", L"TRACE1",
-            L"TRACE2", L"TRACE3", L"TRACE4", L"TRACE5", L"TRACEERROR", L"_RPT0", L"_RPT1", L"_RPT2",
-            L"_RPT3", L"_RPT4", L"_RPT5", L"_RPTF0", L"_RPTF1", L"_RPTF2", L"_RPTF3", L"_RPTF4",
-            L"_RPTF5", L"_RPTW0", L"_RPTW1", L"_RPTW2", L"_RPTW3", L"_RPTW4", L"_RPTW5", L"_RPTFW0",
-            L"_RPTFW1", L"_RPTFW2", L"_RPTFW3", L"_RPTFW4", L"_RPTFW5",
+            L"RegCreateKey", L"GetProfileInt", L"WriteProfileInt", L"RegOpenKeyEx",
+            L"RegOpenKeyExW", L"RegOpenKeyExA", L"QueryStringValue", L"lpVerb", L"Invoke",
+            L"Invoke0", L"ShellExecute", L"GetProfileString", L"GetProcAddress",
+            L"RegisterClipboardFormat", L"CreateIC", L"_makepath", L"_splitpath", L"VerQueryValue",
+            L"CLSIDFromProgID", L"StgOpenStorage", L"InvokeN", L"CreateStream", L"DestroyElement",
+            L"CreateStorage", L"OpenStream", L"CallMethod", L"PutProperty", L"GetProperty",
+            L"HasProperty", L"SetRegistryKey", L"CreateDC", L"GetModuleFileName",
+            L"GetModuleFileNameEx", L"GetProcessImageFileName", L"GetMappedFileName",
+            L"GetDeviceDriverFileName", L"GetDeviceDriverBaseName", L"DECLARE_WND_SUPERCLASS",
+            L"DECLARE_WND_CLASS_EX", L"DECLARE_WND_CLASS2", L"DECLARE_WND_CLASS", L"SHGetFileInfo",
+            L"WFCTRACE", L"WFCTRACEVAL", L"WFCTRACEVARIANT", L"WFCLTRACEINIT", L"TRACE", L"TRACE0",
+            L"TRACE1", L"TRACE2", L"TRACE3", L"TRACE4", L"TRACE5", L"TRACEERROR", L"_RPT0",
+            L"_RPT1", L"_RPT2", L"_RPT3", L"_RPT4", L"_RPT5", L"_RPTF0", L"_RPTF1", L"_RPTF2",
+            L"_RPTF3", L"_RPTF4", L"_RPTF5", L"_RPTW0", L"_RPTW1", L"_RPTW2", L"_RPTW3", L"_RPTW4",
+            L"_RPTW5", L"_RPTFW0", L"_RPTFW1", L"_RPTFW2", L"_RPTFW3", L"_RPTFW4", L"_RPTFW5",
             L"OpenFromInitializationString", L"CreateADOCommand", L"ExecuteSql",
             L"com_interface_entry", L"uuid", L"idl_quote", L"threading", L"vi_progid", L"progid",
             L"CreatePointFont", L"CreateFont", L"FindWindow", L"RegisterServer",
@@ -1382,7 +1401,6 @@ namespace i18n_check
                               std::remove_reference_t<decltype(subMatches[0])>::const_iterator>{},
                           std::back_inserter(idNameParts));
                 // MFC IDs
-#if __cplusplus >= 202002L
                 if ((idNameParts[0].empty() ||
                      (idNameParts[0].length() > 0 &&
                       !static_cast<bool>(std::iswupper(idNameParts[0].back())))) &&
@@ -1394,7 +1412,6 @@ namespace i18n_check
                     idAssignments.push_back({ match.first, subMatches[0], subMatches[1] });
                     continue;
                     }
-#endif
                 if ((idNameParts[0].length() > 0 &&
                      static_cast<bool>(std::iswupper(idNameParts[0].back()))) ||
                     (idNameParts[2].length() > 0 &&
@@ -2057,6 +2074,7 @@ namespace i18n_check
                     (m_internal_functions.find(functionName) != m_internal_functions.cend()) ||
                     (m_internal_functions.find(extract_base_function(functionName)) !=
                      m_internal_functions.cend()) ||
+                    functionName.ends_with(L"_TRACE") || functionName.ends_with(L"_DEBUG") ||
                     (!can_log_messages_be_translatable() &&
                      m_log_functions.find(functionName) != m_log_functions.cend()));
             }
@@ -2073,12 +2091,13 @@ namespace i18n_check
                                                                   const bool limitWordCount) const
         {
         // if no spaces but lengthy, then this is probably some sort of GUID
-        if (strToReview.find(L' ') == std::wstring::npos && strToReview.length() > 100)
+        if (strToReview.find(L' ') == std::wstring::npos && strToReview.length() >= 32)
             {
             return std::make_pair(true, strToReview.length());
             }
 
-        static const std::wregex loremIpsum(L"Lorem ipsum.*");
+        static const std::wregex loremIpsum(L"Lorem ipsum.*", std::regex_constants::icase);
+        static const std::wregex brownFox(L"the quick brown fox.*", std::regex_constants::icase);
         static const std::wregex percentageRegEx(LR"(([0-9]+|\{[a-z0-9]\}|%[udil]{1,2})%)");
         if (std::regex_match(strToReview, percentageRegEx))
             {
@@ -2232,22 +2251,22 @@ namespace i18n_check
                 {
                 return std::make_pair(true, strToReview.length());
                 }
-            // social media hashtag (or formatting code of some sort)
-            if (std::regex_match(strToReview, m_hashtag_regex))
+            // social media hashtag (or formatting code of some sort),
+            // keyboard shortcuts, code, placeholder text, etc.
+            if (std::regex_match(strToReview, m_hashtag_regex) ||
+                std::regex_match(strToReview, m_key_shortcut_regex) ||
+                std::regex_match(strToReview, loremIpsum) ||
+                std::regex_match(strToReview, brownFox) ||
+                std::regex_match(strToReview, m_sql_code))
                 {
                 return std::make_pair(true, strToReview.length());
                 }
-            if (std::regex_match(strToReview, m_key_shortcut_regex))
-                {
-                return std::make_pair(true, strToReview.length());
-                }
+
             constexpr size_t minMessageLength{ 200 };
-            // if we know it had at least one word (and spaces) at this point,
+            // if we know it has at least one word (and spaces) at this point,
             // then it being more than 200 characters means that it probably is
             // a real user-message (not an internal string)
-            if (strToReview.length() > minMessageLength &&
-                !std::regex_match(strToReview, loremIpsum) &&
-                !std::regex_match(strToReview, m_sql_code))
+            if (strToReview.length() > minMessageLength)
                 {
                 return std::make_pair(false, strToReview.length());
                 }
