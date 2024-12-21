@@ -1,9 +1,9 @@
 #############################################################################
 # Name:        CMakeListst.txt
-# Purpose:     Unit test runner i18n-check
+# Purpose:     Unit test runner for Quneiform
 # Author:      Blake Madden
 # Created:     2023-03-12
-# Copyright:   (c) 2024 Blake Madden
+# Copyright:   (c) 2025 Blake Madden
 # License:     3-Clause BSD license
 #############################################################################
 

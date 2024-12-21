@@ -24,7 +24,7 @@ namespace fs = std::filesystem;
 int main(int argc, char* argv[])
     {
     cxxopts::Options options("Quneiform", "Quneiform: Internationalization/localization analysis "
-                                          "system, (c) 2021-2024 Blake Madden");
+                                          "system, (c) 2021-2025 Blake Madden");
     // clang-format off
     options.add_options()
         ("input", "The folder (or file) to analyze",
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
         {
         std::wcout << L"\n###################################################\n# "
                    << i18n_string_util::lazy_string_to_wstring(options.program())
-                   << L":\n# Internationalization/localization analysis system\n# (c) 2021-2024 "
+                   << L":\n# Internationalization/localization analysis system\n# (c) 2021-2025 "
                       L"Blake Madden\n"
                    << L"###################################################\n\n";
         std::wcout << L"Searching for files to analyze in " << inputFolder << L"...\n\n";

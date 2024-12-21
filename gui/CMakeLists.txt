@@ -3,7 +3,7 @@
 # Purpose:     Build script for Quneiform (GUI version)
 # Author:      Blake Madden
 # Created:     2024-08-17
-# Copyright:   (c) 2021-2024 Blake Madden
+# Copyright:   (c) 2021-2025 Blake Madden
 # License:     3-Clause BSD license
 #############################################################################
 
