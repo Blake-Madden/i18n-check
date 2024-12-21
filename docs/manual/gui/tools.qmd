@@ -10,11 +10,16 @@ source('../R/appdown.r')
 
 A selection of tools are available for examining and converting text from the **Tools** section of the ribbon.
 
+## String Info
+
+The **String Info** dialog provides information about a string.
+This includes information such as string length and which (if any) extended ASCII chararcters it contains.
+
 ## Convert String
 
 The **Convert String** dialog provides the ability to convert portions of a string to different character sets.
 As an example, this can be useful for translating Latin-1 (i.e, 7-bit ASCII) into Japanese (i.e., full-width) numbers.
 
 ::: {.notesection data-latex=""}
-If text is selected in the editor, then that will be used as the initial source string when opening this dialog.
+If text is selected in the editor, then that will be used as the initial source string when opening these dialogs.
 :::

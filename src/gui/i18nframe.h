@@ -26,6 +26,7 @@
 #include "insert_translator_comment_dlg.h"
 #include "insert_transmacro_dlg.h"
 #include "projectdlg.h"
+#include "string_info_dlg.h"
 #include <wx/aboutdlg.h>
 #include <wx/appprogress.h>
 #include <wx/artprov.h>
@@ -65,6 +66,8 @@ class I18NFrame : public wxFrame
     void OnSave([[maybe_unused]] wxCommandEvent&);
     void OnExportResults([[maybe_unused]] wxCommandEvent&);
     void OnInsertTranslatorComment([[maybe_unused]] wxCommandEvent&);
+    void OnStringInfo([[maybe_unused]] wxCommandEvent&);
+    void OnValueInfo([[maybe_unused]] wxCommandEvent&);
     void OnInsertEncodedUnicode([[maybe_unused]] wxCommandEvent&);
     void OnInsertTGetTextMacro([[maybe_unused]] wxCommandEvent&);
     void OnInsertDTMacro([[maybe_unused]] wxCommandEvent&);

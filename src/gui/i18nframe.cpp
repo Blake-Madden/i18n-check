@@ -101,6 +101,10 @@ void I18NFrame::InitControls()
                 new wxRibbonPanel(homePage, wxID_ANY, _(L"Tools"), wxNullBitmap, wxDefaultPosition,
                                   wxDefaultSize, wxRIBBON_PANEL_NO_AUTO_MINIMISE);
             wxRibbonButtonBar* toolbar = new wxRibbonButtonBar(toolsPanel);
+            toolbar->AddButton(
+                XRCID("ID_STRING_INFO"), _(L"String Info"),
+                wxArtProvider::GetBitmap(L"ID_STRING_INFO", wxART_OTHER, FromDIP(wxSize{ 32, 32 }))
+                    .ConvertToImage());
             toolbar->AddButton(XRCID("ID_CONVERT_STRING"), _(L"Convert String"),
                                wxArtProvider::GetBitmap(L"ID_CONVERT_STRING", wxART_OTHER,
                                                         FromDIP(wxSize{ 32, 32 }))
@@ -362,6 +366,7 @@ void I18NFrame::InitControls()
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnRefresh, this, wxID_REFRESH);
     Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnIgnore, this, XRCID("ID_IGNORE"));
     Bind(wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, &I18NFrame::OnInsert, this, XRCID("ID_INSERT"));
+    Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnStringInfo, this, XRCID("ID_STRING_INFO"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnConvertString, this,
          XRCID("ID_CONVERT_STRING"));
     Bind(wxEVT_RIBBONBUTTONBAR_CLICKED, &I18NFrame::OnSettings, this, XRCID("ID_SETTINGS"));
@@ -439,6 +444,10 @@ void I18NFrame::InitControls()
     Bind(
         wxEVT_MENU, [this](wxCommandEvent& event) { OnInsertEncodedUnicode(event); },
         XRCID("ID_CONVERT_TO_ENCODED_UNICODE"));
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& event) { OnStringInfo(event); },
+        XRCID("ID_STRING_INFO"));
+    Bind(wxEVT_MENU, [this](wxCommandEvent& event) { OnValueInfo(event); }, XRCID("ID_VALUE_INFO"));
     Bind(
         wxEVT_MENU, [this](wxCommandEvent& event) { OnInsertDTMacro(event); },
         XRCID("ID_INSERT_DT"));
@@ -561,12 +570,19 @@ void I18NFrame::InitControls()
                                                               FromDIP(wxSize{ 16, 16 })));
                  menu.Append(menuItem);
 
+                 // right clicked on a value, not the filename header row
                  if (node->m_warningId != node->m_fileName)
                      {
                      menuItem = new wxMenuItem(
                          &menu, XRCID("ID_IGNORE_SELECTED_WARNING"),
                          wxString::Format(_(L"Ignore '%s' Warnings"), node->m_warningId));
                      menuItem->SetBitmap(wxArtProvider::GetBitmap(wxART_DELETE, wxART_OTHER,
+                                                                  FromDIP(wxSize{ 16, 16 })));
+                     menu.Append(menuItem);
+                     menu.AppendSeparator();
+
+                     menuItem = new wxMenuItem(&menu, XRCID("ID_VALUE_INFO"), _(L"Value Info"));
+                     menuItem->SetBitmap(wxArtProvider::GetBitmap("ID_STRING_INFO", wxART_OTHER,
                                                                   FromDIP(wxSize{ 16, 16 })));
                      menu.Append(menuItem);
                      }
@@ -908,7 +924,7 @@ void I18NFrame::OnIgnoreSelectedFile([[maybe_unused]] wxCommandEvent&)
             m_activeSourceFile.clear();
             m_editor->SetText(wxString{});
 
-            // child node of file parent node
+            // child node of file parent node is selected, so get its parent
             if (node->m_fileName != node->m_warningId)
                 {
                 selectedItem = m_resultsModel->GetParent(selectedItem);
@@ -952,6 +968,38 @@ void I18NFrame::OnConvertString([[maybe_unused]] wxCommandEvent&)
     ConvertStringDlg csDlg(this);
     csDlg.SetInput(m_editor->GetSelectedText());
     csDlg.ShowModal();
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnStringInfo([[maybe_unused]] wxCommandEvent&)
+    {
+    StringInfoDlg dlg(this);
+    dlg.SetValue(m_editor->GetSelectedText());
+    dlg.ShowModal();
+    }
+
+//------------------------------------------------------
+void I18NFrame::OnValueInfo([[maybe_unused]] wxCommandEvent&)
+    {
+    wxDataViewItem selectedItem = m_resultsDataView->GetSelection();
+    if (selectedItem == m_resultsModel->GetRoot())
+        {
+        return;
+        }
+
+    if (selectedItem.IsOk())
+        {
+        I18NResultsTreeModelNode* node =
+            reinterpret_cast<I18NResultsTreeModelNode*>(selectedItem.GetID());
+
+        // child node of file parent node
+        if (node != nullptr && node->m_fileName != node->m_warningId)
+            {
+            StringInfoDlg dlg(this);
+            dlg.SetValue(node->m_issue);
+            dlg.ShowModal();
+            }
+        }
     }
 
 //------------------------------------------------------
