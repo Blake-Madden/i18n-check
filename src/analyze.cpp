@@ -524,6 +524,13 @@ namespace i18n_check
                                 "large amount of non-translatable content.")
                            << "\"\t[excessiveNonL10NContent]\n";
                     }
+                else if (issue.first == translation_issue::malformed_translation)
+                    {
+                    report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t\""
+                           << issue.second << L"\"\t\""
+                           << _(L"String available for translation that is possibly malformed.")
+                           << "\"\t[malformedString]\n";
+                    }
                 else if (issue.first == translation_issue::source_surrounding_spaces_issue)
                     {
                     report << catEntry.first << L"\t" << catEntry.second.m_line << L"\t\t\""

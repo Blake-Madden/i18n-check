@@ -220,7 +220,9 @@ namespace i18n_check
         /// @brief Translation is suspiciously longer than the source string.
         length_issue,
         /// @brief Translation contains large blocks on non-translatable content.
-        excessive_nonl10n_content
+        excessive_nonl10n_content,
+        /// @brief Translation contains malformed syntax (e.g., a bad accelerator key).
+        malformed_translation
         };
 
     /// @brief File types that can be analyzed.

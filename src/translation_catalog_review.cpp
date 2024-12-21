@@ -205,10 +205,11 @@ namespace i18n_check
                     }
                 }
 
-            if (static_cast<bool>(m_review_styles & check_accelerators))
+            if (static_cast<bool>(m_review_styles & check_accelerators) ||
+                static_cast<bool>(m_review_styles & check_malformed_strings))
                 {
                 const auto reviewAccelerators =
-                    [&catEntry, &srcResults, &transResults, &reMatches](auto src, auto trans)
+                    [&catEntry, &srcResults, &transResults, &reMatches, this](auto src, auto trans)
                 {
                     if (!trans.empty())
                         {
@@ -232,9 +233,22 @@ namespace i18n_check
                         if ((srcResults.size() == 1 && transResults.size() != 1) ||
                             (srcResults.size() != 1 && transResults.size() == 1))
                             {
-                            catEntry.second.m_issues.emplace_back(
-                                translation_issue::accelerator_issue,
-                                L"'" + src + _WXTRANS_WSTR(L"' vs. '") + trans + L"'");
+                            if (static_cast<bool>(m_review_styles & check_accelerators))
+                                {
+                                catEntry.second.m_issues.emplace_back(
+                                    translation_issue::accelerator_issue,
+                                    L"'" + src + _WXTRANS_WSTR(L"' vs. '") + trans + L"'");
+                                }
+                            // if source has an accelerator key but the translation does not
+                            // but it does have a %, then that probably was meant to be an &
+                            if (static_cast<bool>(m_review_styles & check_malformed_strings) &&
+                                srcResults.size() == 1 && src.find(L'%') == std::wstring::npos &&
+                                trans.find(L'%') != std::wstring::npos)
+                                {
+                                catEntry.second.m_issues.emplace_back(
+                                    translation_issue::malformed_translation,
+                                    L"'" + src + _WXTRANS_WSTR(L"' vs. '") + trans + L"'");
+                                }
                             }
                         }
                 };
@@ -305,6 +319,7 @@ namespace i18n_check
                                 if (printfStrings2.size() == 1 && printfStrings2[0] == L"1" &&
                                     (src.find(L"once") != std::wstring::npos ||
                                      src.find(L"first") != std::wstring::npos ||
+                                     src.find(L"home") != std::wstring::npos ||
                                      src.find(L"single") != std::wstring::npos))
                                     {
                                     return;
@@ -472,8 +487,8 @@ namespace i18n_check
                             (i18n_string_util::is_colon(lastTransChar) &&
                              !i18n_string_util::is_colon(lastSrcChar)))
                             {
-                            // if source is an exclamation and the translation is not, then that is
-                            // OK
+                            // if source is an exclamation and the translation is not,
+                            // then that is OK
                             if (!(i18n_string_util::is_exclamation(lastSrcChar) && !transIsStop) &&
                                 // translation ending with ')' is OK also if source has a full stop
                                 !(srcIsStop &&
@@ -481,21 +496,21 @@ namespace i18n_check
                                 {
                                 catEntry.second.m_issues.emplace_back(
                                     translation_issue::consistency_issue,
-                                    L"'" + src + L"' vs. '" + trans + L"'");
+                                    L"'" + src + _WXTRANS_WSTR(L"' vs. '") + trans + L"'");
                                 }
                             }
                         else if (std::iswupper(src.front()) && std::iswlower(trans.front()))
                             {
                             catEntry.second.m_issues.emplace_back(
                                 translation_issue::consistency_issue,
-                                L"'" + src + L"' vs. '" + trans + L"'");
+                                L"'" + src + _WXTRANS_WSTR(L"' vs. '") + trans + L"'");
                             }
                         }
                 };
 
                 reviewConsistency(catEntry.second.m_source, catEntry.second.m_translation);
                 reviewConsistency(catEntry.second.m_source_plural,
-                              catEntry.second.m_translation_plural);
+                                  catEntry.second.m_translation_plural);
                 }
             }
         }
