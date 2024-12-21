@@ -322,8 +322,8 @@ namespace i18n_check
                                     {
                                     return;
                                     }
-                                // ignore where source is an imperial measurement and translation is
-                                // metric
+                                // ignore where source is an imperial measurement and
+                                // translation is metric
                                 if ((src.ends_with(L" in") || src.ends_with(L" inch") ||
                                      src.ends_with(L" inches")) &&
                                     (trans.ends_with(L" cm") || trans.ends_with(L" mm")))
@@ -492,7 +492,12 @@ namespace i18n_check
                         (!std::iswspace(lastSrcChar) && std::iswspace(lastTransChar)) ||
                         // note that it is allowable for source to not have full stop, but for
                         // translation too
-                        (srcIsStop && !transIsStop))
+                        (srcIsStop && !transIsStop) ||
+                        // mismatching colons
+                        (i18n_string_util::is_colon(lastSrcChar) &&
+                         !i18n_string_util::is_colon(lastTransChar)) ||
+                        (i18n_string_util::is_colon(lastTransChar) &&
+                         !i18n_string_util::is_colon(lastSrcChar)))
                         {
                         // if source is an exclamation and the translation is not, then that is OK
                         if (!(i18n_string_util::is_exclamation(lastSrcChar) && !transIsStop) &&

@@ -132,6 +132,18 @@ namespace i18n_string_util
         // clang-format on
         }
 
+    /** @returns @c true if a character is a colon.
+        @param ch The letter to be reviewed.*/
+    [[nodiscard]]
+    constexpr static bool is_colon(const wchar_t ch) noexcept
+        {
+        // clang-format off
+        return (ch == L':') ?       // !
+            true : (ch == 0xFF1A) ? // fullwidth
+            true : false;
+        // clang-format on
+        }
+
     /** @returns @c true if a character is a closing parenthesis.
         @param ch The letter to be reviewed.*/
     [[nodiscard]]
