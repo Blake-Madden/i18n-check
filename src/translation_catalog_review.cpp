@@ -207,70 +207,41 @@ namespace i18n_check
 
             if (static_cast<bool>(m_review_styles & check_accelerators))
                 {
-                if (!catEntry.second.m_translation.empty())
-                    {
-                    srcResults.clear();
-                    transResults.clear();
-                    std::wstring::const_iterator searchSrcStart{
-                        catEntry.second.m_source.cbegin()
-                    };
-                    std::wstring::const_iterator searchTransStart(
-                        catEntry.second.m_translation.cbegin());
-                    while (std::regex_search(searchSrcStart, catEntry.second.m_source.cend(),
-                                             reMatches, m_keyboard_accelerator_regex))
+                const auto reviewAccelerators =
+                    [&catEntry, &srcResults, &transResults, &reMatches](auto src, auto trans)
+                {
+                    if (!trans.empty())
                         {
-                        srcResults.push_back(reMatches[0]);
-                        searchSrcStart = reMatches.suffix().first;
-                        }
-                    while (std::regex_search(searchTransStart, catEntry.second.m_translation.cend(),
-                                             reMatches, m_keyboard_accelerator_regex))
-                        {
-                        transResults.push_back(reMatches[0]);
-                        searchTransStart = reMatches.suffix().first;
-                        }
+                        srcResults.clear();
+                        transResults.clear();
+                        std::wstring::const_iterator searchSrcStart{ src.cbegin() };
+                        std::wstring::const_iterator searchTransStart{ trans.cbegin() };
+                        while (std::regex_search(searchSrcStart, src.cend(), reMatches,
+                                                 m_keyboard_accelerator_regex))
+                            {
+                            srcResults.push_back(reMatches[0]);
+                            searchSrcStart = reMatches.suffix().first;
+                            }
+                        while (std::regex_search(searchTransStart, trans.cend(), reMatches,
+                                                 m_keyboard_accelerator_regex))
+                            {
+                            transResults.push_back(reMatches[0]);
+                            searchTransStart = reMatches.suffix().first;
+                            }
 
-                    if ((srcResults.size() == 1 && transResults.size() != 1) ||
-                        (srcResults.size() != 1 && transResults.size() == 1))
-                        {
-                        catEntry.second.m_issues.emplace_back(
-                            translation_issue::accelerator_issue,
-                            L"'" + catEntry.second.m_source + L"' vs. '" +
-                                catEntry.second.m_translation + L"'" + errorInfo);
+                        if ((srcResults.size() == 1 && transResults.size() != 1) ||
+                            (srcResults.size() != 1 && transResults.size() == 1))
+                            {
+                            catEntry.second.m_issues.emplace_back(
+                                translation_issue::accelerator_issue,
+                                L"'" + src + _WXTRANS_WSTR(L"' vs. '") + trans + L"'");
+                            }
                         }
-                    }
+                };
 
-                if (!catEntry.second.m_translation_plural.empty())
-                    {
-                    srcResults.clear();
-                    transResults.clear();
-                    std::wstring::const_iterator searchSrcStart{
-                        catEntry.second.m_source_plural.cbegin()
-                    };
-                    std::wstring::const_iterator searchTransStart(
-                        catEntry.second.m_translation_plural.cbegin());
-                    while (std::regex_search(searchSrcStart, catEntry.second.m_source_plural.cend(),
-                                             reMatches, m_keyboard_accelerator_regex))
-                        {
-                        srcResults.push_back(reMatches[0]);
-                        searchSrcStart = reMatches.suffix().first;
-                        }
-                    while (std::regex_search(searchTransStart,
-                                             catEntry.second.m_translation_plural.cend(), reMatches,
-                                             m_keyboard_accelerator_regex))
-                        {
-                        transResults.push_back(reMatches[0]);
-                        searchTransStart = reMatches.suffix().first;
-                        }
-
-                    if ((srcResults.size() == 1 && transResults.size() != 1) ||
-                        (srcResults.size() != 1 && transResults.size() == 1))
-                        {
-                        catEntry.second.m_issues.emplace_back(
-                            translation_issue::accelerator_issue,
-                            L"'" + catEntry.second.m_source_plural + L"' vs. '" +
-                                catEntry.second.m_translation_plural + L"'" + errorInfo);
-                        }
-                    }
+                reviewAccelerators(catEntry.second.m_source, catEntry.second.m_translation);
+                reviewAccelerators(catEntry.second.m_source_plural,
+                                   catEntry.second.m_translation_plural);
                 }
 
             if (static_cast<bool>(m_review_styles & check_length))
@@ -476,49 +447,55 @@ namespace i18n_check
 
             if (static_cast<bool>(m_review_styles & check_consistency))
                 {
-                if (!catEntry.second.m_source.empty() && !catEntry.second.m_translation.empty())
-                    {
-                    const wchar_t lastSrcChar{ catEntry.second.m_source.back() };
-                    const wchar_t lastTransChar{ catEntry.second.m_translation.back() };
-
-                    const bool srcIsStop{ i18n_string_util::is_period(lastSrcChar) ||
-                                          i18n_string_util::is_exclamation(lastSrcChar) ||
-                                          i18n_string_util::is_question(lastSrcChar) };
-                    const bool transIsStop{ i18n_string_util::is_period(lastTransChar) ||
-                                            i18n_string_util::is_exclamation(lastTransChar) ||
-                                            i18n_string_util::is_question(lastTransChar) };
-
-                    if ((std::iswspace(lastSrcChar) && !std::iswspace(lastTransChar)) ||
-                        (!std::iswspace(lastSrcChar) && std::iswspace(lastTransChar)) ||
-                        // note that it is allowable for source to not have full stop, but for
-                        // translation too
-                        (srcIsStop && !transIsStop) ||
-                        // mismatching colons
-                        (i18n_string_util::is_colon(lastSrcChar) &&
-                         !i18n_string_util::is_colon(lastTransChar)) ||
-                        (i18n_string_util::is_colon(lastTransChar) &&
-                         !i18n_string_util::is_colon(lastSrcChar)))
+                const auto reviewConsistency = [&catEntry](auto src, auto trans)
+                {
+                    if (!src.empty() && !trans.empty())
                         {
-                        // if source is an exclamation and the translation is not, then that is OK
-                        if (!(i18n_string_util::is_exclamation(lastSrcChar) && !transIsStop) &&
-                            // translation ending with ')' is OK also if source has a full stop
-                            !(srcIsStop && i18n_string_util::is_close_parenthesis(lastTransChar)))
+                        const wchar_t lastSrcChar{ src.back() };
+                        const wchar_t lastTransChar{ trans.back() };
+
+                        const bool srcIsStop{ i18n_string_util::is_period(lastSrcChar) ||
+                                              i18n_string_util::is_exclamation(lastSrcChar) ||
+                                              i18n_string_util::is_question(lastSrcChar) };
+                        const bool transIsStop{ i18n_string_util::is_period(lastTransChar) ||
+                                                i18n_string_util::is_exclamation(lastTransChar) ||
+                                                i18n_string_util::is_question(lastTransChar) };
+
+                        if ((std::iswspace(lastSrcChar) && !std::iswspace(lastTransChar)) ||
+                            (!std::iswspace(lastSrcChar) && std::iswspace(lastTransChar)) ||
+                            // note that it is allowable for source to not have full stop, but for
+                            // translation too
+                            (srcIsStop && !transIsStop) ||
+                            // mismatching colons
+                            (i18n_string_util::is_colon(lastSrcChar) &&
+                             !i18n_string_util::is_colon(lastTransChar)) ||
+                            (i18n_string_util::is_colon(lastTransChar) &&
+                             !i18n_string_util::is_colon(lastSrcChar)))
+                            {
+                            // if source is an exclamation and the translation is not, then that is
+                            // OK
+                            if (!(i18n_string_util::is_exclamation(lastSrcChar) && !transIsStop) &&
+                                // translation ending with ')' is OK also if source has a full stop
+                                !(srcIsStop &&
+                                  i18n_string_util::is_close_parenthesis(lastTransChar)))
+                                {
+                                catEntry.second.m_issues.emplace_back(
+                                    translation_issue::consistency_issue,
+                                    L"'" + src + L"' vs. '" + trans + L"'");
+                                }
+                            }
+                        else if (std::iswupper(src.front()) && std::iswlower(trans.front()))
                             {
                             catEntry.second.m_issues.emplace_back(
                                 translation_issue::consistency_issue,
-                                L"'" + catEntry.second.m_source + L"' vs. '" +
-                                    catEntry.second.m_translation + L"'" + errorInfo);
+                                L"'" + src + L"' vs. '" + trans + L"'");
                             }
                         }
-                    else if (std::iswupper(catEntry.second.m_source.front()) &&
-                             std::iswlower(catEntry.second.m_translation.front()))
-                        {
-                        catEntry.second.m_issues.emplace_back(
-                            translation_issue::consistency_issue,
-                            L"'" + catEntry.second.m_source + L"' vs. '" +
-                                catEntry.second.m_translation + L"'" + errorInfo);
-                        }
-                    }
+                };
+
+                reviewConsistency(catEntry.second.m_source, catEntry.second.m_translation);
+                reviewConsistency(catEntry.second.m_source_plural,
+                              catEntry.second.m_translation_plural);
                 }
             }
         }
