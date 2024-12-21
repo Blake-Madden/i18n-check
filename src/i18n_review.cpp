@@ -317,6 +317,7 @@ namespace i18n_check
         m_deprecated_string_functions = {
             // Win32 TCHAR functions (which mapped between _MBCS and _UNICODE builds).
             // Nowadays, you should always be compiling as _UNICODE (i.e., UTF-16).
+            { L"_tfopen", _WXTRANS_WSTR(L"Use fopen instead of _tfopen.") },
             { L"__targv", _WXTRANS_WSTR(L"Use __wargv instead of __targv.") },
             { L"__tcserror", _WXTRANS_WSTR(L"Use __wcserror() instead of __tcserror().") },
             { L"__tcserror_s", _WXTRANS_WSTR(L"Use __wcserror_s() instead of __tcserror_s().") },
@@ -462,6 +463,31 @@ namespace i18n_check
         if (verbose)
             {
             // not i18n related, just legacy wx functions that can be modernized
+            if (m_min_cpp_version >= 2011)
+                {
+                m_deprecated_string_functions.insert(
+                    { L"_STATIC_ASSERT",
+                      _WXTRANS_WSTR(L"Use static_assert() instead of _STATIC_ASSERT().") });
+                m_deprecated_string_functions.insert(
+                    { L"wxMEMBER_DELETE",
+                      _WXTRANS_WSTR(L"Use '= delete' instead of wxMEMBER_DELETE.") });
+                m_deprecated_string_functions.insert(
+                    { L"wxOVERRIDE",
+                      _WXTRANS_WSTR(L"Use override or final instead of wxOVERRIDE.") });
+                }
+            if (m_min_cpp_version >= 2017)
+                {
+                m_deprecated_string_functions.insert(
+                    { L"wxNODISCARD",
+                      _WXTRANS_WSTR(L"Use [[nodiscard]] instead of wxNODISCARD.") });
+                m_deprecated_string_functions.insert(
+                    { L"WXSIZEOF", _WXTRANS_WSTR(L"Use std::size() instead of WXSIZEOF().") });
+                m_deprecated_string_functions.insert(
+                    { L"wxUnusedVar",
+                      _WXTRANS_WSTR(L"Use [[maybe_unused]] instead of wxUnusedVar.") });
+                m_deprecated_string_functions.insert(
+                    { L"WXUNUSED", _WXTRANS_WSTR(L"Use [[maybe_unused]] instead of WXUNUSED().") });
+                }
             m_deprecated_string_functions.insert(
                 { L"wxEXPAND",
                   _WXTRANS_WSTR(L"Call wxSizer::Add() with a wxSizerFlags object using Expand() "
@@ -490,23 +516,6 @@ namespace i18n_check
                 { L"wxNOEXCEPT", _WXTRANS_WSTR(L"Use noexcept instead of wxNOEXCEPT.") });
             m_deprecated_string_functions.insert(
                 { L"__WXMAC__", _WXTRANS_WSTR(L"Use __WXOSX__ instead of __WXMAC__.") });
-            m_deprecated_string_functions.insert(
-                { L"wxMEMBER_DELETE",
-                  _WXTRANS_WSTR(L"Use '= delete' instead of wxMEMBER_DELETE.") });
-            m_deprecated_string_functions.insert(
-                { L"wxOVERRIDE", _WXTRANS_WSTR(L"Use override or final instead of wxOVERRIDE.") });
-            }
-
-        if (verbose && m_min_cpp_version >= 2017)
-            {
-            m_deprecated_string_functions.insert(
-                { L"wxNODISCARD", _WXTRANS_WSTR(L"Use [[nodiscard]] instead of wxNODISCARD.") });
-            m_deprecated_string_functions.insert(
-                { L"WXSIZEOF", _WXTRANS_WSTR(L"Use std::size() instead of WXSIZEOF().") });
-            m_deprecated_string_functions.insert(
-                { L"wxUnusedVar", _WXTRANS_WSTR(L"Use [[maybe_unused]] instead of wxUnusedVar.") });
-            m_deprecated_string_functions.insert(
-                { L"WXUNUSED", _WXTRANS_WSTR(L"Use [[maybe_unused]] instead of WXUNUSED().") });
             }
 
         m_translatable_regexes = { std::wregex(LR"(Q[0-9](F|A)Y)") };
@@ -654,14 +663,14 @@ namespace i18n_check
                 LR"(background-(clip|color|image|origin|position|repeat|size)[[:space:]]*[:]?.*)",
                 std::regex_constants::icase),
             std::wregex(LR"(padding-(block|inline|left|right|top|bottom)[[:space:]]*[:]?.*)",
-                std::regex_constants::icase),
+                        std::regex_constants::icase),
             std::wregex(LR"(page-break[[:space:]]*[:]?.*)", std::regex_constants::icase),
             std::wregex(LR"(line-(break|height|style|through)[[:space:]]*[:]?.*)",
-                std::regex_constants::icase),
+                        std::regex_constants::icase),
             std::wregex(LR"((vertical|horizontal)-align[[:space:]]*[:]?.*)",
-                std::regex_constants::icase),
+                        std::regex_constants::icase),
             std::wregex(LR"(flex-(basis|direction|flow|grow|shrink|wrap)[[:space:]]*[:]?.*)",
-                std::regex_constants::icase),
+                        std::regex_constants::icase),
             std::wregex(
                 LR"(text-(color|background|decoration|align|size|layout|transform|indent|justify|orientation|overflow|underline|shadow|emphasis)[[:space:]]*[:]?.*)",
                 std::regex_constants::icase),
@@ -1763,11 +1772,11 @@ namespace i18n_check
                             string_info::usage_info::usage_type::function,
 #ifdef wxVERSION_NUMBER
                             _(L"First argument to wxGetTranslation() should not "
-                              "be a literal string.")
+                              "be a literal string. Prefer using _() for literal strings.")
                                 .wc_str(),
 #else
                             L"First argument to wxGetTranslation() should not "
-                            "be a literal string.",
+                            "be a literal string. Prefer using _() for literal strings.",
 #endif
                             std::wstring{}, true),
                         m_file_name, get_line_and_column(currentTextPos - m_file_start));
