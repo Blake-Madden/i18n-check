@@ -71,24 +71,24 @@ void StringInfoDlg::OnTextChanged([[maybe_unused]] wxCommandEvent& event)
         encoded << LR"(\U)" << std::setfill(L'0') << std::setw(8) << std::uppercase << std::hex
                 << static_cast<int>(chr);
         }
-    wxString msg(wxString::Format(_(L"Length: <b>%zu</b>"), strToReview.length()));
+    wxString msg(wxString::Format(_(L"Length: %zu"), strToReview.length()));
     if (!extAsciiValues.empty())
         {
         msg.append(L"\n").append(wxString::Format(
-            _(L"Contains extended ASCII characters: <b>Yes</b> (%s)"), extAsciiValues));
+            _(L"Contains extended ASCII characters: Yes (%s)"), extAsciiValues));
         // show the underlying hex values if not too long
         if (strToReview.length() < 16)
             {
-            msg.append(L"\n").append(wxString::Format(_(L"Decoded: <b>%s</b>"), encoded.str()));
+            msg.append(L"\n").append(wxString::Format(_(L"Decoded: %s"), encoded.str()));
             }
         }
     else
         {
-        msg.append(L"\n").append(_(L"Contains extended ASCII characters: <b>No</b>"));
+        msg.append(L"\n").append(_(L"Contains extended ASCII characters: No"));
         }
 
     if (m_infoLabel != nullptr)
         {
-        m_infoLabel->SetLabelMarkup(msg);
+        m_infoLabel->SetLabel(msg);
         }
     }
