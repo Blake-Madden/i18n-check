@@ -27,19 +27,22 @@ ConvertStringDlg::ConvertStringDlg(
     Bind(wxEVT_BUTTON, &ConvertStringDlg::OnHelpClicked, this, wxID_HELP);
     Bind(wxEVT_HELP, &ConvertStringDlg::OnContextHelp, this);
     Bind(wxEVT_TEXT, &ConvertStringDlg::OnTextChanged, this, ID_SOURCE_TEXT);
-    Bind(wxEVT_TEXT, &ConvertStringDlg::OnTextChanged, this, ID_SOURCE_TEXT);
     Bind(wxEVT_CHOICE, &ConvertStringDlg::OnTextChanged, this, ID_SELECTIONS);
-    Bind(wxEVT_BUTTON, [this]([[maybe_unused]] wxCommandEvent&){
-    TransferDataFromWindow();
-    if (wxTheClipboard->Open() && m_outputTextCtrl != nullptr)
+    Bind(
+        wxEVT_BUTTON,
+        [this]([[maybe_unused]] wxCommandEvent&)
         {
-        wxTheClipboard->Clear();
-        wxDataObjectComposite* obj = new wxDataObjectComposite();
-        obj->Add(new wxTextDataObject(m_outputTextCtrl->GetValue()));
-        wxTheClipboard->SetData(obj);
-        wxTheClipboard->Close();
-        }
-    }, wxID_COPY);
+            TransferDataFromWindow();
+            if (wxTheClipboard->Open() && m_outputTextCtrl != nullptr)
+                {
+                wxTheClipboard->Clear();
+                wxDataObjectComposite* obj = new wxDataObjectComposite();
+                obj->Add(new wxTextDataObject(m_outputTextCtrl->GetValue()));
+                wxTheClipboard->SetData(obj);
+                wxTheClipboard->Close();
+                }
+        },
+        wxID_COPY);
 
     CreateControls();
 
@@ -62,7 +65,8 @@ void ConvertStringDlg::CreateControls()
     wxArrayString choices = { _(L"7-bit numbers to full-width numbers"),
                               _(L"7-bit numbers to Devanagari numbers"),
                               _(L"Full-width numbers to 7-bit numbers"),
-                              _(L"Devanagari numbers to 7-bit numbers") };
+                              _(L"Devanagari numbers to 7-bit numbers"),
+                              _(L"Encode extended ASCII characters") };
 
     functionComboSzr->Add(new wxChoice(this, ID_SELECTIONS, wxDefaultPosition, wxDefaultSize,
                                        choices, 0, wxGenericValidator(&m_selectedConversion)),
@@ -83,14 +87,15 @@ void ConvertStringDlg::CreateControls()
         this, wxID_ANY, wxString{}, wxDefaultPosition, FromDIP(wxSize{ 500, 150 }),
         wxTE_RICH2 | wxTE_MULTILINE | wxBORDER_THEME | wxTE_BESTWRAP | wxTE_READONLY);
     outputSizer->Add(m_outputTextCtrl, wxSizerFlags{ 1 }.Expand());
-    auto* copyButton = new wxBitmapButton(this, wxID_COPY,
-                                        wxArtProvider::GetBitmap(wxART_COPY, wxART_OTHER,
-                                                                 FromDIP(wxSize{ 16, 16 })));
+    auto* copyButton = new wxBitmapButton(
+        this, wxID_COPY,
+        wxArtProvider::GetBitmap(wxART_COPY, wxART_OTHER, FromDIP(wxSize{ 16, 16 })));
     copyButton->SetToolTip(_("Copy"));
     outputSizer->Add(copyButton, wxSizerFlags{}.Top());
     mainDlgSizer->Add(outputSizer, wxSizerFlags{ 1 }.Expand().Border());
 
-    mainDlgSizer->Add(CreateSeparatedButtonSizer(wxCLOSE | wxHELP), wxSizerFlags{}.Expand().Border());
+    mainDlgSizer->Add(CreateSeparatedButtonSizer(wxCLOSE | wxHELP),
+                      wxSizerFlags{}.Expand().Border());
 
     TransferDataToWindow();
 
@@ -123,6 +128,23 @@ void ConvertStringDlg::OnTextChanged([[maybe_unused]] wxCommandEvent& event)
         {
         std::for_each(tempStr.begin(), tempStr.end(),
                       [](auto& chr) { chr = i18n_string_util::devanagari_number_to_7bit(chr); });
+        }
+    else if (m_selectedConversion == 4)
+        {
+        std::wstringstream encoded;
+        for (const auto& chr : tempStr)
+            {
+            if (chr > 127)
+                {
+                encoded << LR"(\U)" << std::setfill(L'0') << std::setw(8) << std::uppercase
+                        << std::hex << static_cast<int>(chr);
+                }
+            else
+                {
+                encoded << chr;
+                }
+            }
+        tempStr = encoded.str();
         }
 
     m_outputTextCtrl->SetValue(tempStr);

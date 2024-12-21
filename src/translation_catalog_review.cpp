@@ -490,7 +490,7 @@ namespace i18n_check
 
                     if ((std::iswspace(lastSrcChar) && !std::iswspace(lastTransChar)) ||
                         (!std::iswspace(lastSrcChar) && std::iswspace(lastTransChar)) ||
-                        // not that it is allowable for source to not have full stop, but for
+                        // note that it is allowable for source to not have full stop, but for
                         // translation too
                         (srcIsStop && !transIsStop))
                         {
